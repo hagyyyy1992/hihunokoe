@@ -170,11 +170,11 @@ body {
 
 /* Input Styles */
 .input,
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="search"],
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='search'],
 select,
 textarea {
   display: block;

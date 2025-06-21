@@ -14,17 +14,17 @@ function getDatabaseType() {
   if (process.env.USE_MOCK_DATA === 'true') {
     return 'mock'
   }
-  
+
   if (process.env.NODE_ENV === 'production') {
     return 'supabase'
   }
-  
+
   return 'local'
 }
 
 function getDatabaseUrl() {
   const dbType = getDatabaseType()
-  
+
   switch (dbType) {
     case 'supabase':
       return process.env.DATABASE_URL || ''
@@ -38,7 +38,7 @@ function getDatabaseUrl() {
 function getConnectionInfo() {
   const dbType = getDatabaseType()
   const url = dbType === 'mock' ? 'Mock Data' : getDatabaseUrl().replace(/:[^:]*@/, ':***@')
-  
+
   return {
     type: dbType,
     url: url,
