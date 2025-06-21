@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
 
 interface PostFormData {
   title: string
@@ -158,51 +161,35 @@ export default function PostForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-error">{error}</div>}
 
         {/* ステップ1: 基本情報 */}
         {currentStep === 1 && (
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">基本情報</h3>
 
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                タイトル *
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                required
-                value={formData.title}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                placeholder="例: ○○クリームを敏感肌で試してみました"
-              />
-            </div>
+            <Input
+              label="タイトル"
+              id="title"
+              name="title"
+              required
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="例: ○○クリームを敏感肌で試してみました"
+            />
 
-            <div>
-              <label htmlFor="cosmeticName" className="block text-sm font-medium text-gray-700">
-                使用したコスメ名 *
-              </label>
-              <input
-                type="text"
-                id="cosmeticName"
-                name="cosmeticName"
-                required
-                value={formData.cosmeticName}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                placeholder="例: ○○ブランド モイスチャークリーム"
-              />
-            </div>
+            <Input
+              label="使用したコスメ名"
+              id="cosmeticName"
+              name="cosmeticName"
+              required
+              value={formData.cosmeticName}
+              onChange={handleInputChange}
+              placeholder="例: ○○ブランド モイスチャークリーム"
+            />
 
-            <div>
-              <label htmlFor="cosmeticCategory" className="block text-sm font-medium text-gray-700">
+            <div className="form-group">
+              <label htmlFor="cosmeticCategory" className="form-label">
                 コスメカテゴリ
               </label>
               <select
@@ -210,7 +197,7 @@ export default function PostForm() {
                 name="cosmeticCategory"
                 value={formData.cosmeticCategory}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="toner">化粧水</option>
@@ -228,9 +215,9 @@ export default function PostForm() {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-                体験談 *
+            <div className="form-group">
+              <label htmlFor="content" className="form-label">
+                体験談 <span className="text-red-500 ml-1">*</span>
               </label>
               <textarea
                 id="content"
@@ -239,7 +226,7 @@ export default function PostForm() {
                 rows={8}
                 value={formData.content}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
               />
             </div>
@@ -254,8 +241,8 @@ export default function PostForm() {
               より具体的な体験を共有するために、使用時の状況を教えてください。
             </p>
 
-            <div>
-              <label htmlFor="skinType" className="block text-sm font-medium text-gray-700">
+            <div className="form-group">
+              <label htmlFor="skinType" className="form-label">
                 あなたの肌タイプ
               </label>
               <select
@@ -263,7 +250,7 @@ export default function PostForm() {
                 name="skinType"
                 value={formData.skinType}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="normal">普通肌</option>
@@ -274,14 +261,14 @@ export default function PostForm() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">使用した季節</label>
+            <div className="form-group">
+              <label className="form-label">使用した季節</label>
               <select
                 value={formData.usageSituation.season || ''}
                 onChange={e =>
                   handleNestedChange('usageSituation', 'season', e.target.value || undefined)
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="spring">春</option>
@@ -291,14 +278,14 @@ export default function PostForm() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">使用時間帯</label>
+            <div className="form-group">
+              <label className="form-label">使用時間帯</label>
               <select
                 value={formData.usageSituation.timeOfDay || ''}
                 onChange={e =>
                   handleNestedChange('usageSituation', 'timeOfDay', e.target.value || undefined)
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="morning">朝</option>
@@ -307,8 +294,8 @@ export default function PostForm() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">生理周期との関係</label>
+            <div className="form-group">
+              <label className="form-label">生理周期との関係</label>
               <select
                 value={formData.usageSituation.menstrualCycle || ''}
                 onChange={e =>
@@ -318,7 +305,7 @@ export default function PostForm() {
                     e.target.value || undefined
                   )
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="before">生理前</option>
@@ -328,14 +315,14 @@ export default function PostForm() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">使用時の肌状態</label>
+            <div className="form-group">
+              <label className="form-label">使用時の肌状態</label>
               <select
                 value={formData.usageSituation.skinCondition || ''}
                 onChange={e =>
                   handleNestedChange('usageSituation', 'skinCondition', e.target.value || undefined)
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="good">調子が良い</option>
@@ -358,8 +345,8 @@ export default function PostForm() {
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3">香りについて</h4>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">香りのタイプ</label>
+                <div className="form-group">
+                  <label className="form-label">香りのタイプ</label>
                   <select
                     value={formData.experienceDetails.fragrance?.type || ''}
                     onChange={e =>
@@ -370,7 +357,7 @@ export default function PostForm() {
                         'type'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="none">無香料</option>
@@ -382,8 +369,8 @@ export default function PostForm() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">香りの強さ</label>
+                <div className="form-group">
+                  <label className="form-label">香りの強さ</label>
                   <select
                     value={formData.experienceDetails.fragrance?.intensity || ''}
                     onChange={e =>
@@ -394,7 +381,7 @@ export default function PostForm() {
                         'intensity'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="weak">弱い</option>
@@ -409,10 +396,8 @@ export default function PostForm() {
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3">テクスチャについて</h4>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    テクスチャのタイプ
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">テクスチャのタイプ</label>
                   <select
                     value={formData.experienceDetails.texture?.type || ''}
                     onChange={e =>
@@ -423,7 +408,7 @@ export default function PostForm() {
                         'type'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="watery">水のような</option>
@@ -435,8 +420,8 @@ export default function PostForm() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">伸びやすさ</label>
+                <div className="form-group">
+                  <label className="form-label">伸びやすさ</label>
                   <select
                     value={formData.experienceDetails.texture?.spreadability || ''}
                     onChange={e =>
@@ -447,7 +432,7 @@ export default function PostForm() {
                         'spreadability'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="easy">よく伸びる</option>
@@ -456,8 +441,8 @@ export default function PostForm() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">浸透の早さ</label>
+                <div className="form-group">
+                  <label className="form-label">浸透の早さ</label>
                   <select
                     value={formData.experienceDetails.texture?.absorption || ''}
                     onChange={e =>
@@ -468,7 +453,7 @@ export default function PostForm() {
                         'absorption'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="fast">早い</option>
@@ -491,8 +476,8 @@ export default function PostForm() {
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3">使用後の肌状態</h4>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">うるおい感</label>
+                <div className="form-group">
+                  <label className="form-label">うるおい感</label>
                   <select
                     value={formData.experienceDetails.afterUse?.moisture || ''}
                     onChange={e =>
@@ -503,7 +488,7 @@ export default function PostForm() {
                         'moisture'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="very_dry">とても乾燥</option>
@@ -514,8 +499,8 @@ export default function PostForm() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">肌の手触り</label>
+                <div className="form-group">
+                  <label className="form-label">肌の手触り</label>
                   <select
                     value={formData.experienceDetails.afterUse?.texture || ''}
                     onChange={e =>
@@ -526,7 +511,7 @@ export default function PostForm() {
                         'texture'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="rough">ざらざら</option>
@@ -536,8 +521,8 @@ export default function PostForm() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">使用感の快適さ</label>
+                <div className="form-group">
+                  <label className="form-label">使用感の快適さ</label>
                   <select
                     value={formData.experienceDetails.afterUse?.comfort || ''}
                     onChange={e =>
@@ -548,7 +533,7 @@ export default function PostForm() {
                         'comfort'
                       )
                     }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    className="select"
                   >
                     <option value="">選択してください</option>
                     <option value="uncomfortable">不快</option>
@@ -561,8 +546,8 @@ export default function PostForm() {
             </div>
 
             {/* 総合的な感想 */}
-            <div>
-              <label htmlFor="moodTag" className="block text-sm font-medium text-gray-700">
+            <div className="form-group">
+              <label htmlFor="moodTag" className="form-label">
                 総合的な感想
               </label>
               <select
@@ -570,7 +555,7 @@ export default function PostForm() {
                 name="moodTag"
                 value={formData.moodTag}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="select"
               >
                 <option value="">選択してください</option>
                 <option value="disappointed">ちょっと残念</option>
@@ -580,37 +565,44 @@ export default function PostForm() {
                 <option value="perfect">完璧</option>
               </select>
             </div>
+            {formData.moodTag && (
+              <div className="mt-2">
+                <MoodTagComponent mood={formData.moodTag as MoodTag}>
+                  {formData.moodTag === 'disappointed' && 'ちょっと残念'}
+                  {formData.moodTag === 'okay' && 'まあまあ'}
+                  {formData.moodTag === 'good' && '良かった'}
+                  {formData.moodTag === 'love' && 'また使いたい'}
+                  {formData.moodTag === 'perfect' && '完璧'}
+                </MoodTagComponent>
+              </div>
+            )}
           </div>
         )}
 
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-6">
-          <button
-            type="button"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
             前へ
-          </button>
+          </Button>
 
           {currentStep < 4 ? (
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={nextStep}
               disabled={!isStepValid(currentStep)}
-              className="px-4 py-2 text-sm font-medium text-white bg-pink-600 border border-transparent rounded-md hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               次へ
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="submit"
+              variant="primary"
               disabled={loading || !isStepValid(1)}
-              className="px-6 py-2 text-sm font-medium text-white bg-pink-600 border border-transparent rounded-md hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              loading={loading}
             >
-              {loading ? '投稿中...' : '投稿する'}
-            </button>
+              投稿する
+            </Button>
           )}
         </div>
       </form>
