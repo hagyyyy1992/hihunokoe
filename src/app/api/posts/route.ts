@@ -4,6 +4,12 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { z } from 'zod'
 
+// UUID形式のチェック用関数
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  return uuidRegex.test(str)
+}
+
 const postSchema = z.object({
   title: z.string().min(1).max(200),
   content: z.string().min(1),
@@ -81,8 +87,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = postSchema.parse(body)
 
-    if (!isDatabaseAvailable()) {
-      // モックモードでの投稿作成
+    if (!isDatabaseAvailable() || !isValidUUID(user.id)) {
+      // モックモードまたはデモユーザーでの投稿作成
       const mockPost = {
         id: `mock-post-${Date.now()}`,
         userId: user.id,
@@ -105,7 +111,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         post: mockPost,
-        message: '投稿が作成されました',
+        message: '投稿が作成されました（デモモード）',
       })
     }
 

@@ -63,58 +63,53 @@ export function verifyToken(token: string): AuthUser | null {
 }
 
 export async function registerUser(data: RegisterData): Promise<AuthUser> {
-  if (!isDatabaseAvailable()) {
-    // モックモードでは新規登録は既存ユーザーとして扱う
-    const mockUser = MOCK_USERS.find(u => u.email === data.email)
-    if (mockUser) {
-      throw new Error('ユーザー名またはメールアドレスが既に使用されています')
-    }
+  // デモユーザーとの重複チェック（常に実行）
+  const mockUser = MOCK_USERS.find(u => u.email === data.email || u.userName === data.userName)
+  if (mockUser) {
+    throw new Error('このメールアドレスまたはユーザー名は既に使用されています（デモユーザー）')
+  }
 
-    // デモ用の新しいユーザーを返す
-    return {
-      id: 'demo-new-user',
-      userName: data.userName,
-      email: data.email,
-      displayName: data.displayName,
-      skinType: data.skinType,
-    }
+  if (!isDatabaseAvailable()) {
+    // モックモードでは新規登録を制限
+    throw new Error('現在、新規登録は制限されています。デモ用ログイン情報をご利用ください。')
   }
 
   const hashedPassword = await hashPassword(data.password)
 
-  const user = await prisma!.user.create({
-    data: {
-      userName: data.userName,
-      email: data.email,
-      passwordHash: hashedPassword,
-      displayName: data.displayName,
-      skinType: data.skinType,
-    },
-  })
+  try {
+    const user = await prisma!.user.create({
+      data: {
+        userName: data.userName,
+        email: data.email,
+        passwordHash: hashedPassword,
+        displayName: data.displayName,
+        skinType: data.skinType,
+      },
+    })
 
-  return {
-    id: user.id,
-    userName: user.userName,
-    email: user.email,
-    displayName: user.displayName || undefined,
-    skinType: user.skinType || undefined,
-    profileImageUrl: user.profileImageUrl || undefined,
+    return {
+      id: user.id,
+      userName: user.userName,
+      email: user.email,
+      displayName: user.displayName || undefined,
+      skinType: user.skinType || undefined,
+      profileImageUrl: user.profileImageUrl || undefined,
+    }
+  } catch (error: unknown) {
+    // Prismaのユニーク制約エラーハンドリング
+    if (error && typeof error === 'object' && 'code' in error) {
+      if (error.code === 'P2002') {
+        throw new Error('ユーザー名またはメールアドレスが既に使用されています')
+      }
+    }
+    throw new Error('ユーザー登録に失敗しました')
   }
 }
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser | null> {
-  if (!isDatabaseAvailable()) {
-    // モックモードでのログイン処理
-    const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
-    if (!mockUser || !mockUser.isActive) {
-      return null
-    }
-
-    // デモ用パスワードチェック（実際のハッシュ比較はしない）
-    if (credentials.password !== 'demo123') {
-      return null
-    }
-
+  // デモ用ログイン情報のチェック（常に最初にチェック）
+  const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
+  if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
     return {
       id: mockUser.id,
       userName: mockUser.userName,
@@ -125,6 +120,12 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
     }
   }
 
+  // データベースが利用できない場合はここで終了
+  if (!isDatabaseAvailable()) {
+    return null
+  }
+
+  // データベースでのユーザー検索
   const user = await prisma!.user.findUnique({
     where: {
       email: credentials.email,
