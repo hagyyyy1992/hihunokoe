@@ -40,13 +40,13 @@ export default function PostForm() {
     }))
   }
 
-  const handleNestedChange = (section: 'usageSituation' | 'experienceDetails', field: string, value: any, subField?: string) => {
+  const handleNestedChange = (section: 'usageSituation' | 'experienceDetails', field: string, value: unknown, subField?: string) => {
     setFormData(prev => ({
       ...prev,
       [section]: {
         ...prev[section],
         [field]: subField ? {
-          ...(prev[section] as any)?.[field],
+          ...(prev[section] as Record<string, unknown>)?.[field] as Record<string, unknown>,
           [subField]: value,
         } : value,
       },
@@ -81,8 +81,9 @@ export default function PostForm() {
       }
 
       router.push(`/posts/${data.post.id}`)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の作成に失敗しました'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

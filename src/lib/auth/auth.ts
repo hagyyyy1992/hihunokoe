@@ -50,13 +50,13 @@ export function generateToken(user: AuthUser): string {
 
 export function verifyToken(token: string): AuthUser | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; userName: string; email: string }
     return {
       id: decoded.id,
       userName: decoded.userName,
       email: decoded.email,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

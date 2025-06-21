@@ -22,8 +22,9 @@ export default function LoginPage() {
     try {
       await login(email, password)
       router.push('/')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'ログインに失敗しました'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

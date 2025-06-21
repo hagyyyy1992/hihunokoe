@@ -38,12 +38,12 @@ export async function POST(request: NextRequest) {
     })
     
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error)
     
-    if (error.name === 'ZodError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError' && 'errors' in error) {
       return NextResponse.json(
-        { error: '入力内容に誤りがあります', details: error.errors },
+        { error: '入力内容に誤りがあります', details: (error as unknown as { errors: unknown }).errors },
         { status: 400 }
       )
     }

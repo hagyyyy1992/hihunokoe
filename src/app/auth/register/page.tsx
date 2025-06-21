@@ -46,8 +46,9 @@ export default function RegisterPage() {
         skinType: formData.skinType || undefined,
       })
       router.push('/')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'ユーザー登録に失敗しました'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

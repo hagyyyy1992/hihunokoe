@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -13,8 +13,33 @@ interface Post {
   cosmeticName: string
   cosmeticCategory?: string
   skinType?: string
-  usageSituation?: any
-  experienceDetails?: any
+  usageSituation?: {
+    season?: string
+    timeOfDay?: string
+    menstrualCycle?: string
+    skinCondition?: string
+    weatherCondition?: string
+  }
+  experienceDetails?: {
+    fragrance?: {
+      type?: string
+      intensity?: string
+      description?: string
+    }
+    texture?: {
+      type?: string
+      spreadability?: string
+      absorption?: string
+      description?: string
+    }
+    afterUse?: {
+      moisture?: string
+      texture?: string
+      comfort?: string
+      duration?: string
+      description?: string
+    }
+  }
   moodTag?: string
   publishedAt: string
   viewCount: number
@@ -108,13 +133,7 @@ export default function PostDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    if (id) {
-      fetchPost()
-    }
-  }, [id])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${id}`)
       const data = await response.json()
@@ -124,12 +143,19 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    if (id) {
+      fetchPost()
+    }
+  }, [id, fetchPost])
 
   if (loading) {
     return (

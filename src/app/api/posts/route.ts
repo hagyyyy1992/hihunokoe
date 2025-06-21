@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import { UsageSituation, ExperienceDetails, MoodTag, CosmeticCategory, SkinType } from '@/types'
 
 const postSchema = z.object({
   title: z.string().min(1).max(200),
@@ -91,12 +90,12 @@ export async function POST(request: NextRequest) {
       post,
       message: '投稿が作成されました',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Post creation error:', error)
     
-    if (error.name === 'ZodError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError' && 'errors' in error) {
       return NextResponse.json(
-        { error: '入力内容に誤りがあります', details: error.errors },
+        { error: '入力内容に誤りがあります', details: (error as unknown as { errors: unknown }).errors },
         { status: 400 }
       )
     }
@@ -120,7 +119,7 @@ export async function GET(request: NextRequest) {
     
     const skip = (page - 1) * limit
     
-    const where: any = {
+    const where: { [key: string]: unknown } = {
       status: 'published',
     }
     

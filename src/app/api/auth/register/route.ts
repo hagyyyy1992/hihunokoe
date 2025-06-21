@@ -34,19 +34,19 @@ export async function POST(request: NextRequest) {
     })
     
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Registration error:', error)
     
-    if (error.code === 'P2002') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'ユーザー名またはメールアドレスが既に使用されています' },
         { status: 400 }
       )
     }
     
-    if (error.name === 'ZodError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError' && 'errors' in error) {
       return NextResponse.json(
-        { error: '入力内容に誤りがあります', details: error.errors },
+        { error: '入力内容に誤りがあります', details: (error as unknown as { errors: unknown }).errors },
         { status: 400 }
       )
     }

@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
-import { SkinType, CosmeticCategory, MoodTag } from '@/types'
 
 interface Post {
   id: string
@@ -50,7 +49,7 @@ export default function PostsPage() {
     page: 1,
   })
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -70,16 +69,17 @@ export default function PostsPage() {
 
       setPosts(data.posts)
       setPagination(data.pagination)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
     fetchPosts()
-  }, [filters])
+  }, [filters, fetchPosts])
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
