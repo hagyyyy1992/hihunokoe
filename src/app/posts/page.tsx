@@ -39,7 +39,7 @@ export default function PostsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  
+
   // フィルター状態
   const [filters, setFilters] = useState({
     skinType: '',
@@ -117,12 +117,10 @@ export default function PostsPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-4">絞り込み検索</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                肌タイプ
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">肌タイプ</label>
               <select
                 value={filters.skinType}
-                onChange={(e) => handleFilterChange('skinType', e.target.value)}
+                onChange={e => handleFilterChange('skinType', e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">すべて</option>
@@ -135,12 +133,10 @@ export default function PostsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                カテゴリ
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">カテゴリ</label>
               <select
                 value={filters.category}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
+                onChange={e => handleFilterChange('category', e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">すべて</option>
@@ -160,12 +156,10 @@ export default function PostsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                感想
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">感想</label>
               <select
                 value={filters.moodTag}
-                onChange={(e) => handleFilterChange('moodTag', e.target.value)}
+                onChange={e => handleFilterChange('moodTag', e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">すべて</option>
@@ -178,13 +172,11 @@ export default function PostsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                キーワード検索
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">キーワード検索</label>
               <input
                 type="text"
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={e => handleFilterChange('search', e.target.value)}
                 placeholder="コスメ名や体験談で検索"
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               />
@@ -212,7 +204,7 @@ export default function PostsPage() {
             {posts.length > 0 ? (
               <>
                 <div className="grid gap-6 mb-8">
-                  {posts.map((post) => (
+                  {posts.map(post => (
                     <PostCard key={post.id} post={post} />
                   ))}
                 </div>
@@ -227,8 +219,8 @@ export default function PostsPage() {
                     >
                       前へ
                     </button>
-                    
-                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+
+                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
@@ -241,7 +233,7 @@ export default function PostsPage() {
                         {page}
                       </button>
                     ))}
-                    
+
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={pagination.page === pagination.pages}
@@ -254,8 +246,18 @@ export default function PostsPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 <h3 className="mt-2 text-sm font-medium text-gray-900">投稿がありません</h3>
                 <p className="mt-1 text-sm text-gray-500">

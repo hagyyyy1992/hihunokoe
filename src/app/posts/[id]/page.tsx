@@ -198,23 +198,19 @@ export default function PostDetailPage() {
                     {post.user.displayName || post.user.userName}
                   </p>
                   {post.user.skinType && (
-                    <p className="text-xs text-gray-500">
-                      {skinTypeLabels[post.user.skinType]}
-                    </p>
+                    <p className="text-xs text-gray-500">{skinTypeLabels[post.user.skinType]}</p>
                   )}
                 </div>
               </div>
               <time className="text-sm text-gray-500">
-                {formatDistanceToNow(new Date(post.publishedAt), { 
-                  addSuffix: true, 
-                  locale: ja 
+                {formatDistanceToNow(new Date(post.publishedAt), {
+                  addSuffix: true,
+                  locale: ja,
                 })}
               </time>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              {post.title}
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
 
             <div className="flex flex-wrap gap-2 mb-4">
               {post.cosmeticCategory && (
@@ -223,7 +219,9 @@ export default function PostDetailPage() {
                 </span>
               )}
               {post.moodTag && (
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${moodTagColors[post.moodTag]}`}>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${moodTagColors[post.moodTag]}`}
+                >
                   {moodTagLabels[post.moodTag]}
                 </span>
               )}
@@ -242,16 +240,14 @@ export default function PostDetailPage() {
 
           {/* 本文 */}
           <div className="prose max-w-none mb-8">
-            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {post.content}
-            </div>
+            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">{post.content}</div>
           </div>
 
           {/* 詳細情報 */}
           {(post.usageSituation || post.experienceDetails) && (
             <div className="border-t pt-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
-              
+
               {/* 使用状況 */}
               {post.usageSituation && Object.keys(post.usageSituation).length > 0 && (
                 <div className="mb-6">
@@ -272,7 +268,9 @@ export default function PostDetailPage() {
                     {post.usageSituation.skinCondition && (
                       <div>
                         <span className="text-gray-500">肌状態:</span>
-                        <span className="ml-2 text-gray-900">{post.usageSituation.skinCondition}</span>
+                        <span className="ml-2 text-gray-900">
+                          {post.usageSituation.skinCondition}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -289,7 +287,8 @@ export default function PostDetailPage() {
                         <span className="text-gray-500">香り:</span>
                         <span className="ml-2 text-gray-900">
                           {post.experienceDetails.fragrance.type}
-                          {post.experienceDetails.fragrance.intensity && ` (${post.experienceDetails.fragrance.intensity})`}
+                          {post.experienceDetails.fragrance.intensity &&
+                            ` (${post.experienceDetails.fragrance.intensity})`}
                         </span>
                       </div>
                     )}
@@ -298,7 +297,8 @@ export default function PostDetailPage() {
                         <span className="text-gray-500">テクスチャ:</span>
                         <span className="ml-2 text-gray-900">
                           {post.experienceDetails.texture.type}
-                          {post.experienceDetails.texture.spreadability && ` / ${post.experienceDetails.texture.spreadability}`}
+                          {post.experienceDetails.texture.spreadability &&
+                            ` / ${post.experienceDetails.texture.spreadability}`}
                         </span>
                       </div>
                     )}
@@ -307,7 +307,8 @@ export default function PostDetailPage() {
                         <span className="text-gray-500">使用後:</span>
                         <span className="ml-2 text-gray-900">
                           うるおい感 {post.experienceDetails.afterUse.moisture}
-                          {post.experienceDetails.afterUse.comfort && ` / ${post.experienceDetails.afterUse.comfort}`}
+                          {post.experienceDetails.afterUse.comfort &&
+                            ` / ${post.experienceDetails.afterUse.comfort}`}
                         </span>
                       </div>
                     )}
@@ -322,20 +323,40 @@ export default function PostDetailPage() {
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
                 </svg>
                 <span>{post._count.empathies} 共感</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
                 <span>{post._count.comments} コメント</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
                 <span>{post.viewCount} 閲覧</span>
               </div>
@@ -344,7 +365,12 @@ export default function PostDetailPage() {
             {user && (
               <button className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-pink-600 bg-pink-50 rounded-md hover:bg-pink-100 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
                 </svg>
                 <span>共感する</span>
               </button>
@@ -357,7 +383,7 @@ export default function PostDetailPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-6">
             コメント ({post._count.comments})
           </h3>
-          
+
           {user ? (
             <div className="mb-6">
               <textarea
@@ -379,7 +405,7 @@ export default function PostDetailPage() {
 
           {/* コメント一覧 */}
           <div className="space-y-6">
-            {post.comments.map((comment) => (
+            {post.comments.map(comment => (
               <div key={comment.id} className="border-b border-gray-100 pb-6">
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
@@ -398,15 +424,13 @@ export default function PostDetailPage() {
                         </span>
                       )}
                       <time className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(comment.createdAt), { 
-                          addSuffix: true, 
-                          locale: ja 
+                        {formatDistanceToNow(new Date(comment.createdAt), {
+                          addSuffix: true,
+                          locale: ja,
                         })}
                       </time>
                     </div>
-                    <p className="text-gray-700 text-sm leading-relaxed">
-                      {comment.content}
-                    </p>
+                    <p className="text-gray-700 text-sm leading-relaxed">{comment.content}</p>
                   </div>
                 </div>
               </div>

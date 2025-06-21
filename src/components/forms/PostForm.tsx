@@ -20,7 +20,7 @@ export default function PostForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
-  
+
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
     content: '',
@@ -32,7 +32,9 @@ export default function PostForm() {
     moodTag: '',
   })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -40,15 +42,22 @@ export default function PostForm() {
     }))
   }
 
-  const handleNestedChange = (section: 'usageSituation' | 'experienceDetails', field: string, value: unknown, subField?: string) => {
+  const handleNestedChange = (
+    section: 'usageSituation' | 'experienceDetails',
+    field: string,
+    value: unknown,
+    subField?: string
+  ) => {
     setFormData(prev => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: subField ? {
-          ...(prev[section] as Record<string, unknown>)?.[field] as Record<string, unknown>,
-          [subField]: value,
-        } : value,
+        [field]: subField
+          ? {
+              ...((prev[section] as Record<string, unknown>)?.[field] as Record<string, unknown>),
+              [subField]: value,
+            }
+          : value,
       },
     }))
   }
@@ -69,8 +78,12 @@ export default function PostForm() {
           cosmeticCategory: formData.cosmeticCategory || undefined,
           skinType: formData.skinType || undefined,
           moodTag: formData.moodTag || undefined,
-          usageSituation: Object.keys(formData.usageSituation).length > 0 ? formData.usageSituation : undefined,
-          experienceDetails: Object.keys(formData.experienceDetails).length > 0 ? formData.experienceDetails : undefined,
+          usageSituation:
+            Object.keys(formData.usageSituation).length > 0 ? formData.usageSituation : undefined,
+          experienceDetails:
+            Object.keys(formData.experienceDetails).length > 0
+              ? formData.experienceDetails
+              : undefined,
         }),
       })
 
@@ -117,13 +130,11 @@ export default function PostForm() {
       {/* ステップインジケーター */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3, 4].map(step => (
             <div key={step} className="flex items-center">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step <= currentStep
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-200 text-gray-500'
+                  step <= currentStep ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-500'
                 }`}
               >
                 {step}
@@ -157,7 +168,7 @@ export default function PostForm() {
         {currentStep === 1 && (
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">基本情報</h3>
-            
+
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                 タイトル *
@@ -239,8 +250,10 @@ export default function PostForm() {
         {currentStep === 2 && (
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">使用状況（任意）</h3>
-            <p className="text-sm text-gray-600">より具体的な体験を共有するために、使用時の状況を教えてください。</p>
-            
+            <p className="text-sm text-gray-600">
+              より具体的な体験を共有するために、使用時の状況を教えてください。
+            </p>
+
             <div>
               <label htmlFor="skinType" className="block text-sm font-medium text-gray-700">
                 あなたの肌タイプ
@@ -265,7 +278,9 @@ export default function PostForm() {
               <label className="block text-sm font-medium text-gray-700">使用した季節</label>
               <select
                 value={formData.usageSituation.season || ''}
-                onChange={(e) => handleNestedChange('usageSituation', 'season', e.target.value || undefined)}
+                onChange={e =>
+                  handleNestedChange('usageSituation', 'season', e.target.value || undefined)
+                }
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">選択してください</option>
@@ -280,7 +295,9 @@ export default function PostForm() {
               <label className="block text-sm font-medium text-gray-700">使用時間帯</label>
               <select
                 value={formData.usageSituation.timeOfDay || ''}
-                onChange={(e) => handleNestedChange('usageSituation', 'timeOfDay', e.target.value || undefined)}
+                onChange={e =>
+                  handleNestedChange('usageSituation', 'timeOfDay', e.target.value || undefined)
+                }
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">選択してください</option>
@@ -294,7 +311,13 @@ export default function PostForm() {
               <label className="block text-sm font-medium text-gray-700">生理周期との関係</label>
               <select
                 value={formData.usageSituation.menstrualCycle || ''}
-                onChange={(e) => handleNestedChange('usageSituation', 'menstrualCycle', e.target.value || undefined)}
+                onChange={e =>
+                  handleNestedChange(
+                    'usageSituation',
+                    'menstrualCycle',
+                    e.target.value || undefined
+                  )
+                }
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">選択してください</option>
@@ -309,7 +332,9 @@ export default function PostForm() {
               <label className="block text-sm font-medium text-gray-700">使用時の肌状態</label>
               <select
                 value={formData.usageSituation.skinCondition || ''}
-                onChange={(e) => handleNestedChange('usageSituation', 'skinCondition', e.target.value || undefined)}
+                onChange={e =>
+                  handleNestedChange('usageSituation', 'skinCondition', e.target.value || undefined)
+                }
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">選択してください</option>
@@ -325,8 +350,10 @@ export default function PostForm() {
         {currentStep === 3 && (
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">体験の詳細（任意）</h3>
-            <p className="text-sm text-gray-600">香りやテクスチャについて、より詳しく教えてください。</p>
-            
+            <p className="text-sm text-gray-600">
+              香りやテクスチャについて、より詳しく教えてください。
+            </p>
+
             {/* 香り */}
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3">香りについて</h4>
@@ -335,7 +362,14 @@ export default function PostForm() {
                   <label className="block text-sm font-medium text-gray-700">香りのタイプ</label>
                   <select
                     value={formData.experienceDetails.fragrance?.type || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'fragrance', e.target.value || undefined, 'type')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'fragrance',
+                        e.target.value || undefined,
+                        'type'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -347,12 +381,19 @@ export default function PostForm() {
                     <option value="other">その他</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">香りの強さ</label>
                   <select
                     value={formData.experienceDetails.fragrance?.intensity || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'fragrance', e.target.value || undefined, 'intensity')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'fragrance',
+                        e.target.value || undefined,
+                        'intensity'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -369,10 +410,19 @@ export default function PostForm() {
               <h4 className="font-medium text-gray-900 mb-3">テクスチャについて</h4>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">テクスチャのタイプ</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    テクスチャのタイプ
+                  </label>
                   <select
                     value={formData.experienceDetails.texture?.type || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'texture', e.target.value || undefined, 'type')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'texture',
+                        e.target.value || undefined,
+                        'type'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -384,12 +434,19 @@ export default function PostForm() {
                     <option value="other">その他</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">伸びやすさ</label>
                   <select
                     value={formData.experienceDetails.texture?.spreadability || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'texture', e.target.value || undefined, 'spreadability')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'texture',
+                        e.target.value || undefined,
+                        'spreadability'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -398,12 +455,19 @@ export default function PostForm() {
                     <option value="difficult">伸びにくい</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">浸透の早さ</label>
                   <select
                     value={formData.experienceDetails.texture?.absorption || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'texture', e.target.value || undefined, 'absorption')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'texture',
+                        e.target.value || undefined,
+                        'absorption'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -422,7 +486,7 @@ export default function PostForm() {
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
             <p className="text-sm text-gray-600">使用後の肌状態や総合的な感想を教えてください。</p>
-            
+
             {/* 使用後の肌状態 */}
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3">使用後の肌状態</h4>
@@ -431,7 +495,14 @@ export default function PostForm() {
                   <label className="block text-sm font-medium text-gray-700">うるおい感</label>
                   <select
                     value={formData.experienceDetails.afterUse?.moisture || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'afterUse', e.target.value || undefined, 'moisture')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'afterUse',
+                        e.target.value || undefined,
+                        'moisture'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -442,12 +513,19 @@ export default function PostForm() {
                     <option value="very_moist">とてもしっとり</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">肌の手触り</label>
                   <select
                     value={formData.experienceDetails.afterUse?.texture || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'afterUse', e.target.value || undefined, 'texture')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'afterUse',
+                        e.target.value || undefined,
+                        'texture'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -457,12 +535,19 @@ export default function PostForm() {
                     <option value="very_smooth">とてもなめらか</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">使用感の快適さ</label>
                   <select
                     value={formData.experienceDetails.afterUse?.comfort || ''}
-                    onChange={(e) => handleNestedChange('experienceDetails', 'afterUse', e.target.value || undefined, 'comfort')}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'afterUse',
+                        e.target.value || undefined,
+                        'comfort'
+                      )
+                    }
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   >
                     <option value="">選択してください</option>
@@ -508,7 +593,7 @@ export default function PostForm() {
           >
             前へ
           </button>
-          
+
           {currentStep < 4 ? (
             <button
               type="button"

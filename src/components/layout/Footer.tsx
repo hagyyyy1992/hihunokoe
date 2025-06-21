@@ -24,17 +24,26 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-4">サービス</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/posts" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/posts"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   体験を見る
                 </Link>
               </li>
               <li>
-                <Link href="/posts/new" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/posts/new"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   体験を投稿
                 </Link>
               </li>
               <li>
-                <Link href="/search" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/search"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   検索
                 </Link>
               </li>
@@ -46,27 +55,42 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-4">サポート</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/guidelines" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/guidelines"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   投稿ガイドライン
                 </Link>
               </li>
               <li>
-                <Link href="/help" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/help"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   ヘルプ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/contact"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   お問い合わせ
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/privacy"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   プライバシーポリシー
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-gray-600 hover:text-pink-600 transition-colors">
+                <Link
+                  href="/terms"
+                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                >
                   利用規約
                 </Link>
               </li>
@@ -75,9 +99,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200">
-          <p className="text-center text-sm text-gray-500">
-            © 2024 Usaka. All rights reserved.
-          </p>
+          <p className="text-center text-sm text-gray-500">© 2024 Usaka. All rights reserved.</p>
         </div>
       </div>
     </footer>

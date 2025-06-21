@@ -4,7 +4,7 @@ export async function POST() {
   const response = NextResponse.json({
     message: 'ログアウトしました',
   })
-  
+
   // HttpOnly Cookie を削除
   response.cookies.set('auth-token', '', {
     httpOnly: true,
@@ -12,6 +12,6 @@ export async function POST() {
     sameSite: 'lax',
     maxAge: 0,
   })
-  
+
   return response
 }

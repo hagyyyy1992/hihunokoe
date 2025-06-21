@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    
+
     const post = await prisma.post.findUnique({
       where: {
         id,
@@ -81,10 +78,7 @@ export async function GET(
     })
 
     if (!post) {
-      return NextResponse.json(
-        { error: '投稿が見つかりません' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
     }
 
     // 閲覧数を増加
@@ -100,9 +94,6 @@ export async function GET(
     return NextResponse.json({ post })
   } catch (error) {
     console.error('Post fetch error:', error)
-    return NextResponse.json(
-      { error: '投稿の取得に失敗しました' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: '投稿の取得に失敗しました' }, { status: 500 })
   }
 }

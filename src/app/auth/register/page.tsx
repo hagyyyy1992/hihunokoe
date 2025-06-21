@@ -17,7 +17,7 @@ export default function RegisterPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const { register } = useAuth()
   const router = useRouter()
 
@@ -78,9 +78,7 @@ export default function RegisterPage() {
             <span className="text-pink-600 font-bold text-lg">U</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          会員登録
-        </h2>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">会員登録</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           既にアカウントをお持ちの方は{' '}
           <Link href="/auth/login" className="font-medium text-pink-600 hover:text-pink-500">
@@ -97,7 +95,7 @@ export default function RegisterPage() {
                 {error}
               </div>
             )}
-            
+
             <div>
               <label htmlFor="userName" className="block text-sm font-medium text-gray-700">
                 ユーザー名 *
@@ -165,7 +163,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                 >
-                  {skinTypeOptions.map((option) => (
+                  {skinTypeOptions.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

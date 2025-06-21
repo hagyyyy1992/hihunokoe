@@ -3,12 +3,14 @@
 ## デザインコンセプト
 
 ### ブランド価値
+
 - **安心感**: 心理的安全性を重視したデザイン
 - **親しみやすさ**: 専門的すぎず、カジュアルな雰囲気
 - **清潔感**: 化粧品サービスらしい清潔で上品な印象
 - **包括性**: 多様な肌質・体験を受け入れる包容力
 
 ### デザイン原則
+
 1. **共感を促進**: ユーザー同士の理解を深める
 2. **情報の整理**: 複雑な体験情報をわかりやすく表示
 3. **アクセシビリティ**: 誰でも使いやすいUI
@@ -17,27 +19,30 @@
 ## カラーパレット
 
 ### プライマリーカラー
+
 ```css
 /* ピンク系 - メインブランドカラー */
---pink-50: #fdf2f8;   /* 背景・薄い装飾 */
---pink-100: #fce7f3;  /* ホバー背景 */
---pink-500: #ec4899;  /* アクションボタン */
---pink-600: #db2777;  /* ホバー状態 */
---pink-700: #be185d;  /* アクティブ状態 */
+--pink-50: #fdf2f8; /* 背景・薄い装飾 */
+--pink-100: #fce7f3; /* ホバー背景 */
+--pink-500: #ec4899; /* アクションボタン */
+--pink-600: #db2777; /* ホバー状態 */
+--pink-700: #be185d; /* アクティブ状態 */
 ```
 
 ### セカンダリーカラー
+
 ```css
 /* グレー系 - テキスト・ニュートラル */
---gray-50: #f9fafb;   /* 背景 */
---gray-100: #f3f4f6;  /* カード背景 */
---gray-300: #d1d5db;  /* ボーダー */
---gray-500: #6b7280;  /* セカンダリテキスト */
---gray-700: #374151;  /* メインテキスト */
---gray-900: #111827;  /* ヘッドライン */
+--gray-50: #f9fafb; /* 背景 */
+--gray-100: #f3f4f6; /* カード背景 */
+--gray-300: #d1d5db; /* ボーダー */
+--gray-500: #6b7280; /* セカンダリテキスト */
+--gray-700: #374151; /* メインテキスト */
+--gray-900: #111827; /* ヘッドライン */
 ```
 
 ### アクセントカラー
+
 ```css
 /* ブルー系 - 情報・カテゴリ */
 --blue-100: #dbeafe;
@@ -57,58 +62,97 @@
 ```
 
 ### 感想タグカラー
+
 ```css
 /* 雰囲気タグ専用カラー */
---disappointed: --gray-100;   /* ちょっと残念 */
---okay: --yellow-100;         /* まあまあ */
---good: --green-100;          /* 良かった */
---love: --pink-100;           /* また使いたい */
---perfect: #f3e8ff;           /* 完璧（紫系） */
+--disappointed: --gray-100; /* ちょっと残念 */
+--okay: --yellow-100; /* まあまあ */
+--good: --green-100; /* 良かった */
+--love: --pink-100; /* また使いたい */
+--perfect: #f3e8ff; /* 完璧（紫系） */
 ```
 
 ## タイポグラフィ
 
 ### フォントファミリー
+
 ```css
 /* プライマリフォント - Geist Sans */
-font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+font-family:
+  var(--font-geist-sans),
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
 
 /* モノスペースフォント - Geist Mono */
 font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ```
 
 ### 文字サイズ・行間
+
 ```css
 /* ヘッドライン */
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; } /* 30px/36px */
-.text-2xl { font-size: 1.5rem; line-height: 2rem; }     /* 24px/32px */
-.text-xl { font-size: 1.25rem; line-height: 1.75rem; }   /* 20px/28px */
-.text-lg { font-size: 1.125rem; line-height: 1.75rem; }  /* 18px/28px */
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+} /* 30px/36px */
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+} /* 24px/32px */
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+} /* 20px/28px */
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+} /* 18px/28px */
 
 /* ボディテキスト */
-.text-base { font-size: 1rem; line-height: 1.5rem; }     /* 16px/24px */
-.text-sm { font-size: 0.875rem; line-height: 1.25rem; }  /* 14px/20px */
-.text-xs { font-size: 0.75rem; line-height: 1rem; }      /* 12px/16px */
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+} /* 16px/24px */
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+} /* 14px/20px */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+} /* 12px/16px */
 ```
 
 ### 文字色
+
 ```css
 /* メインテキスト */
-.text-gray-900 { color: #111827; }
+.text-gray-900 {
+  color: #111827;
+}
 
 /* セカンダリテキスト */
-.text-gray-600 { color: #4b5563; }
+.text-gray-600 {
+  color: #4b5563;
+}
 
 /* 補助テキスト */
-.text-gray-500 { color: #6b7280; }
+.text-gray-500 {
+  color: #6b7280;
+}
 
 /* アクセントテキスト */
-.text-pink-600 { color: #db2777; }
+.text-pink-600 {
+  color: #db2777;
+}
 ```
 
 ## コンポーネント仕様
 
 ### ボタン
+
 ```css
 /* プライマリボタン */
 .btn-primary {
@@ -133,6 +177,7 @@ font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ```
 
 ### 入力フィールド
+
 ```css
 .form-input {
   @apply block w-full px-3 py-2 
@@ -148,6 +193,7 @@ font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ```
 
 ### カード
+
 ```css
 .card {
   @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
@@ -159,6 +205,7 @@ font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ```
 
 ### バッジ・タグ
+
 ```css
 .badge {
   @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
@@ -180,6 +227,7 @@ font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ## レイアウト
 
 ### グリッドシステム
+
 ```css
 /* コンテナ */
 .container {
@@ -198,19 +246,27 @@ font-family: var(--font-geist-mono), 'SF Mono', Monaco, monospace;
 ```
 
 ### スペーシング
+
 ```css
 /* マージン・パディング基準 */
 --spacing-unit: 0.25rem; /* 4px */
 
 /* よく使用するスペース */
-.space-y-4 > * + * { margin-top: 1rem; }    /* 16px */
-.space-y-6 > * + * { margin-top: 1.5rem; }  /* 24px */
-.space-y-8 > * + * { margin-top: 2rem; }    /* 32px */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+} /* 16px */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+} /* 24px */
+.space-y-8 > * + * {
+  margin-top: 2rem;
+} /* 32px */
 ```
 
 ## レスポンシブデザイン
 
 ### ブレークポイント
+
 ```css
 /* Tailwind CSS ブレークポイント */
 sm: 640px   /* モバイル横・小タブレット */
@@ -221,6 +277,7 @@ xl: 1280px  /* デスクトップ */
 ```
 
 ### モバイルファースト
+
 ```css
 /* 基本: モバイル（320px〜） */
 .responsive-text {
@@ -245,11 +302,13 @@ xl: 1280px  /* デスクトップ */
 ## アイコン
 
 ### アイコンライブラリ
+
 - **Heroicons**: メインアイコンセット
 - **SVG**: カスタムアイコン
 - **サイズ**: 16px, 20px, 24px（基本3サイズ）
 
 ### よく使用するアイコン
+
 ```jsx
 /* 共感 */
 <HeartIcon className="w-5 h-5" />
@@ -270,6 +329,7 @@ xl: 1280px  /* デスクトップ */
 ## アニメーション・インタラクション
 
 ### トランジション
+
 ```css
 /* 基本トランジション */
 .transition-default {
@@ -287,12 +347,17 @@ xl: 1280px  /* デスクトップ */
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 ```
 
 ### ローディング状態
+
 ```css
 .loading-spinner {
   @apply animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600;
@@ -306,11 +371,13 @@ xl: 1280px  /* デスクトップ */
 ## アクセシビリティ
 
 ### コントラスト比
+
 - **通常テキスト**: 4.5:1 以上
 - **大きなテキスト**: 3:1 以上
 - **UIコンポーネント**: 3:1 以上
 
 ### フォーカス管理
+
 ```css
 .focus-visible {
   @apply focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2;
@@ -318,6 +385,7 @@ xl: 1280px  /* デスクトップ */
 ```
 
 ### セマンティック
+
 - 適切なHTML要素の使用
 - ARIA属性の適用
 - キーボードナビゲーション対応
@@ -325,6 +393,7 @@ xl: 1280px  /* デスクトップ */
 ## 状態別デザイン
 
 ### ボタン状態
+
 - **default**: 通常状態
 - **hover**: ホバー時（色変更）
 - **active**: クリック時（わずかに暗く）
@@ -332,6 +401,7 @@ xl: 1280px  /* デスクトップ */
 - **loading**: 処理中（スピナー表示）
 
 ### フォーム状態
+
 - **default**: 通常状態
 - **focus**: フォーカス時（アウトライン）
 - **error**: エラー時（赤ボーダー）
@@ -341,15 +411,21 @@ xl: 1280px  /* デスクトップ */
 ## 実装ガイドライン
 
 ### クラス命名
+
 ```css
 /* BEM風の命名 */
-.post-card { }
-.post-card__header { }
-.post-card__content { }
-.post-card--featured { }
+.post-card {
+}
+.post-card__header {
+}
+.post-card__content {
+}
+.post-card--featured {
+}
 ```
 
 ### Tailwind利用
+
 ```jsx
 /* Utility-First */
 <button className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-full">
@@ -363,6 +439,7 @@ xl: 1280px  /* デスクトップ */
 ```
 
 ### ダークモード対応（将来実装）
+
 ```css
 .dark .card {
   @apply bg-gray-800 border-gray-700;

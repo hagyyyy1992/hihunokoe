@@ -63,7 +63,7 @@ export function verifyToken(token: string): AuthUser | null {
 
 export async function registerUser(data: RegisterData): Promise<AuthUser> {
   const hashedPassword = await hashPassword(data.password)
-  
+
   const user = await prisma.user.create({
     data: {
       userName: data.userName,
@@ -96,7 +96,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   }
 
   const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
-  
+
   if (!isPasswordValid) {
     return null
   }

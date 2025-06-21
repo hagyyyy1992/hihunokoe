@@ -10,25 +10,25 @@ const loginSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     const validatedData = loginSchema.parse(body)
-    
+
     const user = await loginUser(validatedData)
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'メールアドレスまたはパスワードが間違っています' },
         { status: 401 }
       )
     }
-    
+
     const token = generateToken(user)
-    
+
     const response = NextResponse.json({
       user,
       message: 'ログインしました',
     })
-    
+
     // HttpOnly Cookie にトークンを設定
     response.cookies.set('auth-token', token, {
       httpOnly: true,
@@ -36,21 +36,27 @@ export async function POST(request: NextRequest) {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7日間
     })
-    
+
     return response
   } catch (error: unknown) {
     console.error('Login error:', error)
-    
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError' && 'errors' in error) {
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError' &&
+      'errors' in error
+    ) {
       return NextResponse.json(
-        { error: '入力内容に誤りがあります', details: (error as unknown as { errors: unknown }).errors },
+        {
+          error: '入力内容に誤りがあります',
+          details: (error as unknown as { errors: unknown }).errors,
+        },
         { status: 400 }
       )
     }
-    
-    return NextResponse.json(
-      { error: 'ログインに失敗しました' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ error: 'ログインに失敗しました' }, { status: 500 })
   }
 }

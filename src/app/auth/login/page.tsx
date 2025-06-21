@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const { login } = useAuth()
   const router = useRouter()
 
@@ -38,9 +38,7 @@ export default function LoginPage() {
             <span className="text-pink-600 font-bold text-lg">U</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          ログイン
-        </h2>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">ログイン</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           アカウントをお持ちでない方は{' '}
           <Link href="/auth/register" className="font-medium text-pink-600 hover:text-pink-500">
@@ -57,7 +55,7 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-            
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 メールアドレス
@@ -70,7 +68,7 @@ export default function LoginPage() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   placeholder="example@example.com"
                 />
@@ -89,7 +87,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   placeholder="パスワードを入力してください"
                 />

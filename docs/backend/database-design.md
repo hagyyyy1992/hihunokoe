@@ -3,12 +3,14 @@
 ## 技術スタック
 
 ### データベース
+
 - **DBMS**: PostgreSQL 15 (Supabase)
 - **ORM**: Prisma 6
 - **接続プール**: Supabase Connection Pooler
 - **バックアップ**: Supabase自動バックアップ
 
 ### 設計原則
+
 - **正規化**: 第3正規形まで正規化
 - **パフォーマンス**: 適切なインデックス設計
 - **拡張性**: 将来の機能追加を考慮
@@ -17,6 +19,7 @@
 ## テーブル設計
 
 ### Users テーブル
+
 **目的**: ユーザー情報管理
 
 ```sql
@@ -40,12 +43,14 @@ CREATE INDEX idx_users_active ON users(is_active);
 ```
 
 **制約**:
+
 - `user_name`: 3-50文字、英数字とアンダースコア
 - `email`: 有効なメールアドレス形式
 - `skin_type`: 事前定義された値のみ
 - `password_hash`: bcrypt形式
 
 ### Posts テーブル
+
 **目的**: 投稿情報管理
 
 ```sql
@@ -82,6 +87,7 @@ CREATE INDEX idx_posts_content ON posts USING gin(to_tsvector('japanese', conten
 **JSON フィールド構造**:
 
 `usage_situation`:
+
 ```json
 {
   "season": "winter",
@@ -93,6 +99,7 @@ CREATE INDEX idx_posts_content ON posts USING gin(to_tsvector('japanese', conten
 ```
 
 `experience_details`:
+
 ```json
 {
   "fragrance": {
@@ -117,6 +124,7 @@ CREATE INDEX idx_posts_content ON posts USING gin(to_tsvector('japanese', conten
 ```
 
 ### Empathies テーブル
+
 **目的**: 共感機能管理
 
 ```sql
@@ -136,6 +144,7 @@ CREATE INDEX idx_empathies_type ON empathies(empathy_type);
 ```
 
 ### Comments テーブル
+
 **目的**: コメント機能管理
 
 ```sql
@@ -158,6 +167,7 @@ CREATE INDEX idx_comments_active ON comments(is_active);
 ```
 
 ### Post_Permissions テーブル
+
 **目的**: 投稿権限管理（将来拡張用）
 
 ```sql
@@ -243,6 +253,7 @@ model Post {
 ### よく使用されるクエリ
 
 #### 投稿一覧取得（フィルタ付き）
+
 ```sql
 SELECT p.*, u.user_name, u.display_name, u.skin_type,
        COUNT(e.id) as empathy_count,
@@ -262,6 +273,7 @@ LIMIT $5 OFFSET $6;
 ```
 
 #### 投稿詳細取得
+
 ```sql
 SELECT p.*, u.user_name, u.display_name, u.skin_type, u.profile_image_url
 FROM posts p
@@ -272,12 +284,14 @@ WHERE p.id = $1 AND p.status = 'published';
 ### パフォーマンス最適化
 
 #### インデックス戦略
+
 - **単一カラムインデックス**: よく検索される列
 - **複合インデックス**: 複数条件での検索
 - **部分インデックス**: 条件付きインデックス
 - **全文検索インデックス**: テキスト検索用
 
 #### クエリ最適化
+
 - **JOIN最適化**: 必要なデータのみ結合
 - **N+1問題対策**: include/selectでの一括取得
 - **ページネーション**: LIMIT/OFFSET または cursor-based
@@ -286,6 +300,7 @@ WHERE p.id = $1 AND p.status = 'published';
 ## セキュリティ設計
 
 ### Row Level Security (RLS)
+
 ```sql
 -- ユーザーは自分の情報のみ更新可能
 CREATE POLICY "Users can update own profile" ON users
@@ -301,6 +316,7 @@ CREATE POLICY "Users can manage own posts" ON posts
 ```
 
 ### データ保護
+
 - **パスワード**: bcrypt による暗号化
 - **個人情報**: 最小限の収集
 - **ログ**: 個人情報を含まない
@@ -309,11 +325,13 @@ CREATE POLICY "Users can manage own posts" ON posts
 ## バックアップ・復旧
 
 ### バックアップ戦略
+
 - **頻度**: 日次自動バックアップ
 - **保存期間**: 30日間
 - **テスト**: 月次復旧テスト
 
 ### 災害復旧
+
 - **RTO**: 4時間以内
 - **RPO**: 24時間以内
 - **手順書**: 詳細な復旧手順を文書化
@@ -321,11 +339,13 @@ CREATE POLICY "Users can manage own posts" ON posts
 ## マイグレーション管理
 
 ### 基本方針
+
 - **後方互換性**: 既存データを破壊しない
 - **段階的変更**: 大きな変更は複数回に分割
 - **ロールバック**: 問題時の即座な復旧
 
 ### マイグレーション例
+
 ```typescript
 // prisma/migrations/001_add_mood_tag/migration.sql
 ALTER TABLE posts ADD COLUMN mood_tag VARCHAR(50);
@@ -335,12 +355,14 @@ CREATE INDEX idx_posts_mood_tag ON posts(mood_tag);
 ## 監視・メトリクス
 
 ### 監視項目
+
 - **接続数**: アクティブ接続数
 - **クエリ性能**: 実行時間、プラン
 - **容量**: テーブルサイズ、インデックスサイズ
 - **エラー**: 接続エラー、クエリエラー
 
 ### アラート設定
+
 - **接続数上限**: 80%到達時
 - **スロークエリ**: 5秒以上
 - **容量**: 80%到達時

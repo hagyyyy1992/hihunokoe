@@ -34,9 +34,7 @@ export default function NewPostPage() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            体験談を投稿する
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">体験談を投稿する</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             あなたの化粧品体験が、同じ悩みを持つ誰かの参考になります。
             気軽にリアルな感想を共有してください。
