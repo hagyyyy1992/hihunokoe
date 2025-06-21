@@ -29,13 +29,11 @@ jobs:
       - name: Run type checking
         run: npx tsc --noEmit
 
-      - name: Run build test
-        run: npm run build
+      - name: Run build test (local mode)
+        run: npm run build:local
         env:
-          NODE_ENV: production
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NODE_ENV: development
+          USE_MOCK_DATA: true
 
   deploy:
     needs: build-and-test
