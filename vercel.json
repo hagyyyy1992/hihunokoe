@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build:production",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}
