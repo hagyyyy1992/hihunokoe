@@ -9,7 +9,15 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:setup": "docker-compose up -d postgres",
+    "db:stop": "docker-compose stop",
+    "db:reset": "docker-compose down -v && docker-compose up -d postgres",
+    "db:migrate": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate dev",
+    "db:studio": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma studio",
+    "db:push": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma db push",
+    "db:status": "node scripts/check-db-status.js",
+    "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
@@ -35,6 +43,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "eslint-config-prettier": "^10.1.5",

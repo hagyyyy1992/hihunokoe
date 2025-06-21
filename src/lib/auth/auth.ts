@@ -151,9 +151,15 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   }
 }
 
+// UUID形式のチェック用関数
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  return uuidRegex.test(str)
+}
+
 export async function getUserById(id: string): Promise<AuthUser | null> {
-  if (!isDatabaseAvailable()) {
-    // モックモードでのユーザー取得
+  if (!isDatabaseAvailable() || !isValidUUID(id)) {
+    // モックモードまたは無効なUUIDの場合
     const mockUser = MOCK_USERS.find(u => u.id === id && u.isActive)
     if (!mockUser) {
       return null
