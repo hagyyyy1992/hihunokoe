@@ -73,15 +73,44 @@ DATABASE_URL="your_production_url" npx prisma migrate deploy
 2. Supabase データベースが起動しているか確認
 3. DATABASE_URL の接続文字列が正しいか確認
 
-## Supabase設定
+## Supabase設定手順
 
-### SQL エディタで実行が必要な場合
+### 1. データベーススキーマ作成（必須）
+
+Supabase Dashboard → SQL Editor で以下を実行：
+
+```bash
+# プロジェクトルートから
+cat scripts/supabase-schema.sql
+```
+
+または、`scripts/supabase-schema.sql` の内容をコピーして実行
+
+### 2. 環境変数設定
+
+Vercel Dashboard → Project Settings → Environment Variables
+
+```bash
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres:[PASSWORD]@db.getpoicarcllsyvdzncp.supabase.co:5432/postgres
+NEXT_PUBLIC_SUPABASE_URL=https://getpoicarcllsyvdzncp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+USE_MOCK_DATA=false
+```
+
+### 3. デプロイ確認
+
+1. GitHub に push
+2. Vercel でビルドログ確認
+3. Functions ログで動作確認
+
+### RLS (Row Level Security) 設定（オプション）
 ```sql
--- RLS (Row Level Security) 設定例
+-- テーブルレベルセキュリティ有効化
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 
--- 必要に応じてポリシー追加
+-- ポリシー例
 CREATE POLICY "Users can view own data" ON users
     FOR SELECT USING (auth.uid() = id);
 ```

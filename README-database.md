@@ -108,7 +108,8 @@ npm run db:seed      # サンプルデータ投入
 
 # 開発・ビルド
 npm run dev          # 開発サーバー起動
-npm run build        # プロダクションビルド
+npm run build        # 本番ビルド（マイグレーション含む）
+npm run build:local  # ローカルビルド（マイグレーションなし）
 npm run start        # プロダクションサーバー起動
 ```
 
