@@ -6,7 +6,8 @@
       "Bash(npm run format:*)",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
