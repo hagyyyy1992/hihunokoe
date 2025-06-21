@@ -12,12 +12,14 @@
     "postinstall": "prisma generate",
     "db:setup": "docker-compose up -d postgres",
     "db:stop": "docker-compose stop",
-    "db:reset": "docker-compose down -v && docker-compose up -d postgres",
+    "db:reset": "docker-compose down -v && docker volume prune -f && docker-compose up -d postgres && sleep 3 && npm run db:migrate",
     "db:migrate": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate dev",
     "db:studio": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma studio",
     "db:push": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma db push",
     "db:status": "node scripts/check-db-status.js",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "node scripts/seed.js",
+    "db:nuke": "docker-compose down && docker volume rm usaka_postgres_data || true && docker-compose up -d postgres && sleep 5 && npm run db:migrate",
+    "db:clean": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate reset --force"
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",

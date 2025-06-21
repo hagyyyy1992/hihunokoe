@@ -97,7 +97,9 @@ CREATE INDEX IF NOT EXISTS idx_posts_mood_tag ON posts(mood_tag);
 # データベース関連
 npm run db:setup     # PostgreSQL コンテナ起動
 npm run db:stop      # コンテナ停止
-npm run db:reset     # データベースリセット
+npm run db:reset     # データベースリセット（軽度）
+npm run db:nuke      # 完全データリセット（強制）
+npm run db:clean     # Prismaマイグレーションリセット
 npm run db:migrate   # マイグレーション実行
 npm run db:studio    # Prisma Studio 起動
 npm run db:push      # スキーマプッシュ
@@ -108,6 +110,44 @@ npm run db:seed      # サンプルデータ投入
 npm run dev          # 開発サーバー起動
 npm run build        # プロダクションビルド
 npm run start        # プロダクションサーバー起動
+```
+
+## データリセット方法
+
+### 軽度なリセット（推奨）
+```bash
+npm run db:reset
+```
+
+### 完全リセット（データが残る場合）
+```bash
+npm run db:nuke
+```
+
+### Prismaマイグレーションリセット
+```bash
+npm run db:clean
+```
+
+### 手動でのトラブルシューティング
+```bash
+# 1. コンテナ停止・削除
+docker-compose down
+
+# 2. ボリューム確認
+docker volume ls | grep usaka
+
+# 3. ボリューム強制削除
+docker volume rm usaka_postgres_data
+
+# 4. 未使用ボリューム全削除
+docker volume prune -f
+
+# 5. 再起動
+docker-compose up -d postgres
+
+# 6. マイグレーション実行
+npm run db:migrate
 ```
 
 ## 環境の確認
