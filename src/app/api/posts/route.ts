@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth/auth'
-import { prisma } from '@/lib/prisma'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
+import { MOCK_POSTS } from '@/lib/mock-data'
 import { z } from 'zod'
 
 const postSchema = z.object({
@@ -80,7 +81,35 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = postSchema.parse(body)
 
-    const post = await prisma.post.create({
+    if (!isDatabaseAvailable()) {
+      // モックモードでの投稿作成
+      const mockPost = {
+        id: `mock-post-${Date.now()}`,
+        userId: user.id,
+        title: validatedData.title,
+        content: validatedData.content,
+        cosmeticName: validatedData.cosmeticName,
+        cosmeticCategory: validatedData.cosmeticCategory,
+        skinType: validatedData.skinType,
+        usageSituation: validatedData.usageSituation,
+        experienceDetails: validatedData.experienceDetails,
+        moodTag: validatedData.moodTag,
+        publishedAt: new Date(),
+        user: {
+          id: user.id,
+          userName: user.userName,
+          displayName: user.displayName,
+          skinType: user.skinType,
+        },
+      }
+
+      return NextResponse.json({
+        post: mockPost,
+        message: '投稿が作成されました',
+      })
+    }
+
+    const post = await prisma!.post.create({
       data: {
         userId: user.id,
         title: validatedData.title,
@@ -142,6 +171,45 @@ export async function GET(request: NextRequest) {
     const moodTag = searchParams.get('moodTag')
     const search = searchParams.get('search')
 
+    if (!isDatabaseAvailable()) {
+      // モックモードでの投稿取得
+      let filteredPosts = [...MOCK_POSTS]
+
+      // フィルタリング
+      if (skinType) {
+        filteredPosts = filteredPosts.filter(post => post.skinType === skinType)
+      }
+      if (category) {
+        filteredPosts = filteredPosts.filter(post => post.cosmeticCategory === category)
+      }
+      if (moodTag) {
+        filteredPosts = filteredPosts.filter(post => post.moodTag === moodTag)
+      }
+      if (search) {
+        filteredPosts = filteredPosts.filter(
+          post =>
+            post.title.toLowerCase().includes(search.toLowerCase()) ||
+            post.content.toLowerCase().includes(search.toLowerCase()) ||
+            post.cosmeticName.toLowerCase().includes(search.toLowerCase())
+        )
+      }
+
+      // ページネーション
+      const skip = (page - 1) * limit
+      const paginatedPosts = filteredPosts.slice(skip, skip + limit)
+      const total = filteredPosts.length
+
+      return NextResponse.json({
+        posts: paginatedPosts,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      })
+    }
+
     const skip = (page - 1) * limit
 
     const where: { [key: string]: unknown } = {
@@ -169,7 +237,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [posts, total] = await Promise.all([
-      prisma.post.findMany({
+      prisma!.post.findMany({
         where,
         include: {
           user: {
@@ -193,7 +261,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.post.count({ where }),
+      prisma!.post.count({ where }),
     ])
 
     return NextResponse.json({

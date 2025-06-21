@@ -45,6 +45,14 @@ export default function LoginPage() {
             会員登録
           </Link>
         </p>
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-800 font-medium">デモ用ログイン情報:</p>
+          <p className="text-xs text-blue-700 mt-1">
+            メール: demo@example.com
+            <br />
+            パスワード: demo123
+          </p>
+        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

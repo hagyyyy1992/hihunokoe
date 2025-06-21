@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
+import { MOCK_POSTS } from '@/lib/mock-data'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
-    const post = await prisma.post.findUnique({
+    if (!isDatabaseAvailable()) {
+      // モックモードでの投稿取得
+      const post = MOCK_POSTS.find(p => p.id === id && p.status === 'published')
+
+      if (!post) {
+        return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+      }
+
+      // 閲覧数を増加（モックなので実際には増加しない）
+      const postWithIncrementedViews = {
+        ...post,
+        viewCount: post.viewCount + 1,
+      }
+
+      return NextResponse.json({ post: postWithIncrementedViews })
+    }
+
+    const post = await prisma!.post.findUnique({
       where: {
         id,
         status: 'published',
@@ -82,7 +100,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // 閲覧数を増加
-    await prisma.post.update({
+    await prisma!.post.update({
       where: { id },
       data: {
         viewCount: {

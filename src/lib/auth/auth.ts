@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { prisma } from '@/lib/prisma'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
+import { MOCK_USERS } from '@/lib/mock-data'
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key'
 
@@ -62,9 +63,26 @@ export function verifyToken(token: string): AuthUser | null {
 }
 
 export async function registerUser(data: RegisterData): Promise<AuthUser> {
+  if (!isDatabaseAvailable()) {
+    // モックモードでは新規登録は既存ユーザーとして扱う
+    const mockUser = MOCK_USERS.find(u => u.email === data.email)
+    if (mockUser) {
+      throw new Error('ユーザー名またはメールアドレスが既に使用されています')
+    }
+
+    // デモ用の新しいユーザーを返す
+    return {
+      id: 'demo-new-user',
+      userName: data.userName,
+      email: data.email,
+      displayName: data.displayName,
+      skinType: data.skinType,
+    }
+  }
+
   const hashedPassword = await hashPassword(data.password)
 
-  const user = await prisma.user.create({
+  const user = await prisma!.user.create({
     data: {
       userName: data.userName,
       email: data.email,
@@ -85,7 +103,29 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
 }
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser | null> {
-  const user = await prisma.user.findUnique({
+  if (!isDatabaseAvailable()) {
+    // モックモードでのログイン処理
+    const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
+    if (!mockUser || !mockUser.isActive) {
+      return null
+    }
+
+    // デモ用パスワードチェック（実際のハッシュ比較はしない）
+    if (credentials.password !== 'demo123') {
+      return null
+    }
+
+    return {
+      id: mockUser.id,
+      userName: mockUser.userName,
+      email: mockUser.email,
+      displayName: mockUser.displayName || undefined,
+      skinType: mockUser.skinType || undefined,
+      profileImageUrl: mockUser.profileImageUrl || undefined,
+    }
+  }
+
+  const user = await prisma!.user.findUnique({
     where: {
       email: credentials.email,
     },
@@ -112,7 +152,24 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
 }
 
 export async function getUserById(id: string): Promise<AuthUser | null> {
-  const user = await prisma.user.findUnique({
+  if (!isDatabaseAvailable()) {
+    // モックモードでのユーザー取得
+    const mockUser = MOCK_USERS.find(u => u.id === id && u.isActive)
+    if (!mockUser) {
+      return null
+    }
+
+    return {
+      id: mockUser.id,
+      userName: mockUser.userName,
+      email: mockUser.email,
+      displayName: mockUser.displayName || undefined,
+      skinType: mockUser.skinType || undefined,
+      profileImageUrl: mockUser.profileImageUrl || undefined,
+    }
+  }
+
+  const user = await prisma!.user.findUnique({
     where: {
       id,
       isActive: true,
