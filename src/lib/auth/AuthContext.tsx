@@ -8,6 +8,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (data: RegisterData) => Promise<void>
   logout: () => Promise<void>
+  refreshAuth: () => Promise<void>
   loading: boolean
 }
 
@@ -83,7 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.error || 'ユーザー登録に失敗しました')
       }
 
-      setUser(data.user)
+      // メール確認が完了するまでログイン状態にしない
+      // setUser(data.user) をコメントアウト
+      return data
     } finally {
       setLoading(false)
     }
@@ -100,8 +103,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const refreshAuth = async () => {
+    await checkAuth()
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refreshAuth, loading }}>
       {children}
     </AuthContext.Provider>
   )

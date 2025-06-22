@@ -13,8 +13,12 @@
     "postinstall": "prisma generate",
     "db:setup": "docker-compose up -d postgres",
     "db:stop": "docker-compose stop",
+    "mailhog:start": "docker-compose up -d mailhog",
+    "mailhog:stop": "docker-compose stop mailhog",
+    "dev:full": "supabase start && npm run mailhog:start && npm run db:seed && npm run dev",
+    "dev:setup": "supabase start && npx prisma migrate dev && npm run db:seed && npm run mailhog:start",
     "db:reset": "docker-compose down -v && docker volume prune -f && docker-compose up -d postgres && sleep 3 && npm run db:migrate",
-    "db:migrate": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate dev",
+    "db:migrate": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate dev && npm run db:seed",
     "db:studio": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma studio",
     "db:push": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma db push",
     "db:status": "node scripts/check-db-status.js",
@@ -28,14 +32,17 @@
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.0",
+    "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.4",
+    "nodemailer": "^7.0.3",
     "prisma": "^6.10.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^4.6.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
@@ -54,5 +61,8 @@
     "prettier": "^3.5.3",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "node scripts/seed.js"
   }
 }

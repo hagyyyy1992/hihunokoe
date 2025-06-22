@@ -38,17 +38,32 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      await register({
-        userName: formData.userName,
-        email: formData.email,
-        password: formData.password,
-        displayName: formData.displayName || undefined,
-        skinType: formData.skinType || undefined,
+      // 直接API呼び出しに変更（AuthContextのregisterを使用しない）
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName: formData.userName,
+          email: formData.email,
+          password: formData.password,
+          displayName: formData.displayName || undefined,
+          skinType: formData.skinType || undefined,
+        }),
       })
-      router.push('/')
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // 登録完了画面にリダイレクト
+        router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
+      } else {
+        setError(data.error || 'ユーザー登録に失敗しました')
+      }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'ユーザー登録に失敗しました'
-      setError(errorMessage)
+      console.error('Registration error:', err)
+      setError('ユーザー登録に失敗しました')
     } finally {
       setLoading(false)
     }

@@ -21,6 +21,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
+    // メール認証が完了していない場合は認証を無効にする
+    if (!user.emailVerified) {
+      return NextResponse.json({ error: 'メールアドレスの確認が必要です' }, { status: 403 })
+    }
+
     return NextResponse.json({ user })
   } catch (error) {
     console.error('Get user error:', error)

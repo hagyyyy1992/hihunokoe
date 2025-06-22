@@ -12,23 +12,70 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showResendButton, setShowResendButton] = useState(false)
 
-  const { login } = useAuth()
+  const { refreshAuth } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setShowResendButton(false)
     setLoading(true)
 
     try {
-      await login(email, password)
-      router.push('/')
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        await refreshAuth()
+        router.push('/')
+      } else {
+        setError(data.error || 'ログインに失敗しました')
+        
+        // メール認証が必要な場合
+        if (data.emailVerificationRequired) {
+          setShowResendButton(true)
+        }
+      }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'ログインに失敗しました'
-      setError(errorMessage)
+      console.error('Login error:', err)
+      setError('ログインに失敗しました')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResendEmail = async () => {
+    if (!email) return
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setError('確認メールを再送信しました。メールボックスをご確認ください。')
+        setShowResendButton(false)
+      } else {
+        setError(data.error || '再送信に失敗しました')
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error)
+      setError('再送信に失敗しました')
     }
   }
 
@@ -48,7 +95,7 @@ export default function LoginPage() {
           </Link>
         </p>
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-800 font-medium">デモ用ログイン情報:</p>
+          <p className="text-sm text-blue-800 font-medium">デモ用ログイン情報 (メール認証済み):</p>
           <p className="text-xs text-blue-700 mt-1">
             メール: demo@example.com
             <br />
@@ -60,7 +107,30 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && <div className="alert alert-error">{error}</div>}
+            {error && (
+              <div className={`p-3 rounded-md text-sm ${
+                error.includes('再送信しました')
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {error}
+              </div>
+            )}
+
+            {showResendButton && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <p className="text-sm text-yellow-800 mb-2">
+                  メールアドレスの確認が完了していません。
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResendEmail}
+                  className="text-sm text-blue-600 hover:text-blue-500 underline"
+                >
+                  確認メールを再送信する
+                </button>
+              </div>
+            )}
 
             <Input
               label="メールアドレス"

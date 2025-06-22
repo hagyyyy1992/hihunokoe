@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerUser, generateToken } from '@/lib/auth/auth'
+import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
 
 const registerSchema = z.object({
@@ -18,20 +19,37 @@ export async function POST(request: NextRequest) {
 
     // ユーザー名とメールアドレスの重複チェックは Prisma のユニーク制約で行われる
     const user = await registerUser(validatedData)
-    const token = generateToken(user)
+    
+    // メール認証が完了するまではトークンを発行しない
+    // const token = generateToken(user)
+
+    // 確認メールを送信
+    try {
+      await sendVerificationEmail(user.id, user.email, user.userName)
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
+      // メール送信に失敗してもユーザー登録は成功とする
+    }
 
     const response = NextResponse.json({
-      user,
-      message: 'ユーザー登録が完了しました',
+      user: {
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+        displayName: user.displayName,
+        skinType: user.skinType,
+        emailVerified: user.emailVerified,
+      },
+      message: 'ユーザー登録が完了しました。確認メールをお送りしましたので、メールアドレスの確認を行ってください。',
     })
 
-    // HttpOnly Cookie にトークンを設定
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7日間
-    })
+    // メール確認が完了するまではトークンを設定しない
+    // response.cookies.set('auth-token', token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax',
+    //   maxAge: 7 * 24 * 60 * 60, // 7日間
+    // })
 
     return response
   } catch (error: unknown) {

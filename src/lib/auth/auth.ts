@@ -12,6 +12,7 @@ export interface AuthUser {
   displayName?: string
   skinType?: string
   profileImageUrl?: string
+  emailVerified?: boolean
 }
 
 export interface LoginCredentials {
@@ -107,7 +108,32 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
 }
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser | null> {
-  // デモ用ログイン情報のチェック（常に最初にチェック）
+  // データベースが利用可能な場合は、データベースユーザーを優先
+  if (isDatabaseAvailable()) {
+    const user = await prisma!.user.findUnique({
+      where: {
+        email: credentials.email,
+      },
+    })
+
+    if (user && user.isActive) {
+      const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
+
+      if (isPasswordValid) {
+        return {
+          id: user.id,
+          userName: user.userName,
+          email: user.email,
+          displayName: user.displayName || undefined,
+          skinType: user.skinType || undefined,
+          profileImageUrl: user.profileImageUrl || undefined,
+          emailVerified: user.emailVerified,
+        }
+      }
+    }
+  }
+
+  // データベースが利用できない場合、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
   const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
   if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
     return {
@@ -117,39 +143,11 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       displayName: mockUser.displayName || undefined,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
+      emailVerified: true, // モックユーザーは常に認証済み
     }
   }
 
-  // データベースが利用できない場合はここで終了
-  if (!isDatabaseAvailable()) {
-    return null
-  }
-
-  // データベースでのユーザー検索
-  const user = await prisma!.user.findUnique({
-    where: {
-      email: credentials.email,
-    },
-  })
-
-  if (!user || !user.isActive) {
-    return null
-  }
-
-  const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
-
-  if (!isPasswordValid) {
-    return null
-  }
-
-  return {
-    id: user.id,
-    userName: user.userName,
-    email: user.email,
-    displayName: user.displayName || undefined,
-    skinType: user.skinType || undefined,
-    profileImageUrl: user.profileImageUrl || undefined,
-  }
+  return null
 }
 
 // UUID形式のチェック用関数
@@ -173,6 +171,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
       displayName: mockUser.displayName || undefined,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
+      emailVerified: true, // モックユーザーは常に認証済み
     }
   }
 
@@ -194,5 +193,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     displayName: user.displayName || undefined,
     skinType: user.skinType || undefined,
     profileImageUrl: user.profileImageUrl || undefined,
+    emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
   }
 }
