@@ -26,12 +26,14 @@ NEXTAUTH_SECRET=your_production_secret_key
 ## デプロイフロー
 
 1. **ローカルでテスト**
+
    ```bash
    npm run build
    npm run start
    ```
 
 2. **mainブランチにプッシュ**
+
    ```bash
    git add .
    git commit -m "your commit message"
@@ -49,17 +51,20 @@ NEXTAUTH_SECRET=your_production_secret_key
 ## マイグレーション詳細
 
 ### 本番マイグレーション (`prisma migrate deploy`)
+
 - 本番データベースに安全にマイグレーション適用
 - データ損失なし
 - ロールバック不可（慎重に実行）
 
 ### ローカル開発マイグレーション (`prisma migrate dev`)
+
 - 開発用データベースでマイグレーション作成・適用
 - データリセット可能
 
 ## トラブルシューティング
 
 ### マイグレーション失敗
+
 ```bash
 # ローカルでマイグレーション確認
 DATABASE_URL="your_production_url" npx prisma migrate status
@@ -69,6 +74,7 @@ DATABASE_URL="your_production_url" npx prisma migrate deploy
 ```
 
 ### ビルド失敗
+
 1. 環境変数が正しく設定されているか確認
 2. Supabase データベースが起動しているか確認
 3. DATABASE_URL の接続文字列が正しいか確認
@@ -105,6 +111,7 @@ USE_MOCK_DATA=false
 3. Functions ログで動作確認
 
 ### RLS (Row Level Security) 設定（オプション）
+
 ```sql
 -- テーブルレベルセキュリティ有効化
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

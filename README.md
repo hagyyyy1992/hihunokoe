@@ -102,6 +102,7 @@ RESEND_API_KEY="your_resend_api_key"
 ## 開発コマンド
 
 ### 基本コマンド
+
 - `npm run dev` - 開発サーバー起動（Turbopack有効）
 - `npm run dev:full` - Supabase + MailHog + 開発サーバーを一括起動
 - `npm run build` - プロダクションビルド
@@ -109,16 +110,19 @@ RESEND_API_KEY="your_resend_api_key"
 - `npm run lint` - ESLint実行
 
 ### データベース関連
+
 - `npx prisma migrate dev` - マイグレーション実行
 - `npx prisma studio` - Prisma Studio起動
 - `npx prisma generate` - Prismaクライアント生成
 
 ### Supabase関連
+
 - `supabase start` - ローカルSupabase起動
 - `supabase stop` - ローカルSupabase停止
 - `supabase status` - ローカルSupabase状態確認
 
 ### メール関連
+
 - `npm run mailhog:start` - MailHog起動
 - `npm run mailhog:stop` - MailHog停止
 

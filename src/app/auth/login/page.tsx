@@ -39,7 +39,7 @@ export default function LoginPage() {
         router.push('/')
       } else {
         setError(data.error || 'ログインに失敗しました')
-        
+
         // メール認証が必要な場合
         if (data.emailVerificationRequired) {
           setShowResendButton(true)
@@ -108,11 +108,13 @@ export default function LoginPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className={`p-3 rounded-md text-sm ${
-                error.includes('再送信しました')
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`p-3 rounded-md text-sm ${
+                  error.includes('再送信しました')
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
                 {error}
               </div>
             )}

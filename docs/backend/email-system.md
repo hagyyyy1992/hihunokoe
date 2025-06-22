@@ -24,11 +24,13 @@ Usakaアプリケーションでは、ユーザーのメールアドレス認証
 ### 技術スタック
 
 #### 本番環境
+
 - **メール送信**: Resend API
 - **認証フロー**: JWT + メール認証
 - **データベース**: Supabase PostgreSQL
 
 #### 開発環境
+
 - **メール送信**: MailHog (Docker)
 - **認証フロー**: JWT + メール認証
 - **データベース**: Supabase Local (Docker)
@@ -103,6 +105,7 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ### 1. ユーザー登録 (`POST /api/auth/register`)
 
 **リクエスト**:
+
 ```typescript
 {
   userName: string
@@ -114,6 +117,7 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ```
 
 **レスポンス**:
+
 ```typescript
 {
   user: {
@@ -123,11 +127,12 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
     emailVerified: false
     // ...
   }
-  message: "ユーザー登録が完了しました。確認メールをお送りしましたので、メールアドレスの確認を行ってください。"
+  message: 'ユーザー登録が完了しました。確認メールをお送りしましたので、メールアドレスの確認を行ってください。'
 }
 ```
 
 **処理フロー**:
+
 1. バリデーション実行
 2. ユーザー作成
 3. 認証トークン生成・保存
@@ -137,12 +142,14 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ### 2. メール確認 (`GET /api/auth/verify-email`)
 
 **パラメータ**:
+
 - `token`: 認証トークン
 
 **レスポンス**:
+
 ```typescript
 {
-  message: "メールアドレスの確認が完了しました"
+  message: 'メールアドレスの確認が完了しました'
   user: {
     id: string
     userName: string
@@ -154,6 +161,7 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ```
 
 **処理フロー**:
+
 1. トークンの検証（存在・有効期限）
 2. ユーザーの`emailVerified`をtrueに更新
 3. トークン関連フィールドをクリア
@@ -164,6 +172,7 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ### 3. 確認メール再送信 (`POST /api/auth/resend-verification`)
 
 **リクエスト**:
+
 ```typescript
 {
   email: string
@@ -171,9 +180,10 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ```
 
 **レスポンス**:
+
 ```typescript
 {
-  message: "確認メールを再送信しました"
+  message: '確認メールを再送信しました'
 }
 ```
 
@@ -182,6 +192,7 @@ CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ### 環境別設定
 
 #### 本番環境 (Resend)
+
 ```typescript
 // NODE_ENV=production && RESEND_API_KEY存在時
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -190,66 +201,73 @@ await resend.emails.send({
   to: userEmail,
   subject: '【化粧品体験共有サービス】メールアドレスの確認',
   html: htmlContent,
-  text: textContent
+  text: textContent,
 })
 ```
 
 #### 開発環境 (MailHog)
+
 ```typescript
 // NODE_ENV=development || RESEND_API_KEY未設定時
 const mailhogTransporter = createTransport({
   host: 'localhost',
   port: 1025,
   secure: false,
-  auth: false
+  auth: false,
 })
 await mailhogTransporter.sendMail({
   from: 'noreply@yourdomain.com',
   to: userEmail,
   subject: '【化粧品体験共有サービス】メールアドレスの確認',
   html: htmlContent,
-  text: textContent
+  text: textContent,
 })
 ```
 
 ### メールテンプレート
 
 #### HTML版
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>メールアドレスの確認</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h2 style="color: #2c3e50;">化粧品体験共有サービス</h2>
-    <h3>メールアドレスの確認</h3>
-    
-    <p>こんにちは、{{userName}}さん</p>
-    
-    <p>アカウント登録ありがとうございます。<br>
-    以下のリンクをクリックして、メールアドレスの確認を完了してください。</p>
-    
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="{{verificationUrl}}" 
-         style="background-color: #3498db; color: white; padding: 12px 30px; 
-                text-decoration: none; border-radius: 5px; display: inline-block;">
-        メールアドレスを確認する
-      </a>
+  <head>
+    <meta charset="utf-8" />
+    <title>メールアドレスの確認</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #2c3e50;">化粧品体験共有サービス</h2>
+      <h3>メールアドレスの確認</h3>
+
+      <p>こんにちは、{{userName}}さん</p>
+
+      <p>
+        アカウント登録ありがとうございます。<br />
+        以下のリンクをクリックして、メールアドレスの確認を完了してください。
+      </p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a
+          href="{{verificationUrl}}"
+          style="background-color: #3498db; color: white; padding: 12px 30px; 
+                text-decoration: none; border-radius: 5px; display: inline-block;"
+        >
+          メールアドレスを確認する
+        </a>
+      </div>
+
+      <p style="color: #666; font-size: 14px;">
+        このリンクは24時間有効です。<br />
+        もしこのメールに心当たりがない場合は、このメールを無視してください。
+      </p>
     </div>
-    
-    <p style="color: #666; font-size: 14px;">
-      このリンクは24時間有効です。<br>
-      もしこのメールに心当たりがない場合は、このメールを無視してください。
-    </p>
-  </div>
-</body>
+  </body>
 </html>
 ```
 
 #### テキスト版
+
 ```text
 化粧品体験共有サービス
 
@@ -274,15 +292,18 @@ await mailhogTransporter.sendMail({
 ### MailHog セットアップ
 
 1. **Docker Compose起動**:
+
 ```bash
 npm run mailhog:start
 ```
 
 2. **管理画面アクセス**:
+
 - URL: http://localhost:8025
 - SMTP: localhost:1025
 
 3. **メール送信テスト**:
+
 ```bash
 # ユーザー登録
 curl -X POST http://localhost:3000/api/auth/register \
@@ -334,9 +355,9 @@ supabase status
 ```typescript
 // 将来実装予定
 const rateLimiter = {
-  maxRequests: 3,     // 最大3回
-  windowMs: 3600000,  // 1時間
-  blockDurationMs: 3600000  // 1時間ブロック
+  maxRequests: 3, // 最大3回
+  windowMs: 3600000, // 1時間
+  blockDurationMs: 3600000, // 1時間ブロック
 }
 ```
 
@@ -359,7 +380,7 @@ console.log(`📧 Email sent to ${isDevelopment ? 'MailHog' : 'Resend'}: ${to}`)
 console.error('Email send error:', {
   service: isDevelopment ? 'MailHog' : 'Resend',
   to: email,
-  error: error.message
+  error: error.message,
 })
 ```
 
@@ -368,14 +389,17 @@ console.error('Email send error:', {
 ### よくある問題
 
 #### 1. メールが届かない
+
 - **原因**: SMTP設定ミス、スパムフィルタ
 - **対処**: MailHog管理画面で確認、設定見直し
 
 #### 2. トークンが無効
+
 - **原因**: 有効期限切れ、使用済み
 - **対処**: 再送信機能利用
 
 #### 3. 開発環境でメール送信失敗
+
 - **原因**: MailHogが起動していない
 - **対処**: `npm run mailhog:start`実行
 
@@ -389,8 +413,8 @@ docker logs usaka_mailhog
 npx prisma studio
 
 # 認証トークン確認
-SELECT email, email_verification_token, email_verification_expiry 
-FROM users 
+SELECT email, email_verification_token, email_verification_expiry
+FROM users
 WHERE email = 'test@example.com';
 ```
 

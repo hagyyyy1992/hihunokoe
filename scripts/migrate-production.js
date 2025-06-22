@@ -29,10 +29,10 @@ if (NODE_ENV === 'production' && DATABASE_URL && USE_MOCK_DATA !== 'true') {
   try {
     console.log('🔍 Checking database status...')
     execSync('prisma migrate status', { stdio: 'inherit' })
-    
+
     console.log('🗄️  Deploying database migrations...')
     execSync('prisma migrate deploy', { stdio: 'inherit' })
-    
+
     console.log('✅ Production migration completed successfully!')
   } catch (error) {
     console.error('❌ Migration failed:', error.message)
@@ -40,7 +40,7 @@ if (NODE_ENV === 'production' && DATABASE_URL && USE_MOCK_DATA !== 'true') {
     console.error('  1. DATABASE_URL is correctly set in Vercel')
     console.error('  2. Supabase database is accessible')
     console.error('  3. Network connectivity is working')
-    
+
     // For first deployment, don't fail the build
     console.log('⚠️  First deployment detected - continuing with mock mode fallback...')
     console.log('🔄 After first deployment, please manually run migrations or create tables')

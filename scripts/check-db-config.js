@@ -14,7 +14,7 @@ if (process.env.DATABASE_URL) {
   } else {
     console.log('  Database Type: OTHER')
   }
-  
+
   // URLの安全な表示（パスワード部分をマスク）
   const maskedUrl = url.replace(/:[^:]*@/, ':***@')
   console.log('  Database URL:', maskedUrl)

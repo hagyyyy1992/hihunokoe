@@ -30,7 +30,8 @@ async function main() {
   const demoPosts = [
     {
       title: '敏感肌でも使えた！優しい化粧水',
-      content: '敏感肌の私でも安心して使える化粧水を見つけました。刺激もなく、しっとりとした仕上がりで満足しています。',
+      content:
+        '敏感肌の私でも安心して使える化粧水を見つけました。刺激もなく、しっとりとした仕上がりで満足しています。',
       cosmeticName: 'ナチュラル保湿化粧水',
       cosmeticCategory: 'toner',
       skinType: 'sensitive',
@@ -40,32 +41,33 @@ async function main() {
         timeOfDay: 'morning',
         menstrualCycle: 'normal',
         skinCondition: 'stable',
-        weatherCondition: 'dry'
+        weatherCondition: 'dry',
       },
       experienceDetails: {
         fragrance: {
           type: 'none',
           intensity: 'none',
-          description: '無香料でよかった'
+          description: '無香料でよかった',
         },
         texture: {
           type: 'liquid',
           spreadability: 'easy',
           absorption: 'fast',
-          description: 'さらっとしているのにしっとり'
+          description: 'さらっとしているのにしっとり',
         },
         afterUse: {
           moisture: 'moist',
           texture: 'smooth',
           comfort: 'comfortable',
           duration: 'long',
-          description: '一日中潤いが続いた'
-        }
-      }
+          description: '一日中潤いが続いた',
+        },
+      },
     },
     {
       title: 'リピ決定！コスパ最高のクレンジング',
-      content: 'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
+      content:
+        'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
       cosmeticName: 'やさしいクレンジングオイル',
       cosmeticCategory: 'cleansing',
       skinType: 'combination',
@@ -75,29 +77,29 @@ async function main() {
         timeOfDay: 'evening',
         menstrualCycle: 'normal',
         skinCondition: 'stable',
-        weatherCondition: 'normal'
+        weatherCondition: 'normal',
       },
       experienceDetails: {
         fragrance: {
           type: 'citrus',
           intensity: 'weak',
-          description: 'ほんのり柑橘系'
+          description: 'ほんのり柑橘系',
         },
         texture: {
           type: 'oil',
           spreadability: 'easy',
           absorption: 'moderate',
-          description: 'するっと落ちる'
+          description: 'するっと落ちる',
         },
         afterUse: {
           moisture: 'balanced',
           texture: 'smooth',
           comfort: 'comfortable',
           duration: 'moderate',
-          description: 'つっぱらず良い感じ'
-        }
-      }
-    }
+          description: 'つっぱらず良い感じ',
+        },
+      },
+    },
   ]
 
   for (const postData of demoPosts) {
@@ -127,7 +129,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e)
     process.exit(1)
   })

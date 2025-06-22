@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // ユーザー名とメールアドレスの重複チェックは Prisma のユニーク制約で行われる
     const user = await registerUser(validatedData)
-    
+
     // メール認証が完了するまではトークンを発行しない
     // const token = generateToken(user)
 
@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
         skinType: user.skinType,
         emailVerified: user.emailVerified,
       },
-      message: 'ユーザー登録が完了しました。確認メールをお送りしましたので、メールアドレスの確認を行ってください。',
+      message:
+        'ユーザー登録が完了しました。確認メールをお送りしましたので、メールアドレスの確認を行ってください。',
     })
 
     // メール確認が完了するまではトークンを設定しない

@@ -1,6 +1,10 @@
 import { randomBytes } from 'crypto'
 import { PrismaClient } from '@prisma/client'
-import { sendEmail, generateVerificationEmailHtml, generateVerificationEmailText } from '@/lib/email/email'
+import {
+  sendEmail,
+  generateVerificationEmailHtml,
+  generateVerificationEmailText,
+} from '@/lib/email/email'
 
 const prisma = new PrismaClient()
 
@@ -23,7 +27,11 @@ export async function createVerificationToken(userId: string): Promise<string> {
   return token
 }
 
-export async function sendVerificationEmail(userId: string, email: string, userName: string): Promise<void> {
+export async function sendVerificationEmail(
+  userId: string,
+  email: string,
+  userName: string
+): Promise<void> {
   const token = await createVerificationToken(userId)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}`
@@ -39,7 +47,9 @@ export async function sendVerificationEmail(userId: string, email: string, userN
   })
 }
 
-export async function verifyEmailToken(token: string): Promise<{ success: boolean; message: string; user?: any }> {
+export async function verifyEmailToken(
+  token: string
+): Promise<{ success: boolean; message: string; user?: any }> {
   const user = await prisma.user.findFirst({
     where: {
       emailVerificationToken: token,
@@ -81,7 +91,9 @@ export async function isEmailVerified(userId: string): Promise<boolean> {
   return user?.emailVerified || false
 }
 
-export async function resendVerificationEmail(email: string): Promise<{ success: boolean; message: string }> {
+export async function resendVerificationEmail(
+  email: string
+): Promise<{ success: boolean; message: string }> {
   const user = await prisma.user.findUnique({
     where: { email },
     select: { id: true, userName: true, emailVerified: true },

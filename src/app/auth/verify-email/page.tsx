@@ -29,10 +29,10 @@ export default function VerifyEmailPage() {
         if (response.ok) {
           setStatus('success')
           setMessage(data.message)
-          
+
           // 認証状態をリフレッシュ
           await refreshAuth()
-          
+
           // 3秒後にホームページにリダイレクト
           setTimeout(() => {
             router.push('/')
@@ -59,7 +59,7 @@ export default function VerifyEmailPage() {
             メールアドレスの確認
           </h2>
         </div>
-        
+
         <div className="bg-white shadow-md rounded-lg p-6">
           {status === 'loading' && (
             <div className="text-center">
@@ -72,13 +72,8 @@ export default function VerifyEmailPage() {
             <div className="text-center">
               <div className="text-green-600 text-5xl mb-4">✓</div>
               <p className="text-green-600 font-medium mb-4">{message}</p>
-              <p className="text-gray-600 text-sm mb-4">
-                3秒後に自動的にホームページに移動します
-              </p>
-              <Link
-                href="/"
-                className="text-blue-600 hover:text-blue-500 font-medium"
-              >
+              <p className="text-gray-600 text-sm mb-4">3秒後に自動的にホームページに移動します</p>
+              <Link href="/" className="text-blue-600 hover:text-blue-500 font-medium">
                 今すぐホームページに移動
               </Link>
             </div>

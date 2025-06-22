@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
     // メール認証チェック
     if (!user.emailVerified) {
       return NextResponse.json(
-        { 
+        {
           error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
           emailVerificationRequired: true,
-          email: user.email
+          email: user.email,
         },
         { status: 403 }
       )

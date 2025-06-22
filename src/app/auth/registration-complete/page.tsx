@@ -47,17 +47,13 @@ export default function RegistrationCompletePage() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             登録ありがとうございます
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            メールアドレスの確認が必要です
-          </p>
+          <p className="mt-2 text-center text-sm text-gray-600">メールアドレスの確認が必要です</p>
         </div>
-        
+
         <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
           <div className="text-center">
             <div className="text-green-600 text-6xl mb-4">📧</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              確認メールを送信しました
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">確認メールを送信しました</h3>
             {email && (
               <p className="text-sm text-gray-600 mb-4">
                 <span className="font-medium">{email}</span> 宛に確認メールをお送りしました。
@@ -66,9 +62,7 @@ export default function RegistrationCompletePage() {
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h4 className="text-sm font-medium text-blue-800 mb-2">
-              📋 次の手順
-            </h4>
+            <h4 className="text-sm font-medium text-blue-800 mb-2">📋 次の手順</h4>
             <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
               <li>メールボックスを確認してください</li>
               <li>「メールアドレスを確認する」ボタンをクリック</li>
@@ -77,9 +71,7 @@ export default function RegistrationCompletePage() {
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <h4 className="text-sm font-medium text-yellow-800 mb-2">
-              ⚠️ メールが届かない場合
-            </h4>
+            <h4 className="text-sm font-medium text-yellow-800 mb-2">⚠️ メールが届かない場合</h4>
             <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
               <li>迷惑メールフォルダを確認してください</li>
               <li>メールアドレスに間違いがないか確認してください</li>
@@ -88,11 +80,13 @@ export default function RegistrationCompletePage() {
           </div>
 
           {message && (
-            <div className={`p-3 rounded-md text-sm ${
-              message.includes('成功') || message.includes('再送信しました')
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200'
-            }`}>
+            <div
+              className={`p-3 rounded-md text-sm ${
+                message.includes('成功') || message.includes('再送信しました')
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : 'bg-red-50 text-red-700 border border-red-200'
+              }`}
+            >
               {message}
             </div>
           )}
@@ -107,16 +101,10 @@ export default function RegistrationCompletePage() {
             </button>
 
             <div className="text-center space-y-2">
-              <Link
-                href="/auth/login"
-                className="block text-sm text-pink-600 hover:text-pink-500"
-              >
+              <Link href="/auth/login" className="block text-sm text-pink-600 hover:text-pink-500">
                 ログインページに戻る
               </Link>
-              <Link
-                href="/"
-                className="block text-sm text-gray-600 hover:text-gray-500"
-              >
+              <Link href="/" className="block text-sm text-gray-600 hover:text-gray-500">
                 ホームページに戻る
               </Link>
             </div>

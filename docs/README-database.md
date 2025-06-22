@@ -133,6 +133,7 @@ npm run start        # プロダクションサーバー起動
 ## データリセット方法
 
 ### Supabase環境リセット（推奨）
+
 ```bash
 # Supabaseローカル環境をリセット
 supabase reset
@@ -142,6 +143,7 @@ npx prisma migrate dev
 ```
 
 ### 完全リセット（データが残る場合）
+
 ```bash
 # Supabase停止
 supabase stop
@@ -157,6 +159,7 @@ npx prisma migrate dev
 ```
 
 ### MailHogリセット
+
 ```bash
 # MailHog停止・再起動
 npm run mailhog:stop
@@ -164,6 +167,7 @@ npm run mailhog:start
 ```
 
 ### 手動でのトラブルシューティング
+
 ```bash
 # 1. 全サービス停止
 supabase stop

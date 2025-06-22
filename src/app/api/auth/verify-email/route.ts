@@ -11,19 +11,13 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get('token')
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'トークンが提供されていません' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'トークンが提供されていません' }, { status: 400 })
     }
 
     const result = await verifyEmailToken(token)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.message },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: result.message }, { status: 400 })
     }
 
     // メール確認が完了したらログイン状態にする
@@ -55,9 +49,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: result.message })
   } catch (error) {
     console.error('Email verification error:', error)
-    return NextResponse.json(
-      { error: 'メールアドレスの確認に失敗しました' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'メールアドレスの確認に失敗しました' }, { status: 500 })
   }
 }
