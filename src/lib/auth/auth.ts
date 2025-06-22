@@ -85,6 +85,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
         passwordHash: hashedPassword,
         displayName: data.displayName,
         skinType: data.skinType,
+        emailVerified: true, // 一時的にメール認証をスキップ
       },
     })
 
@@ -95,6 +96,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       displayName: user.displayName || undefined,
       skinType: user.skinType || undefined,
       profileImageUrl: user.profileImageUrl || undefined,
+      emailVerified: user.emailVerified,
     }
   } catch (error: unknown) {
     // Prismaのユニーク制約エラーハンドリング
