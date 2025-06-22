@@ -57,7 +57,13 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
         html,
         text,
       })
-      console.log(`📧 Email sent via Resend: ${to}`)
+      console.log(`📧 Email sent via Resend:`, {
+        to,
+        from: fromEmail,
+        subject,
+        messageId: result.data?.id,
+        error: result.error
+      })
       return { success: true, id: result.data?.id }
     } catch (error) {
       console.error('Resend email error:', error)
