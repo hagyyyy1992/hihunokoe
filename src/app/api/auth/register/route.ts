@@ -40,9 +40,8 @@ export async function POST(request: NextRequest) {
         skinType: user.skinType,
         emailVerified: user.emailVerified,
       },
-      message:
-        'ユーザー登録が完了しました。ログインして始めましょう！',
-      token
+      message: 'ユーザー登録が完了しました。ログインして始めましょう！',
+      token,
     })
 
     // 登録後すぐにログイン可能にする
