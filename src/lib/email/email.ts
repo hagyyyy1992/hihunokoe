@@ -23,8 +23,16 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
 
-  if (isDevelopment || !resend) {
-    // 開発環境またはResend APIキーが未設定の場合はMailHogを使用
+  // 本番環境でRESEND_API_KEYが未設定の場合
+  if (!isDevelopment && !resend) {
+    console.error('RESEND_API_KEY is not set in production environment')
+    throw new Error(
+      'Email service is not configured. Please set RESEND_API_KEY environment variable.'
+    )
+  }
+
+  if (isDevelopment && !resend) {
+    // 開発環境でResend APIキーが未設定の場合はMailHogを使用
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
@@ -40,9 +48,9 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
       throw new Error('Failed to send email via MailHog')
     }
   } else {
-    // 本番環境ではResendを使用
+    // Resendを使用（本番環境または開発環境でAPIキーが設定されている場合）
     try {
-      const result = await resend.emails.send({
+      const result = await resend!.emails.send({
         from: fromEmail,
         to,
         subject,
