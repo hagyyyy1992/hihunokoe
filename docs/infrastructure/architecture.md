@@ -38,9 +38,9 @@
 
 - **Database**: Supabase PostgreSQL
 - **ORM**: Prisma 6
-- **Authentication**: JWT + bcrypt
+- **Authentication**: JWT + bcrypt + メール認証
+- **Email Service**: Resend (本番) / MailHog (開発)
 - **File Storage**: Supabase Storage
-- **Email**: Supabase Auth (将来実装)
 
 #### インフラ層
 
@@ -69,7 +69,8 @@ Staging Environment (preview branches)
 
 Development Environment (local)
 ├── URL: localhost:3000
-├── Database: Local SQLite / Supabase Dev
+├── Database: Supabase Local (Docker)
+├── Email: MailHog (localhost:8025)
 ├── Hot Reload: Turbopack
 └── Debug Tools: Next.js DevTools
 ```
@@ -120,7 +121,14 @@ GitHub Repository
 ### 接続管理
 
 ```typescript
-// Connection Pool Configuration
+// Prisma Client Configuration (Development)
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Supabase Client Configuration (Authentication)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

@@ -32,6 +32,9 @@ CREATE TABLE users (
   skin_type VARCHAR(50), -- 'normal', 'dry', 'oily', 'combination', 'sensitive'
   profile_image_url TEXT,
   is_active BOOLEAN DEFAULT true,
+  email_verified BOOLEAN DEFAULT false,
+  email_verification_token VARCHAR(255),
+  email_verification_expiry TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -40,6 +43,8 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(user_name);
 CREATE INDEX idx_users_active ON users(is_active);
+CREATE INDEX idx_users_email_verified ON users(email_verified);
+CREATE INDEX idx_users_verification_token ON users(email_verification_token);
 ```
 
 **制約**:
@@ -48,6 +53,9 @@ CREATE INDEX idx_users_active ON users(is_active);
 - `email`: 有効なメールアドレス形式
 - `skin_type`: 事前定義された値のみ
 - `password_hash`: bcrypt形式
+- `email_verified`: デフォルトfalse、メール確認後true
+- `email_verification_token`: 32文字のランダムトークン
+- `email_verification_expiry`: トークンの有効期限（24時間）
 
 ### Posts テーブル
 
@@ -206,6 +214,9 @@ model User {
   skinType         String?  @map("skin_type") @db.VarChar(50)
   profileImageUrl  String?  @map("profile_image_url")
   isActive         Boolean  @default(true) @map("is_active")
+  emailVerified    Boolean  @default(false) @map("email_verified")
+  emailVerificationToken String? @map("email_verification_token") @db.VarChar(255)
+  emailVerificationExpiry DateTime? @map("email_verification_expiry") @db.Timestamptz(6)
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 

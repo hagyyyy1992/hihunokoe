@@ -2,40 +2,53 @@
 
 このプロジェクトは環境に応じて異なるデータベースを使用します：
 
-- **Development (ローカル)**: PostgreSQL (Docker)
+- **Development (ローカル)**: Supabase Local (Docker)
 - **Production (本番)**: Supabase PostgreSQL
 
 ## セットアップ手順
 
 ### 1. ローカル開発環境
 
-#### PostgreSQL の起動
+#### Supabase Local の起動
 
 ```bash
-# PostgreSQL コンテナを起動
-npm run db:setup
+# Supabase CLI インストール (未インストールの場合)
+brew install supabase/tap/supabase
 
-# データベースの状態確認
-npm run db:status
+# Supabase ローカル環境を起動
+supabase start
+
+# Supabase 状態確認
+supabase status
 ```
 
 #### データベースの初期化
 
 ```bash
 # Prisma マイグレーション実行
-npm run db:migrate
-
-# または、直接プッシュ
-npm run db:push
+npx prisma migrate dev
 
 # Prisma Studio でデータベース確認
-npm run db:studio
+npx prisma studio
+```
+
+#### MailHog起動 (メール機能テスト用)
+
+```bash
+# MailHog コンテナを起動
+npm run mailhog:start
+
+# MailHog管理画面: http://localhost:8025
 ```
 
 #### 開発サーバー起動
 
 ```bash
+# 個別起動
 npm run dev
+
+# 一括起動 (Supabase + MailHog + Next.js)
+npm run dev:full
 ```
 
 ### 2. 本番環境 (Supabase)
@@ -94,20 +107,24 @@ CREATE INDEX IF NOT EXISTS idx_posts_mood_tag ON posts(mood_tag);
 ## 利用可能なコマンド
 
 ```bash
+# Supabase関連
+supabase start       # Supabaseローカル環境起動
+supabase stop        # Supabaseローカル環境停止
+supabase status      # 状態確認
+supabase reset       # ローカル環境リセット
+
 # データベース関連
-npm run db:setup     # PostgreSQL コンテナ起動
-npm run db:stop      # コンテナ停止
-npm run db:reset     # データベースリセット（軽度）
-npm run db:nuke      # 完全データリセット（強制）
-npm run db:clean     # Prismaマイグレーションリセット
-npm run db:migrate   # マイグレーション実行
-npm run db:studio    # Prisma Studio 起動
-npm run db:push      # スキーマプッシュ
-npm run db:status    # 現在の DB 設定確認
-npm run db:seed      # サンプルデータ投入
+npx prisma migrate dev    # マイグレーション実行
+npx prisma studio         # Prisma Studio 起動
+npx prisma generate       # Prismaクライアント生成
+
+# メール関連
+npm run mailhog:start     # MailHog起動
+npm run mailhog:stop      # MailHog停止
 
 # 開発・ビルド
 npm run dev          # 開発サーバー起動
+npm run dev:full     # Supabase + MailHog + Next.js 一括起動
 npm run build        # 本番ビルド（マイグレーション含む）
 npm run build:local  # ローカルビルド（マイグレーションなし）
 npm run start        # プロダクションサーバー起動
@@ -115,40 +132,56 @@ npm run start        # プロダクションサーバー起動
 
 ## データリセット方法
 
-### 軽度なリセット（推奨）
+### Supabase環境リセット（推奨）
 ```bash
-npm run db:reset
+# Supabaseローカル環境をリセット
+supabase reset
+
+# マイグレーション再実行
+npx prisma migrate dev
 ```
 
 ### 完全リセット（データが残る場合）
 ```bash
-npm run db:nuke
+# Supabase停止
+supabase stop
+
+# Docker環境クリーンアップ
+docker system prune -f
+
+# Supabase再起動
+supabase start
+
+# マイグレーション実行
+npx prisma migrate dev
 ```
 
-### Prismaマイグレーションリセット
+### MailHogリセット
 ```bash
-npm run db:clean
+# MailHog停止・再起動
+npm run mailhog:stop
+npm run mailhog:start
 ```
 
 ### 手動でのトラブルシューティング
 ```bash
-# 1. コンテナ停止・削除
-docker-compose down
+# 1. 全サービス停止
+supabase stop
+npm run mailhog:stop
 
-# 2. ボリューム確認
-docker volume ls | grep usaka
+# 2. Docker環境確認
+docker ps -a
+docker volume ls
 
-# 3. ボリューム強制削除
-docker volume rm usaka_postgres_data
-
-# 4. 未使用ボリューム全削除
+# 3. Supabase関連ボリューム削除
 docker volume prune -f
 
-# 5. 再起動
-docker-compose up -d postgres
+# 4. 再起動
+supabase start
+npm run mailhog:start
 
-# 6. マイグレーション実行
-npm run db:migrate
+# 5. マイグレーション実行
+npx prisma migrate dev
 ```
 
 ## 環境の確認
@@ -156,18 +189,44 @@ npm run db:migrate
 現在使用しているデータベースを確認：
 
 ```bash
-npm run db:status
+# Supabase状態確認
+supabase status
+
+# 環境変数確認
+echo $DATABASE_URL
+
+# 接続テスト
+npx prisma studio
 ```
+
+## 開発環境URL
+
+- **アプリケーション**: http://localhost:3000
+- **Supabase Studio**: http://localhost:54323
+- **MailHog (メールテスト)**: http://localhost:8025
+- **Prisma Studio**: http://localhost:5555
 
 ## トラブルシューティング
 
-### ローカル PostgreSQL に接続できない場合
+### Supabase Local に接続できない場合
 
 1. Docker が起動しているか確認
-2. ポート 5432 が使用されていないか確認
-3. コンテナを再起動: `npm run db:reset`
+2. ポート競合確認 (54322, 54323等)
+3. Supabase再起動: `supabase stop && supabase start`
 
-### Supabase 接続エラーの場合
+### メール送信テストができない場合
+
+1. MailHogが起動しているか確認: `docker ps | grep mailhog`
+2. ポート1025, 8025の競合確認
+3. MailHog再起動: `npm run mailhog:stop && npm run mailhog:start`
+
+### マイグレーションエラーの場合
+
+1. 接続先データベース確認: `echo $DATABASE_URL`
+2. Supabase状態確認: `supabase status`
+3. 強制マイグレーション: `npx prisma migrate reset --force`
+
+### 本番環境接続エラーの場合
 
 1. 環境変数が正しく設定されているか確認
 2. Supabase プロジェクトが有効か確認
