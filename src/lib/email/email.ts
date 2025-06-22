@@ -9,7 +9,7 @@ const mailhogTransporter = createTransport({
   host: process.env.MAILHOG_HOST || 'localhost',
   port: parseInt(process.env.MAILHOG_PORT || '1025'),
   secure: false,
-  auth: false,
+  // auth: false の代わりに undefined を使用
 })
 
 export interface EmailOptions {
