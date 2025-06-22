@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Usaka - 化粧品体験共有サービス
 
-## Getting Started
+## プロジェクト概要
 
-First, run the development server:
+Usakaは、化粧品の本当の使い心地を体験談で共有するコミュニティです。成分や評価ではなく、リアルな体験で「自分に合うかも」を見つけることを目的としています。
+
+### 目的（Why）
+
+使えない化粧品が多いことに悩んでいる人向けに、体験ベースのリアルな声を共有できる空間を提供する。広告や専門知識ではなく、肌感覚や実際の使い心地から「自分に合うかも／合わないかも」が判断できるアプリを目指す。
+
+### 想定ユーザー（Who）
+
+- **メインターゲット**: 20代女性（敏感肌／乾燥肌が多い）
+- **特徴**:
+  - 成分には詳しくない
+  - 市販のクチコミアプリの「お気に入り」が多い投稿に信頼性を感じない
+  - 自分の肌質で使えるかどうかを判断したい
+  - SNSや@cosmeは見るが、広告っぽい投稿に不信感を持つ
+
+### 提供価値（What）
+
+- ネガティブな体験も「批判でなく共感」で投稿できる
+- 成分や点数評価ではなく「実感・状況・肌状態」で判断できる
+- 肌質・季節・体調などに合わせた"リアルな使い方の参考"になる
+
+## 技術スタック
+
+- **フロントエンド**: Next.js 15 (App Router) + TypeScript
+- **スタイリング**: Tailwind CSS v4
+- **データベース**: Supabase (PostgreSQL)
+- **ORM**: Prisma
+- **認証**: JWT + bcrypt
+- **ホスティング**: Vercel
+- **バリデーション**: Zod
+- **日付処理**: date-fns
+
+## 現在の実装状況 (MVP フェーズ1)
+
+### ✅ 完了済み機能
+
+- [x] プロジェクトセットアップ（Next.js + TypeScript + Tailwind CSS）
+- [x] データベーススキーマ設計（Prisma）
+- [x] 基本レイアウト・ナビゲーション（レスポンシブ対応）
+- [x] 認証システム（ユーザー登録・ログイン・ログアウト）
+- [x] 投稿作成機能（4ステップフォーム）
+- [x] 投稿一覧・詳細表示機能
+- [x] フィルタ・検索機能
+
+### 🚧 作業中・次のステップ
+
+- [ ] Supabaseデータベース同期
+- [ ] 共感機能の実装
+- [ ] コメント機能の実装
+- [ ] プロフィール管理機能
+
+## 開発環境セットアップ
 
 ```bash
+# 依存関係のインストール
+npm install
+
+# 環境変数の設定
+cp .env.local.example .env.local
+# .env.localにSupabaseの接続情報を設定
+
+# Prismaクライアント生成
+npx prisma generate
+
+# データベースマイグレーション
+npx prisma migrate dev
+
+# 開発サーバー起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 開発コマンド
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run dev` - 開発サーバー起動（Turbopack有効）
+- `npm run build` - プロダクションビルド
+- `npm start` - プロダクションサーバー起動
+- `npm run lint` - ESLint実行
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 文書構成
 
-## Learn More
+このプロジェクトの詳細な技術文書は以下のディレクトリに整理されています：
 
-To learn more about Next.js, take a look at the following resources:
+- [`business/`](./business/) - ビジネス・企画関連
+- [`design/`](./design/) - デザイン関連
+- [`backend/`](./backend/) - バックエンド関連
+- [`frontend/`](./frontend/) - フロントエンド関連
+- [`infrastructure/`](./infrastructure/) - インフラ・DevOps関連
+- [`operations/`](./operations/) - 運用関連
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+各ロールの担当者は対応するディレクトリを参照してください。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## コントリビューション
 
-## Deploy on Vercel
+このプロジェクトへの貢献を歓迎します。開発に参加する際は：
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. 該当するロールの文書ディレクトリを確認
+2. 実装前に関連する仕様書を確認
+3. コードスタイルとガイドラインに従って開発
+4. 適切なテストを追加
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ライセンス
+
+このプロジェクトは社内開発プロジェクトです。
