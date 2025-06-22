@@ -29,7 +29,8 @@ Usakaは、化粧品の本当の使い心地を体験談で共有するコミュ
 - **スタイリング**: Tailwind CSS v4
 - **データベース**: Supabase (PostgreSQL)
 - **ORM**: Prisma
-- **認証**: JWT + bcrypt
+- **認証**: JWT + bcrypt + メール認証
+- **メール送信**: Resend (本番) / MailHog (開発)
 - **ホスティング**: Vercel
 - **バリデーション**: Zod
 - **日付処理**: date-fns
@@ -40,45 +41,86 @@ Usakaは、化粧品の本当の使い心地を体験談で共有するコミュ
 
 - [x] プロジェクトセットアップ（Next.js + TypeScript + Tailwind CSS）
 - [x] データベーススキーマ設計（Prisma）
+- [x] Supabase開発環境セットアップ
 - [x] 基本レイアウト・ナビゲーション（レスポンシブ対応）
 - [x] 認証システム（ユーザー登録・ログイン・ログアウト）
+- [x] メール認証システム（Resend + MailHog）
 - [x] 投稿作成機能（4ステップフォーム）
 - [x] 投稿一覧・詳細表示機能
 - [x] フィルタ・検索機能
 
 ### 🚧 作業中・次のステップ
 
-- [ ] Supabaseデータベース同期
 - [ ] 共感機能の実装
 - [ ] コメント機能の実装
 - [ ] プロフィール管理機能
 
 ## 開発環境セットアップ
 
+### 前提条件
+
+- Node.js 18以上
+- Docker Desktop (Supabase、MailHog用)
+
+### セットアップ手順
+
 ```bash
-# 依存関係のインストール
+# 1. 依存関係のインストール
 npm install
 
-# 環境変数の設定
-cp .env.local.example .env.local
-# .env.localにSupabaseの接続情報を設定
+# 2. Supabase CLI インストール (未インストールの場合)
+brew install supabase/tap/supabase
 
-# Prismaクライアント生成
-npx prisma generate
+# 3. Supabase ローカル環境を起動
+supabase start
 
-# データベースマイグレーション
+# 4. データベースマイグレーション
 npx prisma migrate dev
 
-# 開発サーバー起動
+# 5. MailHog起動 (メールテスト用)
+npm run mailhog:start
+
+# 6. 開発サーバー起動
 npm run dev
 ```
 
+### 環境変数設定
+
+`.env`ファイルは既に設定済みです。本番環境用に以下を設定してください：
+
+```bash
+# 本番環境のみ設定
+RESEND_API_KEY="your_resend_api_key"
+```
+
+### 開発環境URL
+
+- **アプリケーション**: http://localhost:3000
+- **Supabase Studio**: http://localhost:54323
+- **MailHog (メールテスト)**: http://localhost:8025
+
 ## 開発コマンド
 
+### 基本コマンド
 - `npm run dev` - 開発サーバー起動（Turbopack有効）
+- `npm run dev:full` - Supabase + MailHog + 開発サーバーを一括起動
 - `npm run build` - プロダクションビルド
 - `npm start` - プロダクションサーバー起動
 - `npm run lint` - ESLint実行
+
+### データベース関連
+- `npx prisma migrate dev` - マイグレーション実行
+- `npx prisma studio` - Prisma Studio起動
+- `npx prisma generate` - Prismaクライアント生成
+
+### Supabase関連
+- `supabase start` - ローカルSupabase起動
+- `supabase stop` - ローカルSupabase停止
+- `supabase status` - ローカルSupabase状態確認
+
+### メール関連
+- `npm run mailhog:start` - MailHog起動
+- `npm run mailhog:stop` - MailHog停止
 
 ## 文書構成
 
