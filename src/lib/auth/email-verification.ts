@@ -47,9 +47,19 @@ export async function sendVerificationEmail(
   })
 }
 
-export async function verifyEmailToken(
-  token: string
-): Promise<{ success: boolean; message: string; user?: any }> {
+export async function verifyEmailToken(token: string): Promise<{
+  success: boolean
+  message: string
+  user?: {
+    id: string
+    userName: string
+    email: string
+    displayName?: string
+    skinType?: string
+    profileImageUrl?: string
+    emailVerified: boolean
+  }
+}> {
   const user = await prisma.user.findFirst({
     where: {
       emailVerificationToken: token,

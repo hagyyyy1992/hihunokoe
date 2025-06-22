@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registerUser, generateToken } from '@/lib/auth/auth'
+import { registerUser } from '@/lib/auth/auth'
 import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
 
