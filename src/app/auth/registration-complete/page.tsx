@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function RegistrationCompletePage() {
+function RegistrationCompleteContent() {
   const [isResending, setIsResending] = useState(false)
   const [message, setMessage] = useState('')
   const searchParams = useSearchParams()
@@ -118,5 +118,22 @@ export default function RegistrationCompletePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegistrationCompletePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">読み込み中...</p>
+          </div>
+        </div>
+      }
+    >
+      <RegistrationCompleteContent />
+    </Suspense>
   )
 }
