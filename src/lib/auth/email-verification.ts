@@ -88,7 +88,15 @@ export async function verifyEmailToken(token: string): Promise<{
   return {
     success: true,
     message: 'メールアドレスの確認が完了しました',
-    user: updatedUser,
+    user: {
+      id: updatedUser.id,
+      userName: updatedUser.userName,
+      email: updatedUser.email,
+      displayName: updatedUser.displayName || undefined,
+      skinType: updatedUser.skinType || undefined,
+      profileImageUrl: updatedUser.profileImageUrl || undefined,
+      emailVerified: updatedUser.emailVerified,
+    },
   }
 }
 
