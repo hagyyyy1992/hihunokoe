@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerUser, generateToken } from '@/lib/auth/auth'
-import { sendVerificationEmail } from '@/lib/auth/email-verification'
+// import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
 
 const registerSchema = z.object({
