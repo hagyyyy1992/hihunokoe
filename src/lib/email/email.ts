@@ -62,7 +62,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
         from: fromEmail,
         subject,
         messageId: result.data?.id,
-        error: result.error
+        error: result.error,
       })
       return { success: true, id: result.data?.id }
     } catch (error) {
