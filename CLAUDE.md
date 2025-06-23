@@ -9,6 +9,7 @@ Usaka is a cosmetics experience sharing service built with Next.js 15 and TypeSc
 ## Architecture
 
 ### Tech Stack
+
 - **Frontend**: Next.js 15 (App Router) + TypeScript + Tailwind CSS v4
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: JWT + bcrypt with email verification
@@ -16,12 +17,15 @@ Usaka is a cosmetics experience sharing service built with Next.js 15 and TypeSc
 - **Deployment**: Vercel
 
 ### Database Configuration
+
 The application uses a flexible database configuration system (`src/lib/db-config.ts`) that supports:
+
 - **Local development**: Docker PostgreSQL container
 - **Production**: Supabase
 - **Mock mode**: In-memory demo data when database is unavailable
 
 ### Key Files
+
 - `src/lib/auth/auth.ts` - Authentication logic with dual mode (database/mock)
 - `src/lib/prisma.ts` - Database client initialization
 - `prisma/schema.prisma` - Database schema with User, Post, Empathy, Comment models
@@ -30,6 +34,7 @@ The application uses a flexible database configuration system (`src/lib/db-confi
 ## Development Commands
 
 ### Setup
+
 ```bash
 # Initial setup with all services
 npm run dev:setup
@@ -42,6 +47,7 @@ npm run dev:full
 ```
 
 ### Database
+
 ```bash
 # Start local PostgreSQL
 npm run db:setup
@@ -60,6 +66,7 @@ npm run db:studio
 ```
 
 ### Testing & Quality
+
 ```bash
 # Lint code
 npm run lint
@@ -72,6 +79,7 @@ npm run format:check
 ```
 
 ### Email Testing
+
 ```bash
 # Start MailHog for email testing
 npm run mailhog:start
@@ -83,22 +91,26 @@ npm run mailhog:stop
 ## Code Conventions
 
 ### Authentication
+
 - Use `src/lib/auth/auth.ts` for all authentication operations
 - Authentication automatically falls back to mock users when database is unavailable
 - Email verification is currently skipped in development (`emailVerified: true`)
 
 ### Database Operations
+
 - Always check `isDatabaseAvailable()` before database operations
 - Use the dual-mode pattern: try database first, fallback to mock data
 - All database models use UUID primary keys
 
 ### Component Structure
+
 - UI components in `src/components/ui/`
 - Form components in `src/components/forms/`
 - Layout components in `src/components/layout/`
 - Follow existing naming conventions and prop patterns
 
 ### API Routes
+
 - All API routes follow Next.js App Router conventions
 - Use proper error handling and status codes
 - Authentication routes in `src/app/api/auth/`
@@ -107,16 +119,19 @@ npm run mailhog:stop
 ## Important Notes
 
 ### Environment Variables
+
 - Development environment is pre-configured
 - Production requires `RESEND_API_KEY` for email functionality
 - Database URLs are managed by `db-config.ts`
 
 ### Mock Data
+
 - Demo users available for testing (password: `demo123`)
 - Mock mode enables offline development
 - Controlled by `USE_MOCK_DATA` environment variable
 
 ### Email System
+
 - Email verification system is implemented but temporarily disabled
 - MailHog runs on http://localhost:8025 for testing
 - Production uses Resend API
