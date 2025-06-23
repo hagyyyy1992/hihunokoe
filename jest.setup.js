@@ -8,6 +8,32 @@ process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NODE_ENV = 'test'
 process.env.USE_MOCK_DATA = 'true'
 
+// Polyfill for Next.js API routes in JSDOM environment
+const { TextEncoder, TextDecoder } = require('util')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
+// Fetch polyfill for API routes (node-fetch v2 for CJS compatibility)
+const fetch = require('node-fetch')
+global.fetch = global.fetch || fetch
+global.Request = global.Request || fetch.Request
+global.Headers = global.Headers || fetch.Headers
+
+// Enhanced Response with json static method for Next.js compatibility
+const OriginalResponse = fetch.Response
+global.Response = class Response extends OriginalResponse {
+  static json(data, init) {
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init?.headers || {}),
+      },
+    })
+  }
+}
+
 // Mock Next.js router for components
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

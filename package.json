@@ -50,6 +50,7 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@edge-runtime/jest-environment": "^4.0.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
@@ -69,11 +70,13 @@
     "eslint-plugin-prettier": "^5.5.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
+    "node-fetch": "^2.7.0",
     "prettier": "^3.5.3",
     "supertest": "^7.1.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "whatwg-fetch": "^3.6.20"
   },
   "prisma": {
     "seed": "node scripts/seed.js"
