@@ -31,7 +31,10 @@ describe('/api/auth/logout', () => {
       const cookies = response.headers.get('set-cookie')
       expect(cookies).toContain('Secure')
 
-      jest.replaceProperty(process, 'env', { ...process.env, NODE_ENV: originalEnv as 'development' | 'production' | 'test' } as NodeJS.ProcessEnv)
+      jest.replaceProperty(process, 'env', {
+        ...process.env,
+        NODE_ENV: originalEnv as 'development' | 'production' | 'test',
+      } as NodeJS.ProcessEnv)
     })
 
     it('開発環境でSecureクッキーが設定されない', async () => {
@@ -44,7 +47,10 @@ describe('/api/auth/logout', () => {
       const cookies = response.headers.get('set-cookie')
       expect(cookies).not.toContain('Secure')
 
-      jest.replaceProperty(process, 'env', { ...process.env, NODE_ENV: originalEnv as 'development' | 'production' | 'test' } as NodeJS.ProcessEnv)
+      jest.replaceProperty(process, 'env', {
+        ...process.env,
+        NODE_ENV: originalEnv as 'development' | 'production' | 'test',
+      } as NodeJS.ProcessEnv)
     })
   })
 })

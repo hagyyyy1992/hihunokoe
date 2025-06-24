@@ -83,7 +83,11 @@ describe('MoodTag Component', () => {
   })
 
   it('空のchildren でもレンダリングする', () => {
-    render(<MoodTag mood="okay" data-testid="empty-mood">Empty</MoodTag>)
+    render(
+      <MoodTag mood="okay" data-testid="empty-mood">
+        Empty
+      </MoodTag>
+    )
 
     const moodTag = screen.getByTestId('empty-mood')
     expectElementToBeVisible(moodTag)
