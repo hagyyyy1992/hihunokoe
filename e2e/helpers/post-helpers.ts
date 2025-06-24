@@ -11,18 +11,18 @@ export class PostHelper {
     tags?: string[]
   }) {
     await this.page.goto('/posts/create')
-    
+
     await this.page.fill('[data-testid="post-title-input"]', postData.title)
     await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
-    
+
     if (postData.category) {
       await this.page.selectOption('[data-testid="category-select"]', postData.category)
     }
-    
+
     if (postData.mood) {
       await this.page.click(`[data-testid="mood-${postData.mood}"]`)
     }
-    
+
     if (postData.tags && postData.tags.length > 0) {
       const tagsInput = this.page.locator('[data-testid="tags-input"]')
       for (const tag of postData.tags) {
@@ -30,24 +30,20 @@ export class PostHelper {
         await tagsInput.press('Enter')
       }
     }
-    
+
     await this.page.click('[data-testid="publish-button"]')
   }
 
-  async saveDraft(postData: {
-    title: string
-    content: string
-    category?: string
-  }) {
+  async saveDraft(postData: { title: string; content: string; category?: string }) {
     await this.page.goto('/posts/create')
-    
+
     await this.page.fill('[data-testid="post-title-input"]', postData.title)
     await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
-    
+
     if (postData.category) {
       await this.page.selectOption('[data-testid="category-select"]', postData.category)
     }
-    
+
     await this.page.click('[data-testid="save-draft-button"]')
   }
 
@@ -55,25 +51,28 @@ export class PostHelper {
     await this.page.goto(`/posts/${postId}`)
   }
 
-  async editPost(postId: string, newData: {
-    title?: string
-    content?: string
-    category?: string
-  }) {
+  async editPost(
+    postId: string,
+    newData: {
+      title?: string
+      content?: string
+      category?: string
+    }
+  ) {
     await this.page.goto(`/posts/${postId}/edit`)
-    
+
     if (newData.title) {
       await this.page.fill('[data-testid="post-title-input"]', newData.title)
     }
-    
+
     if (newData.content) {
       await this.page.fill('[data-testid="post-content-textarea"]', newData.content)
     }
-    
+
     if (newData.category) {
       await this.page.selectOption('[data-testid="category-select"]', newData.category)
     }
-    
+
     await this.page.click('[data-testid="update-button"]')
   }
 

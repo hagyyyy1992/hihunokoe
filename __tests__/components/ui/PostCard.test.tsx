@@ -1,4 +1,9 @@
-import { render, screen, expectElementToBeVisible, expectElementToHaveText } from '../../helpers/rtl-utils'
+import {
+  render,
+  screen,
+  expectElementToBeVisible,
+  expectElementToHaveText,
+} from '../../helpers/rtl-utils'
 import PostCard from '../../../src/components/ui/PostCard'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 
@@ -7,12 +12,12 @@ jest.mock('date-fns', () => ({
   formatDistanceToNow: jest.fn(() => '1時間前'),
 }))
 
-
 describe('PostCard Component', () => {
   const mockPost = {
     id: 'test-post-1',
     title: 'テスト投稿のタイトル',
-    content: 'これはテスト投稿のコンテンツです。長いコンテンツをテストするために十分な文字数を含んでいます。',
+    content:
+      'これはテスト投稿のコンテンツです。長いコンテンツをテストするために十分な文字数を含んでいます。',
     cosmeticName: 'テスト化粧品',
     cosmeticCategory: 'toner',
     skinType: 'normal',
@@ -42,15 +47,15 @@ describe('PostCard Component', () => {
 
   it('基本的な投稿情報をレンダリングする', () => {
     render(<PostCard post={mockPost} />)
-    
+
     // タイトル
     const title = screen.getByText('テスト投稿のタイトル')
     expectElementToBeVisible(title)
-    
+
     // コスメ名
     const cosmeticName = screen.getByText('使用コスメ: テスト化粧品')
     expectElementToBeVisible(cosmeticName)
-    
+
     // コンテンツ
     const content = screen.getByText(/これはテスト投稿のコンテンツです/)
     expectElementToBeVisible(content)
@@ -58,7 +63,7 @@ describe('PostCard Component', () => {
 
   it('カテゴリタグを表示する', () => {
     render(<PostCard post={mockPost} />)
-    
+
     const categoryTag = screen.getByText('化粧水')
     expectElementToBeVisible(categoryTag)
     expect(categoryTag).toHaveClass('bg-blue-100', 'text-blue-800')
@@ -66,7 +71,7 @@ describe('PostCard Component', () => {
 
   it('ムードタグを表示する', () => {
     render(<PostCard post={mockPost} />)
-    
+
     const moodTag = screen.getByText('良かった')
     expectElementToBeVisible(moodTag)
     expect(moodTag).toHaveClass('bg-green-100', 'text-green-700')
@@ -74,11 +79,11 @@ describe('PostCard Component', () => {
 
   it('ユーザー情報を表示する', () => {
     render(<PostCard post={mockPost} />)
-    
+
     // ディスプレイ名
     const displayName = screen.getByText('テストユーザー')
     expectElementToBeVisible(displayName)
-    
+
     // 肌タイプ
     const skinType = screen.getByText('普通肌')
     expectElementToBeVisible(skinType)
@@ -86,15 +91,15 @@ describe('PostCard Component', () => {
 
   it('統計情報を表示する', () => {
     render(<PostCard post={mockPost} />)
-    
+
     // 共感数
     const empathyCount = screen.getByText('5')
     expect(empathyCount).toBeInTheDocument()
-    
+
     // コメント数
     const commentCount = screen.getByText('3')
     expect(commentCount).toBeInTheDocument()
-    
+
     // 閲覧数
     const viewCount = screen.getByText('42')
     expect(viewCount).toBeInTheDocument()
@@ -102,7 +107,7 @@ describe('PostCard Component', () => {
 
   it('投稿へのリンクが正しく設定される', () => {
     render(<PostCard post={mockPost} />)
-    
+
     const titleLink = screen.getByRole('link')
     expect(titleLink).toHaveAttribute('href', '/posts/test-post-1')
   })
@@ -110,11 +115,11 @@ describe('PostCard Component', () => {
   it('長いコンテンツを切り詰める', () => {
     const longPost = {
       ...mockPost,
-      content: 'あ'.repeat(200) // 200文字の長いコンテンツ
+      content: 'あ'.repeat(200), // 200文字の長いコンテンツ
     }
-    
+
     render(<PostCard post={longPost} />)
-    
+
     const content = screen.getByText(/あ+\.\.\./)
     expect(content.textContent).toHaveLength(153) // 150文字 + "..."
   })
@@ -122,11 +127,11 @@ describe('PostCard Component', () => {
   it('短いコンテンツは切り詰めない', () => {
     const shortPost = {
       ...mockPost,
-      content: '短いコンテンツ'
+      content: '短いコンテンツ',
     }
-    
+
     render(<PostCard post={shortPost} />)
-    
+
     const content = screen.getByText('短いコンテンツ')
     expectElementToHaveText(content, '短いコンテンツ')
   })
@@ -137,11 +142,11 @@ describe('PostCard Component', () => {
       user: {
         ...mockPost.user,
         displayName: undefined,
-      }
+      },
     }
-    
+
     render(<PostCard post={postWithoutDisplayName} />)
-    
+
     const userName = screen.getByText('testuser')
     expectElementToBeVisible(userName)
   })
@@ -154,17 +159,17 @@ describe('PostCard Component', () => {
       user: {
         ...mockPost.user,
         skinType: undefined,
-      }
+      },
     }
-    
+
     render(<PostCard post={minimalPost} />)
-    
+
     // カテゴリタグなし
     expect(screen.queryByText('化粧水')).not.toBeInTheDocument()
-    
+
     // ムードタグなし
     expect(screen.queryByText('良かった')).not.toBeInTheDocument()
-    
+
     // 肌タイプなし
     expect(screen.queryByText('普通肌')).not.toBeInTheDocument()
   })
@@ -177,28 +182,28 @@ describe('PostCard Component', () => {
       { mood: 'love', label: 'また使いたい', color: 'bg-pink-100 text-pink-700' },
       { mood: 'perfect', label: '完璧', color: 'bg-purple-100 text-purple-700' },
     ]
-    
+
     moods.forEach(({ mood, label, color }) => {
       const testPost = { ...mockPost, moodTag: mood }
       const { unmount } = render(<PostCard post={testPost} />)
-      
+
       const moodTag = screen.getByText(label)
       expect(moodTag).toHaveClass(...color.split(' '))
-      
+
       unmount()
     })
   })
 
   it('日付フォーマットが正しく表示される', () => {
     render(<PostCard post={mockPost} />)
-    
+
     const timeAgo = screen.getByText('1時間前')
     expectElementToBeVisible(timeAgo)
   })
 
   it('カードにhover効果のクラスが適用される', () => {
     const { container } = render(<PostCard post={mockPost} />)
-    
+
     const card = container.firstChild as HTMLElement
     expect(card).toHaveClass('hover:shadow-md', 'transition-shadow')
   })

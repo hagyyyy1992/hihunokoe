@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test'
 test.describe('基本的な認証フロー', () => {
   test('登録ページが正しく表示される', async ({ page }) => {
     await page.goto('/auth/register')
-    
+
     // ページタイトルを確認
     await expect(page).toHaveTitle(/Usaka|会員登録/)
-    
+
     // フォーム要素が表示されることを確認
     await expect(page.locator('[data-testid="register-form"]')).toBeVisible()
     await expect(page.locator('[data-testid="username-input"]')).toBeVisible()
@@ -18,10 +18,10 @@ test.describe('基本的な認証フロー', () => {
 
   test('ログインページが正しく表示される', async ({ page }) => {
     await page.goto('/auth/login')
-    
+
     // ページタイトルを確認
     await expect(page).toHaveTitle(/Usaka|ログイン/)
-    
+
     // フォーム要素が表示されることを確認
     await expect(page.locator('[data-testid="login-form"]')).toBeVisible()
     await expect(page.locator('[data-testid="email-input"]')).toBeVisible()
@@ -31,13 +31,13 @@ test.describe('基本的な認証フロー', () => {
 
   test('フォーム入力が正常に動作する', async ({ page }) => {
     await page.goto('/auth/register')
-    
+
     // フォームに入力
     await page.fill('[data-testid="username-input"]', 'testuser')
     await page.fill('[data-testid="email-input"]', 'test@example.com')
     await page.fill('[data-testid="password-input"]', 'password123')
     await page.selectOption('[data-testid="skin-type-select"]', 'normal')
-    
+
     // 入力値が正しく設定されることを確認
     await expect(page.locator('[data-testid="username-input"]')).toHaveValue('testuser')
     await expect(page.locator('[data-testid="email-input"]')).toHaveValue('test@example.com')
@@ -47,10 +47,10 @@ test.describe('基本的な認証フロー', () => {
 
   test('バリデーションエラーが表示される', async ({ page }) => {
     await page.goto('/auth/register')
-    
+
     // 空のフォームで送信
     await page.click('[data-testid="register-button"]')
-    
+
     // エラーメッセージまたはブラウザのバリデーションが動作することを確認
     // HTMLのrequired属性により、ブラウザが送信を阻止する
     await expect(page.locator('[data-testid="username-input"]:invalid')).toBeVisible()
@@ -58,11 +58,11 @@ test.describe('基本的な認証フロー', () => {
 
   test('ナビゲーションリンクが機能する', async ({ page }) => {
     await page.goto('/auth/login')
-    
+
     // 登録ページへのリンクをクリック
     await page.click('text=会員登録')
     await expect(page).toHaveURL(/\/auth\/register/)
-    
+
     // ログインページへのリンクをクリック
     await page.click('text=ログイン')
     await expect(page).toHaveURL(/\/auth\/login/)

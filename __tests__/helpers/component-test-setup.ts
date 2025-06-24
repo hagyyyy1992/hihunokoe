@@ -109,7 +109,7 @@ export const throwError = () => {
 // Mock console methods for testing
 export const mockConsole = () => {
   const originalConsole = { ...console }
-  
+
   console.log = jest.fn()
   console.warn = jest.fn()
   console.error = jest.fn()
@@ -118,6 +118,6 @@ export const mockConsole = () => {
   return {
     restore: () => {
       Object.assign(console, originalConsole)
-    }
+    },
   }
 }

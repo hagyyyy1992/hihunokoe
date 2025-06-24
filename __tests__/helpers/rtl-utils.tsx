@@ -2,12 +2,8 @@ import { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-
 // Custom render function with default providers
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => {
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
   return render(ui, {
     // wrapper: ({ children }) => <Provider>{children}</Provider>, // 必要に応じてプロバイダーを追加
     ...options,
@@ -19,7 +15,7 @@ export const createUser = () => userEvent.setup()
 
 // Utility functions for common testing patterns
 export const waitForLoadingToFinish = () => {
-  return new Promise((resolve) => setTimeout(resolve, 0))
+  return new Promise(resolve => setTimeout(resolve, 0))
 }
 
 // Helper to find elements by test id
@@ -43,7 +39,10 @@ export const getFormData = (form: HTMLFormElement) => {
 }
 
 // Helper for async form submission testing
-export const submitForm = async (user: ReturnType<typeof userEvent.setup>, form: HTMLFormElement) => {
+export const submitForm = async (
+  user: ReturnType<typeof userEvent.setup>,
+  form: HTMLFormElement
+) => {
   const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement
   if (submitButton) {
     await user.click(submitButton)
