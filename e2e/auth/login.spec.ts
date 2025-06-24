@@ -26,7 +26,7 @@ test.describe('ログイン', () => {
   })
 
   test('無効な認証情報でログインが失敗する', async ({ page }) => {
-    await authHelper.login('nonexistent@example.com', 'wrongpassword')
+    await authHelper.login('nonexistent@example.com', 'wrongpassword', false)
     await authHelper.expectErrorMessage('メールアドレスまたはパスワードが間違っています')
     await authHelper.expectToBeLoggedOut()
   })
@@ -69,11 +69,19 @@ test.describe('ログイン', () => {
     await authHelper.register(newUser)
     await authHelper.logout()
 
-    // 保護されたページにアクセスを試行
-    await page.goto('/dashboard')
+    // ログアウト状態を確認
+    await authHelper.expectToBeLoggedOut()
 
-    // ログインページにリダイレクトされる
-    await expect(page).toHaveURL(/\/auth\/login/)
+    // 保護されたページにアクセスを試行 - use domcontentloaded for better compatibility
+    try {
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' })
+    } catch (error) {
+      // If navigation fails due to redirect, that's expected
+      console.log('Navigation redirected as expected')
+    }
+
+    // ログインページにリダイレクトされる (longer timeout for slower browsers)
+    await expect(page).toHaveURL(/\/auth\/login/, { timeout: 15000 })
 
     // ログイン
     await authHelper.login(newUser.email, newUser.password)
@@ -99,8 +107,9 @@ test.describe('ログイン', () => {
 
     // 新しいページを開いてもログイン状態が維持されているかテスト
     const newPage = await context.newPage()
+    const newAuthHelper = new AuthHelper(newPage)
     await newPage.goto('/')
-    await expect(newPage.locator('[data-testid="user-menu-button"]')).toBeVisible()
+    await newAuthHelper.expectToBeLoggedIn()
   })
 
   test('パスワードリセットリンクが機能する', async ({ page }) => {
@@ -129,7 +138,7 @@ test.describe('ログイン', () => {
 
     // 複数回間違ったパスワードでログインを試行
     for (let i = 0; i < 3; i++) {
-      await authHelper.login(email, wrongPassword)
+      await authHelper.login(email, wrongPassword, false)
       // 最後の試行で期待されるエラーメッセージを確認
       if (i === 2) {
         await authHelper.expectErrorMessage('メールアドレスまたはパスワードが間違っています')

@@ -192,7 +192,10 @@ describe('/api/auth/verify-email', () => {
       expect(cookies).toContain('Secure')
 
       // Restore original environment
-      jest.replaceProperty(process, 'env', { ...process.env, NODE_ENV: originalEnv as 'development' | 'production' | 'test' } as NodeJS.ProcessEnv)
+      jest.replaceProperty(process, 'env', {
+        ...process.env,
+        NODE_ENV: originalEnv as 'development' | 'production' | 'test',
+      } as NodeJS.ProcessEnv)
     })
 
     it('空のトークンの場合、400エラーを返す', async () => {
