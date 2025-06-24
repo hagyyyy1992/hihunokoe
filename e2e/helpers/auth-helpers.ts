@@ -23,28 +23,8 @@ export class AuthHelper {
     // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
-    // Wait for either registration success or stay on register page (for error handling)
-    try {
-      await this.page.waitForURL(/\/auth\/registration-complete/, { timeout: 10000 })
-    } catch (error) {
-      // Check if there's an error message on the page
-      const errorMessage = await this.page.locator('[data-testid="error-message"]').textContent()
-      if (errorMessage) {
-        throw new Error(`Registration failed: ${errorMessage}`)
-      }
-
-      // If no error message but didn't redirect, check current URL
-      const currentUrl = this.page.url()
-      if (currentUrl.includes('/auth/register')) {
-        // Wait a bit more and try again
-        await this.page.waitForTimeout(2000)
-        try {
-          await this.page.waitForURL(/\/auth\/registration-complete/, { timeout: 5000 })
-        } catch {
-          throw new Error(`Registration did not complete - still on ${currentUrl}`)
-        }
-      }
-    }
+    // Wait for registration to complete with longer timeout
+    await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
 
     // After registration, user needs to log in manually since registration doesn't auto-login
     await this.login(userData.email, userData.password)
