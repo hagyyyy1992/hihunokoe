@@ -51,14 +51,18 @@ export const createMockRequest = (
     requestInit.body = JSON.stringify(body)
   }
 
-  return new NextRequest(requestUrl.toString(), requestInit)
+  const { signal, ...cleanRequestInit } = requestInit
+  return new NextRequest(requestUrl.toString(), {
+    ...cleanRequestInit,
+    signal: signal || undefined,
+  })
 }
 
 /**
  * Creates a mock request for API authentication endpoints
  */
 export const createAuthRequest = (endpoint: string, body: any, token?: string) => {
-  const cookies = token ? { 'auth-token': token } : {}
+  const cookies = token ? { 'auth-token': token } : undefined
 
   return createMockRequest(`http://localhost:3000/api/auth/${endpoint}`, {
     method: 'POST',
@@ -79,7 +83,7 @@ export const createPostsRequest = (
   } = {}
 ) => {
   const { body, token, searchParams } = options
-  const cookies = token ? { 'auth-token': token } : {}
+  const cookies = token ? { 'auth-token': token } : undefined
 
   return createMockRequest('http://localhost:3000/api/posts', {
     method,
@@ -101,7 +105,7 @@ export const createPostRequest = (
   } = {}
 ) => {
   const { body, token } = options
-  const cookies = token ? { 'auth-token': token } : {}
+  const cookies = token ? { 'auth-token': token } : undefined
 
   return createMockRequest(`http://localhost:3000/api/posts/${postId}`, {
     method,

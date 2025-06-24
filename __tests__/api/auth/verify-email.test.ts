@@ -130,7 +130,7 @@ describe('/api/auth/verify-email', () => {
       const mockResult = {
         success: true,
         message: 'メールアドレスが確認されました',
-        user: null,
+        user: undefined,
       }
 
       mockVerifyEmailToken.mockResolvedValue(mockResult)
@@ -164,7 +164,8 @@ describe('/api/auth/verify-email', () => {
 
     it('本番環境でSecureクッキーが設定される', async () => {
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      const mockEnv = { ...process.env, NODE_ENV: 'production' as const }
+      jest.replaceProperty(process, 'env', mockEnv as NodeJS.ProcessEnv)
 
       const mockUser = {
         id: '1',
@@ -191,7 +192,7 @@ describe('/api/auth/verify-email', () => {
       expect(cookies).toContain('Secure')
 
       // Restore original environment
-      process.env.NODE_ENV = originalEnv
+      jest.replaceProperty(process, 'env', { ...process.env, NODE_ENV: originalEnv as 'development' | 'production' | 'test' } as NodeJS.ProcessEnv)
     })
 
     it('空のトークンの場合、400エラーを返す', async () => {
