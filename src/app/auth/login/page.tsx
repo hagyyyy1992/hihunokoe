@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         await refreshAuth()
-        router.push('/')
+        router.push('/dashboard')
       } else {
         setError(data.error || 'ログインに失敗しました')
 
