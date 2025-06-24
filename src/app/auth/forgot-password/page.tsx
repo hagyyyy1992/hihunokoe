@@ -97,10 +97,7 @@ export default function ForgotPasswordPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link
-              href="/auth/login"
-              className="text-sm text-pink-600 hover:text-pink-500"
-            >
+            <Link href="/auth/login" className="text-sm text-pink-600 hover:text-pink-500">
               ログインページに戻る
             </Link>
           </div>

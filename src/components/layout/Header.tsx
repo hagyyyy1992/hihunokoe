@@ -147,7 +147,11 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link href="/auth/login" className={getAuthLinkClass('/auth/login')} data-testid="login-link">
+                <Link
+                  href="/auth/login"
+                  className={getAuthLinkClass('/auth/login')}
+                  data-testid="login-link"
+                >
                   ログイン
                 </Link>
                 <Link href="/auth/register" className={getAuthLinkClass('/auth/register', true)}>
@@ -212,7 +216,11 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <Link href="/auth/login" className={getMobileAuthLinkClass('/auth/login')} data-testid="login-link">
+                  <Link
+                    href="/auth/login"
+                    className={getMobileAuthLinkClass('/auth/login')}
+                    data-testid="login-link"
+                  >
                     ログイン
                   </Link>
                   <Link href="/auth/register" className={getMobileAuthLinkClass('/auth/register')}>

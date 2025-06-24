@@ -40,25 +40,25 @@ test.describe('ログイン', () => {
     // HTML5バリデーションメッセージが表示されることを確認
     const emailInput = page.locator('[data-testid="email-input"]')
     const passwordInput = page.locator('[data-testid="password-input"]')
-    
+
     await expect(emailInput).toHaveAttribute('required')
     await expect(passwordInput).toHaveAttribute('required')
-    
+
     // まだログインページにいることを確認（送信されていない）
     await expect(page).toHaveURL(/\/auth\/login/)
   })
 
   test('無効なメールアドレス形式でエラーが表示される', async ({ page }) => {
     await page.goto('/auth/login')
-    
+
     // 無効なメールアドレスを入力
     await page.fill('[data-testid="email-input"]', 'invalid-email')
     await page.fill('[data-testid="password-input"]', 'somepassword')
     await page.click('[data-testid="login-button"]')
-    
+
     // HTML5 validation によりフォームが送信されない（ページが変わらない）
     await expect(page).toHaveURL(/\/auth\/login/)
-    
+
     // メールフィールドが無効状態になっている
     const emailInput = page.locator('[data-testid="email-input"]')
     await expect(emailInput).toHaveAttribute('type', 'email')

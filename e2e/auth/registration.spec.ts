@@ -29,11 +29,11 @@ test.describe('ユーザー登録', () => {
     const usernameInput = page.locator('[data-testid="username-input"]')
     const emailInput = page.locator('[data-testid="email-input"]')
     const passwordInput = page.locator('[data-testid="password-input"]')
-    
+
     await expect(usernameInput).toHaveAttribute('required')
     await expect(emailInput).toHaveAttribute('required')
     await expect(passwordInput).toHaveAttribute('required')
-    
+
     // まだ登録ページにいることを確認（送信されていない）
     await expect(page).toHaveURL(/\/auth\/register/)
   })
@@ -87,11 +87,11 @@ test.describe('ユーザー登録', () => {
     await expect(usernameInput).toHaveAttribute('required')
     await expect(emailInput).toHaveAttribute('required')
     await expect(passwordInput).toHaveAttribute('required')
-    
+
     // フィールドが正常に動作することを確認
     await usernameInput.fill('test')
     await expect(usernameInput).toHaveValue('test')
-    
+
     await emailInput.fill('test@example.com')
     await expect(emailInput).toHaveValue('test@example.com')
   })

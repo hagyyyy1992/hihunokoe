@@ -90,7 +90,11 @@ export default function LoginPage() {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">ログイン</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           アカウントをお持ちでない方は{' '}
-          <Link href="/auth/register" className="font-medium text-pink-600 hover:text-pink-500" data-testid="register-link">
+          <Link
+            href="/auth/register"
+            className="font-medium text-pink-600 hover:text-pink-500"
+            data-testid="register-link"
+          >
             会員登録
           </Link>
         </p>
