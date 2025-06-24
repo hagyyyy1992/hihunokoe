@@ -9,6 +9,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>
   logout: () => Promise<void>
   refreshAuth: () => Promise<void>
+  updateProfile: (data: UpdateProfileData) => Promise<void>
   loading: boolean
 }
 
@@ -18,6 +19,13 @@ interface RegisterData {
   password: string
   displayName?: string
   skinType?: string
+}
+
+interface UpdateProfileData {
+  userName: string
+  displayName?: string | null
+  skinType?: string | null
+  profileImageUrl?: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -107,8 +115,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await checkAuth()
   }
 
+  const updateProfile = async (profileData: UpdateProfileData) => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/profile/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'プロフィールの更新に失敗しました')
+      }
+
+      setUser(data.user)
+      return data
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, refreshAuth, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, refreshAuth, updateProfile, loading }}
+    >
       {children}
     </AuthContext.Provider>
   )
