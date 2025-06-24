@@ -59,11 +59,11 @@ test.describe('基本的な認証フロー', () => {
   test('ナビゲーションリンクが機能する', async ({ page }) => {
     await page.goto('/auth/login')
 
-    // 登録ページへのリンクをクリック
-    await page.click('text=会員登録')
+    // 登録ページへのリンクをクリック（ページ内のリンク）
+    await page.click('[data-testid="register-link"]')
     await expect(page).toHaveURL(/\/auth\/register/)
 
-    // ログインページへのリンクをクリック
+    // ログインページへのリンクをクリック（ページ内のリンク）
     await page.click('text=ログイン')
     await expect(page).toHaveURL(/\/auth\/login/)
   })

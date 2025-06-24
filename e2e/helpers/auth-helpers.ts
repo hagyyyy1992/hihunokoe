@@ -31,15 +31,32 @@ export class AuthHelper {
   }
 
   async logout() {
-    await this.page.click('[data-testid="user-menu-button"]')
+    // Check if mobile menu button exists (mobile view)
+    const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
+    if (await mobileMenuButton.isVisible()) {
+      // Mobile view - open menu first
+      await mobileMenuButton.click()
+    }
     await this.page.click('[data-testid="logout-button"]')
   }
 
   async expectToBeLoggedIn() {
+    // Check if mobile menu button exists (mobile view)
+    const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
+    if (await mobileMenuButton.isVisible()) {
+      // Mobile view - open menu first to check user menu
+      await mobileMenuButton.click()
+    }
     await expect(this.page.locator('[data-testid="user-menu-button"]')).toBeVisible()
   }
 
   async expectToBeLoggedOut() {
+    // Check if mobile menu button exists (mobile view)
+    const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
+    if (await mobileMenuButton.isVisible()) {
+      // Mobile view - open menu first to check login link
+      await mobileMenuButton.click()
+    }
     await expect(this.page.locator('[data-testid="login-link"]')).toBeVisible()
   }
 

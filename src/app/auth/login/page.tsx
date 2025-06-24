@@ -90,7 +90,7 @@ export default function LoginPage() {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">ログイン</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           アカウントをお持ちでない方は{' '}
-          <Link href="/auth/register" className="font-medium text-pink-600 hover:text-pink-500">
+          <Link href="/auth/register" className="font-medium text-pink-600 hover:text-pink-500" data-testid="register-link">
             会員登録
           </Link>
         </p>
@@ -161,6 +161,19 @@ export default function LoginPage() {
               data-testid="password-input"
             />
 
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
+                data-testid="remember-me-checkbox"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                ログイン状態を保持する
+              </label>
+            </div>
+
             <Button
               type="submit"
               variant="primary"
@@ -172,6 +185,16 @@ export default function LoginPage() {
               ログイン
             </Button>
           </form>
+
+          <div className="mt-6 text-center">
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm text-pink-600 hover:text-pink-500"
+              data-testid="forgot-password-link"
+            >
+              パスワードをお忘れですか？
+            </Link>
+          </div>
         </div>
       </div>
     </div>

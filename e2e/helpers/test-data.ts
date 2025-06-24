@@ -3,14 +3,14 @@ export const testUsers = {
     username: 'testuser_e2e',
     email: 'testuser@example.com',
     password: 'testpassword123',
-    skinType: 'NORMAL',
+    skinType: 'normal',
   },
 
   admin: {
     username: 'admin_e2e',
     email: 'admin@example.com',
     password: 'adminpassword123',
-    skinType: 'COMBINATION',
+    skinType: 'combination',
   },
 }
 
@@ -38,6 +38,6 @@ export const generateRandomUser = () => {
     username: `user_${timestamp}`,
     email: `user${timestamp}@example.com`,
     password: 'testpassword123',
-    skinType: 'NORMAL',
+    skinType: 'normal',
   }
 }

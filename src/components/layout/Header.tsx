@@ -128,7 +128,7 @@ export default function Header() {
               <div className="text-gray-500">Loading...</div>
             ) : user ? (
               <>
-                <span className="text-gray-700 text-sm">
+                <span className="text-gray-700 text-sm" data-testid="user-menu-button">
                   {user.displayName || user.userName}さん
                 </span>
                 <Link
@@ -140,13 +140,14 @@ export default function Header() {
                 <button
                   onClick={logout}
                   className="text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors"
+                  data-testid="logout-button"
                 >
                   ログアウト
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className={getAuthLinkClass('/auth/login')}>
+                <Link href="/auth/login" className={getAuthLinkClass('/auth/login')} data-testid="login-link">
                   ログイン
                 </Link>
                 <Link href="/auth/register" className={getAuthLinkClass('/auth/register', true)}>
@@ -160,6 +161,7 @@ export default function Header() {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-md text-gray-700 hover:text-pink-600 hover:bg-gray-100 transition-colors"
+            data-testid="mobile-menu-button"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -191,7 +193,7 @@ export default function Header() {
               <hr className="my-2 border-gray-100" />
               {user ? (
                 <>
-                  <div className="px-3 py-2 text-sm text-gray-600">
+                  <div className="px-3 py-2 text-sm text-gray-600" data-testid="user-menu-button">
                     {user.displayName || user.userName}さん
                   </div>
                   <Link
@@ -203,13 +205,14 @@ export default function Header() {
                   <button
                     onClick={logout}
                     className="block w-full text-left px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors"
+                    data-testid="logout-button"
                   >
                     ログアウト
                   </button>
                 </>
               ) : (
                 <>
-                  <Link href="/auth/login" className={getMobileAuthLinkClass('/auth/login')}>
+                  <Link href="/auth/login" className={getMobileAuthLinkClass('/auth/login')} data-testid="login-link">
                     ログイン
                   </Link>
                   <Link href="/auth/register" className={getMobileAuthLinkClass('/auth/register')}>
