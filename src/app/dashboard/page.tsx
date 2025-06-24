@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 
 export default function DashboardPage() {
@@ -43,12 +44,12 @@ export default function DashboardPage() {
             <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
               <h3 className="text-lg font-medium text-pink-800 mb-2">体験を投稿</h3>
               <p className="text-pink-600 text-sm mb-3">あなたのコスメ体験をシェアしませんか？</p>
-              <a
+              <Link
                 href="/posts/new"
                 className="inline-block bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-pink-700 transition-colors"
               >
                 新しい体験を投稿
-              </a>
+              </Link>
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -56,12 +57,12 @@ export default function DashboardPage() {
               <p className="text-blue-600 text-sm mb-3">
                 他のユーザーの体験をチェックしてみましょう。
               </p>
-              <a
+              <Link
                 href="/posts"
                 className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 体験を見る
-              </a>
+              </Link>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
