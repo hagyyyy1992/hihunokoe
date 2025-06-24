@@ -24,7 +24,23 @@ export class AuthHelper {
     await this.page.click('[data-testid="register-button"]')
 
     // Wait for registration to complete with longer timeout
-    await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
+    try {
+      await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
+    } catch (error) {
+      // Check for error messages on registration page
+      const errorElement = this.page.locator('[data-testid="error-message"]')
+      const hasError = await errorElement.isVisible()
+      if (hasError) {
+        const errorText = await errorElement.textContent()
+        throw new Error(`Registration failed with error: ${errorText}`)
+      }
+
+      // If no error message but still on registration page, check current URL
+      const currentUrl = this.page.url()
+      throw new Error(
+        `Registration failed - expected registration-complete page but got: ${currentUrl}`
+      )
+    }
 
     // After registration, user needs to log in manually since registration doesn't auto-login
     await this.login(userData.email, userData.password)
@@ -39,7 +55,26 @@ export class AuthHelper {
 
     if (expectSuccess) {
       // Wait for login to complete and redirect to dashboard
-      await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+      try {
+        await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+      } catch (error) {
+        // Check for error messages on login page
+        const errorElement = this.page.locator('[data-testid="error-message"]')
+        const hasError = await errorElement.isVisible()
+        if (hasError) {
+          const errorText = await errorElement.textContent()
+          throw new Error(`Login failed with error: ${errorText}`)
+        }
+
+        // If no error message but still on login page, check current URL
+        const currentUrl = this.page.url()
+        console.log('Login failed - expected dashboard but got: ', currentUrl)
+
+        // Wait a bit more in case there's a delayed redirect
+        await this.page.waitForTimeout(2000)
+        const finalUrl = this.page.url()
+        throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
+      }
     } else {
       // Wait a bit for any potential redirect, but don't expect success
       await this.page.waitForTimeout(1000)
