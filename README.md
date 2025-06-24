@@ -1,5 +1,7 @@
 # Usaka - 化粧品体験共有サービス
 
+<!-- Verification test by Devin - confirming repo access and workflow -->
+
 ## プロジェクト概要
 
 Usakaは、化粧品の本当の使い心地を体験談で共有するコミュニティです。成分や評価ではなく、リアルな体験で「自分に合うかも」を見つけることを目的としています。
