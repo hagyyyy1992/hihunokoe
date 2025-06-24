@@ -20,6 +20,7 @@ export class AuthHelper {
       await this.page.selectOption('[data-testid="skin-type-select"]', userData.skinType)
     }
 
+    // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
     // Wait for registration to complete with longer timeout
@@ -110,7 +111,7 @@ export class AuthHelper {
           const buttons = document.querySelectorAll('[data-testid="logout-button"]')
           return Array.from(buttons).some(btn => {
             const rect = btn.getBoundingClientRect()
-            return rect.width > 0 && rect.height > 0 && btn.offsetParent !== null
+            return rect.width > 0 && rect.height > 0 && (btn as HTMLElement).offsetParent !== null
           })
         })
 
@@ -202,7 +203,7 @@ export class AuthHelper {
           const buttons = document.querySelectorAll('[data-testid="logout-button"]')
           return Array.from(buttons).some(btn => {
             const rect = btn.getBoundingClientRect()
-            return rect.width > 0 && rect.height > 0 && btn.offsetParent !== null
+            return rect.width > 0 && rect.height > 0 && (btn as HTMLElement).offsetParent !== null
           })
         })
 
