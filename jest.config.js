@@ -8,8 +8,13 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
   testMatch: ['**/__tests__/**/*.(ts|tsx|js)', '**/*.(test|spec).(ts|tsx|js)'],
+  testPathIgnorePatterns: [
+    '__tests__/helpers/',
+    'e2e/',
+    'playwright-report/',
+    'test-results/'
+  ],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/__tests__/**'],
-  testPathIgnorePatterns: ['__tests__/helpers/'],
   testEnvironmentOptions: {
     customExportConditions: [''],
   },

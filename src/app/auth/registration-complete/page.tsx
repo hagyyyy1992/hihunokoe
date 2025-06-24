@@ -53,7 +53,10 @@ function RegistrationCompleteContent() {
         <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
           <div className="text-center">
             <div className="text-green-600 text-6xl mb-4">📧</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">確認メールを送信しました</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2" data-testid="success-message">
+              アカウントが作成されました
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">確認メールを送信しました</p>
             {email && (
               <p className="text-sm text-gray-600 mb-4">
                 <span className="font-medium">{email}</span> 宛に確認メールをお送りしました。

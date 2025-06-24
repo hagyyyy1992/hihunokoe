@@ -7,10 +7,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   hint?: string
   icon?: React.ReactNode
   variant?: 'default' | 'error'
+  'data-testid'?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, hint, icon, variant = 'default', ...props }, ref) => {
+  ({ className, label, error, hint, icon, variant = 'default', 'data-testid': testId, ...props }, ref) => {
     const id = props.id || props.name
 
     return (
@@ -35,6 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               variant === 'error' && 'input-error',
               className
             )}
+            data-testid={testId || `${props.name}-input`}
             {...props}
           />
         </div>

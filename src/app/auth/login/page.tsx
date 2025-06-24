@@ -106,7 +106,7 @@ export default function LoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} data-testid="login-form">
             {error && (
               <div
                 className={`p-3 rounded-md text-sm ${
@@ -114,6 +114,7 @@ export default function LoginPage() {
                     ? 'bg-green-50 text-green-700 border border-green-200'
                     : 'bg-red-50 text-red-700 border border-red-200'
                 }`}
+                data-testid="error-message"
               >
                 {error}
               </div>
@@ -144,6 +145,7 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="example@example.com"
+              data-testid="email-input"
             />
 
             <Input
@@ -156,6 +158,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="パスワードを入力してください"
+              data-testid="password-input"
             />
 
             <Button
@@ -164,6 +167,7 @@ export default function LoginPage() {
               disabled={loading}
               loading={loading}
               className="w-full"
+              data-testid="login-button"
             >
               ログイン
             </Button>

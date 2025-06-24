@@ -68,6 +68,19 @@ npm run db:studio
 ### Testing & Quality
 
 ```bash
+# Unit & Integration tests (Jest)
+npm test
+npm run test:watch
+npm run test:coverage
+npm run test:api
+
+# E2E tests (Playwright)
+npm run test:e2e
+npm run test:e2e:ui
+npm run test:e2e:headed
+npm run test:e2e:debug
+npm run test:e2e:report
+
 # Lint code
 npm run lint
 
@@ -136,12 +149,41 @@ npm run mailhog:stop
 - MailHog runs on http://localhost:8025 for testing
 - Production uses Resend API
 
+## Testing Strategy
+
+### Unit & Integration Tests (Jest)
+
+- Location: `__tests__/` directory
+- Components: `__tests__/components/`
+- API routes: `__tests__/api/`
+- Helpers: `__tests__/helpers/`
+- Test environment: Node.js with JSDOM for component tests
+- Coverage: Component logic, API endpoints, authentication flows
+
+### E2E Tests (Playwright)
+
+- Location: `e2e/` directory
+- Authentication flows: `e2e/auth/`
+- Post management: `e2e/posts/`
+- Search & filters: `e2e/posts/search-posts.spec.ts`
+- Test environment: Real browser automation (Chromium, Firefox, Safari)
+- Coverage: User workflows, cross-browser compatibility, visual regression
+
+### Test Data Strategy
+
+- Unit tests: Mock data and API responses
+- E2E tests: Real database with test-specific data
+- Use `data-testid` attributes for reliable element selection
+- Isolated test environments prevent data conflicts
+
 ## Development Workflow
 
 1. **Start development**: `npm run dev:setup` (first time) or `npm run dev`
 2. **Database changes**: Update schema → `npm run db:migrate` → `npm run db:seed`
 3. **Email testing**: Use MailHog web interface at http://localhost:8025
-4. **Code quality**: Run `npm run lint` and `npm run format` before committing
+4. **Unit testing**: Run `npm test` during development
+5. **E2E testing**: Run `npm run test:e2e` before major releases
+6. **Code quality**: Run `npm run lint` and `npm run format` before committing
 
 ## 文書構成
 
