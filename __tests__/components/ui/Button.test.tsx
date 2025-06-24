@@ -4,7 +4,7 @@ import { setupComponentTest, cleanupComponentTest } from '../../helpers/componen
 
 // Mock cn utility
 jest.mock('../../../src/lib/utils', () => ({
-  cn: (...classes) => classes.filter(Boolean).join(' '),
+  cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
 }))
 
 describe('Button Component', () => {

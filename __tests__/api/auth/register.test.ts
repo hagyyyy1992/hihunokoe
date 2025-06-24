@@ -84,8 +84,8 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: null,
-        skinType: null,
+        displayName: undefined,
+        skinType: undefined,
         emailVerified: true,
       }
       const mockToken = 'mock-jwt-token'

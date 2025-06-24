@@ -9,7 +9,7 @@ import { setupComponentTest, cleanupComponentTest } from '../../helpers/componen
 
 // Mock cn utility
 jest.mock('../../../src/lib/utils', () => ({
-  cn: (...classes) => classes.filter(Boolean).join(' '),
+  cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
 }))
 
 describe('MoodTag Component', () => {
@@ -83,7 +83,11 @@ describe('MoodTag Component', () => {
   })
 
   it('空のchildren でもレンダリングする', () => {
-    render(<MoodTag mood="okay" data-testid="empty-mood"></MoodTag>)
+    render(
+      <MoodTag mood="okay" data-testid="empty-mood">
+        Empty
+      </MoodTag>
+    )
 
     const moodTag = screen.getByTestId('empty-mood')
     expectElementToBeVisible(moodTag)

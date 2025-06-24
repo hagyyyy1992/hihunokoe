@@ -20,6 +20,7 @@ export class AuthHelper {
       await this.page.selectOption('[data-testid="skin-type-select"]', userData.skinType)
     }
 
+    // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
     // Wait for registration to complete with longer timeout
@@ -83,7 +84,7 @@ export class AuthHelper {
               rect: { width: rect.width, height: rect.height },
               display: styles.display,
               visibility: styles.visibility,
-              offsetParent: btn.offsetParent !== null,
+              offsetParent: (btn as HTMLElement).offsetParent !== null,
             })
 
             // Try to click any logout button
@@ -110,7 +111,7 @@ export class AuthHelper {
           const buttons = document.querySelectorAll('[data-testid="logout-button"]')
           return Array.from(buttons).some(btn => {
             const rect = btn.getBoundingClientRect()
-            return rect.width > 0 && rect.height > 0 && btn.offsetParent !== null
+            return rect.width > 0 && rect.height > 0 && (btn as HTMLElement).offsetParent !== null
           })
         })
 
@@ -190,7 +191,7 @@ export class AuthHelper {
           const links = document.querySelectorAll('[data-testid="login-link"]')
           return Array.from(links).some(link => {
             const rect = link.getBoundingClientRect()
-            return rect.width > 0 && rect.height > 0 && link.offsetParent !== null
+            return rect.width > 0 && rect.height > 0 && (link as HTMLElement).offsetParent !== null
           })
         })
         attempts++
@@ -202,7 +203,7 @@ export class AuthHelper {
           const buttons = document.querySelectorAll('[data-testid="logout-button"]')
           return Array.from(buttons).some(btn => {
             const rect = btn.getBoundingClientRect()
-            return rect.width > 0 && rect.height > 0 && btn.offsetParent !== null
+            return rect.width > 0 && rect.height > 0 && (btn as HTMLElement).offsetParent !== null
           })
         })
 

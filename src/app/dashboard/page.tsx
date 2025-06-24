@@ -70,12 +70,12 @@ export default function DashboardPage() {
               <p className="text-green-600 text-sm mb-3">
                 あなたのプロフィール情報を確認・編集できます。
               </p>
-              <a
+              <Link
                 href="/profile"
                 className="inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
               >
                 プロフィールを見る
-              </a>
+              </Link>
             </div>
           </div>
 
