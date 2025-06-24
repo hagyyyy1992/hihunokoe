@@ -22,7 +22,7 @@ export class AuthHelper {
 
     // Submit the form
     await this.page.click('[data-testid="register-button"]')
-    
+
     // Wait for either registration success or stay on register page (for error handling)
     try {
       await this.page.waitForURL(/\/auth\/registration-complete/, { timeout: 10000 })
@@ -32,7 +32,7 @@ export class AuthHelper {
       if (errorMessage) {
         throw new Error(`Registration failed: ${errorMessage}`)
       }
-      
+
       // If no error message but didn't redirect, check current URL
       const currentUrl = this.page.url()
       if (currentUrl.includes('/auth/register')) {
