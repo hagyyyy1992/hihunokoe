@@ -59,7 +59,7 @@ describe('ProfilePage Component', () => {
   it('ユーザー情報を正しく表示する', () => {
     render(<ProfilePage />)
 
-    // ユーザー名が表示されていることを確認  
+    // ユーザー名が表示されていることを確認
     expect(screen.getByRole('heading', { name: 'Test User' })).toBeInTheDocument()
 
     // 基本情報セクションが表示されていることを確認

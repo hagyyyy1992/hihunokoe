@@ -8,7 +8,10 @@ const registerSchema = z.object({
   userName: z.string().min(3).max(100),
   email: z.string().email(),
   password: z.string().min(8),
-  birthDate: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  birthDate: z
+    .string()
+    .optional()
+    .transform(val => (val ? new Date(val) : undefined)),
   gender: z.nativeEnum(Gender).optional(),
   skinType: z.nativeEnum(SkinType).optional(),
   skinTypeOther: z.string().max(100).optional(),

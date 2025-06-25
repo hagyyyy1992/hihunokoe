@@ -86,7 +86,10 @@ export default function RegisterPage() {
     if (name === 'allergies') {
       // Handle multiple select for allergies
       const selectElement = e.target as HTMLSelectElement
-      const selectedValues = Array.from(selectElement.selectedOptions, option => option.value as AllergyType)
+      const selectedValues = Array.from(
+        selectElement.selectedOptions,
+        option => option.value as AllergyType
+      )
       setFormData({
         ...formData,
         allergies: selectedValues,
@@ -308,7 +311,9 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
-              <p className="mt-1 text-xs text-gray-500">Ctrl/Cmdキーを押しながらクリックで複数選択</p>
+              <p className="mt-1 text-xs text-gray-500">
+                Ctrl/Cmdキーを押しながらクリックで複数選択
+              </p>
               {formData.allergies.includes('other' as AllergyType) && (
                 <div className="mt-2">
                   <input
