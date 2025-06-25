@@ -13,13 +13,13 @@ export default function ProfilePage() {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
-    displayName: '',
+     '',
     userName: '',
     skinType: '',
     profileImageUrl: '',
   })
   const [formErrors, setFormErrors] = useState({
-    displayName: '',
+     '',
     userName: '',
     skinType: '',
     profileImageUrl: '',
@@ -34,8 +34,7 @@ export default function ProfilePage() {
 
     if (user) {
       setFormData({
-        displayName: user.displayName || '',
-        userName: user.userName || '',
+                userName: user.userName || '',
         skinType: user.skinType || '',
         profileImageUrl: user.profileImageUrl || '',
       })
@@ -44,7 +43,7 @@ export default function ProfilePage() {
 
   const validateForm = () => {
     const errors = {
-      displayName: '',
+       '',
       userName: '',
       skinType: '',
       profileImageUrl: '',
@@ -233,13 +232,12 @@ export default function ProfilePage() {
                     onClick={() => {
                       setIsEditing(false)
                       setFormData({
-                        displayName: user.displayName || '',
-                        userName: user.userName || '',
+                                                userName: user.userName || '',
                         skinType: user.skinType || '',
                         profileImageUrl: user.profileImageUrl || '',
                       })
                       setFormErrors({
-                        displayName: '',
+                         '',
                         userName: '',
                         skinType: '',
                         profileImageUrl: '',
