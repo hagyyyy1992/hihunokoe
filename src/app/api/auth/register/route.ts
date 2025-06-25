@@ -2,13 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { registerUser } from '@/lib/auth/auth'
 import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
+import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 
 const registerSchema = z.object({
-  userName: z.string().min(3).max(50),
+  userName: z.string().min(3).max(100),
   email: z.string().email(),
   password: z.string().min(8),
-  displayName: z.string().optional(),
-  skinType: z.enum(['normal', 'dry', 'oily', 'combination', 'sensitive']).optional(),
+  birthDate: z
+    .string()
+    .optional()
+    .transform(val => (val ? new Date(val) : undefined)),
+  gender: z.nativeEnum(Gender).optional(),
+  skinType: z.nativeEnum(SkinType).optional(),
+  skinTypeOther: z.string().max(100).optional(),
+  allergies: z.array(z.nativeEnum(AllergyType)).optional(),
+  allergiesOther: z.string().optional(),
+  bodyType: z.nativeEnum(BodyType).optional(),
+  bodyTypeOther: z.string().max(100).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -33,8 +43,14 @@ export async function POST(request: NextRequest) {
         id: user.id,
         userName: user.userName,
         email: user.email,
-        displayName: user.displayName,
+        birthDate: user.birthDate,
+        gender: user.gender,
         skinType: user.skinType,
+        skinTypeOther: user.skinTypeOther,
+        allergies: user.allergies,
+        allergiesOther: user.allergiesOther,
+        bodyType: user.bodyType,
+        bodyTypeOther: user.bodyTypeOther,
         emailVerified: user.emailVerified,
       },
       message: 'ユーザー登録が完了しました。確認メールをご確認ください。',

@@ -3,10 +3,9 @@
 export const MOCK_USERS = [
   {
     id: 'demo-user-1',
-    userName: 'demo_user',
+    userName: 'デモユーザー',
     email: 'demo@example.com',
     passwordHash: '$2a$12$demo.hash.for.password123', // password: "demo123"
-    displayName: 'デモユーザー',
     skinType: 'normal' as const,
     isActive: true,
     profileImageUrl: null,
@@ -15,10 +14,9 @@ export const MOCK_USERS = [
   },
   {
     id: 'demo-user-2',
-    userName: 'beauty_lover',
+    userName: '美容好きさん',
     email: 'beauty@example.com',
     passwordHash: '$2a$12$demo.hash.for.password456', // password: "demo123"
-    displayName: '美容好きさん',
     skinType: 'dry' as const,
     isActive: true,
     profileImageUrl: null,

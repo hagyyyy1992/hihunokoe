@@ -107,7 +107,7 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4 text-sm text-gray-500">
           <div className="flex items-center space-x-1">
-            <span className="font-medium">{post.user.displayName || post.user.userName}</span>
+            <span className="font-medium">{post.user.userName}</span>
             {post.user.skinType && (
               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                 {skinTypeLabels[post.user.skinType]}

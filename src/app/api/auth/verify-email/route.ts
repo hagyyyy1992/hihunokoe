@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
           id: result.user.id,
           userName: result.user.userName,
           email: result.user.email,
-          displayName: result.user.displayName,
           skinType: result.user.skinType,
           emailVerified: result.user.emailVerified,
         },
