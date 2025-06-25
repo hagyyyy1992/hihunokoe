@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 import { Button } from '@/components/ui/Button'
@@ -177,9 +177,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     <div className="max-w-2xl mx-auto">
       {/* ステップインジケーター */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map(step => (
-            <div key={step} className="flex items-center">
+        <div className="flex items-center justify-center space-x-4">
+          {[1, 2, 3, 4].map((step, index) => (
+            <React.Fragment key={step}>
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   step <= currentStep ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-500'
@@ -187,14 +187,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               >
                 {step}
               </div>
-              {step < 4 && (
-                <div
-                  className={`w-full h-1 mx-2 ${
-                    step < currentStep ? 'bg-pink-600' : 'bg-gray-200'
-                  }`}
-                />
+              {index < 3 && (
+                <div className={`w-16 h-1 ${step < currentStep ? 'bg-pink-600' : 'bg-gray-200'}`} />
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
         <div className="mt-2 text-sm text-gray-600 text-center">
