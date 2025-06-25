@@ -7,6 +7,8 @@ jest.mock('../../../src/lib/auth/auth', () => ({
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import { SkinType } from '../../../src/types'
+import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
@@ -34,8 +36,11 @@ describe('/api/auth/register', () => {
     userName: 'testuser',
     email: 'test@example.com',
     password: 'password123',
-    displayName: 'Test User',
+    birthDate: new Date('1990-01-01'),
+    gender: 'male' as const,
     skinType: 'normal' as const,
+    allergies: ['fragrance'] as const,
+    bodyType: 'atopic' as const,
   }
 
   describe('POST', () => {
@@ -44,8 +49,14 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
+        skinTypeOther: null,
+        allergies: ['fragrance' as AllergyType],
+        allergiesOther: null,
+        bodyType: 'atopic' as BodyType,
+        bodyTypeOther: null,
         emailVerified: true,
       }
       const mockToken = 'mock-jwt-token'
@@ -63,8 +74,14 @@ describe('/api/auth/register', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        displayName: mockUser.displayName,
+        birthDate: mockUser.birthDate,
+        gender: mockUser.gender,
         skinType: mockUser.skinType,
+        skinTypeOther: mockUser.skinTypeOther,
+        allergies: mockUser.allergies,
+        allergiesOther: mockUser.allergiesOther,
+        bodyType: mockUser.bodyType,
+        bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
       expect(data.message).toBe('ユーザー登録が完了しました。ログインして始めましょう！')
@@ -84,8 +101,14 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: undefined,
+        birthDate: undefined,
+        gender: undefined,
         skinType: undefined,
+        skinTypeOther: undefined,
+        allergies: undefined,
+        allergiesOther: undefined,
+        bodyType: undefined,
+        bodyTypeOther: undefined,
         emailVerified: true,
       }
       const mockToken = 'mock-jwt-token'
@@ -103,8 +126,14 @@ describe('/api/auth/register', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        displayName: mockUser.displayName,
+        birthDate: mockUser.birthDate,
+        gender: mockUser.gender,
         skinType: mockUser.skinType,
+        skinTypeOther: mockUser.skinTypeOther,
+        allergies: mockUser.allergies,
+        allergiesOther: mockUser.allergiesOther,
+        bodyType: mockUser.bodyType,
+        bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
     })
@@ -128,7 +157,7 @@ describe('/api/auth/register', () => {
     it('ユーザー名が長すぎる場合、バリデーションエラーを返す', async () => {
       const invalidData = {
         ...validRegistrationData,
-        userName: 'a'.repeat(51), // 50文字超過
+        userName: 'a'.repeat(101), // 100文字超過
       }
 
       const request = createRequest(invalidData)
@@ -243,8 +272,7 @@ describe('/api/auth/register', () => {
           id: '1',
           userName: 'testuser',
           email: 'test@example.com',
-          displayName: 'Test User',
-          skinType,
+          skinType: skinType as SkinType,
           emailVerified: true,
         }
 

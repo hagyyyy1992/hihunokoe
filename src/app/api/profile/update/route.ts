@@ -3,11 +3,11 @@ import { z } from 'zod'
 import { verifyToken, getUserById } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
+import { SkinType } from '@prisma/client'
 
 // プロフィール更新のバリデーションスキーマ
 const updateProfileSchema = z.object({
   userName: z.string().min(3).max(50),
-  displayName: z.string().max(100).optional().nullable(),
   skinType: z.string().max(50).optional().nullable(),
   profileImageUrl: z
     .string()
@@ -58,7 +58,6 @@ export async function PUT(request: NextRequest) {
             user: {
               ...user,
               userName: validatedData.userName,
-              displayName: validatedData.displayName || undefined,
               skinType: validatedData.skinType || undefined,
               profileImageUrl: validatedData.profileImageUrl || undefined,
             },
@@ -75,8 +74,7 @@ export async function PUT(request: NextRequest) {
         },
         data: {
           userName: validatedData.userName,
-          displayName: validatedData.displayName || null,
-          skinType: validatedData.skinType || null,
+          skinType: validatedData.skinType ? (validatedData.skinType as SkinType) : null,
           profileImageUrl: validatedData.profileImageUrl || null,
           updatedAt: new Date(),
         },
@@ -88,7 +86,6 @@ export async function PUT(request: NextRequest) {
           id: updatedUser.id,
           userName: updatedUser.userName,
           email: updatedUser.email,
-          displayName: updatedUser.displayName || undefined,
           skinType: updatedUser.skinType || undefined,
           profileImageUrl: updatedUser.profileImageUrl || undefined,
           emailVerified: updatedUser.emailVerified,

@@ -1,66 +1,62 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id               String   @id @default(uuid()) @db.Uuid
-  userName         String   @unique @map("user_name") @db.VarChar(50)
-  email            String   @unique @db.VarChar(255)
-  passwordHash     String   @map("password_hash") @db.VarChar(255)
-  displayName      String?  @map("display_name") @db.VarChar(100)
-  skinType         String?  @map("skin_type") @db.VarChar(50)
-  profileImageUrl  String?  @map("profile_image_url")
-  isActive         Boolean  @default(true) @map("is_active")
-  emailVerified    Boolean  @default(false) @map("email_verified")
-  emailVerificationToken String? @map("email_verification_token") @db.VarChar(255)
-  emailVerificationExpiry DateTime? @map("email_verification_expiry") @db.Timestamptz(6)
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  posts          Post[]
-  empathies      Empathy[]
-  comments       Comment[]
-  postPermissions PostPermission[]
+  id                      String           @id @default(uuid()) @db.Uuid
+  userName                String           @unique @map("user_name") @db.VarChar(100)
+  email                   String           @unique @db.VarChar(255)
+  passwordHash            String           @map("password_hash") @db.VarChar(255)
+  profileImageUrl         String?          @map("profile_image_url")
+  isActive                Boolean          @default(true) @map("is_active")
+  createdAt               DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  emailVerificationExpiry DateTime?        @map("email_verification_expiry") @db.Timestamptz(6)
+  emailVerificationToken  String?          @map("email_verification_token") @db.VarChar(255)
+  emailVerified           Boolean          @default(false) @map("email_verified")
+  birthDate               DateTime?        @map("birth_date") @db.Date
+  gender                  Gender?          @map("gender")
+  allergies               AllergyType[]    @map("allergies")
+  allergiesOther          String?          @map("allergies_other")
+  bodyType                BodyType?        @map("body_type")
+  bodyTypeOther           String?          @map("body_type_other") @db.VarChar(100)
+  skinTypeOther           String?          @map("skin_type_other") @db.VarChar(100)
+  skinType                SkinType?        @map("skin_type")
+  comments                Comment[]
+  empathies               Empathy[]
+  postPermissions         PostPermission[]
+  posts                   Post[]
 
   @@map("users")
 }
 
 model Post {
-  id                String    @id @default(uuid()) @db.Uuid
-  userId            String    @map("user_id") @db.Uuid
-  title             String    @db.VarChar(200)
+  id                String           @id @default(uuid()) @db.Uuid
+  userId            String           @map("user_id") @db.Uuid
+  title             String           @db.VarChar(200)
   content           String
-  cosmeticName      String    @map("cosmetic_name") @db.VarChar(200)
-  cosmeticCategory  String?   @map("cosmetic_category") @db.VarChar(100)
-  skinType          String?   @map("skin_type") @db.VarChar(50)
-  usageSituation    Json?     @map("usage_situation")
-  experienceDetails Json?     @map("experience_details")
-  moodTag           String?   @map("mood_tag") @db.VarChar(50)
-  status            String    @default("published") @db.VarChar(20)
-  viewCount         Int       @default(0) @map("view_count")
-  empathyCount      Int       @default(0) @map("empathy_count")
-  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  publishedAt       DateTime? @map("published_at") @db.Timestamptz(6)
-
-  // Relations
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  empathies       Empathy[]
-  comments        Comment[]
-  postPermissions PostPermission[]
+  cosmeticName      String           @map("cosmetic_name") @db.VarChar(200)
+  cosmeticCategory  String?          @map("cosmetic_category") @db.VarChar(100)
+  skinType          String?          @map("skin_type") @db.VarChar(50)
+  usageSituation    Json?            @map("usage_situation")
+  experienceDetails Json?            @map("experience_details")
+  moodTag           String?          @map("mood_tag") @db.VarChar(50)
+  status            String           @default("published") @db.VarChar(20)
+  viewCount         Int              @default(0) @map("view_count")
+  empathyCount      Int              @default(0) @map("empathy_count")
+  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  publishedAt       DateTime?        @map("published_at") @db.Timestamptz(6)
+  comments          Comment[]
+  empathies         Empathy[]
+  postPermissions   PostPermission[]
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("posts")
 }
@@ -71,25 +67,21 @@ model PostPermission {
   userId         String   @map("user_id") @db.Uuid
   permissionType String   @map("permission_type") @db.VarChar(20)
   grantedAt      DateTime @default(now()) @map("granted_at") @db.Timestamptz(6)
-
-  // Relations
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId, permissionType])
   @@map("post_permissions")
 }
 
 model Empathy {
-  id           String   @id @default(uuid()) @db.Uuid
-  postId       String   @map("post_id") @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  empathyType  String   @map("empathy_type") @db.VarChar(50)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  // Relations
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid()) @db.Uuid
+  postId      String   @map("post_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  empathyType String   @map("empathy_type") @db.VarChar(50)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
   @@map("empathies")
@@ -104,12 +96,59 @@ model Comment {
   isActive        Boolean   @default(true) @map("is_active")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  post           Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parentComment  Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
-  replies        Comment[] @relation("CommentReplies")
+  parentComment   Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  replies         Comment[] @relation("CommentReplies")
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("comments")
+}
+
+enum SkinType {
+  normal      @map("normal")
+  dry         @map("dry")
+  oily        @map("oily")
+  combination @map("combination")
+  sensitive   @map("sensitive")
+  other       @map("other")
+
+  @@map("skin_types")
+}
+
+enum Gender {
+  male              @map("male")
+  female            @map("female")
+  non_binary        @map("non_binary")
+  prefer_not_to_say @map("prefer_not_to_say")
+  other             @map("other")
+
+  @@map("genders")
+}
+
+enum AllergyType {
+  fragrance    @map("fragrance")
+  alcohol      @map("alcohol")
+  paraben      @map("paraben")
+  sulfate      @map("sulfate")
+  silicone     @map("silicone")
+  mineral_oil  @map("mineral_oil")
+  formaldehyde @map("formaldehyde")
+  latex        @map("latex")
+  nickel       @map("nickel")
+  other        @map("other")
+
+  @@map("allergy_types")
+}
+
+enum BodyType {
+  atopic         @map("atopic")
+  sensitive_skin @map("sensitive_skin")
+  acne_prone     @map("acne_prone")
+  mature_skin    @map("mature_skin")
+  pigmentation   @map("pigmentation")
+  rosacea        @map("rosacea")
+  eczema         @map("eczema")
+  other          @map("other")
+
+  @@map("body_types")
 }

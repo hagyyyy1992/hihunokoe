@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              {user.displayName || user.userName}さん、こんにちは！
+              {user.userName}さん、こんにちは！
             </h2>
             <p className="text-gray-600">Usakaコスメティクス体験シェアサービスへようこそ。</p>
           </div>
@@ -196,12 +196,6 @@ export default function DashboardPage() {
                 <span className="font-medium text-gray-600">メールアドレス:</span>
                 <span className="ml-2 text-gray-900">{user.email}</span>
               </div>
-              {user.displayName && (
-                <div>
-                  <span className="font-medium text-gray-600">表示名:</span>
-                  <span className="ml-2 text-gray-900">{user.displayName}</span>
-                </div>
-              )}
               {user.skinType && (
                 <div>
                   <span className="font-medium text-gray-600">肌タイプ:</span>
