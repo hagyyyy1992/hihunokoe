@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 import { Button } from '@/components/ui/Button'
@@ -18,11 +18,18 @@ interface PostFormData {
   moodTag: MoodTag | ''
 }
 
-export default function PostForm() {
+interface PostFormProps {
+  initialData?: PostFormData
+  postId?: string
+  isEditMode?: boolean
+}
+
+export default function PostForm({ initialData, postId, isEditMode = false }: PostFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -34,6 +41,13 @@ export default function PostForm() {
     experienceDetails: {},
     moodTag: '',
   })
+
+  // 編集モードの場合、初期データをセット
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData)
+    }
+  }, [initialData])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -70,33 +84,39 @@ export default function PostForm() {
     setError('')
     setLoading(true)
 
+    const requestData = {
+      ...formData,
+      cosmeticCategory: formData.cosmeticCategory || undefined,
+      skinType: formData.skinType || undefined,
+      moodTag: formData.moodTag || undefined,
+      usageSituation:
+        Object.keys(formData.usageSituation).length > 0 ? formData.usageSituation : undefined,
+      experienceDetails:
+        Object.keys(formData.experienceDetails).length > 0
+          ? formData.experienceDetails
+          : undefined,
+    }
+
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
+      const url = isEditMode ? `/api/posts/${postId}` : '/api/posts'
+      const method = isEditMode ? 'PUT' : 'POST'
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          cosmeticCategory: formData.cosmeticCategory || undefined,
-          skinType: formData.skinType || undefined,
-          moodTag: formData.moodTag || undefined,
-          usageSituation:
-            Object.keys(formData.usageSituation).length > 0 ? formData.usageSituation : undefined,
-          experienceDetails:
-            Object.keys(formData.experienceDetails).length > 0
-              ? formData.experienceDetails
-              : undefined,
-        }),
+        body: JSON.stringify(requestData),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || '投稿の作成に失敗しました')
+        throw new Error(data.error || (isEditMode ? '投稿の更新に失敗しました' : '投稿の作成に失敗しました'))
       }
 
-      router.push(`/posts/${data.post.id}`)
+      const redirectId = isEditMode ? postId : data.post.id
+      router.push(`/posts/${redirectId}`)
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の作成に失敗しました'
       setError(errorMessage)
@@ -125,6 +145,31 @@ export default function PostForm() {
         return true // オプショナル
       default:
         return false
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!postId || !isEditMode) return
+    
+    setLoading(true)
+    setError('')
+    
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE',
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || '投稿の削除に失敗しました')
+      }
+      
+      router.push('/posts')
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'
+      setError(errorMessage)
+      setLoading(false)
     }
   }
 
@@ -579,11 +624,50 @@ export default function PostForm() {
           </div>
         )}
 
+        {/* 削除確認ダイアログ */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
+              <p className="text-gray-600 mb-6">この操作は取り消せません。本当に削除しますか？</p>
+              <div className="flex justify-end space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={loading}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  onClick={handleDelete}
+                  loading={loading}
+                >
+                  削除する
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-6">
-          <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-            前へ
-          </Button>
+          {isEditMode && currentStep === 1 ? (
+            <Button
+              type="button"
+              variant="danger"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={loading}
+            >
+              削除
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+              前へ
+            </Button>
+          )}
 
           {currentStep < 4 ? (
             <Button
@@ -601,7 +685,7 @@ export default function PostForm() {
               disabled={loading || !isStepValid(1)}
               loading={loading}
             >
-              投稿する
+              {isEditMode ? '更新する' : '投稿する'}
             </Button>
           )}
         </div>
