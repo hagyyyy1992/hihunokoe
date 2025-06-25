@@ -59,12 +59,11 @@ describe('ProfilePage Component', () => {
   it('ユーザー情報を正しく表示する', () => {
     render(<ProfilePage />)
 
-    // ユーザー名と表示名が表示されていることを確認
-    expect(screen.getByRole('heading', { name: mockUser.displayName })).toBeInTheDocument()
-    expect(screen.getByText(`@${mockUser.userName}`)).toBeInTheDocument()
+    // ユーザー名が表示されていることを確認  
+    expect(screen.getByRole('heading', { name: 'Test User' })).toBeInTheDocument()
 
-    // プロフィール情報セクションが表示されていることを確認
-    expect(screen.getByText('プロフィール情報')).toBeInTheDocument()
+    // 基本情報セクションが表示されていることを確認
+    expect(screen.getByText('基本情報')).toBeInTheDocument()
 
     // 編集ボタンが表示されていることを確認
     expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument()

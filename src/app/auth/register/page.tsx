@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { SkinType } from '@/types'
+import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -12,8 +12,14 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    displayName: '',
+    birthDate: '',
+    gender: '' as Gender | '',
     skinType: '' as SkinType | '',
+    skinTypeOther: '',
+    allergies: [] as AllergyType[],
+    allergiesOther: '',
+    bodyType: '' as BodyType | '',
+    bodyTypeOther: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -48,8 +54,14 @@ export default function RegisterPage() {
           userName: formData.userName,
           email: formData.email,
           password: formData.password,
-          displayName: formData.displayName || undefined,
+          birthDate: formData.birthDate || undefined,
+          gender: formData.gender || undefined,
           skinType: formData.skinType || undefined,
+          skinTypeOther: formData.skinTypeOther || undefined,
+          allergies: formData.allergies.length > 0 ? formData.allergies : undefined,
+          allergiesOther: formData.allergiesOther || undefined,
+          bodyType: formData.bodyType || undefined,
+          bodyTypeOther: formData.bodyTypeOther || undefined,
         }),
       })
 
@@ -70,10 +82,21 @@ export default function RegisterPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+    const { name, value } = e.target
+    if (name === 'allergies') {
+      // Handle multiple select for allergies
+      const selectElement = e.target as HTMLSelectElement
+      const selectedValues = Array.from(selectElement.selectedOptions, option => option.value as AllergyType)
+      setFormData({
+        ...formData,
+        allergies: selectedValues,
+      })
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      })
+    }
   }
 
   const skinTypeOptions = [
@@ -83,6 +106,41 @@ export default function RegisterPage() {
     { value: 'oily', label: '脂性肌' },
     { value: 'combination', label: '混合肌' },
     { value: 'sensitive', label: '敏感肌' },
+    { value: 'other', label: 'その他' },
+  ]
+
+  const genderOptions = [
+    { value: '', label: '選択してください' },
+    { value: 'male', label: '男性' },
+    { value: 'female', label: '女性' },
+    { value: 'non_binary', label: 'ノンバイナリー' },
+    { value: 'prefer_not_to_say', label: '回答しない' },
+    { value: 'other', label: 'その他' },
+  ]
+
+  const allergyOptions = [
+    { value: 'fragrance', label: '香料' },
+    { value: 'alcohol', label: 'アルコール' },
+    { value: 'paraben', label: 'パラベン' },
+    { value: 'sulfate', label: '硫酸塩' },
+    { value: 'silicone', label: 'シリコン' },
+    { value: 'mineral_oil', label: 'ミネラルオイル' },
+    { value: 'formaldehyde', label: 'ホルムアルデヒド' },
+    { value: 'latex', label: 'ラテックス' },
+    { value: 'nickel', label: 'ニッケル' },
+    { value: 'other', label: 'その他' },
+  ]
+
+  const bodyTypeOptions = [
+    { value: '', label: '選択してください' },
+    { value: 'atopic', label: 'アトピー性皮膚炎' },
+    { value: 'sensitive_skin', label: '敏感肌' },
+    { value: 'acne_prone', label: 'ニキビ肌' },
+    { value: 'mature_skin', label: '年齢肌' },
+    { value: 'pigmentation', label: '色素沈着' },
+    { value: 'rosacea', label: '酒さ' },
+    { value: 'eczema', label: '湿疹' },
+    { value: 'other', label: 'その他' },
   ]
 
   return (
@@ -155,25 +213,47 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
-                表示名
+              <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+                生年月日
               </label>
               <div className="mt-1">
                 <input
-                  id="displayName"
-                  name="displayName"
-                  type="text"
-                  value={formData.displayName}
+                  id="birthDate"
+                  name="birthDate"
+                  type="date"
+                  value={formData.birthDate}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                  placeholder="表示名を入力してください（任意）"
+                  data-testid="birth-date-input"
                 />
               </div>
             </div>
 
             <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                性別
+              </label>
+              <div className="mt-1">
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  data-testid="gender-select"
+                >
+                  {genderOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="skinType" className="block text-sm font-medium text-gray-700">
-                肌タイプ
+                肌質
               </label>
               <div className="mt-1">
                 <select
@@ -191,6 +271,92 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
+              {formData.skinType === 'other' && (
+                <div className="mt-2">
+                  <input
+                    name="skinTypeOther"
+                    type="text"
+                    value={formData.skinTypeOther}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="その他の肌質を入力してください"
+                    data-testid="skin-type-other-input"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="allergies" className="block text-sm font-medium text-gray-700">
+                アレルギー（複数選択可）
+              </label>
+              <div className="mt-1">
+                <select
+                  id="allergies"
+                  name="allergies"
+                  multiple
+                  value={formData.allergies}
+                  onChange={handleChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  size={5}
+                  data-testid="allergies-select"
+                >
+                  {allergyOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Ctrl/Cmdキーを押しながらクリックで複数選択</p>
+              {formData.allergies.includes('other' as AllergyType) && (
+                <div className="mt-2">
+                  <input
+                    name="allergiesOther"
+                    type="text"
+                    value={formData.allergiesOther}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="その他のアレルギーを入力してください"
+                    data-testid="allergies-other-input"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="bodyType" className="block text-sm font-medium text-gray-700">
+                体質
+              </label>
+              <div className="mt-1">
+                <select
+                  id="bodyType"
+                  name="bodyType"
+                  value={formData.bodyType}
+                  onChange={handleChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  data-testid="body-type-select"
+                >
+                  {bodyTypeOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {formData.bodyType === 'other' && (
+                <div className="mt-2">
+                  <input
+                    name="bodyTypeOther"
+                    type="text"
+                    value={formData.bodyTypeOther}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="その他の体質を入力してください"
+                    data-testid="body-type-other-input"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
