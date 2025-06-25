@@ -198,7 +198,7 @@ export default function Header() {
         {/* モバイルメニュー */}
         {isMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
+            className="md:hidden fixed inset-0 z-50 bg-gray-500 bg-opacity-30"
             onClick={() => setIsMenuOpen(false)}
           >
             <div
