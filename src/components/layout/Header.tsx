@@ -111,6 +111,11 @@ export default function Header() {
             <Link href="/" className={getNavLinkClass('/')}>
               ホーム
             </Link>
+            {user && (
+              <Link href="/dashboard" className={getNavLinkClass('/dashboard')}>
+                ダッシュボード
+              </Link>
+            )}
             <Link href="/posts" className={getNavLinkClass('/posts')}>
               体験を見る
             </Link>
@@ -185,6 +190,11 @@ export default function Header() {
               <Link href="/" className={getMobileNavLinkClass('/')}>
                 ホーム
               </Link>
+              {user && (
+                <Link href="/dashboard" className={getMobileNavLinkClass('/dashboard')}>
+                  ダッシュボード
+                </Link>
+              )}
               <Link href="/posts" className={getMobileNavLinkClass('/posts')}>
                 体験を見る
               </Link>
