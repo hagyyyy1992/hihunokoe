@@ -339,7 +339,7 @@ export default function PostDetailPage() {
                   <span>編集</span>
                 </Link>
                 <Link
-                  href={`/posts/${post.id}/edit`}
+                  href={`/posts/${post.id}/edit#delete`}
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

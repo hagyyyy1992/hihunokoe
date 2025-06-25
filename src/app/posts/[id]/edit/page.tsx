@@ -51,6 +51,8 @@ export default function EditPostPage() {
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const fetchPost = useCallback(async () => {
     try {
@@ -75,6 +77,16 @@ export default function EditPostPage() {
       fetchPost()
     }
   }, [id, fetchPost])
+
+  // URLのハッシュフラグメントをチェックして削除ダイアログを表示
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#delete') {
+      // 投稿データが読み込まれた後に削除ダイアログを表示
+      if (!loading && post) {
+        setShowDeleteConfirm(true)
+      }
+    }
+  }, [loading, post])
 
   // 認証チェック
   useEffect(() => {
@@ -181,104 +193,93 @@ export default function EditPostPage() {
     return result
   }
 
-  // 体験詳細のバリデーション
+  // 体験詳細のバリデーション - シンプル化したバージョン
   const validateExperienceDetails = (
     details?: Post['experienceDetails']
   ): Partial<ExperienceDetails> => {
+    // 詳細がない場合は空オブジェクトを返す
     if (!details) return {}
 
+    // 安全に変換するためのヘルパー関数
+    const safeConvert = <T extends string>(
+      value: unknown,
+      validValues: readonly T[]
+    ): T | undefined => {
+      if (typeof value === 'string' && validValues.includes(value as T)) {
+        return value as T
+      }
+      return undefined
+    }
+
+    // 結果オブジェクト
     const result: Partial<ExperienceDetails> = {}
 
-    // 香りのバリデーション
+    // 香りの処理
     if (details.fragrance) {
-      const validTypes = ['none', 'floral', 'citrus', 'herbal', 'chemical', 'other']
-      const validIntensities = ['weak', 'moderate', 'strong']
+      const fragranceTypes = ['none', 'floral', 'citrus', 'herbal', 'chemical', 'other'] as const
+      const intensityTypes = ['weak', 'moderate', 'strong'] as const
 
-      const fragrance: Partial<ExperienceDetails['fragrance']> = {}
+      const type = safeConvert(details.fragrance.type, fragranceTypes)
+      const intensity = safeConvert(details.fragrance.intensity, intensityTypes)
 
-      if (details.fragrance.type && validTypes.includes(details.fragrance.type)) {
-        fragrance.type = details.fragrance.type as ExperienceDetails['fragrance']['type']
-      }
+      if (type || intensity || details.fragrance.description) {
+        result.fragrance = {
+          type: type || 'other',
+          intensity: intensity || 'moderate',
+        }
 
-      if (details.fragrance.intensity && validIntensities.includes(details.fragrance.intensity)) {
-        fragrance.intensity = details.fragrance
-          .intensity as ExperienceDetails['fragrance']['intensity']
-      }
-
-      if (details.fragrance.description) {
-        fragrance.description = details.fragrance.description
-      }
-
-      if (Object.keys(fragrance).length > 0) {
-        result.fragrance = fragrance as ExperienceDetails['fragrance']
+        if (details.fragrance.description) {
+          result.fragrance.description = details.fragrance.description
+        }
       }
     }
 
-    // テクスチャのバリデーション
+    // テクスチャの処理
     if (details.texture) {
-      const validTypes = ['watery', 'gel', 'cream', 'oil', 'powder', 'other']
-      const validSpreadability = ['easy', 'moderate', 'difficult']
-      const validAbsorption = ['fast', 'moderate', 'slow']
+      const textureTypes = ['watery', 'gel', 'cream', 'oil', 'powder', 'other'] as const
+      const spreadabilityTypes = ['easy', 'moderate', 'difficult'] as const
+      const absorptionTypes = ['fast', 'moderate', 'slow'] as const
 
-      const texture: Partial<ExperienceDetails['texture']> = {}
+      const type = safeConvert(details.texture.type, textureTypes)
+      const spreadability = safeConvert(details.texture.spreadability, spreadabilityTypes)
+      const absorption = safeConvert(details.texture.absorption, absorptionTypes)
 
-      if (details.texture.type && validTypes.includes(details.texture.type)) {
-        texture.type = details.texture.type as ExperienceDetails['texture']['type']
-      }
+      if (type || spreadability || absorption || details.texture.description) {
+        result.texture = {
+          type: type || 'other',
+          spreadability: spreadability || 'moderate',
+          absorption: absorption || 'moderate',
+        }
 
-      if (
-        details.texture.spreadability &&
-        validSpreadability.includes(details.texture.spreadability)
-      ) {
-        texture.spreadability = details.texture
-          .spreadability as ExperienceDetails['texture']['spreadability']
-      }
-
-      if (details.texture.absorption && validAbsorption.includes(details.texture.absorption)) {
-        texture.absorption = details.texture
-          .absorption as ExperienceDetails['texture']['absorption']
-      }
-
-      if (details.texture.description) {
-        texture.description = details.texture.description
-      }
-
-      if (Object.keys(texture).length > 0) {
-        result.texture = texture as ExperienceDetails['texture']
+        if (details.texture.description) {
+          result.texture.description = details.texture.description
+        }
       }
     }
 
-    // 使用後の状態のバリデーション
+    // 使用後の状態の処理
     if (details.afterUse) {
-      const validMoisture = ['very_dry', 'dry', 'normal', 'moist', 'very_moist']
-      const validTexture = ['rough', 'normal', 'smooth', 'very_smooth']
-      const validComfort = ['uncomfortable', 'normal', 'comfortable', 'very_comfortable']
-      const validDuration = ['short', 'moderate', 'long']
+      const moistureTypes = ['very_dry', 'dry', 'normal', 'moist', 'very_moist'] as const
+      const textureTypes = ['rough', 'normal', 'smooth', 'very_smooth'] as const
+      const comfortTypes = ['uncomfortable', 'normal', 'comfortable', 'very_comfortable'] as const
+      const durationTypes = ['short', 'moderate', 'long'] as const
 
-      const afterUse: Partial<ExperienceDetails['afterUse']> = {}
+      const moisture = safeConvert(details.afterUse.moisture, moistureTypes)
+      const texture = safeConvert(details.afterUse.texture, textureTypes)
+      const comfort = safeConvert(details.afterUse.comfort, comfortTypes)
+      const duration = safeConvert(details.afterUse.duration, durationTypes)
 
-      if (details.afterUse.moisture && validMoisture.includes(details.afterUse.moisture)) {
-        afterUse.moisture = details.afterUse.moisture as ExperienceDetails['afterUse']['moisture']
-      }
+      if (moisture || texture || comfort || duration || details.afterUse.description) {
+        result.afterUse = {
+          moisture: moisture || 'normal',
+          texture: texture || 'normal',
+          comfort: comfort || 'normal',
+          duration: duration || 'moderate',
+        }
 
-      if (details.afterUse.texture && validTexture.includes(details.afterUse.texture)) {
-        afterUse.texture = details.afterUse.texture as ExperienceDetails['afterUse']['texture']
-      }
-
-      if (details.afterUse.comfort && validComfort.includes(details.afterUse.comfort)) {
-        afterUse.comfort = details.afterUse.comfort as ExperienceDetails['afterUse']['comfort']
-      }
-
-      if (details.afterUse.duration && validDuration.includes(details.afterUse.duration)) {
-        afterUse.duration = details.afterUse.duration as ExperienceDetails['afterUse']['duration']
-      }
-
-      if (details.afterUse.description) {
-        afterUse.description = details.afterUse.description
-      }
-
-      if (Object.keys(afterUse).length > 0) {
-        result.afterUse = afterUse as ExperienceDetails['afterUse']
+        if (details.afterUse.description) {
+          result.afterUse.description = details.afterUse.description
+        }
       }
     }
 
@@ -296,15 +297,111 @@ export default function EditPostPage() {
     moodTag: validateMoodTag(post.moodTag),
   }
 
+  // 投稿削除処理
+  const handleDelete = async () => {
+    if (!post || !user) return
+
+    setDeleteLoading(true)
+
+    try {
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || '投稿の削除に失敗しました')
+      }
+
+      router.push('/posts')
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'
+      setError(errorMessage)
+      setDeleteLoading(false)
+      setShowDeleteConfirm(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">投稿を編集</h1>
-          <p className="text-gray-600">投稿内容を編集できます。</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">投稿を編集</h1>
+            <p className="text-gray-600">投稿内容を編集できます。</p>
+          </div>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            <span>投稿を削除</span>
+          </button>
         </div>
 
         <PostForm initialData={formData} postId={post.id.toString()} isEditMode={true} />
+
+        {/* 削除確認ダイアログ */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
+              <p className="text-gray-600 mb-6">この操作は取り消せません。本当に削除しますか？</p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleteLoading}
+                >
+                  キャンセル
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? (
+                    <span className="flex items-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      削除中...
+                    </span>
+                  ) : (
+                    '削除する'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
