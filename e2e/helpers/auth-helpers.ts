@@ -72,22 +72,28 @@ export class AuthHelper {
       try {
         await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 10000 })
       } catch (error) {
-        // Check for error messages on login page
-        const errorElement = this.page.locator('[data-testid="error-message"]')
-        const hasError = await errorElement.isVisible()
-        if (hasError) {
-          const errorText = await errorElement.textContent()
-          throw new Error(`Login failed with error: ${errorText}`)
+        try {
+          // Check for error messages on login page (with error handling for closed page)
+          const errorElement = this.page.locator('[data-testid="error-message"]')
+          const hasError = await errorElement.isVisible()
+          if (hasError) {
+            const errorText = await errorElement.textContent()
+            throw new Error(`Login failed with error: ${errorText}`)
+          }
+
+          // If no error message but still on login page, check current URL
+          const currentUrl = this.page.url()
+          console.log('Login failed - expected dashboard but got: ', currentUrl)
+
+          // Wait a bit more in case there's a delayed redirect
+          await this.page.waitForTimeout(2000)
+          const finalUrl = this.page.url()
+          throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
+        } catch (pageError) {
+          // If page is closed or inaccessible, throw original error
+          console.log('Page is no longer accessible during error handling:', pageError)
+          throw error
         }
-
-        // If no error message but still on login page, check current URL
-        const currentUrl = this.page.url()
-        console.log('Login failed - expected dashboard but got: ', currentUrl)
-
-        // Wait a bit more in case there's a delayed redirect
-        await this.page.waitForTimeout(2000)
-        const finalUrl = this.page.url()
-        throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
       }
     } else {
       // Wait a bit for any potential redirect, but don't expect success
