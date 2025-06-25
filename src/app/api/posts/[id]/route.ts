@@ -4,12 +4,6 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { z } from 'zod'
 
-// UUID形式のチェック用関数
-function isValidUUID(str: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  return uuidRegex.test(str)
-}
-
 const postSchema = z.object({
   title: z.string().min(1).max(200),
   content: z.string().min(1),
@@ -72,7 +66,7 @@ const postSchema = z.object({
 })
 
 // GET: 投稿の取得
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest) {
   // URLからIDを取得
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
@@ -189,7 +183,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT: 投稿の更新
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
 
@@ -237,7 +231,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       }
 
       // モックデータを更新（実際には永続化されない）
-      // @ts-ignore - モックデータの型の問題を回避
+      // @ts-expect-error - モックデータの型の問題を回避
       MOCK_POSTS[postIndex] = updatedPost
 
       return NextResponse.json({
@@ -312,7 +306,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE: 投稿の削除
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
 

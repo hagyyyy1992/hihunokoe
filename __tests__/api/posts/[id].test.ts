@@ -130,9 +130,8 @@ describe('/api/posts/[id]', () => {
   describe('GET', () => {
     it('存在する投稿を取得できる（モックモード）', async () => {
       const request = createRequest('mock-post-1')
-      const params = createParams('mock-post-1')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -180,9 +179,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.update.mockResolvedValue({ ...mockPost, viewCount: 6 })
 
       const request = createRequest('post-1')
-      const params = createParams('post-1')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -270,9 +268,8 @@ describe('/api/posts/[id]', () => {
 
     it('存在しない投稿の場合、404エラーを返す（モックモード）', async () => {
       const request = createRequest('non-existent-post')
-      const params = createParams('non-existent-post')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -284,9 +281,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(null)
 
       const request = createRequest('non-existent-post')
-      const params = createParams('non-existent-post')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -295,9 +291,8 @@ describe('/api/posts/[id]', () => {
 
     it('ドラフト投稿は取得できない（モックモード）', async () => {
       const request = createRequest('draft-post')
-      const params = createParams('draft-post')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -309,9 +304,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
 
       const request = createRequest('post-1')
-      const params = createParams('post-1')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -335,9 +329,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.update.mockRejectedValue(new Error('Update error'))
 
       const request = createRequest('post-1')
-      const params = createParams('post-1')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
 
       // 閲覧数更新エラーでも投稿自体は500エラーになる（全体のエラーハンドリング）
       expect(response.status).toBe(500)
@@ -346,8 +339,7 @@ describe('/api/posts/[id]', () => {
     it('複数の投稿を順次取得できる（モックモード）', async () => {
       // 最初の投稿
       const request1 = createRequest('mock-post-1')
-      const params1 = createParams('mock-post-1')
-      const response1 = await GET(request1, { params: params1 })
+      const response1 = await GET(request1)
       const data1 = await response1.json()
 
       expect(response1.status).toBe(200)
@@ -356,8 +348,7 @@ describe('/api/posts/[id]', () => {
 
       // 2番目の投稿
       const request2 = createRequest('mock-post-2')
-      const params2 = createParams('mock-post-2')
-      const response2 = await GET(request2, { params: params2 })
+      const response2 = await GET(request2)
       const data2 = await response2.json()
 
       expect(response2.status).toBe(200)
@@ -413,9 +404,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.update.mockResolvedValue(mockPost)
 
       const request = createRequest('post-1')
-      const params = createParams('post-1')
 
-      const response = await GET(request, { params })
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -434,9 +424,8 @@ describe('/api/posts/[id]', () => {
 
     it('認証されていない場合、401エラーを返す', async () => {
       const request = createRequest('mock-post-1', 'PUT', { title: 'Updated Title' })
-      const params = createParams('mock-post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -452,9 +441,8 @@ describe('/api/posts/[id]', () => {
         { title: 'Updated Title' },
         'invalid-token'
       )
-      const params = createParams('mock-post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -474,9 +462,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('mock-post-1', 'PUT', updateData, 'valid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -515,9 +502,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.update.mockResolvedValue(updatedPost)
 
       const request = createRequest('post-1', 'PUT', updateData, 'valid-token')
-      const params = createParams('post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -553,9 +539,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('mock-post-1', 'PUT', updateData, 'valid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -580,9 +565,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('post-1', 'PUT', updateData, 'valid-token')
-      const params = createParams('post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -600,9 +584,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('non-existent-post', 'PUT', updateData, 'valid-token')
-      const params = createParams('non-existent-post')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -621,9 +604,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('non-existent-post', 'PUT', updateData, 'valid-token')
-      const params = createParams('non-existent-post')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -642,9 +624,8 @@ describe('/api/posts/[id]', () => {
       }
 
       const request = createRequest('mock-post-1', 'PUT', invalidData, 'valid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await PUT(request, { params })
+      const response = await PUT(request)
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -659,9 +640,8 @@ describe('/api/posts/[id]', () => {
 
     it('認証されていない場合、401エラーを返す', async () => {
       const request = createRequest('mock-post-1', 'DELETE')
-      const params = createParams('mock-post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -672,9 +652,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(null)
 
       const request = createRequest('mock-post-1', 'DELETE', null, 'invalid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -685,9 +664,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
       const request = createRequest('mock-post-1', 'DELETE', null, 'valid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -707,9 +685,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.delete.mockResolvedValue(mockPost)
 
       const request = createRequest('post-1', 'DELETE', null, 'valid-token')
-      const params = createParams('post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -727,9 +704,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser2)
 
       const request = createRequest('mock-post-1', 'DELETE', null, 'valid-token')
-      const params = createParams('mock-post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -748,9 +724,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
 
       const request = createRequest('post-1', 'DELETE', null, 'valid-token')
-      const params = createParams('post-1')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -762,9 +737,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
       const request = createRequest('non-existent-post', 'DELETE', null, 'valid-token')
-      const params = createParams('non-existent-post')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -777,9 +751,8 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(null)
 
       const request = createRequest('non-existent-post', 'DELETE', null, 'valid-token')
-      const params = createParams('non-existent-post')
 
-      const response = await DELETE(request, { params })
+      const response = await DELETE(request)
       const data = await response.json()
 
       expect(response.status).toBe(404)

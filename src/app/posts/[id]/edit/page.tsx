@@ -4,15 +4,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/PostForm'
-import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
+import { CosmeticCategory, SkinType, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 
 interface Post {
   id: string
   title: string
   content: string
   cosmeticName: string
-  cosmeticCategory?: CosmeticCategory
-  skinType?: SkinType
+  cosmeticCategory?: string
+  skinType?: string
   usageSituation?: {
     season?: string
     timeOfDay?: string
@@ -40,16 +40,14 @@ interface Post {
       description?: string
     }
   }
-  moodTag?: MoodTag
-  user: {
-    id: string
-  }
+  moodTag?: string
+  userId: string
 }
 
 export default function EditPostPage() {
   const { id } = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -78,19 +76,21 @@ export default function EditPostPage() {
     }
   }, [id, fetchPost])
 
+  // 認証チェック
   useEffect(() => {
-    // ユーザーが認証されていない場合はログインページにリダイレクト
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/auth/login')
     }
+  }, [user, authLoading, router])
 
-    // 投稿が取得できて、ユーザーが投稿者でない場合は詳細ページにリダイレクト
-    if (!loading && post && user && post.user.id !== user.id) {
+  // 権限チェック
+  useEffect(() => {
+    if (!loading && post && user && post.userId !== user.id) {
       router.push(`/posts/${id}`)
     }
-  }, [loading, post, user, router, id])
+  }, [post, user, loading, id, router])
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -101,7 +101,7 @@ export default function EditPostPage() {
     )
   }
 
-  if (error) {
+  if (error || !post) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -112,20 +112,188 @@ export default function EditPostPage() {
     )
   }
 
-  if (!post) {
-    return null
+  // 投稿データをフォーム用に整形
+  const validateCosmeticCategory = (category?: string): CosmeticCategory | '' => {
+    if (!category) return ''
+    const validCategories: CosmeticCategory[] = [
+      'toner',
+      'serum',
+      'emulsion',
+      'cream',
+      'cleanser',
+      'foundation',
+      'concealer',
+      'powder',
+      'eyeshadow',
+      'lipstick',
+      'sunscreen',
+      'other',
+    ]
+    return validCategories.includes(category as CosmeticCategory)
+      ? (category as CosmeticCategory)
+      : ''
   }
 
-  // PostFormに渡すためのデータを整形
+  const validateSkinType = (type?: string): SkinType | '' => {
+    if (!type) return ''
+    const validTypes: SkinType[] = ['normal', 'dry', 'oily', 'combination', 'sensitive']
+    return validTypes.includes(type as SkinType) ? (type as SkinType) : ''
+  }
+
+  const validateMoodTag = (tag?: string): MoodTag | '' => {
+    if (!tag) return ''
+    const validTags: MoodTag[] = ['disappointed', 'okay', 'good', 'love', 'perfect']
+    return validTags.includes(tag as MoodTag) ? (tag as MoodTag) : ''
+  }
+
+  // 使用状況のバリデーション
+  const validateUsageSituation = (situation?: Post['usageSituation']): Partial<UsageSituation> => {
+    if (!situation) return {}
+
+    const validSeasons = ['spring', 'summer', 'autumn', 'winter']
+    const validTimeOfDay = ['morning', 'evening', 'both']
+    const validMenstrualCycle = ['before', 'during', 'after', 'none']
+    const validSkinCondition = ['good', 'unstable', 'problematic']
+    const validWeatherCondition = ['humid', 'dry', 'hot', 'cold', 'normal']
+
+    const result: Partial<UsageSituation> = {}
+
+    if (situation.season && validSeasons.includes(situation.season)) {
+      result.season = situation.season as UsageSituation['season']
+    }
+
+    if (situation.timeOfDay && validTimeOfDay.includes(situation.timeOfDay)) {
+      result.timeOfDay = situation.timeOfDay as UsageSituation['timeOfDay']
+    }
+
+    if (situation.menstrualCycle && validMenstrualCycle.includes(situation.menstrualCycle)) {
+      result.menstrualCycle = situation.menstrualCycle as UsageSituation['menstrualCycle']
+    }
+
+    if (situation.skinCondition && validSkinCondition.includes(situation.skinCondition)) {
+      result.skinCondition = situation.skinCondition as UsageSituation['skinCondition']
+    }
+
+    if (situation.weatherCondition && validWeatherCondition.includes(situation.weatherCondition)) {
+      result.weatherCondition = situation.weatherCondition as UsageSituation['weatherCondition']
+    }
+
+    return result
+  }
+
+  // 体験詳細のバリデーション
+  const validateExperienceDetails = (
+    details?: Post['experienceDetails']
+  ): Partial<ExperienceDetails> => {
+    if (!details) return {}
+
+    const result: Partial<ExperienceDetails> = {}
+
+    // 香りのバリデーション
+    if (details.fragrance) {
+      const validTypes = ['none', 'floral', 'citrus', 'herbal', 'chemical', 'other']
+      const validIntensities = ['weak', 'moderate', 'strong']
+
+      const fragrance: Partial<ExperienceDetails['fragrance']> = {}
+
+      if (details.fragrance.type && validTypes.includes(details.fragrance.type)) {
+        fragrance.type = details.fragrance.type as ExperienceDetails['fragrance']['type']
+      }
+
+      if (details.fragrance.intensity && validIntensities.includes(details.fragrance.intensity)) {
+        fragrance.intensity = details.fragrance
+          .intensity as ExperienceDetails['fragrance']['intensity']
+      }
+
+      if (details.fragrance.description) {
+        fragrance.description = details.fragrance.description
+      }
+
+      if (Object.keys(fragrance).length > 0) {
+        result.fragrance = fragrance as ExperienceDetails['fragrance']
+      }
+    }
+
+    // テクスチャのバリデーション
+    if (details.texture) {
+      const validTypes = ['watery', 'gel', 'cream', 'oil', 'powder', 'other']
+      const validSpreadability = ['easy', 'moderate', 'difficult']
+      const validAbsorption = ['fast', 'moderate', 'slow']
+
+      const texture: Partial<ExperienceDetails['texture']> = {}
+
+      if (details.texture.type && validTypes.includes(details.texture.type)) {
+        texture.type = details.texture.type as ExperienceDetails['texture']['type']
+      }
+
+      if (
+        details.texture.spreadability &&
+        validSpreadability.includes(details.texture.spreadability)
+      ) {
+        texture.spreadability = details.texture
+          .spreadability as ExperienceDetails['texture']['spreadability']
+      }
+
+      if (details.texture.absorption && validAbsorption.includes(details.texture.absorption)) {
+        texture.absorption = details.texture
+          .absorption as ExperienceDetails['texture']['absorption']
+      }
+
+      if (details.texture.description) {
+        texture.description = details.texture.description
+      }
+
+      if (Object.keys(texture).length > 0) {
+        result.texture = texture as ExperienceDetails['texture']
+      }
+    }
+
+    // 使用後の状態のバリデーション
+    if (details.afterUse) {
+      const validMoisture = ['very_dry', 'dry', 'normal', 'moist', 'very_moist']
+      const validTexture = ['rough', 'normal', 'smooth', 'very_smooth']
+      const validComfort = ['uncomfortable', 'normal', 'comfortable', 'very_comfortable']
+      const validDuration = ['short', 'moderate', 'long']
+
+      const afterUse: Partial<ExperienceDetails['afterUse']> = {}
+
+      if (details.afterUse.moisture && validMoisture.includes(details.afterUse.moisture)) {
+        afterUse.moisture = details.afterUse.moisture as ExperienceDetails['afterUse']['moisture']
+      }
+
+      if (details.afterUse.texture && validTexture.includes(details.afterUse.texture)) {
+        afterUse.texture = details.afterUse.texture as ExperienceDetails['afterUse']['texture']
+      }
+
+      if (details.afterUse.comfort && validComfort.includes(details.afterUse.comfort)) {
+        afterUse.comfort = details.afterUse.comfort as ExperienceDetails['afterUse']['comfort']
+      }
+
+      if (details.afterUse.duration && validDuration.includes(details.afterUse.duration)) {
+        afterUse.duration = details.afterUse.duration as ExperienceDetails['afterUse']['duration']
+      }
+
+      if (details.afterUse.description) {
+        afterUse.description = details.afterUse.description
+      }
+
+      if (Object.keys(afterUse).length > 0) {
+        result.afterUse = afterUse as ExperienceDetails['afterUse']
+      }
+    }
+
+    return result
+  }
+
   const formData = {
     title: post.title,
     content: post.content,
     cosmeticName: post.cosmeticName,
-    cosmeticCategory: (post.cosmeticCategory as CosmeticCategory) || '',
-    skinType: (post.skinType as SkinType) || '',
-    usageSituation: (post.usageSituation || {}) as Partial<UsageSituation>,
-    experienceDetails: (post.experienceDetails || {}) as Partial<ExperienceDetails>,
-    moodTag: (post.moodTag as MoodTag) || '',
+    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory),
+    skinType: validateSkinType(post.skinType),
+    usageSituation: validateUsageSituation(post.usageSituation),
+    experienceDetails: validateExperienceDetails(post.experienceDetails),
+    moodTag: validateMoodTag(post.moodTag),
   }
 
   return (
@@ -133,12 +301,10 @@ export default function EditPostPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">投稿を編集</h1>
-          <p className="text-gray-600 mt-2">投稿内容を編集できます。</p>
+          <p className="text-gray-600">投稿内容を編集できます。</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-          <PostForm initialData={formData} postId={post.id} isEditMode={true} />
-        </div>
+        <PostForm initialData={formData} postId={post.id.toString()} isEditMode={true} />
       </div>
     </div>
   )
