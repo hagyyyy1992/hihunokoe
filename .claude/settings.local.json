@@ -17,7 +17,8 @@
       "Bash(npx playwright test:*)",
       "Bash(gh pr create:*)",
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

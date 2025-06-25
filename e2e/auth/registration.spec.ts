@@ -17,7 +17,7 @@ test.describe('ユーザー登録', () => {
     await page.fill('[data-testid="email-input"]', newUser.email)
     await page.fill('[data-testid="password-input"]', newUser.password)
     await page.fill('[data-testid="confirm-password-input"]', newUser.password)
-    
+
     if (newUser.skinType) {
       await page.selectOption('[data-testid="skin-type-select"]', newUser.skinType)
     }
@@ -26,7 +26,7 @@ test.describe('ユーザー登録', () => {
 
     // 登録成功後は登録完了ページにリダイレクトされる
     await expect(page).toHaveURL(/\/auth\/registration-complete/, { timeout: 15000 })
-    
+
     // 成功メッセージを確認
     await authHelper.expectSuccessMessage('アカウントが作成されました')
   })
@@ -98,7 +98,7 @@ test.describe('ユーザー登録', () => {
     await page.fill('[data-testid="password-input"]', user2.password)
     await page.fill('[data-testid="confirm-password-input"]', user2.password)
     await page.click('[data-testid="register-button"]')
-    
+
     // エラーメッセージを確認（実際のエラーメッセージに合わせる）
     await authHelper.expectErrorMessage('ユーザー登録に失敗しました')
   })

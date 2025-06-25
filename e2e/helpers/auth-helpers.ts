@@ -3,12 +3,15 @@ import { Page, expect } from '@playwright/test'
 export class AuthHelper {
   constructor(private page: Page) {}
 
-  async register(userData: {
-    username: string
-    email: string
-    password: string
-    skinType?: string
-  }, expectSuccess: boolean = true) {
+  async register(
+    userData: {
+      username: string
+      email: string
+      password: string
+      skinType?: string
+    },
+    expectSuccess: boolean = true
+  ) {
     await this.page.goto('/auth/register')
 
     await this.page.fill('[data-testid="username-input"]', userData.username)

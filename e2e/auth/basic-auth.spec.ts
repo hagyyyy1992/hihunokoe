@@ -71,12 +71,12 @@ test.describe('基本的な認証フロー', () => {
       // Mobile view - open menu first and check if already open
       const mobileMenu = page.locator('.md\\:hidden .px-2')
       const isMenuVisible = await mobileMenu.isVisible()
-      
+
       if (!isMenuVisible) {
         await page.click('[data-testid="mobile-menu-button"]')
         await page.waitForTimeout(500)
       }
-      
+
       // Find visible login link in mobile menu
       const mobileLoginLink = page.locator('.md\\:hidden [data-testid="login-link"]')
       await expect(mobileLoginLink).toBeVisible({ timeout: 5000 })
