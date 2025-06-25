@@ -34,9 +34,13 @@ export const testPosts = {
 
 export const generateRandomUser = () => {
   const timestamp = Date.now()
+  const randomSuffix = Math.random().toString(36).substring(2, 8)
+  const processId = process.pid || Math.floor(Math.random() * 10000)
+  const workerId = process.env.PLAYWRIGHT_WORKER_ID || Math.floor(Math.random() * 100)
+  const uniqueId = `${timestamp}_${randomSuffix}_${processId}_${workerId}`
   return {
-    username: `user_${timestamp}`,
-    email: `user${timestamp}@example.com`,
+    username: `user_${uniqueId}`,
+    email: `user${uniqueId}@example.com`,
     password: 'testpassword123',
     skinType: 'normal',
   }

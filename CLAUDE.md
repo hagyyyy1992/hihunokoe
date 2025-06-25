@@ -129,6 +129,51 @@ npm run mailhog:stop
 - Authentication routes in `src/app/api/auth/`
 - Post-related routes in `src/app/api/posts/`
 
+## Git Commit Message Conventions
+
+このプロジェクトでは、コミットメッセージの可読性と追跡性を向上させるため、以下の原則に従います。
+
+### Prefix形式
+
+```
+prefix: 〇〇なため、△△を追加/修正/削除
+```
+
+### 使用するPrefix
+
+- **feat**: 新しい機能の追加
+- **fix**: バグの修正
+- **docs**: ドキュメントのみの変更
+- **style**: コードの動作に影響しない変更（空白、フォーマット、セミコロンなど）
+- **refactor**: バグ修正や機能追加ではないコード改善
+- **perf**: パフォーマンス向上に関する変更
+- **test**: テストの追加や修正
+- **chore**: ビルドプロセス、補助ツール、ライブラリの変更
+
+### 具体例
+
+```bash
+# Good examples
+feat: ユーザー認証機能を強化するため、メール認証を追加
+fix: モバイル表示が崩れるため、ヘッダーのレスポンシブ対応を修正
+docs: 新規開発者向けにセットアップ手順を追加
+refactor: コードの可読性向上のため、認証ロジックを関数に分離
+test: E2Eテストの安定性向上のため、認証フローのテストを改善
+chore: CI/CDパイプラインの実行時間短縮のため、並列実行を追加
+
+# Bad examples
+fix: 修正
+feat: 追加
+update: 更新
+```
+
+### 原則
+
+1. **理由を明記する**: なぜその変更が必要だったのかを「〇〇なため」で表現
+2. **日本語で記述**: チーム内でのコミュニケーションを円滑にするため
+3. **適切なprefixを選択**: 変更の性質を正確に表現
+4. **コミットサイズを適切に**: 1つのprefixで表現できる範囲での変更
+
 ## Important Notes
 
 ### Environment Variables
@@ -184,6 +229,45 @@ npm run mailhog:stop
 4. **Unit testing**: Run `npm test` during development
 5. **E2E testing**: Run `npm run test:e2e` before major releases
 6. **Code quality**: Run `npm run lint` and `npm run format` before committing
+
+### Pre-Push Checklist
+
+プッシュ前に必ず以下のチェックを実行してコード品質を保証する：
+
+```bash
+# フォーマット確認・修正
+npm run format
+
+# Lint確認・修正
+npm run lint
+
+# テスト実行
+npm test
+npm run test:e2e  # 重要な変更の場合
+
+# ビルド確認
+npm run build
+```
+
+**自動化推奨**: Huskyやgit hookを使用して、これらのチェックを自動化することを推奨します。
+
+### Claude Code への指示
+
+Claude Codeは、ユーザーからpushやデプロイを依頼された際、**必ず**以下の手順を実行すること：
+
+1. **事前チェック実行**: push前に下記コマンドを直列実行
+
+   ```bash
+   npm run format && npm run lint && npm test && npm run build
+   ```
+
+2. **エラーハンドリング**:
+
+   - いずれかのコマンドが失敗した場合、pushを中止し原因を調査して修正して、修正完了後に再度チェックを実行
+
+3. **成功時のみpush**: 全てのチェックが成功した場合のみgit pushを実行
+
+この手順は**必須**であり、ユーザーが「pushして」と依頼した場合でも、事前チェックなしのpushは禁止します。
 
 ## 文書構成
 

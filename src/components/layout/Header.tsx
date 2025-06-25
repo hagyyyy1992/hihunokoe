@@ -181,7 +181,7 @@ export default function Header() {
           {/* モバイルメニューボタン */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-pink-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-md text-gray-700 hover:text-pink-600 hover:bg-gray-100 transition-colors relative z-[60]"
             data-testid="mobile-menu-button"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@ export default function Header() {
         {/* モバイルメニュー */}
         {isMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 z-50"
+            className="md:hidden fixed top-16 left-0 right-0 bottom-0 z-50"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
             onClick={() => setIsMenuOpen(false)}
           >
