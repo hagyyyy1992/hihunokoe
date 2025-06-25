@@ -96,9 +96,10 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
-      await this.page.waitForTimeout(300)
+      await this.page.waitForTimeout(500)
 
       // Check if user is already logged out by checking for logout button
       const logoutButtons = this.page.getByTestId('logout-button')
@@ -197,9 +198,10 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
-      await this.page.waitForTimeout(300)
+      await this.page.waitForTimeout(500)
 
       // Check for mobile user menu button - get the last one (mobile should be last)
       const mobileUserMenuButton = this.page.getByTestId('user-menu-button').last()
@@ -220,9 +222,10 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
-      await this.page.waitForTimeout(300)
+      await this.page.waitForTimeout(500)
 
       // Check for mobile login link - wait for it to appear after logout
       let attempts = 0
