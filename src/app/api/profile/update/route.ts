@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { verifyToken, getUserById } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
+import { SkinType } from '@prisma/client'
 
 // プロフィール更新のバリデーションスキーマ
 const updateProfileSchema = z.object({
@@ -73,7 +74,7 @@ export async function PUT(request: NextRequest) {
         },
         data: {
           userName: validatedData.userName,
-          skinType: validatedData.skinType || null,
+          skinType: validatedData.skinType ? (validatedData.skinType as SkinType) : null,
           profileImageUrl: validatedData.profileImageUrl || null,
           updatedAt: new Date(),
         },
