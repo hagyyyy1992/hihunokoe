@@ -27,8 +27,7 @@ describe('PostCard Component', () => {
     viewCount: 42,
     user: {
       id: 'user-1',
-      userName: 'testuser',
-      displayName: 'テストユーザー',
+      userName: 'テストユーザー',
       skinType: 'normal',
     },
     _count: {
@@ -80,9 +79,9 @@ describe('PostCard Component', () => {
   it('ユーザー情報を表示する', () => {
     render(<PostCard post={mockPost} />)
 
-    // ディスプレイ名
-    const displayName = screen.getByText('テストユーザー')
-    expectElementToBeVisible(displayName)
+    // ユーザー名
+    const userName = screen.getByText('テストユーザー')
+    expectElementToBeVisible(userName)
 
     // 肌タイプ
     const skinType = screen.getByText('普通肌')
@@ -136,18 +135,10 @@ describe('PostCard Component', () => {
     expectElementToHaveText(content, '短いコンテンツ')
   })
 
-  it('displayNameがない場合はuserNameを表示する', () => {
-    const postWithoutDisplayName = {
-      ...mockPost,
-      user: {
-        ...mockPost.user,
-        displayName: undefined,
-      },
-    }
+  it('userNameを表示する', () => {
+    render(<PostCard post={mockPost} />)
 
-    render(<PostCard post={postWithoutDisplayName} />)
-
-    const userName = screen.getByText('testuser')
+    const userName = screen.getByText('テストユーザー')
     expectElementToBeVisible(userName)
   })
 

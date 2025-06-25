@@ -14,11 +14,13 @@
       "Bash(npm test:*)",
       "Bash(ls:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx playwright test:*)",
-      "Bash(gh pr create:*)",
-      "Bash(git push:*)",
+      "Bash(npx prisma migrate dev:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git fetch:*)"
+      "Bash(npx playwright test:*)"
     ],
     "deny": []
   }

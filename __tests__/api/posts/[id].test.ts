@@ -195,7 +195,6 @@ describe('/api/posts/[id]', () => {
             select: {
               id: true,
               userName: true,
-              displayName: true,
               skinType: true,
               profileImageUrl: true,
             },
@@ -206,7 +205,6 @@ describe('/api/posts/[id]', () => {
                 select: {
                   id: true,
                   userName: true,
-                  displayName: true,
                 },
               },
             },
@@ -221,7 +219,6 @@ describe('/api/posts/[id]', () => {
                 select: {
                   id: true,
                   userName: true,
-                  displayName: true,
                   skinType: true,
                 },
               },
@@ -234,7 +231,6 @@ describe('/api/posts/[id]', () => {
                     select: {
                       id: true,
                       userName: true,
-                      displayName: true,
                       skinType: true,
                     },
                   },
@@ -515,13 +511,16 @@ describe('/api/posts/[id]', () => {
       })
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: 'post-1' },
-        data: updateData,
+        data: {
+          ...updateData,
+          experienceDetails: undefined,
+          usageSituation: undefined,
+        },
         include: {
           user: {
             select: {
               id: true,
               userName: true,
-              displayName: true,
               skinType: true,
             },
           },

@@ -2,9 +2,8 @@
 
 export const createMockUser = (overrides: Partial<any> = {}) => ({
   id: 'test-user-id',
-  userName: 'testuser',
+  userName: 'Test User',
   email: 'test@example.com',
-  displayName: 'Test User',
   skinType: 'normal',
   emailVerified: true,
   ...overrides,
@@ -102,10 +101,9 @@ export const createValidPostData = (overrides: Partial<any> = {}) => ({
 })
 
 export const createValidUserRegistrationData = (overrides: Partial<any> = {}) => ({
-  userName: 'testuser',
+  userName: 'Test User',
   email: 'test@example.com',
   password: 'password123',
-  displayName: 'Test User',
   skinType: 'normal',
   ...overrides,
 })
@@ -121,8 +119,7 @@ export const createMockPrismaPostResponse = (overrides: Partial<any> = {}) => ({
   ...createMockPost(),
   user: {
     id: 'test-user-id',
-    userName: 'testuser',
-    displayName: 'Test User',
+    userName: 'Test User',
     skinType: 'normal',
     profileImageUrl: null,
   },
