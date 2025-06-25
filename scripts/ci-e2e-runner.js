@@ -34,21 +34,30 @@ class E2ETestRunner {
   }
 
   async runTestCategory(category, config) {
+    const startTime = new Date()
     console.log(`\n🧪 Running ${config.name}...`)
     console.log(`📊 Required pass rate: ${(config.threshold * 100).toFixed(0)}%`)
     console.log(`📝 Description: ${config.description}`)
+    console.log(`🕐 Started at: ${startTime.toLocaleTimeString()}`)
+    console.log(`🎯 Test patterns: ${config.patterns.join(', ')}`)
 
     const patterns = config.patterns.join(' ')
     const command = `npx playwright test ${patterns} --reporter=json`
 
     try {
       const result = await this.executeCommand(command)
+      const endTime = new Date()
+      const duration = ((endTime - startTime) / 1000).toFixed(1)
+
+      console.log(`⏱️ Completed in: ${duration}s`)
+
       const stats = this.parseTestResults(result.stdout)
 
       this.results[category] = {
         ...stats,
         threshold: config.threshold,
         passed: stats.passRate >= config.threshold,
+        duration,
       }
 
       this.logCategoryResults(category, config, stats)
@@ -71,15 +80,35 @@ class E2ETestRunner {
   }
 
   async executeCommand(command) {
+    console.log(`⚡ Executing: ${command}`)
+    console.log('📊 Test execution in progress...')
+
     return new Promise((resolve, reject) => {
-      exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-        if (error && !stdout) {
-          // Only reject if there's no output (complete failure)
-          reject(error)
-        } else {
-          // Accept partial failures - we'll evaluate based on results
-          resolve({ stdout, stderr })
+      const childProcess = exec(
+        command,
+        { maxBuffer: 1024 * 1024 * 10 },
+        (error, stdout, stderr) => {
+          if (error && !stdout) {
+            // Only reject if there's no output (complete failure)
+            reject(error)
+          } else {
+            // Accept partial failures - we'll evaluate based on results
+            resolve({ stdout, stderr })
+          }
         }
+      )
+
+      // Show periodic progress updates during execution
+      let progressCounter = 0
+      const progressInterval = setInterval(() => {
+        progressCounter++
+        const dots = '.'.repeat((progressCounter % 3) + 1)
+        process.stdout.write(`\r🔄 Running tests${dots}   `)
+      }, 2000)
+
+      childProcess.on('close', () => {
+        clearInterval(progressInterval)
+        process.stdout.write('\r✅ Test execution completed\n')
       })
     })
   }
@@ -130,6 +159,7 @@ class E2ETestRunner {
     const passRatePercent = (stats.passRate * 100).toFixed(1)
     const thresholdPercent = (config.threshold * 100).toFixed(0)
     const status = stats.passRate >= config.threshold ? '✅ PASS' : '❌ FAIL'
+    const duration = this.results[category]?.duration || 'N/A'
 
     console.log(`\n📊 ${config.name} Results:`)
     console.log(`   Total: ${stats.total}`)
@@ -138,6 +168,7 @@ class E2ETestRunner {
     if (stats.flaky > 0) console.log(`   Flaky: ${stats.flaky}`)
     if (stats.skipped > 0) console.log(`   Skipped: ${stats.skipped}`)
     console.log(`   Pass Rate: ${passRatePercent}% (required: ${thresholdPercent}%)`)
+    console.log(`   Duration: ${duration}s`)
     console.log(`   Status: ${status}`)
   }
 
