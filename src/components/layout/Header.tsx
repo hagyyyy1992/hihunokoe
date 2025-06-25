@@ -15,6 +15,18 @@ export default function Header() {
     setCurrentPath(pathname)
   }, [pathname])
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMenuOpen])
+
   const getNavLinkClass = (href: string) => {
     if (!currentPath) {
       return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
@@ -95,7 +107,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100">
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-100 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* ロゴ */}
@@ -185,59 +197,97 @@ export default function Header() {
 
         {/* モバイルメニュー */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
-              <Link href="/" className={getMobileNavLinkClass('/')}>
-                ホーム
-              </Link>
-              {user && (
-                <Link href="/dashboard" className={getMobileNavLinkClass('/dashboard')}>
-                  ダッシュボード
+          <div
+            className="md:hidden fixed inset-0 z-50"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <div
+              className="fixed top-16 left-0 right-0 bg-white shadow-lg border-t border-gray-100"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="px-2 pt-2 pb-3 space-y-1 max-h-screen overflow-y-auto">
+                <Link
+                  href="/"
+                  className={getMobileNavLinkClass('/')}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ホーム
                 </Link>
-              )}
-              <Link href="/posts" className={getMobileNavLinkClass('/posts')}>
-                体験を見る
-              </Link>
-              <Link href="/posts/new" className={getMobilePostNewLinkClass()}>
-                体験を投稿
-              </Link>
-              <Link href="/search" className={getMobileNavLinkClass('/search')}>
-                検索
-              </Link>
-              <hr className="my-2 border-gray-100" />
-              {user ? (
-                <>
-                  <div className="px-3 py-2 text-sm text-gray-600" data-testid="user-menu-button">
-                    {user.userName}さん
-                  </div>
+                {user && (
                   <Link
-                    href="/profile"
-                    className="block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors"
+                    href="/dashboard"
+                    className={getMobileNavLinkClass('/dashboard')}
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    プロフィール
+                    ダッシュボード
                   </Link>
-                  <button
-                    onClick={logout}
-                    className="block w-full text-left px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors cursor-pointer"
-                    data-testid="logout-button"
-                  >
-                    ログアウト
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/auth/login"
-                    className={getMobileAuthLinkClass('/auth/login')}
-                    data-testid="login-link"
-                  >
-                    ログイン
-                  </Link>
-                  <Link href="/auth/register" className={getMobileAuthLinkClass('/auth/register')}>
-                    会員登録
-                  </Link>
-                </>
-              )}
+                )}
+                <Link
+                  href="/posts"
+                  className={getMobileNavLinkClass('/posts')}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  体験を見る
+                </Link>
+                <Link
+                  href="/posts/new"
+                  className={getMobilePostNewLinkClass()}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  体験を投稿
+                </Link>
+                <Link
+                  href="/search"
+                  className={getMobileNavLinkClass('/search')}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  検索
+                </Link>
+                <hr className="my-2 border-gray-100" />
+                {user ? (
+                  <>
+                    <div className="px-3 py-2 text-sm text-gray-600" data-testid="user-menu-button">
+                      {user.userName}さん
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      プロフィール
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout()
+                        setIsMenuOpen(false)
+                      }}
+                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors cursor-pointer"
+                      data-testid="logout-button"
+                    >
+                      ログアウト
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth/login"
+                      className={getMobileAuthLinkClass('/auth/login')}
+                      data-testid="login-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      ログイン
+                    </Link>
+                    <Link
+                      href="/auth/register"
+                      className={getMobileAuthLinkClass('/auth/register')}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      会員登録
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
