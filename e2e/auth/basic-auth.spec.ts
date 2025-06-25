@@ -57,6 +57,9 @@ test.describe('基本的な認証フロー', () => {
   })
 
   test('ナビゲーションリンクが機能する', async ({ page }) => {
+    const viewport = page.viewportSize()
+    const isMobile = viewport && viewport.width < 768
+
     await page.goto('/auth/login')
 
     // 登録ページへのリンクをクリック（ページ内のリンク）
@@ -64,7 +67,23 @@ test.describe('基本的な認証フロー', () => {
     await expect(page).toHaveURL(/\/auth\/register/)
 
     // ログインページへのリンクをクリック（ページ内のリンク）
-    await page.click('text=ログイン')
+    if (isMobile) {
+      // Mobile view - open menu first and check if already open
+      const mobileMenu = page.locator('.md\\:hidden .px-2')
+      const isMenuVisible = await mobileMenu.isVisible()
+
+      if (!isMenuVisible) {
+        await page.click('[data-testid="mobile-menu-button"]')
+        await page.waitForTimeout(500)
+      }
+
+      // Find visible login link in mobile menu
+      const mobileLoginLink = page.locator('.md\\:hidden [data-testid="login-link"]')
+      await expect(mobileLoginLink).toBeVisible({ timeout: 5000 })
+      await mobileLoginLink.click()
+    } else {
+      await page.click('text=ログイン')
+    }
     await expect(page).toHaveURL(/\/auth\/login/)
   })
 })
