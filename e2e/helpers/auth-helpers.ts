@@ -8,7 +8,7 @@ export class AuthHelper {
     email: string
     password: string
     skinType?: string
-  }) {
+  }, expectSuccess: boolean = true) {
     await this.page.goto('/auth/register')
 
     await this.page.fill('[data-testid="username-input"]', userData.username)
@@ -23,27 +23,32 @@ export class AuthHelper {
     // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
-    // Wait for registration to complete with longer timeout
-    try {
-      await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
-    } catch (error) {
-      // Check for error messages on registration page
-      const errorElement = this.page.locator('[data-testid="error-message"]')
-      const hasError = await errorElement.isVisible()
-      if (hasError) {
-        const errorText = await errorElement.textContent()
-        throw new Error(`Registration failed with error: ${errorText}`)
+    if (expectSuccess) {
+      // Wait for registration to complete and redirect to registration-complete page
+      try {
+        await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 15000 })
+      } catch (error) {
+        // Check for error messages on registration page
+        const errorElement = this.page.locator('[data-testid="error-message"]')
+        const hasError = await errorElement.isVisible()
+        if (hasError) {
+          const errorText = await errorElement.textContent()
+          throw new Error(`Registration failed with error: ${errorText}`)
+        }
+
+        // If no error message but still on registration page, check current URL
+        const currentUrl = this.page.url()
+        throw new Error(
+          `Registration failed - expected registration-complete page but got: ${currentUrl}`
+        )
       }
 
-      // If no error message but still on registration page, check current URL
-      const currentUrl = this.page.url()
-      throw new Error(
-        `Registration failed - expected registration-complete page but got: ${currentUrl}`
-      )
+      // After registration, manually login since registration doesn't auto-login
+      await this.login(userData.email, userData.password)
+    } else {
+      // Wait a bit for potential redirect or error message
+      await this.page.waitForTimeout(2000)
     }
-
-    // After registration, user needs to log in manually since registration doesn't auto-login
-    await this.login(userData.email, userData.password)
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {

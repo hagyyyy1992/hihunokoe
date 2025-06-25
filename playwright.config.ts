@@ -74,5 +74,10 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      DATABASE_URL: 'postgresql://postgres:password@localhost:5432/usaka_dev',
+      NEXTAUTH_SECRET: 'test-secret-key-for-e2e-tests',
+      NODE_ENV: 'development',
+    },
   },
 })
