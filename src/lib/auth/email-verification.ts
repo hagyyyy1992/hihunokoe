@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, SkinType } from '@prisma/client'
 import {
   sendEmail,
   generateVerificationEmailHtml,
@@ -55,7 +55,7 @@ export async function verifyEmailToken(token: string): Promise<{
     userName: string
     email: string
     displayName?: string
-    skinType?: string
+    skinType?: SkinType | null
     profileImageUrl?: string
     emailVerified: boolean
   }
@@ -93,7 +93,7 @@ export async function verifyEmailToken(token: string): Promise<{
       userName: updatedUser.userName,
       email: updatedUser.email,
       displayName: updatedUser.displayName || undefined,
-      skinType: updatedUser.skinType || undefined,
+      skinType: updatedUser.skinType,
       profileImageUrl: updatedUser.profileImageUrl || undefined,
       emailVerified: updatedUser.emailVerified,
     },
