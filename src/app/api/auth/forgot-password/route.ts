@@ -1,0 +1,52 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { sendPasswordResetEmail } from '@/lib/auth/password-reset'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
+import { MOCK_USERS } from '@/lib/mock-data'
+import { z } from 'zod'
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email('有効なメールアドレスを入力してください'),
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const validatedData = forgotPasswordSchema.parse(body)
+
+    if (isDatabaseAvailable()) {
+      const user = await prisma!.user.findUnique({
+        where: {
+          email: validatedData.email,
+          isActive: true,
+        },
+      })
+
+      if (user) {
+        try {
+          await sendPasswordResetEmail(user.id, user.email, user.userName)
+        } catch (emailError) {
+          console.error('Failed to send password reset email:', emailError)
+        }
+      }
+    } else {
+      const mockUser = MOCK_USERS.find(u => u.email === validatedData.email && u.isActive)
+      if (mockUser) {
+        console.log('Mock mode: Password reset email would be sent to:', validatedData.email)
+      }
+    }
+
+    return NextResponse.json({
+      message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 })
+    }
+
+    console.error('Forgot password error:', error)
+    return NextResponse.json(
+      { error: 'パスワードリセットの処理中にエラーが発生しました' },
+      { status: 500 }
+    )
+  }
+}
