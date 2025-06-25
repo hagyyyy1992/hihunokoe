@@ -230,6 +230,27 @@ update: 更新
 5. **E2E testing**: Run `npm run test:e2e` before major releases
 6. **Code quality**: Run `npm run lint` and `npm run format` before committing
 
+### Pre-Push Checklist
+
+プッシュ前に必ず以下のチェックを実行してコード品質を保証する：
+
+```bash
+# フォーマット確認・修正
+npm run format
+
+# Lint確認・修正
+npm run lint
+
+# テスト実行
+npm test
+npm run test:e2e  # 重要な変更の場合
+
+# ビルド確認
+npm run build
+```
+
+**自動化推奨**: Huskyやgit hookを使用して、これらのチェックを自動化することを推奨します。
+
 ## 文書構成
 
 ```

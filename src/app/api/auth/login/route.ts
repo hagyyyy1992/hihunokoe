@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!text.trim()) {
       return NextResponse.json({ error: 'リクエストボディが空です' }, { status: 400 })
     }
-    
+
     const body = JSON.parse(text)
     const validatedData = loginSchema.parse(body)
 
