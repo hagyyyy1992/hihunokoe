@@ -258,10 +258,7 @@ Claude Codeは、ユーザーからpushやデプロイを依頼された際、**
 1. **事前チェック実行**: push前に下記コマンドを直列実行
 
    ```bash
-   npm run format
-   npm run lint
-   npm test
-   npm run build
+   npm run format && npm run lint && npm test && npm run build
    ```
 
 2. **エラーハンドリング**:
