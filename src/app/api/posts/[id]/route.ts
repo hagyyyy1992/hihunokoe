@@ -71,13 +71,19 @@ const postSchema = z.object({
   moodTag: z.enum(['disappointed', 'okay', 'good', 'love', 'perfect']).optional(),
 })
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const { id } = params
+// GET: 投稿の取得
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // URLからIDを取得
+  const segments = request.nextUrl.pathname.split('/')
+  const postId = segments[segments.length - 1]
 
+  try {
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿取得
-      const post = MOCK_POSTS.find(p => p.id === id && p.status === 'published')
+      const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
 
       if (!post) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
@@ -94,7 +100,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     const post = await prisma!.post.findUnique({
       where: {
-        id,
+        id: postId,
         status: 'published',
       },
       include: {
@@ -170,7 +176,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     // 閲覧数を増加
     await prisma!.post.update({
-      where: { id },
+      where: { id: postId },
       data: {
         viewCount: {
           increment: 1,
@@ -185,9 +191,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// PUT: 投稿の更新
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const segments = request.nextUrl.pathname.split('/')
+  const postId = segments[segments.length - 1]
+  
   try {
-    const { id } = params
     const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
@@ -204,7 +216,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿編集
-      const postIndex = MOCK_POSTS.findIndex(p => p.id === id)
+      const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
       
       if (postIndex === -1) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
@@ -242,7 +254,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // データベースモードでの投稿編集
     const post = await prisma!.post.findUnique({
-      where: { id },
+      where: { id: postId },
       select: { userId: true },
     })
 
@@ -255,7 +267,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const updatedPost = await prisma!.post.update({
-      where: { id },
+      where: { id: postId },
       data: {
         title: validatedData.title,
         content: validatedData.content,
@@ -305,9 +317,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+// DELETE: 投稿の削除
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const segments = request.nextUrl.pathname.split('/')
+  const postId = segments[segments.length - 1]
+  
   try {
-    const { id } = params
     const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
@@ -321,7 +339,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿削除
-      const postIndex = MOCK_POSTS.findIndex(p => p.id === id)
+      const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
       
       if (postIndex === -1) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
@@ -343,7 +361,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     // データベースモードでの投稿削除
     const post = await prisma!.post.findUnique({
-      where: { id },
+      where: { id: postId },
       select: { userId: true },
     })
 
@@ -356,7 +374,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     await prisma!.post.delete({
-      where: { id },
+      where: { id: postId },
     })
 
     return NextResponse.json({
