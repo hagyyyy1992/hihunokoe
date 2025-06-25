@@ -49,14 +49,14 @@ jest.mock('../../../src/lib/mock-data', () => {
       userId: 'user-3',
       user: { id: 'user-3', userName: 'testuser3' },
     },
-  ];
-  
+  ]
+
   return {
     // 各テスト実行前に元のデータをコピーして返す
     get MOCK_POSTS() {
-      return [...mockPostsData];
-    }
-  };
+      return [...mockPostsData]
+    },
+  }
 })
 
 import { NextRequest } from 'next/server'
@@ -88,7 +88,7 @@ describe('/api/posts/[id]', () => {
     // Default to mock mode
     mockIsDatabaseAvailable.mockReturnValue(false)
   })
-  
+
   // 各テスト後にモックをリセット
   afterEach(() => {
     jest.resetAllMocks()
@@ -97,17 +97,17 @@ describe('/api/posts/[id]', () => {
   const createRequest = (id: string, method = 'GET', body?: any, token?: string) => {
     const headers: HeadersInit = {}
     const cookies: { name: string; value: string }[] = []
-    
+
     if (token) {
       cookies.push({ name: 'auth-token', value: token })
     }
-    
+
     const req = new NextRequest(`http://localhost:3000/api/posts/${id}`, {
       method,
       headers,
       ...(body && { body: JSON.stringify(body) }),
     })
-    
+
     // Cookieをモック
     if (token) {
       Object.defineProperty(req, 'cookies', {
@@ -115,11 +115,11 @@ describe('/api/posts/[id]', () => {
           get: (name: string) => {
             const cookie = cookies.find(c => c.name === name)
             return cookie ? { name: cookie.name, value: cookie.value } : undefined
-          }
-        })
+          },
+        }),
       })
     }
-    
+
     return req
   }
 
@@ -446,7 +446,12 @@ describe('/api/posts/[id]', () => {
     it('トークンが無効な場合、401エラーを返す', async () => {
       mockVerifyToken.mockReturnValue(null)
 
-      const request = createRequest('mock-post-1', 'PUT', { title: 'Updated Title' }, 'invalid-token')
+      const request = createRequest(
+        'mock-post-1',
+        'PUT',
+        { title: 'Updated Title' },
+        'invalid-token'
+      )
       const params = createParams('mock-post-1')
 
       const response = await PUT(request, { params })

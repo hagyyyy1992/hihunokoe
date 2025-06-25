@@ -92,15 +92,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       usageSituation:
         Object.keys(formData.usageSituation).length > 0 ? formData.usageSituation : undefined,
       experienceDetails:
-        Object.keys(formData.experienceDetails).length > 0
-          ? formData.experienceDetails
-          : undefined,
+        Object.keys(formData.experienceDetails).length > 0 ? formData.experienceDetails : undefined,
     }
 
     try {
       const url = isEditMode ? `/api/posts/${postId}` : '/api/posts'
       const method = isEditMode ? 'PUT' : 'POST'
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -112,7 +110,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || (isEditMode ? '投稿の更新に失敗しました' : '投稿の作成に失敗しました'))
+        throw new Error(
+          data.error || (isEditMode ? '投稿の更新に失敗しました' : '投稿の作成に失敗しました')
+        )
       }
 
       const redirectId = isEditMode ? postId : data.post.id
@@ -150,21 +150,21 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
   const handleDelete = async () => {
     if (!postId || !isEditMode) return
-    
+
     setLoading(true)
     setError('')
-    
+
     try {
       const response = await fetch(`/api/posts/${postId}`, {
         method: 'DELETE',
       })
-      
+
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.error || '投稿の削除に失敗しました')
       }
-      
+
       router.push('/posts')
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'
@@ -639,12 +639,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 >
                   キャンセル
                 </Button>
-                <Button
-                  type="button"
-                  variant="danger"
-                  onClick={handleDelete}
-                  loading={loading}
-                >
+                <Button type="button" variant="danger" onClick={handleDelete} loading={loading}>
                   削除する
                 </Button>
               </div>

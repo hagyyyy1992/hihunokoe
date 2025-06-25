@@ -83,7 +83,7 @@ export default function EditPostPage() {
     if (!loading && !user) {
       router.push('/auth/login')
     }
-    
+
     // 投稿が取得できて、ユーザーが投稿者でない場合は詳細ページにリダイレクト
     if (!loading && post && user && post.user.id !== user.id) {
       router.push(`/posts/${id}`)
@@ -137,11 +137,7 @@ export default function EditPostPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-          <PostForm
-            initialData={formData}
-            postId={post.id}
-            isEditMode={true}
-          />
+          <PostForm initialData={formData} postId={post.id} isEditMode={true} />
         </div>
       </div>
     </div>

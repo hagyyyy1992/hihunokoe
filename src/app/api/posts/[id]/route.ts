@@ -72,10 +72,7 @@ const postSchema = z.object({
 })
 
 // GET: 投稿の取得
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   // URLからIDを取得
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
@@ -192,13 +189,10 @@ export async function GET(
 }
 
 // PUT: 投稿の更新
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
-  
+
   try {
     const token = request.cookies.get('auth-token')?.value
 
@@ -217,17 +211,17 @@ export async function PUT(
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿編集
       const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
-      
+
       if (postIndex === -1) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
       }
-      
+
       const post = MOCK_POSTS[postIndex]
-      
+
       if (post.userId !== user.id) {
         return NextResponse.json({ error: '投稿の編集権限がありません' }, { status: 403 })
       }
-      
+
       // 投稿を更新
       const updatedPost = {
         ...post,
@@ -241,11 +235,11 @@ export async function PUT(
         moodTag: validatedData.moodTag || post.moodTag,
         updatedAt: new Date(),
       }
-      
+
       // モックデータを更新（実際には永続化されない）
       // @ts-ignore - モックデータの型の問題を回避
       MOCK_POSTS[postIndex] = updatedPost
-      
+
       return NextResponse.json({
         post: updatedPost,
         message: '投稿が更新されました（デモモード）',
@@ -318,13 +312,10 @@ export async function PUT(
 }
 
 // DELETE: 投稿の削除
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
-  
+
   try {
     const token = request.cookies.get('auth-token')?.value
 
@@ -340,20 +331,20 @@ export async function DELETE(
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿削除
       const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
-      
+
       if (postIndex === -1) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
       }
-      
+
       const post = MOCK_POSTS[postIndex]
-      
+
       if (post.userId !== user.id) {
         return NextResponse.json({ error: '投稿の削除権限がありません' }, { status: 403 })
       }
-      
+
       // モックデータから削除（実際には永続化されない）
       MOCK_POSTS.splice(postIndex, 1)
-      
+
       return NextResponse.json({
         message: '投稿が削除されました（デモモード）',
       })
