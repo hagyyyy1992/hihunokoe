@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -106,6 +107,13 @@ export default function LoginPage() {
             パスワード: demo123
           </p>
         </div>
+        <PlaceholderHelper
+          title="フォーム入力例（テスト用）"
+          items={[
+            { label: 'メールアドレス', value: 'example@example.com' },
+            { label: 'パスワード', value: 'パスワードを入力してください' },
+          ]}
+        />
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

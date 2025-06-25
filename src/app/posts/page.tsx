@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 interface Post {
   id: string
@@ -182,6 +183,10 @@ export default function PostsPage() {
               />
             </div>
           </div>
+          <PlaceholderHelper
+            title="検索例（テスト用）"
+            items={[{ label: '検索キーワード', value: 'コスメ名や体験談で検索' }]}
+          />
         </div>
 
         {/* エラー表示 */}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { SkinType } from '@/types'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -245,6 +246,16 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
+          <PlaceholderHelper
+            title="フォーム入力例（テスト用）"
+            items={[
+              { label: 'ユーザー名', value: 'ユーザー名を入力してください' },
+              { label: 'メールアドレス', value: 'example@example.com' },
+              { label: '表示名', value: '表示名を入力してください（任意）' },
+              { label: 'パスワード', value: 'パスワードを入力してください' },
+              { label: 'パスワード確認', value: 'パスワードを再度入力してください' },
+            ]}
+          />
         </div>
       </div>
     </div>

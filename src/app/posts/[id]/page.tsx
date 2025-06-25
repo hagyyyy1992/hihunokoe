@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 interface Post {
   id: string
@@ -390,6 +391,10 @@ export default function PostDetailPage() {
                 placeholder="コメントを書く..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                 rows={3}
+              />
+              <PlaceholderHelper
+                title="コメント例（テスト用）"
+                items={[{ label: 'コメント', value: 'コメントを書く...' }]}
               />
               <div className="mt-3 flex justify-end">
                 <button className="px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-md hover:bg-pink-700 transition-colors">

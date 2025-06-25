@@ -6,6 +6,7 @@ import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 interface PostFormData {
   title: string
@@ -230,6 +231,18 @@ export default function PostForm() {
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
               />
             </div>
+            <PlaceholderHelper
+              title="フォーム入力例（テスト用）"
+              items={[
+                { label: 'タイトル', value: '例: ○○クリームを敏感肌で試してみました' },
+                { label: 'コスメ名', value: '例: ○○ブランド モイスチャークリーム' },
+                {
+                  label: '体験談',
+                  value:
+                    '使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど...',
+                },
+              ]}
+            />
           </div>
         )}
 

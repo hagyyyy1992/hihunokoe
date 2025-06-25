@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { PlaceholderHelper } from '@/components/ui/PlaceholderHelper'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -95,6 +96,10 @@ export default function ForgotPasswordPage() {
               パスワードリセットメールを送信
             </Button>
           </form>
+          <PlaceholderHelper
+            title="フォーム入力例（テスト用）"
+            items={[{ label: 'メールアドレス', value: 'example@example.com' }]}
+          />
 
           <div className="mt-6 text-center">
             <Link href="/auth/login" className="text-sm text-pink-600 hover:text-pink-500">
