@@ -9,8 +9,12 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-
+    const text = await request.text()
+    if (!text.trim()) {
+      return NextResponse.json({ error: 'リクエストボディが空です' }, { status: 400 })
+    }
+    
+    const body = JSON.parse(text)
     const validatedData = loginSchema.parse(body)
 
     const user = await loginUser(validatedData)
