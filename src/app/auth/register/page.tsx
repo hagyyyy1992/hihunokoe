@@ -70,7 +70,7 @@ export default function RegisterPage() {
       if (response.ok) {
         // WebKit環境でのCookie設定完了を待つ
         await new Promise(resolve => setTimeout(resolve, 200))
-        
+
         // 登録完了画面にリダイレクト
         router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
       } else {
