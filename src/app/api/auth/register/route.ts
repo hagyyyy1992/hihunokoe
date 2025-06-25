@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7日間
+      path: '/', // WebKit環境での互換性向上
     })
 
     return response
