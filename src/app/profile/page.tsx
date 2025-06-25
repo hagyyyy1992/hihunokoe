@@ -13,13 +13,11 @@ export default function ProfilePage() {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
-     '',
     userName: '',
     skinType: '',
     profileImageUrl: '',
   })
   const [formErrors, setFormErrors] = useState({
-     '',
     userName: '',
     skinType: '',
     profileImageUrl: '',
@@ -60,10 +58,6 @@ export default function ProfilePage() {
       isValid = false
     }
 
-    if (formData.displayName.trim().length > 100) {
-      errors.displayName = '表示名は100文字以内で入力してください'
-      isValid = false
-    }
 
     if (formData.profileImageUrl && !formData.profileImageUrl.match(/^(https?:\/\/).+/i)) {
       errors.profileImageUrl =
@@ -177,15 +171,6 @@ export default function ProfilePage() {
                   data-testid="username-input"
                 />
 
-                <Input
-                  label="表示名"
-                  name="displayName"
-                  value={formData.displayName}
-                  onChange={handleInputChange}
-                  error={formErrors.displayName}
-                  hint="他のユーザーに表示される名前です"
-                  data-testid="display-name-input"
-                />
 
                 <div className="form-group">
                   <label htmlFor="skinType" className="form-label">
@@ -257,7 +242,7 @@ export default function ProfilePage() {
                   <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
                     <Image
                       src={formData.profileImageUrl}
-                      alt={formData.displayName || formData.userName}
+                      alt={formData.userName || formData.userName}
                       fill
                       sizes="96px"
                       className="object-cover"
@@ -274,7 +259,7 @@ export default function ProfilePage() {
                           )
                           const span = document.createElement('span')
                           span.className = 'text-pink-600 text-2xl font-bold'
-                          span.textContent = (formData.displayName || formData.userName || '')
+                          span.textContent = (formData.userName || formData.userName || '')
                             .charAt(0)
                             .toUpperCase()
                           parent.appendChild(span)
@@ -285,13 +270,13 @@ export default function ProfilePage() {
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border-4 border-white shadow-lg">
                     <span className="text-pink-600 text-2xl font-bold">
-                      {(formData.displayName || formData.userName || '').charAt(0).toUpperCase()}
+                      {(formData.userName || formData.userName || '').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                    {formData.displayName || formData.userName}
+                    {formData.userName || formData.userName}
                   </h2>
                   <p className="text-gray-600 text-lg">@{formData.userName}</p>
                   {formData.skinType && (
@@ -317,12 +302,12 @@ export default function ProfilePage() {
                         <p className="font-medium text-gray-900">{formData.userName}</p>
                       </div>
                     </div>
-                    {formData.displayName && (
+                    {formData.userName && (
                       <div className="flex items-center">
                         <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
                         <div>
                           <span className="text-sm text-gray-600">表示名</span>
-                          <p className="font-medium text-gray-900">{formData.displayName}</p>
+                          <p className="font-medium text-gray-900">{formData.userName}</p>
                         </div>
                       </div>
                     )}
