@@ -37,6 +37,14 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           DIRECT_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E auth tests
+        run: npx playwright test e2e/auth/
+        env:
+          NODE_ENV: test
+
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
