@@ -65,23 +65,19 @@ export default function RegisterPage() {
         }),
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        await response.json()
         // WebKit環境でのCookie設定完了を待つ
         await new Promise(resolve => setTimeout(resolve, 200))
 
         // 登録完了画面にリダイレクト
         router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
       } else {
-        // Handle error response
-        try {
-          const errorData = await response.json()
-          setError(errorData.error || 'ユーザー登録に失敗しました')
-        } catch {
-          setError('ユーザー登録に失敗しました')
-        }
+        setError(data.error || 'ユーザー登録に失敗しました')
       }
-    } catch {
+    } catch (err: unknown) {
+      console.error('Registration error:', err)
       setError('ユーザー登録に失敗しました')
     } finally {
       setLoading(false)
