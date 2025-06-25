@@ -65,9 +65,8 @@ test.describe('ログイン', () => {
   })
 
   test('ログイン成功後にリダイレクトされる', async ({ page }) => {
-    const newUser = generateRandomUser()
-    await authHelper.register(newUser)
-    await authHelper.logout()
+    // メール認証済みのデモユーザーを使用（新規登録ユーザーは未認証のためログインできない）
+    const demoUser = { email: 'demo@example.com', password: 'demo123' }
 
     // ログアウト状態を確認
     await authHelper.expectToBeLoggedOut()
@@ -84,20 +83,19 @@ test.describe('ログイン', () => {
     await expect(page).toHaveURL(/\/auth\/login/, { timeout: 15000 })
 
     // ログイン
-    await authHelper.login(newUser.email, newUser.password)
+    await authHelper.login(demoUser.email, demoUser.password)
 
     // 元々アクセスしようとしたページにリダイレクトされる
     await expect(page).toHaveURL(/\/dashboard/)
   })
 
   test('Remember me 機能のテスト', async ({ page, context }) => {
-    const newUser = generateRandomUser()
-    await authHelper.register(newUser)
-    await authHelper.logout()
+    // メール認証済みのデモユーザーを使用
+    const demoUser = { email: 'demo@example.com', password: 'demo123' }
 
     await page.goto('/auth/login')
-    await page.fill('[data-testid="email-input"]', newUser.email)
-    await page.fill('[data-testid="password-input"]', newUser.password)
+    await page.fill('[data-testid="email-input"]', demoUser.email)
+    await page.fill('[data-testid="password-input"]', demoUser.password)
 
     // Remember me チェックボックスをチェック
     await page.check('[data-testid="remember-me-checkbox"]')
@@ -115,7 +113,15 @@ test.describe('ログイン', () => {
   test('パスワードリセットリンクが機能する', async ({ page }) => {
     await page.goto('/auth/login')
 
-    await page.click('[data-testid="forgot-password-link"]')
+    // より確実にリンクがクリックされるように待機とナビゲーション検証を追加
+    await page.waitForSelector('[data-testid="forgot-password-link"]')
+
+    // ナビゲーション完了を待つ
+    const [response] = await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.click('[data-testid="forgot-password-link"]'),
+    ])
+
     await expect(page).toHaveURL(/\/auth\/forgot-password/)
 
     // パスワードリセットフォームが表示される
