@@ -59,12 +59,11 @@ describe('ProfilePage Component', () => {
   it('ユーザー情報を正しく表示する', () => {
     render(<ProfilePage />)
 
-    // ユーザー名と表示名が表示されていることを確認
-    expect(screen.getByRole('heading', { name: mockUser.displayName })).toBeInTheDocument()
-    expect(screen.getByText(`@${mockUser.userName}`)).toBeInTheDocument()
+    // ユーザー名が表示されていることを確認
+    expect(screen.getByRole('heading', { name: 'testuser' })).toBeInTheDocument()
 
-    // プロフィール情報セクションが表示されていることを確認
-    expect(screen.getByText('プロフィール情報')).toBeInTheDocument()
+    // 基本情報セクションが表示されていることを確認
+    expect(screen.getByText('基本情報')).toBeInTheDocument()
 
     // 編集ボタンが表示されていることを確認
     expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument()
@@ -116,7 +115,6 @@ describe('ProfilePage Component', () => {
 
     // フォームが表示されていることを確認
     expect(screen.getByTestId('username-input')).toBeInTheDocument()
-    expect(screen.getByTestId('display-name-input')).toBeInTheDocument()
     expect(screen.getByTestId('skin-type-select')).toBeInTheDocument()
     expect(screen.getByTestId('profile-image-url-input')).toBeInTheDocument()
 
@@ -137,11 +135,6 @@ describe('ProfilePage Component', () => {
     await user.clear(usernameInput)
     await user.type(usernameInput, 'newusername')
 
-    // 表示名を変更
-    const displayNameInput = screen.getByTestId('display-name-input')
-    await user.clear(displayNameInput)
-    await user.type(displayNameInput, 'New Display Name')
-
     // 肌タイプを変更
     const skinTypeSelect = screen.getByTestId('skin-type-select')
     await user.selectOptions(skinTypeSelect, 'dry')
@@ -153,7 +146,6 @@ describe('ProfilePage Component', () => {
 
     // 入力値が変更されていることを確認
     expect(usernameInput).toHaveValue('newusername')
-    expect(displayNameInput).toHaveValue('New Display Name')
     expect(skinTypeSelect).toHaveValue('dry')
     expect(profileImageUrlInput).toHaveValue('https://example.com/image.jpg')
   })
@@ -170,18 +162,12 @@ describe('ProfilePage Component', () => {
     await user.clear(usernameInput)
     await user.type(usernameInput, 'newusername')
 
-    // 表示名を変更
-    const displayNameInput = screen.getByTestId('display-name-input')
-    await user.clear(displayNameInput)
-    await user.type(displayNameInput, 'New Display Name')
-
     // 保存ボタンをクリック
     await user.click(screen.getByTestId('save-profile-button'))
 
     // updateProfileが呼ばれたことを確認
     expect(mockUpdateProfile).toHaveBeenCalledWith({
       userName: 'newusername',
-      displayName: 'New Display Name',
       skinType: mockUser.skinType,
       profileImageUrl: '',
     })

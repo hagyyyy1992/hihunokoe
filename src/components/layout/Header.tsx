@@ -146,7 +146,7 @@ export default function Header() {
             ) : user ? (
               <>
                 <span className="text-gray-700 text-sm" data-testid="user-menu-button">
-                  {user.displayName || user.userName}さん
+                  {user.userName}さん
                 </span>
                 <Link
                   href="/profile"

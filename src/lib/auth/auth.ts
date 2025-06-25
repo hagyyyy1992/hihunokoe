@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
+import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key'
 
@@ -9,8 +10,14 @@ export interface AuthUser {
   id: string
   userName: string
   email: string
-  displayName?: string
-  skinType?: string
+  birthDate?: Date | null
+  gender?: Gender | null
+  skinType?: SkinType | null
+  skinTypeOther?: string | null
+  allergies?: AllergyType[]
+  allergiesOther?: string | null
+  bodyType?: BodyType | null
+  bodyTypeOther?: string | null
   profileImageUrl?: string
   emailVerified?: boolean
 }
@@ -24,8 +31,14 @@ export interface RegisterData {
   userName: string
   email: string
   password: string
-  displayName?: string
-  skinType?: string
+  birthDate?: Date
+  gender?: Gender
+  skinType?: SkinType
+  skinTypeOther?: string
+  allergies?: AllergyType[]
+  allergiesOther?: string
+  bodyType?: BodyType
+  bodyTypeOther?: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -83,8 +96,14 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
         userName: data.userName,
         email: data.email,
         passwordHash: hashedPassword,
-        displayName: data.displayName,
+        birthDate: data.birthDate,
+        gender: data.gender,
         skinType: data.skinType,
+        skinTypeOther: data.skinTypeOther,
+        allergies: data.allergies || [],
+        allergiesOther: data.allergiesOther,
+        bodyType: data.bodyType,
+        bodyTypeOther: data.bodyTypeOther,
         emailVerified: true, // 一時的にメール認証をスキップ
       },
     })
@@ -93,8 +112,14 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       id: user.id,
       userName: user.userName,
       email: user.email,
-      displayName: user.displayName || undefined,
-      skinType: user.skinType || undefined,
+      birthDate: user.birthDate,
+      gender: user.gender,
+      skinType: user.skinType,
+      skinTypeOther: user.skinTypeOther,
+      allergies: user.allergies,
+      allergiesOther: user.allergiesOther,
+      bodyType: user.bodyType,
+      bodyTypeOther: user.bodyTypeOther,
       profileImageUrl: user.profileImageUrl || undefined,
       emailVerified: user.emailVerified,
     }
@@ -126,8 +151,14 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
           id: user.id,
           userName: user.userName,
           email: user.email,
-          displayName: user.displayName || undefined,
-          skinType: user.skinType || undefined,
+          birthDate: user.birthDate,
+          gender: user.gender,
+          skinType: user.skinType,
+          skinTypeOther: user.skinTypeOther,
+          allergies: user.allergies,
+          allergiesOther: user.allergiesOther,
+          bodyType: user.bodyType,
+          bodyTypeOther: user.bodyTypeOther,
           profileImageUrl: user.profileImageUrl || undefined,
           emailVerified: user.emailVerified,
         }
@@ -142,7 +173,6 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
-      displayName: mockUser.displayName || undefined,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
@@ -170,7 +200,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
-      displayName: mockUser.displayName || undefined,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
@@ -192,8 +221,14 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     id: user.id,
     userName: user.userName,
     email: user.email,
-    displayName: user.displayName || undefined,
-    skinType: user.skinType || undefined,
+    birthDate: user.birthDate,
+    gender: user.gender,
+    skinType: user.skinType,
+    skinTypeOther: user.skinTypeOther,
+    allergies: user.allergies,
+    allergiesOther: user.allergiesOther,
+    bodyType: user.bodyType,
+    bodyTypeOther: user.bodyTypeOther,
     profileImageUrl: user.profileImageUrl || undefined,
     emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
   }
