@@ -76,7 +76,11 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # E2E tests are temporarily disabled in CI
+  # E2E tests are disabled in CI pipeline
+  # To run E2E tests, use one of these methods:
+  # 1. Comment "/e2e" in a PR
+  # 2. Use GitHub Actions UI to run "E2E Tests (On-Demand)" workflow
+  # See docs/backend/e2e-on-demand.md for details
   # e2e-tests:
   #   name: E2E Tests (Threshold-based)
   #   runs-on: ubuntu-latest
