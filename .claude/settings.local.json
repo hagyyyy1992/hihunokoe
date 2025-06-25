@@ -19,8 +19,12 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gh pr create:*)",
-      "Bash(git fetch:*)"
-      "Bash(npx playwright test:*)"
+      "Bash(git fetch:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(npm test)"
     ],
     "deny": []
   }
