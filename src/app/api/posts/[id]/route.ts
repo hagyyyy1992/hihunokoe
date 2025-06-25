@@ -99,8 +99,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             userName: true,
-            displayName: true,
-            skinType: true,
+                        skinType: true,
             profileImageUrl: true,
           },
         },
@@ -110,8 +109,7 @@ export async function GET(request: NextRequest) {
               select: {
                 id: true,
                 userName: true,
-                displayName: true,
-              },
+                              },
             },
           },
         },
@@ -125,8 +123,7 @@ export async function GET(request: NextRequest) {
               select: {
                 id: true,
                 userName: true,
-                displayName: true,
-                skinType: true,
+                                skinType: true,
               },
             },
             replies: {
@@ -138,8 +135,7 @@ export async function GET(request: NextRequest) {
                   select: {
                     id: true,
                     userName: true,
-                    displayName: true,
-                    skinType: true,
+                                        skinType: true,
                   },
                 },
               },
@@ -271,8 +267,7 @@ export async function PUT(request: NextRequest) {
           select: {
             id: true,
             userName: true,
-            displayName: true,
-            skinType: true,
+                        skinType: true,
           },
         },
       },

@@ -104,7 +104,6 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           userName: user.userName,
-          displayName: user.displayName,
           skinType: user.skinType,
         },
       }
@@ -133,8 +132,7 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             userName: true,
-            displayName: true,
-            skinType: true,
+                        skinType: true,
           },
         },
       },
@@ -250,8 +248,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               userName: true,
-              displayName: true,
-              skinType: true,
+                            skinType: true,
             },
           },
           _count: {

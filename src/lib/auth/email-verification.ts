@@ -54,7 +54,6 @@ export async function verifyEmailToken(token: string): Promise<{
     id: string
     userName: string
     email: string
-    displayName?: string
     skinType?: SkinType | null
     profileImageUrl?: string
     emailVerified: boolean
@@ -92,7 +91,6 @@ export async function verifyEmailToken(token: string): Promise<{
       id: updatedUser.id,
       userName: updatedUser.userName,
       email: updatedUser.email,
-      displayName: updatedUser.displayName || undefined,
       skinType: updatedUser.skinType,
       profileImageUrl: updatedUser.profileImageUrl || undefined,
       emailVerified: updatedUser.emailVerified,
