@@ -191,9 +191,7 @@ export default function PostDetailPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">
-                    {post.user.userName}
-                  </p>
+                  <p className="font-medium text-gray-900">{post.user.userName}</p>
                   {post.user.skinType && (
                     <p className="text-xs text-gray-500">{skinTypeLabels[post.user.skinType]}</p>
                   )}
@@ -446,9 +444,7 @@ export default function PostDetailPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-medium text-gray-900">
-                        {comment.user.userName}
-                      </span>
+                      <span className="font-medium text-gray-900">{comment.user.userName}</span>
                       {comment.user.skinType && (
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                           {skinTypeLabels[comment.user.skinType]}

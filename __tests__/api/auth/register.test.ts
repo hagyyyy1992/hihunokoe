@@ -1,7 +1,6 @@
 // Mock the auth module first
 jest.mock('../../../src/lib/auth/auth', () => ({
   registerUser: jest.fn(),
-  generateToken: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
@@ -12,9 +11,6 @@ import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
->
-const mockGenerateToken = authModule.generateToken as jest.MockedFunction<
-  typeof authModule.generateToken
 >
 
 describe('/api/auth/register', () => {
@@ -59,10 +55,7 @@ describe('/api/auth/register', () => {
         bodyTypeOther: null,
         emailVerified: true,
       }
-      const mockToken = 'mock-jwt-token'
-
       mockRegisterUser.mockResolvedValue(mockUser)
-      mockGenerateToken.mockReturnValue(mockToken)
 
       const request = createRequest(validRegistrationData)
 
@@ -84,10 +77,8 @@ describe('/api/auth/register', () => {
         bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
-      expect(data.message).toBe('ユーザー登録が完了しました。ログインして始めましょう！')
-      expect(data.token).toBe(mockToken)
+      expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
       expect(mockRegisterUser).toHaveBeenCalledWith(validRegistrationData)
-      expect(mockGenerateToken).toHaveBeenCalledWith(mockUser)
     })
 
     it('最小限の必須フィールドでユーザー登録が成功する', async () => {
@@ -111,10 +102,7 @@ describe('/api/auth/register', () => {
         bodyTypeOther: undefined,
         emailVerified: true,
       }
-      const mockToken = 'mock-jwt-token'
-
       mockRegisterUser.mockResolvedValue(mockUser)
-      mockGenerateToken.mockReturnValue(mockToken)
 
       const request = createRequest(minimalData)
 
@@ -277,7 +265,6 @@ describe('/api/auth/register', () => {
         }
 
         mockRegisterUser.mockResolvedValue(mockUser)
-        mockGenerateToken.mockReturnValue('mock-token')
 
         const request = createRequest(testData)
         const response = await POST(request)
