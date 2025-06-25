@@ -5,7 +5,12 @@ import { MOCK_USERS } from '@/lib/mock-data'
 import { z } from 'zod'
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('有効なメールアドレスを入力してください'),
+  email: z
+    .string({
+      required_error: 'メールアドレスは必須です',
+      invalid_type_error: 'メールアドレスは文字列である必要があります',
+    })
+    .email('有効なメールアドレスを入力してください'),
 })
 
 export async function POST(request: NextRequest) {

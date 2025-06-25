@@ -31,8 +31,8 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     )
   }
 
-  if (isDevelopment && !resend) {
-    // 開発環境でResend APIキーが未設定の場合はMailHogを使用
+  // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
+  if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
@@ -48,7 +48,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
       throw new Error('Failed to send email via MailHog')
     }
   } else {
-    // Resendを使用（本番環境または開発環境でAPIキーが設定されている場合）
+    // 本番環境ではResendを使用
     try {
       const result = await resend!.emails.send({
         from: fromEmail,
