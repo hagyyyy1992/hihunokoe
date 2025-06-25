@@ -7,26 +7,30 @@
       "Bash(rg:*)",
       "Bash(find:*)",
       "Bash(pkill:*)",
+
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
       "Bash(npx tsc:*)",
       "Bash(npx playwright test:*)",
+
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git fetch:*)",
       "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+
       "Bash(docker stop:*)",
       "Bash(docker rm:*)",
       "Bash(docker exec:*)",
+
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma migrate reset:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force --skip-seed)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma db push)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate deploy)",
-      "Bash(npx prisma migrate dev:*)",
-      "Bash(npx prisma migrate reset:*)",
-      "Bash(gh pr edit:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate deploy)"
     ],
     "deny": []
   }
