@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Badge } from '@/components/ui/Badge'
 import Image from 'next/image'
 
 export default function ProfilePage() {
@@ -253,9 +254,9 @@ export default function ProfilePage() {
             </form>
           ) : (
             <div className="space-y-6">
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-6 p-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-lg border border-pink-200">
                 {formData.profileImageUrl ? (
-                  <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-200 relative">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
                     <Image
                       src={formData.profileImageUrl}
                       alt={formData.displayName || formData.userName}
@@ -263,7 +264,6 @@ export default function ProfilePage() {
                       sizes="96px"
                       className="object-cover"
                       onError={e => {
-                        // 画像読み込みエラー時にプレースホルダーを表示
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
                         const parent = target.parentElement
@@ -285,45 +285,76 @@ export default function ProfilePage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border border-pink-200">
+                  <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border-4 border-white shadow-lg">
                     <span className="text-pink-600 text-2xl font-bold">
                       {(formData.displayName || formData.userName || '').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     {formData.displayName || formData.userName}
                   </h2>
-                  <p className="text-gray-500">@{formData.userName}</p>
+                  <p className="text-gray-600 text-lg">@{formData.userName}</p>
+                  {formData.skinType && (
+                    <div className="mt-2">
+                      <Badge variant="pink" className="text-sm">
+                        {getSkinTypeLabel(formData.skinType)}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-3">プロフィール情報</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-600">ユーザー名:</span>
-                    <span className="ml-2 text-gray-900">{formData.userName}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-600">メールアドレス:</span>
-                    <span className="ml-2 text-gray-900">{user.email}</span>
-                  </div>
-                  {formData.displayName && (
-                    <div>
-                      <span className="font-medium text-gray-600">表示名:</span>
-                      <span className="ml-2 text-gray-900">{formData.displayName}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
+                    基本情報
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">ユーザー名</span>
+                        <p className="font-medium text-gray-900">{formData.userName}</p>
+                      </div>
                     </div>
-                  )}
-                  {formData.skinType && (
-                    <div>
-                      <span className="font-medium text-gray-600">肌タイプ:</span>
-                      <span className="ml-2 text-gray-900">
-                        {getSkinTypeLabel(formData.skinType)}
-                      </span>
+                    {formData.displayName && (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                        <div>
+                          <span className="text-sm text-gray-600">表示名</span>
+                          <p className="font-medium text-gray-900">{formData.displayName}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
+                    アカウント情報
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">メールアドレス</span>
+                        <p className="font-medium text-gray-900">{user.email}</p>
+                      </div>
                     </div>
-                  )}
+                    {formData.skinType && (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                        <div>
+                          <span className="text-sm text-gray-600">肌タイプ</span>
+                          <p className="font-medium text-gray-900">
+                            {getSkinTypeLabel(formData.skinType)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
