@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: CI
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   lint-and-typecheck:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,6 +30,7 @@ jobs:
         run: npx tsc --noEmit
 
   build-test:
+    name: Build Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -51,7 +53,27 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           DIRECT_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
 
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
   e2e-auth-tests:
+    name: E2E Auth Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,10 +97,11 @@ jobs:
           NODE_ENV: test
 
   deploy:
-    needs: [lint-and-typecheck, build-test, e2e-auth-tests]
+    name: Deploy to Production
+    needs: [lint-and-typecheck, build-test, unit-tests, e2e-auth-tests]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Deploy to Vercel
-        run: echo "Deployment triggered automatically by Vercel"
+      - name: Deploy notification
+        run: echo "✅ All checks passed. Deployment will be triggered automatically by Vercel."
