@@ -42,7 +42,27 @@ class E2ETestRunner {
     console.log(`🎯 Test patterns: ${config.patterns.join(', ')}`)
 
     const patterns = config.patterns.join(' ')
-    const command = `npx playwright test ${patterns} --reporter=json`
+    // Use line reporter for better real-time feedback in CI, but still get JSON for parsing
+    const command = `npx playwright test ${patterns} --reporter=json,line`
+
+    // 実行対象のテストファイルを事前に確認
+    console.log('📂 Scanning test files...')
+    const { exec: execSync } = require('child_process')
+    try {
+      const listCommand = `find ${patterns.replace('/**', '')} -name "*.spec.ts" -o -name "*.spec.js" | head -10`
+      execSync(listCommand, (error, stdout) => {
+        if (!error && stdout) {
+          const files = stdout
+            .trim()
+            .split('\n')
+            .filter(f => f)
+          console.log(`   Found ${files.length} test files:`)
+          files.forEach(f => console.log(`   - ${f}`))
+        }
+      })
+    } catch (e) {
+      // Ignore errors in file listing
+    }
 
     try {
       const result = await this.executeCommand(command)
@@ -82,8 +102,13 @@ class E2ETestRunner {
   async executeCommand(command) {
     console.log(`⚡ Executing: ${command}`)
     console.log('📊 Test execution in progress...')
+    console.log('   This may take 2-3 minutes. Progress details:')
 
     return new Promise((resolve, reject) => {
+      let stdoutBuffer = ''
+      let stderrBuffer = ''
+      let lastProgressUpdate = Date.now()
+
       const childProcess = exec(
         command,
         { maxBuffer: 1024 * 1024 * 10 },
@@ -98,17 +123,45 @@ class E2ETestRunner {
         }
       )
 
-      // Show periodic progress updates during execution
+      // Capture stdout for real-time progress
+      childProcess.stdout?.on('data', data => {
+        stdoutBuffer += data.toString()
+
+        // Show progress updates every 5 seconds
+        if (Date.now() - lastProgressUpdate > 5000) {
+          const lines = stdoutBuffer.split('\n')
+          const testLines = lines.filter(
+            line =>
+              line.includes('Running') ||
+              line.includes('passed') ||
+              line.includes('failed') ||
+              line.includes('✓') ||
+              line.includes('✗')
+          )
+
+          if (testLines.length > 0) {
+            console.log(`   📍 Progress: ${testLines[testLines.length - 1].trim()}`)
+          }
+          lastProgressUpdate = Date.now()
+        }
+      })
+
+      // Capture stderr for debugging
+      childProcess.stderr?.on('data', data => {
+        stderrBuffer += data.toString()
+      })
+
+      // Show periodic status updates
       let progressCounter = 0
       const progressInterval = setInterval(() => {
         progressCounter++
-        const dots = '.'.repeat((progressCounter % 3) + 1)
-        process.stdout.write(`\r🔄 Running tests${dots}   `)
-      }, 2000)
+        const elapsed = Math.floor(progressCounter * 10)
+        console.log(`   ⏳ Still running... (${elapsed}s elapsed)`)
+      }, 10000) // Every 10 seconds
 
       childProcess.on('close', () => {
         clearInterval(progressInterval)
-        process.stdout.write('\r✅ Test execution completed\n')
+        console.log('✅ Test execution completed')
       })
     })
   }
@@ -216,6 +269,16 @@ class E2ETestRunner {
 
   async run() {
     console.log('🚀 Starting CI E2E Tests with Threshold-based Evaluation')
+    console.log('='.repeat(60))
+
+    // Show environment info
+    console.log('\n📋 Environment Information:')
+    console.log(`   Node Version: ${process.version}`)
+    console.log(`   Platform: ${process.platform}`)
+    console.log(`   CI Environment: ${process.env.CI ? 'Yes' : 'No'}`)
+    console.log(`   Working Directory: ${process.cwd()}`)
+    console.log(`   Retries: ${process.env.CI ? '3' : '0'} per test`)
+    console.log(`   Test Categories: ${Object.keys(TEST_CATEGORIES).length}`)
     console.log('='.repeat(60))
 
     // Run each test category
