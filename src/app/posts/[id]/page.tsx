@@ -47,7 +47,6 @@ interface Post {
   user: {
     id: string
     userName: string
-    displayName?: string
     skinType?: string
     profileImageUrl?: string
   }
@@ -57,7 +56,6 @@ interface Post {
     user: {
       id: string
       userName: string
-      displayName?: string
     }
   }>
   comments: Array<{
@@ -67,7 +65,6 @@ interface Post {
     user: {
       id: string
       userName: string
-      displayName?: string
       skinType?: string
     }
     replies: Array<{
@@ -77,7 +74,6 @@ interface Post {
       user: {
         id: string
         userName: string
-        displayName?: string
         skinType?: string
       }
     }>
@@ -191,12 +187,12 @@ export default function PostDetailPage() {
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
                   <span className="text-pink-600 font-medium text-sm">
-                    {(post.user.displayName || post.user.userName).charAt(0).toUpperCase()}
+                    {post.user.userName.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">
-                    {post.user.displayName || post.user.userName}
+                    {post.user.userName}
                   </p>
                   {post.user.skinType && (
                     <p className="text-xs text-gray-500">{skinTypeLabels[post.user.skinType]}</p>
@@ -445,13 +441,13 @@ export default function PostDetailPage() {
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
                     <span className="text-pink-600 font-medium text-xs">
-                      {(comment.user.displayName || comment.user.userName).charAt(0).toUpperCase()}
+                      {comment.user.userName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <span className="font-medium text-gray-900">
-                        {comment.user.displayName || comment.user.userName}
+                        {comment.user.userName}
                       </span>
                       {comment.user.skinType && (
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">

@@ -17,13 +17,11 @@ interface RegisterData {
   userName: string
   email: string
   password: string
-  displayName?: string
   skinType?: string
 }
 
 interface UpdateProfileData {
   userName: string
-  displayName?: string | null
   skinType?: string | null
   profileImageUrl?: string | null
 }
