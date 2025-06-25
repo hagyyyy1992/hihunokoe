@@ -75,7 +75,6 @@ describe('/api/profile/update', () => {
       const updatedUser = {
         ...mockUser,
         userName: 'newusername',
-        displayName: 'New Display Name',
         skinType: 'dry',
         profileImageUrl: 'https://example.com/image.jpg',
         updatedAt: new Date(),
@@ -88,7 +87,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
         skinType: 'dry',
         profileImageUrl: 'https://example.com/image.jpg',
       }
@@ -104,7 +102,6 @@ describe('/api/profile/update', () => {
         id: updatedUser.id,
         userName: updatedUser.userName,
         email: updatedUser.email,
-        displayName: updatedUser.displayName,
         skinType: updatedUser.skinType,
         profileImageUrl: updatedUser.profileImageUrl,
         emailVerified: updatedUser.emailVerified,
@@ -116,7 +113,6 @@ describe('/api/profile/update', () => {
         where: { id: '1' },
         data: {
           userName: 'newusername',
-          displayName: 'New Display Name',
           skinType: 'dry',
           profileImageUrl: 'https://example.com/image.jpg',
           updatedAt: expect.any(Date),
@@ -127,7 +123,6 @@ describe('/api/profile/update', () => {
     it('トークンが存在しない場合、401エラーを返す', async () => {
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
       }
 
       const request = createRequest(requestBody)
@@ -146,7 +141,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'invalid-token' })
@@ -172,7 +166,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -208,7 +201,6 @@ describe('/api/profile/update', () => {
       // ユーザー名が短すぎる
       const requestBody = {
         userName: 'ab', // 3文字未満
-        displayName: 'New Display Name',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -244,7 +236,6 @@ describe('/api/profile/update', () => {
       // 無効なURL
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
         profileImageUrl: 'invalid-url',
       }
 
@@ -285,7 +276,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
         skinType: 'dry',
       }
 
@@ -299,7 +289,6 @@ describe('/api/profile/update', () => {
       expect(data.user).toEqual({
         ...mockUser,
         userName: 'newusername',
-        displayName: 'New Display Name',
         skinType: 'dry',
       })
 
@@ -338,7 +327,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newdemouser',
-        displayName: 'New Demo User',
         skinType: 'dry',
       }
 
@@ -352,7 +340,6 @@ describe('/api/profile/update', () => {
       expect(data.user).toEqual({
         ...mockUser,
         userName: 'newdemouser',
-        displayName: 'New Demo User',
         skinType: 'dry',
       })
 
@@ -388,7 +375,6 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        displayName: 'New Display Name',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })

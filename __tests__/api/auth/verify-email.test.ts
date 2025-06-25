@@ -65,7 +65,6 @@ describe('/api/auth/verify-email', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        displayName: mockUser.displayName,
         skinType: mockUser.skinType,
         emailVerified: mockUser.emailVerified,
       })

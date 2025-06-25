@@ -194,7 +194,6 @@ describe('/api/posts', () => {
             select: {
               id: true,
               userName: true,
-              displayName: true,
               skinType: true,
             },
           },

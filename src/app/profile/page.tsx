@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
     if (user) {
       setFormData({
-                userName: user.userName || '',
+        userName: user.userName || '',
         skinType: user.skinType || '',
         profileImageUrl: user.profileImageUrl || '',
       })
@@ -41,7 +41,6 @@ export default function ProfilePage() {
 
   const validateForm = () => {
     const errors = {
-       '',
       userName: '',
       skinType: '',
       profileImageUrl: '',
@@ -57,7 +56,6 @@ export default function ProfilePage() {
       errors.userName = 'ユーザー名は50文字以内で入力してください'
       isValid = false
     }
-
 
     if (formData.profileImageUrl && !formData.profileImageUrl.match(/^(https?:\/\/).+/i)) {
       errors.profileImageUrl =
@@ -171,7 +169,6 @@ export default function ProfilePage() {
                   data-testid="username-input"
                 />
 
-
                 <div className="form-group">
                   <label htmlFor="skinType" className="form-label">
                     肌タイプ
@@ -217,12 +214,11 @@ export default function ProfilePage() {
                     onClick={() => {
                       setIsEditing(false)
                       setFormData({
-                                                userName: user.userName || '',
+                        userName: user.userName || '',
                         skinType: user.skinType || '',
                         profileImageUrl: user.profileImageUrl || '',
                       })
                       setFormErrors({
-                         '',
                         userName: '',
                         skinType: '',
                         profileImageUrl: '',
