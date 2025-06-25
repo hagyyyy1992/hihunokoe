@@ -74,7 +74,7 @@ describe('/api/auth/register', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        birthDate: mockUser.birthDate,
+        birthDate: mockUser.birthDate.toISOString(),
         gender: mockUser.gender,
         skinType: mockUser.skinType,
         skinTypeOther: mockUser.skinTypeOther,

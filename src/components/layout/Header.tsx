@@ -248,7 +248,7 @@ export default function Header() {
                 {user ? (
                   <>
                     <div className="px-3 py-2 text-sm text-gray-600" data-testid="user-menu-button">
-                      {user.displayName || user.userName}さん
+                      {user.userName}さん
                     </div>
                     <Link
                       href="/profile"
