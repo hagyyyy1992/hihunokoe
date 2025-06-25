@@ -16,6 +16,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
+    "test:e2e:threshold": "node scripts/ci-e2e-runner.js",
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

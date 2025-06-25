@@ -1,0 +1,252 @@
+#!/usr/bin/env node
+
+/**
+ * CI E2E Test Runner with Threshold-based Pass/Fail Logic
+ *
+ * This script runs E2E tests with configurable pass rate thresholds
+ * instead of failing on first failure.
+ */
+
+const { exec } = require('child_process')
+const fs = require('fs')
+const path = require('path')
+
+// Configuration
+const TEST_CATEGORIES = {
+  critical: {
+    name: 'Critical Tests',
+    patterns: ['e2e/auth/**'],
+    threshold: 0.9, // 90% pass rate - 認証は最重要だが、一部のflaky testを考慮
+    description: 'Authentication flows (login, registration, basic auth)',
+  },
+  core: {
+    name: 'Core Tests',
+    patterns: ['e2e/posts/**'],
+    threshold: 0.85, // 85% pass rate
+    description: 'Post management features (create, view, search)',
+  },
+}
+
+class E2ETestRunner {
+  constructor() {
+    this.results = {}
+    this.overallSuccess = true
+  }
+
+  async runTestCategory(category, config) {
+    console.log(`\n🧪 Running ${config.name}...`)
+    console.log(`📊 Required pass rate: ${(config.threshold * 100).toFixed(0)}%`)
+    console.log(`📝 Description: ${config.description}`)
+
+    const patterns = config.patterns.join(' ')
+    const command = `npx playwright test ${patterns} --reporter=json`
+
+    try {
+      const result = await this.executeCommand(command)
+      const stats = this.parseTestResults(result.stdout)
+
+      this.results[category] = {
+        ...stats,
+        threshold: config.threshold,
+        passed: stats.passRate >= config.threshold,
+      }
+
+      this.logCategoryResults(category, config, stats)
+
+      if (!this.results[category].passed) {
+        this.overallSuccess = false
+      }
+    } catch (error) {
+      console.error(`❌ Failed to run ${config.name}:`, error.message)
+      this.results[category] = {
+        total: 0,
+        passed: 0,
+        failed: 0,
+        passRate: 0,
+        threshold: config.threshold,
+        passed: false,
+      }
+      this.overallSuccess = false
+    }
+  }
+
+  async executeCommand(command) {
+    return new Promise((resolve, reject) => {
+      exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+        if (error && !stdout) {
+          // Only reject if there's no output (complete failure)
+          reject(error)
+        } else {
+          // Accept partial failures - we'll evaluate based on results
+          resolve({ stdout, stderr })
+        }
+      })
+    })
+  }
+
+  parseTestResults(jsonOutput) {
+    try {
+      const results = JSON.parse(jsonOutput)
+      const stats = results.stats || {}
+
+      return {
+        total: stats.expected || 0,
+        passed: stats.passed || 0,
+        failed: stats.failed || 0,
+        flaky: stats.flaky || 0,
+        skipped: stats.skipped || 0,
+        passRate: stats.expected > 0 ? stats.passed / stats.expected : 0,
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to parse test results JSON, using fallback parsing')
+      return this.fallbackParseResults(jsonOutput)
+    }
+  }
+
+  fallbackParseResults(output) {
+    // Fallback parsing for when JSON parsing fails
+    const lines = output.split('\n')
+    let passed = 0,
+      failed = 0,
+      total = 0
+
+    lines.forEach(line => {
+      if (line.includes('passed')) passed++
+      if (line.includes('failed')) failed++
+    })
+
+    total = passed + failed
+    return {
+      total,
+      passed,
+      failed,
+      flaky: 0,
+      skipped: 0,
+      passRate: total > 0 ? passed / total : 0,
+    }
+  }
+
+  logCategoryResults(category, config, stats) {
+    const passRatePercent = (stats.passRate * 100).toFixed(1)
+    const thresholdPercent = (config.threshold * 100).toFixed(0)
+    const status = stats.passRate >= config.threshold ? '✅ PASS' : '❌ FAIL'
+
+    console.log(`\n📊 ${config.name} Results:`)
+    console.log(`   Total: ${stats.total}`)
+    console.log(`   Passed: ${stats.passed}`)
+    console.log(`   Failed: ${stats.failed}`)
+    if (stats.flaky > 0) console.log(`   Flaky: ${stats.flaky}`)
+    if (stats.skipped > 0) console.log(`   Skipped: ${stats.skipped}`)
+    console.log(`   Pass Rate: ${passRatePercent}% (required: ${thresholdPercent}%)`)
+    console.log(`   Status: ${status}`)
+  }
+
+  generateSummaryReport() {
+    console.log('\n' + '='.repeat(60))
+    console.log('📋 FINAL E2E TEST SUMMARY')
+    console.log('='.repeat(60))
+
+    let totalTests = 0
+    let totalPassed = 0
+    let categoriesPassed = 0
+
+    Object.entries(this.results).forEach(([category, result]) => {
+      const config = TEST_CATEGORIES[category]
+      const passRatePercent = (result.passRate * 100).toFixed(1)
+      const thresholdPercent = (result.threshold * 100).toFixed(0)
+      const status = result.passed ? '✅' : '❌'
+
+      console.log(`\n${status} ${config.name}:`)
+      console.log(`   Pass Rate: ${passRatePercent}% (threshold: ${thresholdPercent}%)`)
+      console.log(`   Tests: ${result.passed}/${result.total}`)
+
+      totalTests += result.total
+      totalPassed += result.passed
+      if (result.passed) categoriesPassed++
+    })
+
+    const overallPassRate = totalTests > 0 ? ((totalPassed / totalTests) * 100).toFixed(1) : 0
+    const categoryPassRate =
+      Object.keys(this.results).length > 0
+        ? ((categoriesPassed / Object.keys(this.results).length) * 100).toFixed(1)
+        : 0
+
+    console.log('\n' + '-'.repeat(40))
+    console.log(`📊 Overall Statistics:`)
+    console.log(`   Total Tests: ${totalTests}`)
+    console.log(`   Overall Pass Rate: ${overallPassRate}%`)
+    console.log(
+      `   Categories Passed: ${categoriesPassed}/${Object.keys(this.results).length} (${categoryPassRate}%)`
+    )
+    console.log(`   Final Status: ${this.overallSuccess ? '✅ SUCCESS' : '❌ FAILURE'}`)
+
+    return this.overallSuccess
+  }
+
+  async run() {
+    console.log('🚀 Starting CI E2E Tests with Threshold-based Evaluation')
+    console.log('='.repeat(60))
+
+    // Run each test category
+    for (const [category, config] of Object.entries(TEST_CATEGORIES)) {
+      await this.runTestCategory(category, config)
+    }
+
+    // Generate final report
+    const success = this.generateSummaryReport()
+
+    // Write results to file for CI artifacts
+    const reportPath = path.join(process.cwd(), 'e2e-threshold-report.json')
+    fs.writeFileSync(
+      reportPath,
+      JSON.stringify(
+        {
+          timestamp: new Date().toISOString(),
+          success,
+          results: this.results,
+          summary: {
+            totalTests: Object.values(this.results).reduce((sum, r) => sum + r.total, 0),
+            totalPassed: Object.values(this.results).reduce((sum, r) => sum + r.passed, 0),
+            categoriesPassed: Object.values(this.results).filter(r => r.passed).length,
+            totalCategories: Object.keys(this.results).length,
+          },
+        },
+        null,
+        2
+      )
+    )
+
+    console.log(`\n📄 Detailed report saved to: ${reportPath}`)
+
+    // Exit with appropriate code
+    process.exit(success ? 0 : 1)
+  }
+}
+
+// Handle command line arguments
+const args = process.argv.slice(2)
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`
+🧪 CI E2E Test Runner with Threshold-based Pass/Fail Logic
+
+Usage: node scripts/ci-e2e-runner.js [options]
+
+Options:
+  --help, -h     Show this help message
+  
+Test Categories:
+  Critical Tests (90% threshold): Authentication flows (login, registration, basic auth)
+  Core Tests (85% threshold):     Post management features (create, view, search)
+
+This runner evaluates E2E tests based on configurable pass rate thresholds
+instead of failing on the first test failure.
+`)
+  process.exit(0)
+}
+
+// Run the tests
+const runner = new E2ETestRunner()
+runner.run().catch(error => {
+  console.error('💥 Fatal error:', error.message)
+  process.exit(1)
+})

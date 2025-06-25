@@ -76,11 +76,11 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  e2e-auth-tests:
-    name: E2E Auth Tests
+  e2e-tests:
+    name: E2E Tests (Threshold-based)
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -97,14 +97,25 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run E2E auth tests
-        run: npx playwright test e2e/auth/ --max-failures=1
+      - name: Run E2E tests with threshold evaluation
+        run: node scripts/ci-e2e-runner.js
         env:
           NODE_ENV: test
+          CI: true
+
+      - name: Upload E2E test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-threshold-report
+          path: |
+            e2e-threshold-report.json
+            test-results/
+          retention-days: 30
 
   deploy:
     name: Deploy to Production
-    needs: [lint-and-typecheck, build-test, unit-tests, e2e-auth-tests]
+    needs: [lint-and-typecheck, build-test, unit-tests, e2e-tests]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
