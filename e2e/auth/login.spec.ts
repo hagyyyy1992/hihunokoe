@@ -148,7 +148,15 @@ test.describe('ログイン', () => {
   })
 
   test('ログアウト機能が正常に動作する', async ({ page }) => {
-    const newUser = generateRandomUser()
+    // Mobile Safari用に複数回リトライするため、タイムスタンプを含むより一意性の高いユーザー名を使用
+    const timestamp = Date.now()
+    const randomId = Math.random().toString(36).substring(2, 15)
+    const newUser = {
+      username: `user_${timestamp}_${randomId}`,
+      email: `user_${timestamp}_${randomId}@example.com`,
+      password: 'testpassword123',
+    }
+
     await authHelper.register(newUser)
 
     // ログイン状態を確認

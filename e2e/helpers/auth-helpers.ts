@@ -29,7 +29,13 @@ export class AuthHelper {
     if (expectSuccess) {
       // Wait for registration to complete and redirect to registration-complete page
       try {
-        await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 15000 })
+        // Add extra delay for Mobile Safari
+        const userAgent = await this.page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        if (isMobileSafari) {
+          await this.page.waitForTimeout(2000)
+        }
+        await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 30000 })
       } catch (error) {
         // Check for error messages on registration page
         const errorElement = this.page.locator('[data-testid="error-message"]')
@@ -96,10 +102,15 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
-      await mobileMenuButton.click({ force: true, timeout: 5000 })
-      // Wait for menu to open
-      await this.page.waitForTimeout(500)
+
+      // Add extra handling for Mobile Safari
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 10000 })
+      await mobileMenuButton.click({ force: true, timeout: 10000 })
+      // Wait for menu to open with longer delay for Mobile Safari
+      await this.page.waitForTimeout(isMobileSafari ? 2000 : 1000)
 
       // Check if user is already logged out by checking for logout button
       const logoutButtons = this.page.getByTestId('logout-button')
@@ -222,6 +233,11 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
+
+      // Check if it's Mobile Safari
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+
       await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
       await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
@@ -230,9 +246,10 @@ export class AuthHelper {
       // Check for mobile login link - wait for it to appear after logout
       let attempts = 0
       let hasVisibleLoginLink = false
+      const maxAttempts = isMobileSafari ? 10 : 5 // More attempts for Mobile Safari
 
-      while (attempts < 5 && !hasVisibleLoginLink) {
-        await this.page.waitForTimeout(500)
+      while (attempts < maxAttempts && !hasVisibleLoginLink) {
+        await this.page.waitForTimeout(isMobileSafari ? 1000 : 500)
         hasVisibleLoginLink = await this.page.evaluate(() => {
           const links = document.querySelectorAll('[data-testid="login-link"]')
           return Array.from(links).some(link => {
