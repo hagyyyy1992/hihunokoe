@@ -7,6 +7,7 @@ jest.mock('../../../src/lib/auth/auth', () => ({
 import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/me/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import { SkinType } from '../../../src/types'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockGetUserById = authModule.getUserById as jest.MockedFunction<typeof authModule.getUserById>
@@ -43,8 +44,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        skinType: 'normal' as SkinType,
         emailVerified: true,
       }
 
@@ -119,8 +119,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        skinType: 'normal' as SkinType,
         emailVerified: false, // メール認証未完了
       }
 

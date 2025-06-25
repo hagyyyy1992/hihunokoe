@@ -11,6 +11,7 @@ import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/verify-email/route'
 import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
 import * as authModule from '../../../src/lib/auth/auth'
+import { SkinType } from '../../../src/types'
 
 const mockVerifyEmailToken = emailVerificationModule.verifyEmailToken as jest.MockedFunction<
   typeof emailVerificationModule.verifyEmailToken
@@ -38,8 +39,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        skinType: 'normal' as SkinType,
         emailVerified: true,
       }
 
@@ -170,8 +170,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        skinType: 'normal' as SkinType,
         emailVerified: true,
       }
 
@@ -212,8 +211,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        skinType: 'normal',
+        skinType: 'normal' as SkinType,
         emailVerified: true,
       }
 

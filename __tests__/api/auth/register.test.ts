@@ -7,6 +7,8 @@ jest.mock('../../../src/lib/auth/auth', () => ({
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import { SkinType } from '../../../src/types'
+import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
@@ -47,13 +49,13 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: '1990-01-01T00:00:00.000Z',
-        gender: 'male',
-        skinType: 'normal',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance'],
+        allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic',
+        bodyType: 'atopic' as BodyType,
         bodyTypeOther: null,
         emailVerified: true,
       }
@@ -270,8 +272,7 @@ describe('/api/auth/register', () => {
           id: '1',
           userName: 'testuser',
           email: 'test@example.com',
-          displayName: 'Test User',
-          skinType,
+          skinType: skinType as SkinType,
           emailVerified: true,
         }
 
