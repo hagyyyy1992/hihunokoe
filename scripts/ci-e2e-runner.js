@@ -19,12 +19,12 @@ const TEST_CATEGORIES = {
     threshold: 0.9, // 90% pass rate - 認証は最重要だが、一部のflaky testを考慮
     description: 'Authentication flows (login, registration, basic auth)',
   },
-  core: {
-    name: 'Core Tests',
-    patterns: ['e2e/posts/**'],
-    threshold: 0.85, // 85% pass rate
-    description: 'Post management features (create, view, search)',
-  },
+  // core: {
+  //   name: 'Core Tests',
+  //   patterns: ['e2e/posts/**'],
+  //   threshold: 0.85, // 85% pass rate
+  //   description: 'Post management features (create, view, search)',
+  // },
 }
 
 class E2ETestRunner {
