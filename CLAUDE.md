@@ -129,6 +129,51 @@ npm run mailhog:stop
 - Authentication routes in `src/app/api/auth/`
 - Post-related routes in `src/app/api/posts/`
 
+## Git Commit Message Conventions
+
+このプロジェクトでは、コミットメッセージの可読性と追跡性を向上させるため、以下の原則に従います。
+
+### Prefix形式
+
+```
+prefix: 〇〇なため、△△を追加/修正/削除
+```
+
+### 使用するPrefix
+
+- **feat**: 新しい機能の追加
+- **fix**: バグの修正
+- **docs**: ドキュメントのみの変更
+- **style**: コードの動作に影響しない変更（空白、フォーマット、セミコロンなど）
+- **refactor**: バグ修正や機能追加ではないコード改善
+- **perf**: パフォーマンス向上に関する変更
+- **test**: テストの追加や修正
+- **chore**: ビルドプロセス、補助ツール、ライブラリの変更
+
+### 具体例
+
+```bash
+# Good examples
+feat: ユーザー認証機能を強化するため、メール認証を追加
+fix: モバイル表示が崩れるため、ヘッダーのレスポンシブ対応を修正
+docs: 新規開発者向けにセットアップ手順を追加
+refactor: コードの可読性向上のため、認証ロジックを関数に分離
+test: E2Eテストの安定性向上のため、認証フローのテストを改善
+chore: CI/CDパイプラインの実行時間短縮のため、並列実行を追加
+
+# Bad examples
+fix: 修正
+feat: 追加
+update: 更新
+```
+
+### 原則
+
+1. **理由を明記する**: なぜその変更が必要だったのかを「〇〇なため」で表現
+2. **日本語で記述**: チーム内でのコミュニケーションを円滑にするため
+3. **適切なprefixを選択**: 変更の性質を正確に表現
+4. **コミットサイズを適切に**: 1つのprefixで表現できる範囲での変更
+
 ## Important Notes
 
 ### Environment Variables
