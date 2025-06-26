@@ -53,7 +53,7 @@ describe('/api/auth/register', () => {
         allergiesOther: null,
         bodyType: 'atopic' as BodyType,
         bodyTypeOther: null,
-        emailVerified: true,
+        emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
 
@@ -100,7 +100,7 @@ describe('/api/auth/register', () => {
         allergiesOther: undefined,
         bodyType: undefined,
         bodyTypeOther: undefined,
-        emailVerified: true,
+        emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
 
@@ -261,7 +261,7 @@ describe('/api/auth/register', () => {
           userName: 'testuser',
           email: 'test@example.com',
           skinType: skinType as SkinType,
-          emailVerified: true,
+          emailVerified: false,
         }
 
         mockRegisterUser.mockResolvedValue(mockUser)
