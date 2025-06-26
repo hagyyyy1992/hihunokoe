@@ -100,7 +100,7 @@ test.describe('ユーザー登録', () => {
     await page.click('[data-testid="register-button"]')
 
     // エラーメッセージを確認（実際のエラーメッセージに合わせる）
-    await authHelper.expectErrorMessage('ユーザー登録に失敗しました')
+    await authHelper.expectErrorMessage('ユーザー名またはメールアドレスが既に使用されています')
   })
 
   test('必須フィールドの動的バリデーション', async ({ page }) => {
