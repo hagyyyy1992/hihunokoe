@@ -32,7 +32,12 @@ export async function POST(request: NextRequest) {
 
     // 確認メールを送信
     try {
-      await sendVerificationEmail(user.id, user.email, user.userName)
+      // リクエストから動的にベースURLを取得
+      const host = request.headers.get('host')
+      const protocol = request.headers.get('x-forwarded-proto') || 'http'
+      const baseUrl = host ? `${protocol}://${host}` : undefined
+
+      await sendVerificationEmail(user.id, user.email, user.userName, baseUrl)
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError)
       // メール送信に失敗してもユーザー登録は成功とする

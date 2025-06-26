@@ -11,7 +11,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = resendSchema.parse(body)
 
-    const result = await resendVerificationEmail(validatedData.email)
+    // リクエストから動的にベースURLを取得
+    const host = request.headers.get('host')
+    const protocol = request.headers.get('x-forwarded-proto') || 'http'
+    const baseUrl = host ? `${protocol}://${host}` : undefined
+
+    const result = await resendVerificationEmail(validatedData.email, baseUrl)
 
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 400 })

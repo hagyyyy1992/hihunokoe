@@ -30,11 +30,12 @@ export async function createVerificationToken(userId: string): Promise<string> {
 export async function sendVerificationEmail(
   userId: string,
   email: string,
-  userName: string
+  userName: string,
+  baseUrl?: string
 ): Promise<void> {
   const token = await createVerificationToken(userId)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}`
+  const finalBaseUrl = baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const verificationUrl = `${finalBaseUrl}/auth/verify-email?token=${token}`
 
   const htmlContent = generateVerificationEmailHtml(userName, verificationUrl)
   const textContent = generateVerificationEmailText(userName, verificationUrl)
@@ -108,7 +109,8 @@ export async function isEmailVerified(userId: string): Promise<boolean> {
 }
 
 export async function resendVerificationEmail(
-  email: string
+  email: string,
+  baseUrl?: string
 ): Promise<{ success: boolean; message: string }> {
   const user = await prisma.user.findUnique({
     where: { email },
@@ -129,7 +131,7 @@ export async function resendVerificationEmail(
     }
   }
 
-  await sendVerificationEmail(user.id, email, user.userName)
+  await sendVerificationEmail(user.id, email, user.userName, baseUrl)
 
   return {
     success: true,
