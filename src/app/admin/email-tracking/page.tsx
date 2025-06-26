@@ -1,7 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@supabase/supabase-js'
+
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic'
 
 interface EmailEvent {
   id: string
@@ -20,18 +23,19 @@ interface EmailStats {
   [key: string]: number
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-export default function EmailTrackingPage() {
+function EmailTrackingContent() {
   const [emails, setEmails] = useState<EmailEvent[]>([])
   const [stats, setStats] = useState<EmailStats>({ total: 0 })
   const [filter, setFilter] = useState('all')
   const [environmentFilter, setEnvironmentFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const supabase = useMemo(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    return createClient(supabaseUrl!, supabaseKey!)
+  }, [])
 
   const fetchEmails = useCallback(async () => {
     try {
@@ -63,7 +67,31 @@ export default function EmailTrackingPage() {
     } finally {
       setLoading(false)
     }
-  }, [filter, environmentFilter])
+  }, [filter, environmentFilter, supabase])
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const { data, error: statsError } = await supabase.from('email_events').select('event_type')
+
+      if (statsError) {
+        console.error('Failed to fetch stats:', statsError)
+        return
+      }
+
+      const statsData = data?.reduce(
+        (acc, event) => {
+          acc[event.event_type] = (acc[event.event_type] || 0) + 1
+          acc.total++
+          return acc
+        },
+        { total: 0 } as EmailStats
+      )
+
+      setStats(statsData || { total: 0 })
+    } catch (err) {
+      console.error('Error fetching stats:', err)
+    }
+  }, [supabase])
 
   useEffect(() => {
     fetchEmails()
@@ -89,31 +117,7 @@ export default function EmailTrackingPage() {
     return () => {
       subscription.unsubscribe().catch(console.error)
     }
-  }, [filter, environmentFilter, fetchEmails])
-
-  async function fetchStats() {
-    try {
-      const { data, error: statsError } = await supabase.from('email_events').select('event_type')
-
-      if (statsError) {
-        console.error('Failed to fetch stats:', statsError)
-        return
-      }
-
-      const statsData = data?.reduce(
-        (acc, event) => {
-          acc[event.event_type] = (acc[event.event_type] || 0) + 1
-          acc.total++
-          return acc
-        },
-        { total: 0 } as EmailStats
-      )
-
-      setStats(statsData || { total: 0 })
-    } catch (err) {
-      console.error('Error fetching stats:', err)
-    }
-  }
+  }, [filter, environmentFilter, fetchEmails, fetchStats, supabase])
 
   function StatusIcon({ type }: { type: string }) {
     const icons: Record<string, string> = {
@@ -302,4 +306,23 @@ export default function EmailTrackingPage() {
       </div>
     </div>
   )
+}
+
+export default function EmailTrackingPage() {
+  // 環境変数チェック
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Email Tracking</h1>
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-md">
+          Supabase設定が見つかりません。環境変数NEXT_PUBLIC_SUPABASE_URLとNEXT_PUBLIC_SUPABASE_ANON_KEYを確認してください。
+        </div>
+      </div>
+    )
+  }
+
+  return <EmailTrackingContent />
 }
