@@ -245,8 +245,8 @@ npm run lint
 npm test
 npm run test:e2e  # 重要な変更の場合
 
-# ビルド確認
-npm run build
+# TypeScript型チェック
+npx tsc --noEmit
 ```
 
 **自動化推奨**: Huskyやgit hookを使用して、これらのチェックを自動化することを推奨します。
@@ -258,7 +258,7 @@ Claude Codeは、ユーザーからpushやデプロイを依頼された際、**
 1. **事前チェック実行**: push前に下記コマンドを直列実行
 
    ```bash
-   npm run format && npm run lint && npm test && npm run build
+   npm run format && npm run lint && npm test && npx tsc --noEmit
    ```
 
 2. **エラーハンドリング**:
