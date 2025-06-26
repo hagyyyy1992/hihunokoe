@@ -66,6 +66,14 @@
   }
 }
 
+/* Firefox-specific fix to prevent unwanted dark mode */
+@-moz-document url-prefix() {
+  :root {
+    --background: #f9fafb !important;
+    --foreground: #111827 !important;
+  }
+}
+
 /* Base Styles */
 body {
   background: var(--background);
@@ -76,10 +84,27 @@ body {
     BlinkMacSystemFont,
     'Segoe UI',
     'Roboto',
+    'Helvetica Neue',
+    Arial,
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+}
+
+/* Firefox-specific font rendering improvements */
+@-moz-document url-prefix() {
+  body {
+    font-family:
+      var(--font-geist-sans),
+      'Segoe UI',
+      'Roboto',
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
+    -moz-font-feature-settings: "liga" 1, "kern" 1;
+    text-rendering: optimizeLegibility;
+  }
 }
 
 /* Focus styles for accessibility */
@@ -94,6 +119,21 @@ body {
 ::selection {
   background-color: var(--pink-100);
   color: var(--pink-900);
+}
+
+/* Firefox-specific focus and selection fixes */
+@-moz-document url-prefix() {
+  :focus-visible {
+    outline: none !important;
+    box-shadow:
+      0 0 0 2px var(--pink-500),
+      0 0 0 4px rgba(219, 39, 119, 0.1) !important;
+  }
+  
+  ::-moz-selection {
+    background-color: var(--pink-100);
+    color: var(--pink-900);
+  }
 }
 
 /* Component Styles */
@@ -204,6 +244,37 @@ textarea:focus {
   border-color: var(--pink-500);
   box-shadow: 0 0 0 1px var(--pink-500);
   color: #111827 !important;
+}
+
+/* Firefox-specific input field fixes */
+@-moz-document url-prefix() {
+  .input,
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='search'],
+  select,
+  textarea {
+    color: #111827 !important;
+    background-color: white !important;
+    -moz-appearance: none;
+  }
+  
+  .input::placeholder,
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280 !important;
+    opacity: 1;
+  }
+  
+  .input:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    color: #111827 !important;
+    background-color: white !important;
+  }
 }
 
 .input-error {
@@ -426,4 +497,30 @@ label {
 
 .bg-gradient-subtle {
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+/* Firefox CSS Grid Compatibility Fixes */
+@-moz-document url-prefix() {
+  .grid {
+    display: -ms-grid;
+    display: grid;
+  }
+  
+  /* Fix for md:grid-cols-3 (features section) */
+  @media (min-width: 768px) {
+    .md\:grid-cols-3 {
+      -ms-grid-columns: 1fr 2rem 1fr 2rem 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+  
+  /* Fix for md:grid-cols-4 (footer) */
+  @media (min-width: 768px) {
+    .md\:grid-cols-4 {
+      -ms-grid-columns: 1fr 2rem 1fr 2rem 1fr 2rem 1fr;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
 }
