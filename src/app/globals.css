@@ -95,14 +95,10 @@ body {
 /* Firefox-specific font rendering improvements */
 @-moz-document url-prefix() {
   body {
-    font-family:
-      var(--font-geist-sans),
-      'Segoe UI',
-      'Roboto',
-      'Helvetica Neue',
-      Arial,
-      sans-serif;
-    -moz-font-feature-settings: "liga" 1, "kern" 1;
+    font-family: var(--font-geist-sans), 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    -moz-font-feature-settings:
+      'liga' 1,
+      'kern' 1;
     text-rendering: optimizeLegibility;
   }
 }
@@ -129,7 +125,7 @@ body {
       0 0 0 2px var(--pink-500),
       0 0 0 4px rgba(219, 39, 119, 0.1) !important;
   }
-  
+
   ::-moz-selection {
     background-color: var(--pink-100);
     color: var(--pink-900);
@@ -260,14 +256,14 @@ textarea:focus {
     background-color: white !important;
     -moz-appearance: none;
   }
-  
+
   .input::placeholder,
   input::placeholder,
   textarea::placeholder {
     color: #6b7280 !important;
     opacity: 1;
   }
-  
+
   .input:focus,
   input:focus,
   select:focus,
@@ -505,7 +501,7 @@ label {
     display: -ms-grid;
     display: grid;
   }
-  
+
   /* Fix for md:grid-cols-3 (features section) */
   @media (min-width: 768px) {
     .md\:grid-cols-3 {
@@ -514,7 +510,7 @@ label {
       gap: 2rem;
     }
   }
-  
+
   /* Fix for md:grid-cols-4 (footer) */
   @media (min-width: 768px) {
     .md\:grid-cols-4 {
