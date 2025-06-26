@@ -104,7 +104,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
         allergiesOther: data.allergiesOther,
         bodyType: data.bodyType,
         bodyTypeOther: data.bodyTypeOther,
-        emailVerified: false, // メール認証必須
+        emailVerified: process.env.NODE_ENV !== 'production', // 開発環境では認証済みとして扱う
       },
     })
 

@@ -32,11 +32,21 @@ test.describe('基本的な認証フロー', () => {
   test('フォーム入力が正常に動作する', async ({ page }) => {
     await page.goto('/auth/register')
 
-    // フォームに入力
+    // フォームに入力（webkitに対応）
+    await page.click('[data-testid="username-input"]')
     await page.fill('[data-testid="username-input"]', 'testuser')
+    await page.waitForTimeout(100)
+
+    await page.click('[data-testid="email-input"]')
     await page.fill('[data-testid="email-input"]', 'test@example.com')
+    await page.waitForTimeout(100)
+
+    await page.click('[data-testid="password-input"]')
     await page.fill('[data-testid="password-input"]', 'password123')
+    await page.waitForTimeout(100)
+
     await page.selectOption('[data-testid="skin-type-select"]', 'normal')
+    await page.waitForTimeout(100)
 
     // 入力値が正しく設定されることを確認
     await expect(page.locator('[data-testid="username-input"]')).toHaveValue('testuser')

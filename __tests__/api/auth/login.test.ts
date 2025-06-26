@@ -60,6 +60,13 @@ describe('/api/auth/login', () => {
     })
 
     it('メール認証が未完了の場合、403エラーを返す', async () => {
+      // 本番環境での動作をテストするため、NODE_ENVを一時的に変更
+      const originalNodeEnv = process.env.NODE_ENV
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        configurable: true,
+      })
+
       const mockUser = {
         id: '1',
         userName: 'testuser',
@@ -83,6 +90,12 @@ describe('/api/auth/login', () => {
       )
       expect(data.emailVerificationRequired).toBe(true)
       expect(data.email).toBe('test@example.com')
+
+      // NODE_ENVを元に戻す
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: originalNodeEnv,
+        configurable: true,
+      })
     })
 
     it('認証情報が無効な場合、401エラーを返す', async () => {

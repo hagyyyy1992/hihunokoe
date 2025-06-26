@@ -59,6 +59,13 @@ describe('Email Verification Flow', () => {
   })
 
   it('メール未認証のユーザーはログインできない', async () => {
+    // 本番環境での動作をテストするため、NODE_ENVを一時的に変更
+    const originalNodeEnv = process.env.NODE_ENV
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      configurable: true,
+    })
+
     const loginData = {
       email: 'unverified@example.com',
       password: 'password123',
@@ -81,6 +88,12 @@ describe('Email Verification Flow', () => {
     expect(data.error).toBe('メールアドレスの確認が完了していません。確認メールをご確認ください。')
     expect(data.emailVerificationRequired).toBe(true)
     expect(mockLoginUser).toHaveBeenCalledWith(loginData)
+
+    // NODE_ENVを元に戻す
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalNodeEnv,
+      configurable: true,
+    })
   })
 
   it('メール認証済みのユーザーは正常にログインできる', async () => {

@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // メール認証チェック
-    if (!user.emailVerified) {
+    // メール認証チェック（開発環境では無効化）
+    if (!user.emailVerified && process.env.NODE_ENV === 'production') {
       return NextResponse.json(
         {
           error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
