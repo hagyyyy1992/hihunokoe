@@ -75,7 +75,10 @@ test.describe('ログイン', () => {
     try {
       await authHelper.logout()
     } catch (error) {
-      console.log('User was already logged out or logout failed:', error.message)
+      console.log(
+        'User was already logged out or logout failed:',
+        error instanceof Error ? error.message : String(error)
+      )
     }
 
     // 保護されたページにアクセスを試行 - use domcontentloaded for better compatibility

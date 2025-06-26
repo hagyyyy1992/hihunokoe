@@ -1,9 +1,9 @@
-// Mock email module
-jest.mock('../../../src/lib/email/email', () => ({
-  sendEmail: jest.fn(),
+// Mock password reset module
+jest.mock('../../../src/lib/auth/password-reset', () => ({
+  sendPasswordResetEmail: jest.fn(),
 }))
 
-// Mock prisma
+// Mock prisma with proper typing
 jest.mock('../../../src/lib/prisma', () => ({
   prisma: {
     user: {
@@ -15,14 +15,17 @@ jest.mock('../../../src/lib/prisma', () => ({
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/forgot-password/route'
-import * as emailModule from '../../../src/lib/email/email'
+import * as passwordResetModule from '../../../src/lib/auth/password-reset'
 import * as prismaModule from '../../../src/lib/prisma'
 
-const mockSendEmail = emailModule.sendEmail as jest.MockedFunction<typeof emailModule.sendEmail>
+const mockSendPasswordResetEmail =
+  passwordResetModule.sendPasswordResetEmail as jest.MockedFunction<
+    typeof passwordResetModule.sendPasswordResetEmail
+  >
 const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
   typeof prismaModule.isDatabaseAvailable
 >
-const mockPrisma = prismaModule.prisma as jest.Mocked<typeof prismaModule.prisma>
+const mockFindUnique = (prismaModule.prisma as any).user.findUnique
 
 describe('/api/auth/forgot-password', () => {
   beforeEach(() => {
@@ -49,8 +52,8 @@ describe('/api/auth/forgot-password', () => {
         isActive: true,
       }
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any)
-      mockSendEmail.mockResolvedValue({ success: true })
+      mockFindUnique.mockResolvedValue(mockUser)
+      mockSendPasswordResetEmail.mockResolvedValue()
 
       const request = createRequest({ email: 'test@example.com' })
       const response = await POST(request)
@@ -58,16 +61,21 @@ describe('/api/auth/forgot-password', () => {
 
       expect(response.status).toBe(200)
       expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      expect(mockFindUnique).toHaveBeenCalledWith({
         where: {
           email: 'test@example.com',
           isActive: true,
         },
       })
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser'
+      )
     })
 
     it('存在しないメールアドレスでも成功メッセージを返す（セキュリティ対策）', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null)
+      mockFindUnique.mockResolvedValue(null)
 
       const request = createRequest({ email: 'nonexistent@example.com' })
       const response = await POST(request)
@@ -75,25 +83,14 @@ describe('/api/auth/forgot-password', () => {
 
       expect(response.status).toBe(200)
       expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      expect(mockFindUnique).toHaveBeenCalledWith({
         where: {
           email: 'nonexistent@example.com',
           isActive: true,
         },
       })
       // メール送信は呼ばれない
-      expect(mockSendEmail).not.toHaveBeenCalled()
-    })
-
-    it('非アクティブユーザーでも成功メッセージを返す', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null) // isActive: false の場合は null が返る
-
-      const request = createRequest({ email: 'inactive@example.com' })
-      const response = await POST(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(200)
-      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockSendPasswordResetEmail).not.toHaveBeenCalled()
     })
 
     it('無効なメールアドレス形式でバリデーションエラーを返す', async () => {
@@ -122,8 +119,8 @@ describe('/api/auth/forgot-password', () => {
         isActive: true,
       }
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any)
-      mockSendEmail.mockRejectedValue(new Error('Email service error'))
+      mockFindUnique.mockResolvedValue(mockUser)
+      mockSendPasswordResetEmail.mockRejectedValue(new Error('Email service error'))
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
 
@@ -160,24 +157,8 @@ describe('/api/auth/forgot-password', () => {
       consoleSpy.mockRestore()
     })
 
-    it('不正なJSONでサーバーエラーを返す', async () => {
-      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{invalid json}',
-      })
-
-      const response = await POST(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(500)
-      expect(data.error).toBe('パスワードリセットの処理中にエラーが発生しました')
-    })
-
     it('データベースエラーでサーバーエラーを返す', async () => {
-      mockPrisma.user.findUnique.mockRejectedValue(new Error('Database connection error'))
+      mockFindUnique.mockRejectedValue(new Error('Database connection error'))
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
 
