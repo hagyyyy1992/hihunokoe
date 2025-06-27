@@ -172,6 +172,106 @@ describe('/api/auth/forgot-password', () => {
       consoleSpy.mockRestore()
     })
 
+    it('非Errorオブジェクトのメール送信エラーを処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        userName: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(mockUser)
+      mockSendPasswordResetEmail.mockRejectedValue('String error')
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to send password reset email:',
+        expect.objectContaining({
+          error: 'String error',
+          message: 'Unknown error',
+          stack: undefined,
+          userId: 'user123',
+          email: 'test@example.com',
+        })
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('x-forwarded-protoヘッダーがない場合のプロトコル処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        userName: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(mockUser)
+      mockSendPasswordResetEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          host: 'localhost:3000',
+          // x-forwarded-protoヘッダーを設定しない
+        },
+        body: JSON.stringify({ email: 'test@example.com' }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser',
+        'http://localhost:3000'
+      )
+    })
+
+    it('hostヘッダーがない場合のbaseURL処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        userName: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(mockUser)
+      mockSendPasswordResetEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // hostヘッダーを設定しない
+        },
+        body: JSON.stringify({ email: 'test@example.com' }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser',
+        undefined
+      )
+    })
+
     it('データベースが利用できない場合のモックモードをテスト', async () => {
       mockIsDatabaseAvailable.mockReturnValue(false)
 
@@ -186,6 +286,25 @@ describe('/api/auth/forgot-password', () => {
       expect(consoleSpy).toHaveBeenCalledWith(
         'Mock mode: Password reset email would be sent to:',
         'demo@example.com'
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('モックモードで存在しないユーザーの場合、ログ出力されない', async () => {
+      mockIsDatabaseAvailable.mockReturnValue(false)
+
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+      const request = createRequest({ email: 'nonexistent@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        'Mock mode: Password reset email would be sent to:',
+        'nonexistent@example.com'
       )
 
       consoleSpy.mockRestore()

@@ -165,5 +165,37 @@ describe('/api/auth/login', () => {
       expect(response.status).toBe(500)
       expect(data.error).toBe('ログインに失敗しました')
     })
+
+    it('空のリクエストボディで400エラーを返す', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '',
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('リクエストボディが空です')
+    })
+
+    it('空白のみのリクエストボディで400エラーを返す', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '   ',
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('リクエストボディが空です')
+    })
   })
 })
