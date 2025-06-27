@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { resetPassword } from '@/lib/auth/password-reset'
 import { z } from 'zod'
+import {
+  passwordResetExecutionLimiter,
+  getClientIP,
+  createRateLimitErrorResponse,
+} from '@/lib/rate-limiter'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'トークンが必要です'),
@@ -9,6 +14,23 @@ const resetPasswordSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // レート制限チェック
+    const clientIP = getClientIP(request)
+    const rateLimitResult = passwordResetExecutionLimiter.checkLimit(clientIP)
+
+    if (!rateLimitResult.allowed) {
+      const errorResponse = createRateLimitErrorResponse(rateLimitResult.resetTime)
+      return NextResponse.json(errorResponse, {
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+          'X-RateLimit-Limit': '5',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+        },
+      })
+    }
+
     const body = await request.json()
     const validatedData = resetPasswordSchema.parse(body)
 

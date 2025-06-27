@@ -3,17 +3,41 @@ jest.mock('../../../src/lib/auth/password-reset', () => ({
   resetPassword: jest.fn(),
 }))
 
+// Mock rate limiter
+jest.mock('../../../src/lib/rate-limiter', () => ({
+  passwordResetExecutionLimiter: {
+    checkLimit: jest.fn(),
+  },
+  getClientIP: jest.fn(),
+  createRateLimitErrorResponse: jest.fn(),
+}))
+
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/reset-password/route'
 import * as passwordResetModule from '../../../src/lib/auth/password-reset'
+import * as rateLimiterModule from '../../../src/lib/rate-limiter'
 
 const mockResetPassword = passwordResetModule.resetPassword as jest.MockedFunction<
   typeof passwordResetModule.resetPassword
+>
+const mockPasswordResetExecutionLimiter = (rateLimiterModule as any).passwordResetExecutionLimiter
+const mockGetClientIP = rateLimiterModule.getClientIP as jest.MockedFunction<
+  typeof rateLimiterModule.getClientIP
+>
+const mockCreateRateLimitErrorResponse = rateLimiterModule.createRateLimitErrorResponse as jest.MockedFunction<
+  typeof rateLimiterModule.createRateLimitErrorResponse
 >
 
 describe('/api/auth/reset-password', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // デフォルトではレート制限を通す
+    mockPasswordResetExecutionLimiter.checkLimit.mockReturnValue({
+      allowed: true,
+      remaining: 4,
+      resetTime: Date.now() + 5 * 60 * 1000,
+    })
+    mockGetClientIP.mockReturnValue('127.0.0.1')
   })
 
   const createRequest = (body: any) => {
@@ -249,6 +273,54 @@ describe('/api/auth/reset-password', () => {
         message: 'パスワードが正常にリセットされました',
       })
       expect(mockResetPassword).toHaveBeenCalledWith(validToken, longPassword)
+    })
+
+    it('レート制限に達した場合、429エラーが返される', async () => {
+      const resetTime = Date.now() + 3 * 60 * 1000
+      mockPasswordResetExecutionLimiter.checkLimit.mockReturnValue({
+        allowed: false,
+        remaining: 0,
+        resetTime,
+      })
+      mockCreateRateLimitErrorResponse.mockReturnValue({
+        error: 'リクエストが多すぎます。しばらく時間をおいてから再試行してください。',
+        retryAfter: 180,
+        message: '3分後に再試行してください。',
+      })
+
+      const request = createRequest({
+        token: 'valid-token-12345',
+        password: 'newPassword123',
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(429)
+      expect(data.error).toBe('リクエストが多すぎます。しばらく時間をおいてから再試行してください。')
+      expect(data.retryAfter).toBe(180)
+      expect(data.message).toBe('3分後に再試行してください。')
+      
+      // レート制限ヘッダーが設定されていることを確認
+      expect(response.headers.get('Retry-After')).toBeTruthy()
+      expect(response.headers.get('X-RateLimit-Limit')).toBe('5')
+      expect(response.headers.get('X-RateLimit-Remaining')).toBe('0')
+      expect(response.headers.get('X-RateLimit-Reset')).toBeTruthy()
+
+      // resetPassword関数が実行されないことを確認
+      expect(mockResetPassword).not.toHaveBeenCalled()
+    })
+
+    it('レート制限チェックが実行される', async () => {
+      const request = createRequest({
+        token: 'valid-token-12345',
+        password: 'newPassword123',
+      })
+      
+      await POST(request)
+
+      expect(mockGetClientIP).toHaveBeenCalledWith(request)
+      expect(mockPasswordResetExecutionLimiter.checkLimit).toHaveBeenCalledWith('127.0.0.1')
     })
   })
 })

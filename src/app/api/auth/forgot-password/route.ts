@@ -3,6 +3,7 @@ import { sendPasswordResetEmail } from '@/lib/auth/password-reset'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
 import { z } from 'zod'
+import { passwordResetLimiter, getClientIP, createRateLimitErrorResponse } from '@/lib/rate-limiter'
 
 const forgotPasswordSchema = z.object({
   email: z
@@ -15,6 +16,23 @@ const forgotPasswordSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // レート制限チェック
+    const clientIP = getClientIP(request)
+    const rateLimitResult = passwordResetLimiter.checkLimit(clientIP)
+
+    if (!rateLimitResult.allowed) {
+      const errorResponse = createRateLimitErrorResponse(rateLimitResult.resetTime)
+      return NextResponse.json(errorResponse, {
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+          'X-RateLimit-Limit': '3',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+        },
+      })
+    }
+
     const body = await request.json()
     const validatedData = forgotPasswordSchema.parse(body)
 

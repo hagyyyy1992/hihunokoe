@@ -13,10 +13,20 @@ jest.mock('../../../src/lib/prisma', () => ({
   isDatabaseAvailable: jest.fn(),
 }))
 
+// Mock rate limiter
+jest.mock('../../../src/lib/rate-limiter', () => ({
+  passwordResetLimiter: {
+    checkLimit: jest.fn(),
+  },
+  getClientIP: jest.fn(),
+  createRateLimitErrorResponse: jest.fn(),
+}))
+
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/forgot-password/route'
 import * as passwordResetModule from '../../../src/lib/auth/password-reset'
 import * as prismaModule from '../../../src/lib/prisma'
+import * as rateLimiterModule from '../../../src/lib/rate-limiter'
 
 const mockSendPasswordResetEmail =
   passwordResetModule.sendPasswordResetEmail as jest.MockedFunction<
@@ -26,11 +36,26 @@ const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedF
   typeof prismaModule.isDatabaseAvailable
 >
 const mockFindUnique = (prismaModule.prisma as any).user.findUnique
+const mockPasswordResetLimiter = (rateLimiterModule as any).passwordResetLimiter
+const mockGetClientIP = rateLimiterModule.getClientIP as jest.MockedFunction<
+  typeof rateLimiterModule.getClientIP
+>
+const mockCreateRateLimitErrorResponse =
+  rateLimiterModule.createRateLimitErrorResponse as jest.MockedFunction<
+    typeof rateLimiterModule.createRateLimitErrorResponse
+  >
 
 describe('/api/auth/forgot-password', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsDatabaseAvailable.mockReturnValue(true)
+    // デフォルトではレート制限を通す
+    mockPasswordResetLimiter.checkLimit.mockReturnValue({
+      allowed: true,
+      remaining: 2,
+      resetTime: Date.now() + 15 * 60 * 1000,
+    })
+    mockGetClientIP.mockReturnValue('127.0.0.1')
   })
 
   const createRequest = (body: any) => {
@@ -180,6 +205,46 @@ describe('/api/auth/forgot-password', () => {
       expect(consoleSpy).toHaveBeenCalled()
 
       consoleSpy.mockRestore()
+    })
+
+    it('レート制限に達した場合、429エラーが返される', async () => {
+      const resetTime = Date.now() + 5 * 60 * 1000
+      mockPasswordResetLimiter.checkLimit.mockReturnValue({
+        allowed: false,
+        remaining: 0,
+        resetTime,
+      })
+      mockCreateRateLimitErrorResponse.mockReturnValue({
+        error: 'リクエストが多すぎます。しばらく時間をおいてから再試行してください。',
+        retryAfter: 300,
+        message: '5分後に再試行してください。',
+      })
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(429)
+      expect(data.error).toBe('リクエストが多すぎます。しばらく時間をおいてから再試行してください。')
+      expect(data.retryAfter).toBe(300)
+      expect(data.message).toBe('5分後に再試行してください。')
+      
+      // レート制限ヘッダーが設定されていることを確認
+      expect(response.headers.get('Retry-After')).toBeTruthy()
+      expect(response.headers.get('X-RateLimit-Limit')).toBe('3')
+      expect(response.headers.get('X-RateLimit-Remaining')).toBe('0')
+      expect(response.headers.get('X-RateLimit-Reset')).toBeTruthy()
+
+      // メール送信が実行されないことを確認
+      expect(mockSendPasswordResetEmail).not.toHaveBeenCalled()
+    })
+
+    it('レート制限チェックが実行される', async () => {
+      const request = createRequest({ email: 'test@example.com' })
+      await POST(request)
+
+      expect(mockGetClientIP).toHaveBeenCalledWith(request)
+      expect(mockPasswordResetLimiter.checkLimit).toHaveBeenCalledWith('127.0.0.1')
     })
   })
 })
