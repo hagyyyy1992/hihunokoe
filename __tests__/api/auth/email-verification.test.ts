@@ -22,9 +22,10 @@ const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
 const mockGenerateToken = authModule.generateToken as jest.MockedFunction<
   typeof authModule.generateToken
 >
-const mockSendVerificationEmail = emailVerificationModule.sendVerificationEmail as jest.MockedFunction<
-  typeof emailVerificationModule.sendVerificationEmail
->
+const mockSendVerificationEmail =
+  emailVerificationModule.sendVerificationEmail as jest.MockedFunction<
+    typeof emailVerificationModule.sendVerificationEmail
+  >
 
 describe('Email Verification Flow', () => {
   beforeEach(() => {

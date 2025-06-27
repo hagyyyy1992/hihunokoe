@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send verification email:', emailError)
       return NextResponse.json(
         {
-          error: 'ユーザー登録は完了しましたが、確認メールの送信に失敗しました。後ほど再送信をお試しください。',
+          error:
+            'ユーザー登録は完了しましたが、確認メールの送信に失敗しました。後ほど再送信をお試しください。',
         },
         { status: 500 }
       )

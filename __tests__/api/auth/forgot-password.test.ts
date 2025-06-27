@@ -38,7 +38,7 @@ describe('/api/auth/forgot-password', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'host': 'localhost:3000',
+        host: 'localhost:3000',
         'x-forwarded-proto': 'http',
       },
       body: JSON.stringify(body),
