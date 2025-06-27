@@ -128,3 +128,5 @@ export function resetAllRateLimiters(): void {
     passwordResetExecutionLimiter.clear()
   }
 }
+
+// The RateLimiter class is already exported above

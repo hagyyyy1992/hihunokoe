@@ -288,6 +288,8 @@ export class AuthHelper {
   }
 
   async expectErrorMessage(message: string) {
+    // Wait for error message to appear with a longer timeout for webkit
+    await this.page.waitForSelector('[data-testid="error-message"]', { timeout: 10000 })
     await expect(this.page.locator('[data-testid="error-message"]')).toContainText(message)
   }
 
