@@ -55,16 +55,16 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
   }
 
   // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
+  const toEmail = 'k69276780@gmail.com'
   if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
-        to,
+        to: toEmail,
         subject,
         html,
         text,
       })
-      console.log(`📧 Email sent to MailHog: ${to}`)
       return { success: true }
     } catch (error) {
       console.error('MailHog email error:', error)
@@ -87,18 +87,9 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
       // トラッキング設定をマージ
       const trackingOptions = tracking ? { ...defaultTracking, ...tracking } : defaultTracking
 
-      console.log('Sending email via Resend with params:', {
-        from: fromEmail,
-        to,
-        subject,
-        hasHtml: !!html,
-        hasText: !!text,
-        tags: trackingOptions.tags,
-      })
-
       const result = await resend!.emails.send({
         from: fromEmail,
-        to,
+        to: toEmail,
         subject,
         html,
         text,
@@ -109,24 +100,12 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
 
       const messageId = result.data?.id
 
-      console.log(`📧 Email send result:`, {
-        success: !!result.data,
-        to,
-        from: fromEmail,
-        subject,
-        messageId,
-        environment,
-        tracking: trackingOptions,
-        error: result.error,
-        fullResult: result,
-      })
-
       // メール送信ログをSupabaseに記録
       if (messageId) {
         try {
           await logEmailSend({
             resendId: messageId,
-            to,
+            to: toEmail,
             from: fromEmail,
             subject,
             environment,
@@ -143,7 +122,7 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
         error,
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
-        to,
+        to: toEmail,
         subject,
         fromEmail,
       })
