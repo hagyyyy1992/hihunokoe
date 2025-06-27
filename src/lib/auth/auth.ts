@@ -104,7 +104,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
         allergiesOther: data.allergiesOther,
         bodyType: data.bodyType,
         bodyTypeOther: data.bodyTypeOther,
-        emailVerified: true, // 一時的にメール認証をスキップ
+        emailVerified: false,
       },
     })
 

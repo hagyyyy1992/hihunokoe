@@ -30,12 +30,14 @@ export async function POST(request: NextRequest) {
     // ユーザー名とメールアドレスの重複チェックは Prisma のユニーク制約で行われる
     const user = await registerUser(validatedData)
 
-    // 確認メールを送信
     try {
       await sendVerificationEmail(user.id, user.email, user.userName)
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError)
-      // メール送信に失敗してもユーザー登録は成功とする
+      return NextResponse.json(
+        { error: 'ユーザー登録は完了しましたが、確認メールの送信に失敗しました。後ほど再送信をお試しください。' },
+        { status: 500 }
+      )
     }
 
     const response = NextResponse.json({
