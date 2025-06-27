@@ -3,9 +3,15 @@ jest.mock('../../../src/lib/auth/auth', () => ({
   registerUser: jest.fn(),
 }))
 
+// Mock the email verification module
+jest.mock('../../../src/lib/auth/email-verification', () => ({
+  sendVerificationEmail: jest.fn(),
+}))
+
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
 import { SkinType } from '../../../src/types'
 import { Gender, AllergyType, BodyType } from '@prisma/client'
 
@@ -13,9 +19,14 @@ const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
 >
 
+const mockSendVerificationEmail = emailVerificationModule.sendVerificationEmail as jest.MockedFunction<
+  typeof emailVerificationModule.sendVerificationEmail
+>
+
 describe('/api/auth/register', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSendVerificationEmail.mockResolvedValue(undefined)
   })
 
   const createRequest = (body: any) => {

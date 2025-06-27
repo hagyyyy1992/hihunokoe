@@ -5,10 +5,15 @@ jest.mock('../../../src/lib/auth/auth', () => ({
   generateToken: jest.fn(),
 }))
 
+jest.mock('../../../src/lib/auth/email-verification', () => ({
+  sendVerificationEmail: jest.fn(),
+}))
+
 import { NextRequest } from 'next/server'
 import { POST as loginPost } from '../../../src/app/api/auth/login/route'
 import { POST as registerPost } from '../../../src/app/api/auth/register/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
 
 const mockLoginUser = authModule.loginUser as jest.MockedFunction<typeof authModule.loginUser>
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
@@ -17,10 +22,14 @@ const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
 const mockGenerateToken = authModule.generateToken as jest.MockedFunction<
   typeof authModule.generateToken
 >
+const mockSendVerificationEmail = emailVerificationModule.sendVerificationEmail as jest.MockedFunction<
+  typeof emailVerificationModule.sendVerificationEmail
+>
 
 describe('Email Verification Flow', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSendVerificationEmail.mockResolvedValue(undefined)
   })
 
   const createRequest = (url: string, body: any) => {
