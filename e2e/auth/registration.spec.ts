@@ -24,10 +24,10 @@ test.describe('ユーザー登録', () => {
 
     await page.click('[data-testid="register-button"]')
 
-    // 登録成功後は登録完了ページにリダイレクトされる
+    // メール認証が有効な場合は登録完了ページにリダイレクトされる
     await expect(page).toHaveURL(/\/auth\/registration-complete/, { timeout: 15000 })
 
-    // 成功メッセージを確認
+    // 登録完了メッセージを確認
     await authHelper.expectSuccessMessage('アカウントが作成されました')
   })
 
@@ -100,7 +100,7 @@ test.describe('ユーザー登録', () => {
     await page.click('[data-testid="register-button"]')
 
     // エラーメッセージを確認（実際のエラーメッセージに合わせる）
-    await authHelper.expectErrorMessage('ユーザー登録に失敗しました')
+    await authHelper.expectErrorMessage('ユーザー名またはメールアドレスが既に使用されています')
   })
 
   test('必須フィールドの動的バリデーション', async ({ page }) => {

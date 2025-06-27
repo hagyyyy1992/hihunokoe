@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registerUser, generateToken } from '@/lib/auth/auth'
-// import { sendVerificationEmail } from '@/lib/auth/email-verification'
+import { registerUser } from '@/lib/auth/auth'
+import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 
@@ -30,16 +30,38 @@ export async function POST(request: NextRequest) {
     // ユーザー名とメールアドレスの重複チェックは Prisma のユニーク制約で行われる
     const user = await registerUser(validatedData)
 
-    // 一時的にメール認証をスキップ - 登録後すぐログイン可能
-    const token = generateToken(user)
+    try {
+      // リクエストから動的にベースURLを取得
+      const host = request.headers.get('host')
+      const protocol = request.headers.get('x-forwarded-proto') || 'http'
+      const baseUrl = host ? `${protocol}://${host}` : undefined
 
-    // 確認メールを送信（一時的にコメントアウト）
-    // try {
-    //   await sendVerificationEmail(user.id, user.email, user.userName)
-    // } catch (emailError) {
-    //   console.error('Failed to send verification email:', emailError)
-    //   // メール送信に失敗してもユーザー登録は成功とする
-    // }
+      await sendVerificationEmail(user.id, user.email, user.userName, baseUrl)
+    } catch (emailError) {
+      console.error('Failed to send verification email:', {
+        error: emailError,
+        message: emailError instanceof Error ? emailError.message : 'Unknown error',
+        stack: emailError instanceof Error ? emailError.stack : undefined,
+        userId: user.id,
+        email: user.email,
+      })
+
+      // エラーメッセージを返すが、ユーザー登録自体は成功扱いとする
+      return NextResponse.json(
+        {
+          user: {
+            id: user.id,
+            userName: user.userName,
+            email: user.email,
+            emailVerified: false,
+          },
+          error:
+            'ユーザー登録は完了しましたが、確認メールの送信に失敗しました。後ほど再送信をお試しください。',
+          message: 'ユーザー登録は完了しました。',
+        },
+        { status: 201 }
+      )
+    }
 
     const response = NextResponse.json({
       user: {
@@ -56,24 +78,27 @@ export async function POST(request: NextRequest) {
         bodyTypeOther: user.bodyTypeOther,
         emailVerified: user.emailVerified,
       },
-      message: 'ユーザー登録が完了しました。ログインして始めましょう！',
-      token,
-    })
-
-    // 登録後すぐにログイン可能にする
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7日間
-      path: '/', // WebKit環境での互換性向上
+      message: 'ユーザー登録が完了しました。確認メールをご確認ください。',
     })
 
     return response
   } catch (error: unknown) {
-    console.error('Registration error:', error)
+    // P2002 (重複エラー) は想定される動作のため、debug レベルでログ出力
+    if (
+      !(
+        (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') ||
+        (error instanceof Error &&
+          error.message.includes('ユーザー名またはメールアドレスが既に使用されています'))
+      )
+    ) {
+      console.error('Registration error:', error)
+    }
 
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (
+      (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') ||
+      (error instanceof Error &&
+        error.message.includes('ユーザー名またはメールアドレスが既に使用されています'))
+    ) {
       return NextResponse.json(
         { error: 'ユーザー名またはメールアドレスが既に使用されています' },
         { status: 400 }

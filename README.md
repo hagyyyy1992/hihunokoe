@@ -93,7 +93,22 @@ npm run dev
 ```bash
 # 本番環境のみ設定
 RESEND_API_KEY="your_resend_api_key"
+FROM_EMAIL="noreply@yourdomain.com"  # オプション（デフォルト値あり）
+NEXT_PUBLIC_BASE_URL="https://yourdomain.com"  # オプション（メール認証リンク用）
 ```
+
+### Vercel環境変数設定
+
+Vercelでメール送信機能を有効にするには、以下の環境変数を設定してください：
+
+**必須:**
+
+- `RESEND_API_KEY`: ResendのAPIキー
+
+**オプション:**
+
+- `FROM_EMAIL`: 送信元メールアドレス（デフォルト: noreply@yourdomain.com）
+- `NEXT_PUBLIC_BASE_URL`: 本番ドメイン（メール認証リンク用、デフォルト: http://localhost:3000）
 
 ### 開発環境URL
 

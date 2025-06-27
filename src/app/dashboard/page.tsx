@@ -15,7 +15,6 @@ interface Post {
   user: {
     id: string
     userName: string
-    displayName?: string
   }
   _count?: {
     empathies: number
@@ -169,9 +168,7 @@ export default function DashboardPage() {
                       className="block p-3 border border-gray-100 rounded-md hover:bg-gray-50 transition-colors"
                     >
                       <div className="font-medium text-gray-900 truncate">{post.title}</div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        by {post.user.displayName || post.user.userName}
-                      </div>
+                      <div className="text-sm text-gray-600 mt-1">by {post.user.userName}</div>
                       <div className="text-sm text-gray-600">コスメ: {post.cosmeticName}</div>
                       <div className="text-xs text-gray-500 mt-1">
                         {new Date(post.publishedAt).toLocaleDateString('ja-JP')}

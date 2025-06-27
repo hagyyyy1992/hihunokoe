@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      // HttpOnly Cookie にトークンを設定
+      // 既存のauth-tokenクッキーをクリアしてから新しいトークンを設定
+      response.cookies.delete('auth-token')
       response.cookies.set('auth-token', authToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

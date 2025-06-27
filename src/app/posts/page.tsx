@@ -18,7 +18,6 @@ interface Post {
   user: {
     id: string
     userName: string
-    displayName?: string
     skinType?: string
   }
   _count: {

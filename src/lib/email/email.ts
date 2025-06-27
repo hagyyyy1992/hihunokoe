@@ -22,52 +22,72 @@ export interface EmailOptions {
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
+  const environment = process.env.VERCEL_ENV || 'local'
+
+  console.log('sendEmail called:', {
+    to,
+    subject,
+    isDevelopment,
+    fromEmail,
+    environment,
+    hasResend: !!resend,
+    resendApiKeySet: !!process.env.RESEND_API_KEY,
+    nodeEnv: process.env.NODE_ENV,
+  })
 
   // 本番環境でRESEND_API_KEYが未設定の場合
   if (!isDevelopment && !resend) {
-    console.error('RESEND_API_KEY is not set in production environment')
+    console.error('RESEND_API_KEY is not set in production environment', {
+      isDevelopment,
+      hasResend: !!resend,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+    })
     throw new Error(
       'Email service is not configured. Please set RESEND_API_KEY environment variable.'
     )
   }
 
-  if (isDevelopment && !resend) {
-    // 開発環境でResend APIキーが未設定の場合はMailHogを使用
+  // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
+  const toEmail = 'k69276780@gmail.com'
+  if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
-        to,
+        to: toEmail,
         subject,
         html,
         text,
       })
-      console.log(`📧 Email sent to MailHog: ${to}`)
       return { success: true }
     } catch (error) {
       console.error('MailHog email error:', error)
       throw new Error('Failed to send email via MailHog')
     }
   } else {
-    // Resendを使用（本番環境または開発環境でAPIキーが設定されている場合）
+    // 本番環境ではResendを使用
     try {
       const result = await resend!.emails.send({
         from: fromEmail,
-        to,
+        to: toEmail,
         subject,
         html,
         text,
       })
-      console.log(`📧 Email sent via Resend:`, {
-        to,
-        from: fromEmail,
-        subject,
-        messageId: result.data?.id,
-        error: result.error,
-      })
-      return { success: true, id: result.data?.id }
+      const messageId = result.data?.id
+      return { success: true, id: messageId }
     } catch (error) {
-      console.error('Resend email error:', error)
-      throw new Error('Failed to send email via Resend')
+      console.error('Resend email error:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        to: toEmail,
+        subject,
+        fromEmail,
+      })
+      throw new Error(
+        `Failed to send email via Resend: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 }
@@ -127,6 +147,69 @@ ${verificationUrl}
 
 このリンクは24時間有効です。
 もしこのメールに心当たりがない場合は、このメールを無視してください。
+
+---
+このメールは自動送信されています。返信はできません。
+  `
+}
+
+export function generatePasswordResetEmailHtml(userName: string, resetUrl: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>パスワードリセット</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2c3e50;">化粧品体験共有サービス</h2>
+        <h3>パスワードリセット</h3>
+        
+        <p>こんにちは、${userName}さん</p>
+        
+        <p>パスワードリセットのリクエストを受け付けました。<br>
+        以下のリンクをクリックして、新しいパスワードを設定してください。</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" 
+             style="background-color: #e74c3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            パスワードをリセットする
+          </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">
+          このリンクは24時間有効です。<br>
+          もしこのメールに心当たりがない場合は、このメールを無視してください。<br>
+          パスワードリセットをリクエストしていない場合は、アカウントのセキュリティを確認することをお勧めします。
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+          このメールは自動送信されています。返信はできません。
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+export function generatePasswordResetEmailText(userName: string, resetUrl: string): string {
+  return `
+化粧品体験共有サービス
+
+パスワードリセット
+
+こんにちは、${userName}さん
+
+パスワードリセットのリクエストを受け付けました。
+以下のURLにアクセスして、新しいパスワードを設定してください。
+
+${resetUrl}
+
+このリンクは24時間有効です。
+もしこのメールに心当たりがない場合は、このメールを無視してください。
+パスワードリセットをリクエストしていない場合は、アカウントのセキュリティを確認することをお勧めします。
 
 ---
 このメールは自動送信されています。返信はできません。

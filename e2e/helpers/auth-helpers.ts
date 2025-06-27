@@ -189,8 +189,8 @@ export class AuthHelper {
       }
     } else {
       // Desktop view
-      // Check if user is already logged out by looking for desktop login link in hidden section
-      const desktopLoginLink = this.page.locator('.hidden.md\\:flex [data-testid="login-link"]')
+      // Check if user is already logged out by looking for desktop login link
+      const desktopLoginLink = this.page.locator('[data-testid="login-link"]')
       try {
         await expect(desktopLoginLink).toBeVisible({ timeout: 1000 })
         // User is already logged out, nothing to do
@@ -199,10 +199,8 @@ export class AuthHelper {
         // User is logged in, proceed with logout
       }
 
-      // Click desktop logout button - use button element in hidden section
-      const desktopLogoutButton = this.page.locator(
-        '.hidden.md\\:flex button[data-testid="logout-button"]'
-      )
+      // Click desktop logout button
+      const desktopLogoutButton = this.page.locator('[data-testid="logout-button"]')
       await expect(desktopLogoutButton).toBeVisible({ timeout: 5000 })
       await desktopLogoutButton.click()
     }
@@ -224,10 +222,8 @@ export class AuthHelper {
       const mobileUserMenuButton = this.page.getByTestId('user-menu-button').last()
       await expect(mobileUserMenuButton).toBeVisible({ timeout: 5000 })
     } else {
-      // Desktop view - target the span in desktop nav
-      const desktopUserMenuButton = this.page.locator(
-        '.hidden.md\\:flex span[data-testid="user-menu-button"]'
-      )
+      // Desktop view - target the user menu button
+      const desktopUserMenuButton = this.page.locator('[data-testid="user-menu-button"]')
       await expect(desktopUserMenuButton).toBeVisible({ timeout: 5000 })
     }
   }
@@ -285,12 +281,15 @@ export class AuthHelper {
       }
     } else {
       // Desktop view - target the login link in desktop nav
-      const desktopLoginLink = this.page.locator('.hidden.md\\:flex [data-testid="login-link"]')
+      // Use simpler selector that doesn't rely on complex CSS combinations
+      const desktopLoginLink = this.page.locator('[data-testid="login-link"]')
       await expect(desktopLoginLink).toBeVisible({ timeout: 5000 })
     }
   }
 
   async expectErrorMessage(message: string) {
+    // Wait for error message to appear with a longer timeout for webkit
+    await this.page.waitForSelector('[data-testid="error-message"]', { timeout: 10000 })
     await expect(this.page.locator('[data-testid="error-message"]')).toContainText(message)
   }
 

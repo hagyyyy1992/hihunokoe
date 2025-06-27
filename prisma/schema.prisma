@@ -20,6 +20,8 @@ model User {
   emailVerificationExpiry DateTime?        @map("email_verification_expiry") @db.Timestamptz(6)
   emailVerificationToken  String?          @map("email_verification_token") @db.VarChar(255)
   emailVerified           Boolean          @default(false) @map("email_verified")
+  passwordResetToken      String?          @map("password_reset_token") @db.VarChar(255)
+  passwordResetExpiry     DateTime?        @map("password_reset_expiry") @db.Timestamptz(6)
   birthDate               DateTime?        @map("birth_date") @db.Date
   gender                  Gender?          @map("gender")
   allergies               AllergyType[]    @map("allergies")

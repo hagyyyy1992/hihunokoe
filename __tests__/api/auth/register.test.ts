@@ -1,25 +1,33 @@
 // Mock the auth module first
 jest.mock('../../../src/lib/auth/auth', () => ({
   registerUser: jest.fn(),
-  generateToken: jest.fn(),
+}))
+
+// Mock the email verification module
+jest.mock('../../../src/lib/auth/email-verification', () => ({
+  sendVerificationEmail: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
 import * as authModule from '../../../src/lib/auth/auth'
+import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
 import { SkinType } from '../../../src/types'
 import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
 >
-const mockGenerateToken = authModule.generateToken as jest.MockedFunction<
-  typeof authModule.generateToken
->
+
+const mockSendVerificationEmail =
+  emailVerificationModule.sendVerificationEmail as jest.MockedFunction<
+    typeof emailVerificationModule.sendVerificationEmail
+  >
 
 describe('/api/auth/register', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSendVerificationEmail.mockResolvedValue(undefined)
   })
 
   const createRequest = (body: any) => {
@@ -57,12 +65,9 @@ describe('/api/auth/register', () => {
         allergiesOther: null,
         bodyType: 'atopic' as BodyType,
         bodyTypeOther: null,
-        emailVerified: true,
+        emailVerified: false,
       }
-      const mockToken = 'mock-jwt-token'
-
       mockRegisterUser.mockResolvedValue(mockUser)
-      mockGenerateToken.mockReturnValue(mockToken)
 
       const request = createRequest(validRegistrationData)
 
@@ -84,10 +89,8 @@ describe('/api/auth/register', () => {
         bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
-      expect(data.message).toBe('ユーザー登録が完了しました。ログインして始めましょう！')
-      expect(data.token).toBe(mockToken)
+      expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
       expect(mockRegisterUser).toHaveBeenCalledWith(validRegistrationData)
-      expect(mockGenerateToken).toHaveBeenCalledWith(mockUser)
     })
 
     it('最小限の必須フィールドでユーザー登録が成功する', async () => {
@@ -109,12 +112,9 @@ describe('/api/auth/register', () => {
         allergiesOther: undefined,
         bodyType: undefined,
         bodyTypeOther: undefined,
-        emailVerified: true,
+        emailVerified: false,
       }
-      const mockToken = 'mock-jwt-token'
-
       mockRegisterUser.mockResolvedValue(mockUser)
-      mockGenerateToken.mockReturnValue(mockToken)
 
       const request = createRequest(minimalData)
 
@@ -273,11 +273,10 @@ describe('/api/auth/register', () => {
           userName: 'testuser',
           email: 'test@example.com',
           skinType: skinType as SkinType,
-          emailVerified: true,
+          emailVerified: false,
         }
 
         mockRegisterUser.mockResolvedValue(mockUser)
-        mockGenerateToken.mockReturnValue('mock-token')
 
         const request = createRequest(testData)
         const response = await POST(request)
@@ -287,6 +286,175 @@ describe('/api/auth/register', () => {
         // Clear mocks for next iteration
         jest.clearAllMocks()
       }
+    })
+
+    it('確認メール送信に失敗してもユーザー登録は成功する（エラーケース）', async () => {
+      const mockUser = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
+        skinTypeOther: null,
+        allergies: ['fragrance' as AllergyType],
+        allergiesOther: null,
+        bodyType: 'atopic' as BodyType,
+        bodyTypeOther: null,
+        emailVerified: false,
+      }
+
+      mockRegisterUser.mockResolvedValue(mockUser)
+      mockSendVerificationEmail.mockRejectedValue(new Error('Email service error'))
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest(validRegistrationData)
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(201)
+      expect(data.user).toBeDefined()
+      expect(data.message).toBe('ユーザー登録は完了しました。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to send verification email:',
+        expect.objectContaining({
+          error: expect.any(Error),
+          message: 'Email service error',
+          stack: expect.any(String),
+          userId: '1',
+          email: 'test@example.com',
+        })
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('非Errorオブジェクトのメール送信エラーを処理', async () => {
+      const mockUser = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
+        skinTypeOther: null,
+        allergies: ['fragrance' as AllergyType],
+        allergiesOther: null,
+        bodyType: 'atopic' as BodyType,
+        bodyTypeOther: null,
+        emailVerified: false,
+      }
+
+      mockRegisterUser.mockResolvedValue(mockUser)
+      mockSendVerificationEmail.mockRejectedValue('String error')
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest(validRegistrationData)
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(201)
+      expect(data.user).toBeDefined()
+      expect(data.message).toBe('ユーザー登録は完了しました。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to send verification email:',
+        expect.objectContaining({
+          error: 'String error',
+          message: 'Unknown error',
+          stack: undefined,
+          userId: '1',
+          email: 'test@example.com',
+        })
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('hostヘッダーがない場合のbaseURL処理', async () => {
+      const mockUser = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
+        skinTypeOther: null,
+        allergies: ['fragrance' as AllergyType],
+        allergiesOther: null,
+        bodyType: 'atopic' as BodyType,
+        bodyTypeOther: null,
+        emailVerified: false,
+      }
+
+      mockRegisterUser.mockResolvedValue(mockUser)
+      mockSendVerificationEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // hostヘッダーを設定しない
+        },
+        body: JSON.stringify(validRegistrationData),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.user).toBeDefined()
+      expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
+      expect(mockSendVerificationEmail).toHaveBeenCalledWith(
+        '1',
+        'test@example.com',
+        'testuser',
+        undefined
+      )
+    })
+
+    it('x-forwarded-protoヘッダーがない場合のプロトコル処理', async () => {
+      const mockUser = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+        birthDate: new Date('1990-01-01'),
+        gender: 'male' as Gender,
+        skinType: 'normal' as SkinType,
+        skinTypeOther: null,
+        allergies: ['fragrance' as AllergyType],
+        allergiesOther: null,
+        bodyType: 'atopic' as BodyType,
+        bodyTypeOther: null,
+        emailVerified: false,
+      }
+
+      mockRegisterUser.mockResolvedValue(mockUser)
+      mockSendVerificationEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          host: 'localhost:3000',
+          // x-forwarded-protoヘッダーを設定しない
+        },
+        body: JSON.stringify(validRegistrationData),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.user).toBeDefined()
+      expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
+      expect(mockSendVerificationEmail).toHaveBeenCalledWith(
+        '1',
+        'test@example.com',
+        'testuser',
+        'http://localhost:3000'
+      )
     })
   })
 })
