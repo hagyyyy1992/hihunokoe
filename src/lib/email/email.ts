@@ -17,11 +17,6 @@ export interface EmailOptions {
   subject: string
   html: string
   text?: string
-  tracking?: {
-    open?: boolean
-    click?: boolean
-    tags?: Record<string, string>
-  }
 }
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
