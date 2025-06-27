@@ -310,3 +310,48 @@ docs/
     ├── troubleshooting.md              # トラブルシューティング
     └── legal-compliance.md             # 法的コンプライアンス
 ```
+
+## 将来的なアーキテクチャ方針
+
+### ⚠️ 注意：以下は将来的な設計方針であり、現在の実装とは異なります
+
+現在はNext.js App Routerを使用したモノリシックな構成ですが、将来的にはクリーンアーキテクチャへの段階的な移行を検討しています。
+
+**現在の構成との主な違い：**
+
+- 現在：Next.js単体のフルスタックアプリケーション
+- 将来：APIとWebを分離したモジュラーモノリス構成
+- 移行時期：未定（ビジネス要件に応じて検討）
+
+### クリーンアーキテクチャ構成例（将来的な参考）
+
+```
+api/
+   │──src/
+      │── domain/             # ドメイン層
+      │   │── entities/       # エンティティ
+      │   │── value-objects/  # 値オブジェクト
+      │   │── repositories/   # リポジトリインターフェース
+      │
+      │── usecases/ # ユースケース
+      │   │
+      │   │── user/
+      │   │   │── CreateUserUseCase.ts
+      │   │   │── UpdateUserUseCase.ts
+      │   │   │── GetUserUseCase.ts
+      │   │
+      │   │── admin/
+      │       │── AdminUseCase.ts
+      │       │── EmailTrackingUseCase.ts
+      │
+      │── interface-adapters/   # インターフェースアダプター層
+      │   │── repositories/     # リポジトリ実装
+      │
+      │── framework/            # フレームワーク層
+         │── controllers/      # コントローラー
+         │── graphql/          # GraphQL
+         │── prisma/           # Prisma DB
+         │── external-service/ # 外部サービス
+web/
+   │──src/...
+```
