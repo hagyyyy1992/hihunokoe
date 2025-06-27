@@ -24,7 +24,7 @@ export interface EmailOptions {
   }
 }
 
-export async function sendEmail({ to, subject, html, text, tracking }: EmailOptions) {
+export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
   const environment = process.env.VERCEL_ENV || 'local'
@@ -72,29 +72,12 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
   } else {
     // 本番環境ではResendを使用
     try {
-      // デフォルトのトラッキング設定
-      const defaultTracking = {
-        open: true,
-        click: true,
-        tags: {
-          environment,
-          version: process.env.VERCEL_GIT_COMMIT_SHA || 'unknown',
-          service: 'usaka',
-        },
-      }
-
-      // トラッキング設定をマージ
-      const trackingOptions = tracking ? { ...defaultTracking, ...tracking } : defaultTracking
-
       const result = await resend!.emails.send({
         from: fromEmail,
         to: toEmail,
         subject,
         html,
         text,
-        tags: trackingOptions.tags
-          ? Object.entries(trackingOptions.tags).map(([name, value]) => ({ name, value }))
-          : undefined,
       })
       const messageId = result.data?.id
       return { success: true, id: messageId }
