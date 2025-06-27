@@ -1,6 +1,5 @@
 import { Resend } from 'resend'
 import { createTransport } from 'nodemailer'
-import { logEmailSend } from './email-events'
 
 // 開発環境でResend APIキーが未設定の場合はnullで初期化
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
@@ -97,25 +96,7 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
           ? Object.entries(trackingOptions.tags).map(([name, value]) => ({ name, value }))
           : undefined,
       })
-
       const messageId = result.data?.id
-
-      // メール送信ログをSupabaseに記録
-      if (messageId) {
-        try {
-          await logEmailSend({
-            resendId: messageId,
-            to: toEmail,
-            from: fromEmail,
-            subject,
-            environment,
-          })
-        } catch (logError) {
-          console.warn('Failed to log email send to database:', logError)
-          // ログ失敗してもメール送信は成功とする
-        }
-      }
-
       return { success: true, id: messageId }
     } catch (error) {
       console.error('Resend email error:', {
