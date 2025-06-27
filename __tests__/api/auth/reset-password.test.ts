@@ -24,9 +24,10 @@ const mockPasswordResetExecutionLimiter = (rateLimiterModule as any).passwordRes
 const mockGetClientIP = rateLimiterModule.getClientIP as jest.MockedFunction<
   typeof rateLimiterModule.getClientIP
 >
-const mockCreateRateLimitErrorResponse = rateLimiterModule.createRateLimitErrorResponse as jest.MockedFunction<
-  typeof rateLimiterModule.createRateLimitErrorResponse
->
+const mockCreateRateLimitErrorResponse =
+  rateLimiterModule.createRateLimitErrorResponse as jest.MockedFunction<
+    typeof rateLimiterModule.createRateLimitErrorResponse
+  >
 
 describe('/api/auth/reset-password', () => {
   beforeEach(() => {
@@ -297,10 +298,12 @@ describe('/api/auth/reset-password', () => {
       const data = await response.json()
 
       expect(response.status).toBe(429)
-      expect(data.error).toBe('リクエストが多すぎます。しばらく時間をおいてから再試行してください。')
+      expect(data.error).toBe(
+        'リクエストが多すぎます。しばらく時間をおいてから再試行してください。'
+      )
       expect(data.retryAfter).toBe(180)
       expect(data.message).toBe('3分後に再試行してください。')
-      
+
       // レート制限ヘッダーが設定されていることを確認
       expect(response.headers.get('Retry-After')).toBeTruthy()
       expect(response.headers.get('X-RateLimit-Limit')).toBe('5')
@@ -316,7 +319,7 @@ describe('/api/auth/reset-password', () => {
         token: 'valid-token-12345',
         password: 'newPassword123',
       })
-      
+
       await POST(request)
 
       expect(mockGetClientIP).toHaveBeenCalledWith(request)

@@ -225,10 +225,12 @@ describe('/api/auth/forgot-password', () => {
       const data = await response.json()
 
       expect(response.status).toBe(429)
-      expect(data.error).toBe('リクエストが多すぎます。しばらく時間をおいてから再試行してください。')
+      expect(data.error).toBe(
+        'リクエストが多すぎます。しばらく時間をおいてから再試行してください。'
+      )
       expect(data.retryAfter).toBe(300)
       expect(data.message).toBe('5分後に再試行してください。')
-      
+
       // レート制限ヘッダーが設定されていることを確認
       expect(response.headers.get('Retry-After')).toBeTruthy()
       expect(response.headers.get('X-RateLimit-Limit')).toBe('3')
