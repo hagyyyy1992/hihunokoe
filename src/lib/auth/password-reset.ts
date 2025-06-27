@@ -29,11 +29,12 @@ export async function createPasswordResetToken(userId: string): Promise<string> 
 export async function sendPasswordResetEmail(
   userId: string,
   email: string,
-  userName: string
+  userName: string,
+  baseUrl?: string
 ): Promise<void> {
   const token = await createPasswordResetToken(userId)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`
+  const finalBaseUrl = baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const resetUrl = `${finalBaseUrl}/auth/reset-password?token=${token}`
 
   const htmlContent = generatePasswordResetEmailHtml(userName, resetUrl)
   const textContent = generatePasswordResetEmailText(userName, resetUrl)

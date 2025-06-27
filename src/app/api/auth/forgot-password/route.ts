@@ -28,7 +28,12 @@ export async function POST(request: NextRequest) {
 
       if (user) {
         try {
-          await sendPasswordResetEmail(user.id, user.email, user.userName)
+          // リクエストから動的にベースURLを取得
+          const host = request.headers.get('host')
+          const protocol = request.headers.get('x-forwarded-proto') || 'http'
+          const baseUrl = host ? `${protocol}://${host}` : undefined
+
+          await sendPasswordResetEmail(user.id, user.email, user.userName, baseUrl)
         } catch (emailError) {
           console.error('Failed to send password reset email:', emailError)
         }

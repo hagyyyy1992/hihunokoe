@@ -38,6 +38,8 @@ describe('/api/auth/forgot-password', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'host': 'localhost:3000',
+        'x-forwarded-proto': 'http',
       },
       body: JSON.stringify(body),
     })
@@ -70,7 +72,8 @@ describe('/api/auth/forgot-password', () => {
       expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
         'user123',
         'test@example.com',
-        'testuser'
+        'testuser',
+        'http://localhost:3000'
       )
     })
 
