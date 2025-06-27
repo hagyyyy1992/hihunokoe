@@ -65,12 +65,21 @@ test.describe('ログイン', () => {
   })
 
   test('ログイン成功後にリダイレクトされる', async ({ page }) => {
-    const newUser = generateRandomUser()
-    await authHelper.register(newUser)
-    await authHelper.logout()
+    // メール認証済みのデモユーザーを使用（新規登録ユーザーは未認証のためログインできない）
+    const demoUser = { email: 'demo@example.com', password: 'demo123' }
 
-    // ログアウト状態を確認
-    await authHelper.expectToBeLoggedOut()
+    // まずトップページに移動
+    await page.goto('/')
+
+    // ログアウト状態にする（既にログアウト状態の場合はエラーを無視）
+    try {
+      await authHelper.logout()
+    } catch (error) {
+      console.log(
+        'User was already logged out or logout failed:',
+        error instanceof Error ? error.message : String(error)
+      )
+    }
 
     // 保護されたページにアクセスを試行 - use domcontentloaded for better compatibility
     try {
@@ -84,20 +93,19 @@ test.describe('ログイン', () => {
     await expect(page).toHaveURL(/\/auth\/login/, { timeout: 15000 })
 
     // ログイン
-    await authHelper.login(newUser.email, newUser.password)
+    await authHelper.login(demoUser.email, demoUser.password)
 
     // 元々アクセスしようとしたページにリダイレクトされる
     await expect(page).toHaveURL(/\/dashboard/)
   })
 
   test('Remember me 機能のテスト', async ({ page, context }) => {
-    const newUser = generateRandomUser()
-    await authHelper.register(newUser)
-    await authHelper.logout()
+    // メール認証済みのデモユーザーを使用
+    const demoUser = { email: 'demo@example.com', password: 'demo123' }
 
     await page.goto('/auth/login')
-    await page.fill('[data-testid="email-input"]', newUser.email)
-    await page.fill('[data-testid="password-input"]', newUser.password)
+    await page.fill('[data-testid="email-input"]', demoUser.email)
+    await page.fill('[data-testid="password-input"]', demoUser.password)
 
     // Remember me チェックボックスをチェック
     await page.check('[data-testid="remember-me-checkbox"]')
@@ -115,7 +123,15 @@ test.describe('ログイン', () => {
   test('パスワードリセットリンクが機能する', async ({ page }) => {
     await page.goto('/auth/login')
 
-    await page.click('[data-testid="forgot-password-link"]')
+    // より確実にリンクがクリックされるように待機とナビゲーション検証を追加
+    await page.waitForSelector('[data-testid="forgot-password-link"]')
+
+    // ナビゲーション完了を待つ
+    const [response] = await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.click('[data-testid="forgot-password-link"]'),
+    ])
+
     await expect(page).toHaveURL(/\/auth\/forgot-password/)
 
     // パスワードリセットフォームが表示される
@@ -148,7 +164,15 @@ test.describe('ログイン', () => {
   })
 
   test('ログアウト機能が正常に動作する', async ({ page }) => {
-    const newUser = generateRandomUser()
+    // Mobile Safari用に複数回リトライするため、タイムスタンプを含むより一意性の高いユーザー名を使用
+    const timestamp = Date.now()
+    const randomId = Math.random().toString(36).substring(2, 15)
+    const newUser = {
+      username: `user_${timestamp}_${randomId}`,
+      email: `user_${timestamp}_${randomId}@example.com`,
+      password: 'testpassword123',
+    }
+
     await authHelper.register(newUser)
 
     // ログイン状態を確認

@@ -56,7 +56,7 @@ export async function verifyPasswordResetToken(token: string): Promise<{
     skinType?: string
     profileImageUrl?: string
   }
-}>{
+}> {
   const user = await prisma!.user.findFirst({
     where: {
       passwordResetToken: token,

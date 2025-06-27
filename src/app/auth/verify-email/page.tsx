@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth/AuthContext'
 function VerifyEmailContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('')
+  const [hasProcessed, setHasProcessed] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { refreshAuth } = useAuth()
@@ -21,7 +22,14 @@ function VerifyEmailContent() {
       return
     }
 
+    // 既に処理済みの場合は実行しない
+    if (hasProcessed) {
+      return
+    }
+
     const verifyEmail = async () => {
+      setHasProcessed(true)
+
       try {
         const response = await fetch(`/api/auth/verify-email?token=${token}`)
         const data = await response.json()
@@ -49,7 +57,7 @@ function VerifyEmailContent() {
     }
 
     verifyEmail()
-  }, [searchParams, router, refreshAuth])
+  }, [searchParams, router, refreshAuth, hasProcessed])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

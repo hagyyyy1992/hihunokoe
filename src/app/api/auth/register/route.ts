@@ -31,7 +31,12 @@ export async function POST(request: NextRequest) {
     const user = await registerUser(validatedData)
 
     try {
-      await sendVerificationEmail(user.id, user.email, user.userName)
+      // リクエストから動的にベースURLを取得
+      const host = request.headers.get('host')
+      const protocol = request.headers.get('x-forwarded-proto') || 'http'
+      const baseUrl = host ? `${protocol}://${host}` : undefined
+
+      await sendVerificationEmail(user.id, user.email, user.userName, baseUrl)
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError)
       return NextResponse.json(
@@ -60,9 +65,24 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error: unknown) {
-    console.error('Registration error:', error)
+    // P2002 (重複エラー) は想定される動作のため、debug レベルでログ出力
+    if (
+      (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') ||
+      (error instanceof Error &&
+        error.message.includes('ユーザー名またはメールアドレスが既に使用されています'))
+    ) {
+      console.debug('Registration: duplicate user detected', {
+        message: error instanceof Error ? error.message : 'unknown error',
+      })
+    } else {
+      console.error('Registration error:', error)
+    }
 
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (
+      (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') ||
+      (error instanceof Error &&
+        error.message.includes('ユーザー名またはメールアドレスが既に使用されています'))
+    ) {
       return NextResponse.json(
         { error: 'ユーザー名またはメールアドレスが既に使用されています' },
         { status: 400 }

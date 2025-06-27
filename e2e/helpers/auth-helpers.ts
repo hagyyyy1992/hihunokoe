@@ -3,12 +3,15 @@ import { Page, expect } from '@playwright/test'
 export class AuthHelper {
   constructor(private page: Page) {}
 
-  async register(userData: {
-    username: string
-    email: string
-    password: string
-    skinType?: string
-  }) {
+  async register(
+    userData: {
+      username: string
+      email: string
+      password: string
+      skinType?: string
+    },
+    expectSuccess: boolean = true
+  ) {
     await this.page.goto('/auth/register')
 
     await this.page.fill('[data-testid="username-input"]', userData.username)
@@ -23,27 +26,38 @@ export class AuthHelper {
     // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
-    // Wait for registration to complete with longer timeout
-    try {
-      await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
-    } catch (error) {
-      // Check for error messages on registration page
-      const errorElement = this.page.locator('[data-testid="error-message"]')
-      const hasError = await errorElement.isVisible()
-      if (hasError) {
-        const errorText = await errorElement.textContent()
-        throw new Error(`Registration failed with error: ${errorText}`)
+    if (expectSuccess) {
+      // Wait for registration to complete and redirect to registration-complete page
+      try {
+        // Add extra delay for Mobile Safari
+        const userAgent = await this.page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        if (isMobileSafari) {
+          await this.page.waitForTimeout(2000)
+        }
+        await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 30000 })
+      } catch (error) {
+        // Check for error messages on registration page
+        const errorElement = this.page.locator('[data-testid="error-message"]')
+        const hasError = await errorElement.isVisible()
+        if (hasError) {
+          const errorText = await errorElement.textContent()
+          throw new Error(`Registration failed with error: ${errorText}`)
+        }
+
+        // If no error message but still on registration page, check current URL
+        const currentUrl = this.page.url()
+        throw new Error(
+          `Registration failed - expected registration-complete page but got: ${currentUrl}`
+        )
       }
 
-      // If no error message but still on registration page, check current URL
-      const currentUrl = this.page.url()
-      throw new Error(
-        `Registration failed - expected registration-complete page but got: ${currentUrl}`
-      )
+      // After registration, manually login since registration doesn't auto-login
+      await this.login(userData.email, userData.password)
+    } else {
+      // Wait a bit for potential redirect or error message
+      await this.page.waitForTimeout(2000)
     }
-
-    // After registration, user needs to log in manually since registration doesn't auto-login
-    await this.login(userData.email, userData.password)
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {
@@ -58,22 +72,28 @@ export class AuthHelper {
       try {
         await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 10000 })
       } catch (error) {
-        // Check for error messages on login page
-        const errorElement = this.page.locator('[data-testid="error-message"]')
-        const hasError = await errorElement.isVisible()
-        if (hasError) {
-          const errorText = await errorElement.textContent()
-          throw new Error(`Login failed with error: ${errorText}`)
+        try {
+          // Check for error messages on login page (with error handling for closed page)
+          const errorElement = this.page.locator('[data-testid="error-message"]')
+          const hasError = await errorElement.isVisible()
+          if (hasError) {
+            const errorText = await errorElement.textContent()
+            throw new Error(`Login failed with error: ${errorText}`)
+          }
+
+          // If no error message but still on login page, check current URL
+          const currentUrl = this.page.url()
+          console.log('Login failed - expected dashboard but got: ', currentUrl)
+
+          // Wait a bit more in case there's a delayed redirect
+          await this.page.waitForTimeout(2000)
+          const finalUrl = this.page.url()
+          throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
+        } catch (pageError) {
+          // If page is closed or inaccessible, throw original error
+          console.log('Page is no longer accessible during error handling:', pageError)
+          throw error
         }
-
-        // If no error message but still on login page, check current URL
-        const currentUrl = this.page.url()
-        console.log('Login failed - expected dashboard but got: ', currentUrl)
-
-        // Wait a bit more in case there's a delayed redirect
-        await this.page.waitForTimeout(2000)
-        const finalUrl = this.page.url()
-        throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
       }
     } else {
       // Wait a bit for any potential redirect, but don't expect success
@@ -88,9 +108,15 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
-      // Wait for menu to open
-      await this.page.waitForTimeout(300)
+
+      // Add extra handling for Mobile Safari
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 10000 })
+      await mobileMenuButton.click({ force: true, timeout: 10000 })
+      // Wait for menu to open with longer delay for Mobile Safari
+      await this.page.waitForTimeout(isMobileSafari ? 2000 : 1000)
 
       // Check if user is already logged out by checking for logout button
       const logoutButtons = this.page.getByTestId('logout-button')
@@ -163,8 +189,8 @@ export class AuthHelper {
       }
     } else {
       // Desktop view
-      // Check if user is already logged out by looking for desktop login link in hidden section
-      const desktopLoginLink = this.page.locator('.hidden.md\\:flex [data-testid="login-link"]')
+      // Check if user is already logged out by looking for desktop login link
+      const desktopLoginLink = this.page.locator('[data-testid="login-link"]')
       try {
         await expect(desktopLoginLink).toBeVisible({ timeout: 1000 })
         // User is already logged out, nothing to do
@@ -173,10 +199,8 @@ export class AuthHelper {
         // User is logged in, proceed with logout
       }
 
-      // Click desktop logout button - use button element in hidden section
-      const desktopLogoutButton = this.page.locator(
-        '.hidden.md\\:flex button[data-testid="logout-button"]'
-      )
+      // Click desktop logout button
+      const desktopLogoutButton = this.page.locator('[data-testid="logout-button"]')
       await expect(desktopLogoutButton).toBeVisible({ timeout: 5000 })
       await desktopLogoutButton.click()
     }
@@ -189,18 +213,17 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
-      await this.page.waitForTimeout(300)
+      await this.page.waitForTimeout(500)
 
       // Check for mobile user menu button - get the last one (mobile should be last)
       const mobileUserMenuButton = this.page.getByTestId('user-menu-button').last()
       await expect(mobileUserMenuButton).toBeVisible({ timeout: 5000 })
     } else {
-      // Desktop view - target the span in desktop nav
-      const desktopUserMenuButton = this.page.locator(
-        '.hidden.md\\:flex span[data-testid="user-menu-button"]'
-      )
+      // Desktop view - target the user menu button
+      const desktopUserMenuButton = this.page.locator('[data-testid="user-menu-button"]')
       await expect(desktopUserMenuButton).toBeVisible({ timeout: 5000 })
     }
   }
@@ -212,16 +235,23 @@ export class AuthHelper {
     if (isMobile) {
       // Mobile view - need to open menu first
       const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
-      await mobileMenuButton.click()
+
+      // Check if it's Mobile Safari
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
-      await this.page.waitForTimeout(300)
+      await this.page.waitForTimeout(500)
 
       // Check for mobile login link - wait for it to appear after logout
       let attempts = 0
       let hasVisibleLoginLink = false
+      const maxAttempts = isMobileSafari ? 10 : 5 // More attempts for Mobile Safari
 
-      while (attempts < 5 && !hasVisibleLoginLink) {
-        await this.page.waitForTimeout(500)
+      while (attempts < maxAttempts && !hasVisibleLoginLink) {
+        await this.page.waitForTimeout(isMobileSafari ? 1000 : 500)
         hasVisibleLoginLink = await this.page.evaluate(() => {
           const links = document.querySelectorAll('[data-testid="login-link"]')
           return Array.from(links).some(link => {
@@ -251,7 +281,8 @@ export class AuthHelper {
       }
     } else {
       // Desktop view - target the login link in desktop nav
-      const desktopLoginLink = this.page.locator('.hidden.md\\:flex [data-testid="login-link"]')
+      // Use simpler selector that doesn't rely on complex CSS combinations
+      const desktopLoginLink = this.page.locator('[data-testid="login-link"]')
       await expect(desktopLoginLink).toBeVisible({ timeout: 5000 })
     }
   }

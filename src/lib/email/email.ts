@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createTransport } from 'nodemailer'
+import { logEmailSend } from './email-events'
 
 // 開発環境でResend APIキーが未設定の場合はnullで初期化
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
@@ -17,11 +18,17 @@ export interface EmailOptions {
   subject: string
   html: string
   text?: string
+  tracking?: {
+    open?: boolean
+    click?: boolean
+    tags?: Record<string, string>
+  }
 }
 
-export async function sendEmail({ to, subject, html, text }: EmailOptions) {
+export async function sendEmail({ to, subject, html, text, tracking }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
+  const environment = process.env.VERCEL_ENV || 'local'
 
   // 本番環境でRESEND_API_KEYが未設定の場合
   if (!isDevelopment && !resend) {
@@ -31,8 +38,8 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     )
   }
 
-  if (isDevelopment && !resend) {
-    // 開発環境でResend APIキーが未設定の場合はMailHogを使用
+  // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
+  if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
@@ -48,23 +55,62 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
       throw new Error('Failed to send email via MailHog')
     }
   } else {
-    // Resendを使用（本番環境または開発環境でAPIキーが設定されている場合）
+    // 本番環境ではResendを使用
     try {
+      // デフォルトのトラッキング設定
+      const defaultTracking = {
+        open: true,
+        click: true,
+        tags: {
+          environment,
+          version: process.env.VERCEL_GIT_COMMIT_SHA || 'unknown',
+          service: 'usaka',
+        },
+      }
+
+      // トラッキング設定をマージ
+      const trackingOptions = tracking ? { ...defaultTracking, ...tracking } : defaultTracking
+
       const result = await resend!.emails.send({
         from: fromEmail,
         to,
         subject,
         html,
         text,
+        tags: trackingOptions.tags
+          ? Object.entries(trackingOptions.tags).map(([name, value]) => ({ name, value }))
+          : undefined,
       })
+
+      const messageId = result.data?.id
+
       console.log(`📧 Email sent via Resend:`, {
         to,
         from: fromEmail,
         subject,
-        messageId: result.data?.id,
+        messageId,
+        environment,
+        tracking: trackingOptions,
         error: result.error,
       })
-      return { success: true, id: result.data?.id }
+
+      // メール送信ログをSupabaseに記録
+      if (messageId) {
+        try {
+          await logEmailSend({
+            resendId: messageId,
+            to,
+            from: fromEmail,
+            subject,
+            environment,
+          })
+        } catch (logError) {
+          console.warn('Failed to log email send to database:', logError)
+          // ログ失敗してもメール送信は成功とする
+        }
+      }
+
+      return { success: true, id: messageId }
     } catch (error) {
       console.error('Resend email error:', error)
       throw new Error('Failed to send email via Resend')

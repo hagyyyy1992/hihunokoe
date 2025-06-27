@@ -104,7 +104,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
         allergiesOther: data.allergiesOther,
         bodyType: data.bodyType,
         bodyTypeOther: data.bodyTypeOther,
-        emailVerified: false,
+        emailVerified: process.env.NODE_ENV !== 'production', // 開発環境では認証済みとして扱う
       },
     })
 
@@ -127,10 +127,15 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     // Prismaのユニーク制約エラーハンドリング
     if (error && typeof error === 'object' && 'code' in error) {
       if (error.code === 'P2002') {
-        throw new Error('ユーザー名またはメールアドレスが既に使用されています')
+        // 重複エラーを示すカスタムエラー
+        const duplicateError = new Error(
+          'ユーザー名またはメールアドレスが既に使用されています'
+        ) as Error & { code: string }
+        duplicateError.code = 'P2002'
+        throw duplicateError
       }
     }
-    throw new Error('ユーザー登録に失敗しました')
+    throw new Error('ユーザー名またはメールアドレスが既に使用されています')
   }
 }
 

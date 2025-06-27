@@ -2,30 +2,35 @@
   "permissions": {
     "allow": [
       "Bash(mkdir:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm run format:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run:*)",
-      "Bash(pkill:*)",
+      "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(rg:*)",
       "Bash(find:*)",
-      "Bash(npm test)",
+      "Bash(pkill:*)",
+
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
       "Bash(npm test:*)",
-      "Bash(ls:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx prisma migrate dev:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c \"\nALTER TABLE users ADD COLUMN IF NOT EXISTS birth_date DATE;\nALTER TABLE users ADD COLUMN IF NOT EXISTS gender genders;\nALTER TABLE users ADD COLUMN IF NOT EXISTS allergies allergy_types[];\nALTER TABLE users ADD COLUMN IF NOT EXISTS allergies_other TEXT;\nALTER TABLE users ADD COLUMN IF NOT EXISTS body_type body_types;\nALTER TABLE users ADD COLUMN IF NOT EXISTS body_type_other VARCHAR(100);\nALTER TABLE users ADD COLUMN IF NOT EXISTS skin_type_other VARCHAR(100);\n\")",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c \"\nALTER TABLE users RENAME COLUMN skin_type TO skin_type_old;\nALTER TABLE users ADD COLUMN skin_type skin_types;\n\")",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c \"\nUPDATE users \nSET skin_type = CASE \n    WHEN skin_type_old = 'normal' THEN 'normal'::skin_types\n    WHEN skin_type_old = 'dry' THEN 'dry'::skin_types\n    WHEN skin_type_old = 'oily' THEN 'oily'::skin_types\n    WHEN skin_type_old = 'combination' THEN 'combination'::skin_types\n    WHEN skin_type_old = 'sensitive' THEN 'sensitive'::skin_types\n    ELSE NULL\nEND;\n\")",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c \"\nALTER TABLE users DROP COLUMN skin_type_old;\nALTER TABLE users DROP COLUMN display_name;\nALTER TABLE users ALTER COLUMN user_name TYPE VARCHAR(100);\n\")",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" npx prisma db pull)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" npx prisma generate)",
+      "Bash(npx playwright test:*)",
+
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
+      "Bash(git fetch:*)",
       "Bash(gh pr create:*)",
-      "Bash(git fetch:*)"
+      "Bash(gh pr edit:*)",
+
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker exec:*)",
+
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma migrate reset:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force --skip-seed)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma db push)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate deploy)"
     ],
     "deny": []
   }

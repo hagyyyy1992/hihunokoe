@@ -129,6 +129,51 @@ npm run mailhog:stop
 - Authentication routes in `src/app/api/auth/`
 - Post-related routes in `src/app/api/posts/`
 
+## Git Commit Message Conventions
+
+このプロジェクトでは、コミットメッセージの可読性と追跡性を向上させるため、以下の原則に従います。
+
+### Prefix形式
+
+```
+prefix: 〇〇なため、△△を追加/修正/削除
+```
+
+### 使用するPrefix
+
+- **feat**: 新しい機能の追加
+- **fix**: バグの修正
+- **docs**: ドキュメントのみの変更
+- **style**: コードの動作に影響しない変更（空白、フォーマット、セミコロンなど）
+- **refactor**: バグ修正や機能追加ではないコード改善
+- **perf**: パフォーマンス向上に関する変更
+- **test**: テストの追加や修正
+- **chore**: ビルドプロセス、補助ツール、ライブラリの変更
+
+### 具体例
+
+```bash
+# Good examples
+feat: ユーザー認証機能を強化するため、メール認証を追加
+fix: モバイル表示が崩れるため、ヘッダーのレスポンシブ対応を修正
+docs: 新規開発者向けにセットアップ手順を追加
+refactor: コードの可読性向上のため、認証ロジックを関数に分離
+test: E2Eテストの安定性向上のため、認証フローのテストを改善
+chore: CI/CDパイプラインの実行時間短縮のため、並列実行を追加
+
+# Bad examples
+fix: 修正
+feat: 追加
+update: 更新
+```
+
+### 原則
+
+1. **理由を明記する**: なぜその変更が必要だったのかを「〇〇なため」で表現
+2. **日本語で記述**: チーム内でのコミュニケーションを円滑にするため
+3. **適切なprefixを選択**: 変更の性質を正確に表現
+4. **コミットサイズを適切に**: 1つのprefixで表現できる範囲での変更
+
 ## Important Notes
 
 ### Environment Variables
@@ -185,6 +230,45 @@ npm run mailhog:stop
 5. **E2E testing**: Run `npm run test:e2e` before major releases
 6. **Code quality**: Run `npm run lint` and `npm run format` before committing
 
+### Pre-Push Checklist
+
+プッシュ前に必ず以下のチェックを実行してコード品質を保証する：
+
+```bash
+# フォーマット確認・修正
+npm run format
+
+# Lint確認・修正
+npm run lint
+
+# テスト実行
+npm test
+npm run test:e2e  # 重要な変更の場合
+
+# TypeScript型チェック
+npx tsc --noEmit
+```
+
+**自動化推奨**: Huskyやgit hookを使用して、これらのチェックを自動化することを推奨します。
+
+### Claude Code への指示
+
+Claude Codeは、ユーザーからpushやデプロイを依頼された際、**必ず**以下の手順を実行すること：
+
+1. **事前チェック実行**: push前に下記コマンドを直列実行
+
+   ```bash
+   npm run format && npm run lint && npm test && npx tsc --noEmit
+   ```
+
+2. **エラーハンドリング**:
+
+   - いずれかのコマンドが失敗した場合、pushを中止し原因を調査して修正して、修正完了後に再度チェックを実行
+
+3. **成功時のみpush**: 全てのチェックが成功した場合のみgit pushを実行
+
+この手順は**必須**であり、ユーザーが「pushして」と依頼した場合でも、事前チェックなしのpushは禁止します。
+
 ## 文書構成
 
 ```
@@ -225,4 +309,49 @@ docs/
     ├── maintenance.md                  # 保守・運用
     ├── troubleshooting.md              # トラブルシューティング
     └── legal-compliance.md             # 法的コンプライアンス
+```
+
+## 将来的なアーキテクチャ方針
+
+### ⚠️ 注意：以下は将来的な設計方針であり、現在の実装とは異なります
+
+現在はNext.js App Routerを使用したモノリシックな構成ですが、将来的にはクリーンアーキテクチャへの段階的な移行を検討しています。
+
+**現在の構成との主な違い：**
+
+- 現在：Next.js単体のフルスタックアプリケーション
+- 将来：APIとWebを分離したモジュラーモノリス構成
+- 移行時期：未定（ビジネス要件に応じて検討）
+
+### クリーンアーキテクチャ構成例（将来的な参考）
+
+```
+api/
+   │──src/
+      │── domain/             # ドメイン層
+      │   │── entities/       # エンティティ
+      │   │── value-objects/  # 値オブジェクト
+      │   │── repositories/   # リポジトリインターフェース
+      │
+      │── usecases/ # ユースケース
+      │   │
+      │   │── user/
+      │   │   │── CreateUserUseCase.ts
+      │   │   │── UpdateUserUseCase.ts
+      │   │   │── GetUserUseCase.ts
+      │   │
+      │   │── admin/
+      │       │── AdminUseCase.ts
+      │       │── EmailTrackingUseCase.ts
+      │
+      │── interface-adapters/   # インターフェースアダプター層
+      │   │── repositories/     # リポジトリ実装
+      │
+      │── framework/            # フレームワーク層
+         │── controllers/      # コントローラー
+         │── graphql/          # GraphQL
+         │── prisma/           # Prisma DB
+         │── external-service/ # 外部サービス
+web/
+   │──src/...
 ```
