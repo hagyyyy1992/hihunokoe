@@ -1,4 +1,5 @@
 import {
+  RateLimiter,
   passwordResetLimiter,
   passwordResetExecutionLimiter,
   getClientIP,
@@ -219,6 +220,47 @@ describe('Rate Limiter', () => {
       expect(result.remaining).toBe(2) // 新しいエントリなので最大値-1
 
       Date.now = originalNow
+    })
+
+    it('setIntervalによるcleanup()で期限切れエントリが削除される', () => {
+      const originalNow = Date.now
+      const originalSetInterval = global.setInterval
+      const originalClearInterval = global.clearInterval
+
+      let mockTime = 1000000
+      let cleanupCallback: (() => void) | undefined
+
+      Date.now = jest.fn(() => mockTime)
+      global.setInterval = jest.fn((callback: any) => {
+        cleanupCallback = callback
+        return 123 as any
+      }) as any
+      global.clearInterval = jest.fn()
+
+      // 新しいレート制限インスタンスを作成（cleanup setIntervalが設定される）
+      const testLimiter = new RateLimiter({
+        maxRequests: 3,
+        windowMs: 15 * 60 * 1000,
+      })
+
+      // 複数のエントリを作成
+      testLimiter.checkLimit('127.0.0.1')
+      testLimiter.checkLimit('192.168.1.1')
+      testLimiter.checkLimit('10.0.0.1')
+      expect(testLimiter.size()).toBe(3)
+
+      // 時間を進めて期限切れにする
+      mockTime += 16 * 60 * 1000 // 16分後
+
+      // cleanup()を手動実行
+      cleanupCallback?.()
+
+      // 期限切れエントリがすべて削除される
+      expect(testLimiter.size()).toBe(0)
+
+      Date.now = originalNow
+      global.setInterval = originalSetInterval
+      global.clearInterval = originalClearInterval
     })
 
     it('size()メソッドで現在のエントリ数を取得できる', () => {

@@ -8,7 +8,7 @@ interface RateLimitConfig {
   maxRequests: number
 }
 
-class RateLimiter {
+export class RateLimiter {
   private store = new Map<string, RateLimitEntry>()
   private config: RateLimitConfig
 
