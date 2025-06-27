@@ -36,15 +36,41 @@ export async function POST(request: NextRequest) {
       const protocol = request.headers.get('x-forwarded-proto') || 'http'
       const baseUrl = host ? `${protocol}://${host}` : undefined
 
+      console.log('Attempting to send verification email:', {
+        userId: user.id,
+        email: user.email,
+        userName: user.userName,
+        host,
+        protocol,
+        baseUrl,
+        envBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+      })
+
       await sendVerificationEmail(user.id, user.email, user.userName, baseUrl)
+      console.log('Verification email sent successfully')
     } catch (emailError) {
-      console.error('Failed to send verification email:', emailError)
+      console.error('Failed to send verification email:', {
+        error: emailError,
+        message: emailError instanceof Error ? emailError.message : 'Unknown error',
+        stack: emailError instanceof Error ? emailError.stack : undefined,
+        userId: user.id,
+        email: user.email,
+      })
+
+      // エラーメッセージを返すが、ユーザー登録自体は成功扱いとする
       return NextResponse.json(
         {
+          user: {
+            id: user.id,
+            userName: user.userName,
+            email: user.email,
+            emailVerified: false,
+          },
           error:
             'ユーザー登録は完了しましたが、確認メールの送信に失敗しました。後ほど再送信をお試しください。',
+          message: 'ユーザー登録は完了しました。',
         },
-        { status: 500 }
+        { status: 201 }
       )
     }
 

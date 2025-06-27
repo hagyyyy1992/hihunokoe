@@ -135,7 +135,13 @@ describe('/api/auth/forgot-password', () => {
       expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to send password reset email:',
-        expect.any(Error)
+        expect.objectContaining({
+          error: expect.any(Error),
+          message: 'Email service error',
+          stack: expect.any(String),
+          userId: 'user123',
+          email: 'test@example.com',
+        })
       )
 
       consoleSpy.mockRestore()

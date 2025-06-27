@@ -33,9 +33,26 @@ export async function POST(request: NextRequest) {
           const protocol = request.headers.get('x-forwarded-proto') || 'http'
           const baseUrl = host ? `${protocol}://${host}` : undefined
 
+          console.log('Attempting to send password reset email:', {
+            userId: user.id,
+            email: user.email,
+            userName: user.userName,
+            host,
+            protocol,
+            baseUrl,
+            envBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+          })
+
           await sendPasswordResetEmail(user.id, user.email, user.userName, baseUrl)
+          console.log('Password reset email sent successfully')
         } catch (emailError) {
-          console.error('Failed to send password reset email:', emailError)
+          console.error('Failed to send password reset email:', {
+            error: emailError,
+            message: emailError instanceof Error ? emailError.message : 'Unknown error',
+            stack: emailError instanceof Error ? emailError.stack : undefined,
+            userId: user.id,
+            email: user.email,
+          })
         }
       }
     } else {

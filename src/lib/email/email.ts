@@ -30,9 +30,25 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
   const environment = process.env.VERCEL_ENV || 'local'
 
+  console.log('sendEmail called:', {
+    to,
+    subject,
+    isDevelopment,
+    fromEmail,
+    environment,
+    hasResend: !!resend,
+    resendApiKeySet: !!process.env.RESEND_API_KEY,
+    nodeEnv: process.env.NODE_ENV,
+  })
+
   // 本番環境でRESEND_API_KEYが未設定の場合
   if (!isDevelopment && !resend) {
-    console.error('RESEND_API_KEY is not set in production environment')
+    console.error('RESEND_API_KEY is not set in production environment', {
+      isDevelopment,
+      hasResend: !!resend,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+    })
     throw new Error(
       'Email service is not configured. Please set RESEND_API_KEY environment variable.'
     )
@@ -71,6 +87,15 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
       // トラッキング設定をマージ
       const trackingOptions = tracking ? { ...defaultTracking, ...tracking } : defaultTracking
 
+      console.log('Sending email via Resend with params:', {
+        from: fromEmail,
+        to,
+        subject,
+        hasHtml: !!html,
+        hasText: !!text,
+        tags: trackingOptions.tags,
+      })
+
       const result = await resend!.emails.send({
         from: fromEmail,
         to,
@@ -84,7 +109,8 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
 
       const messageId = result.data?.id
 
-      console.log(`📧 Email sent via Resend:`, {
+      console.log(`📧 Email send result:`, {
+        success: !!result.data,
         to,
         from: fromEmail,
         subject,
@@ -92,6 +118,7 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
         environment,
         tracking: trackingOptions,
         error: result.error,
+        fullResult: result,
       })
 
       // メール送信ログをSupabaseに記録
@@ -112,8 +139,17 @@ export async function sendEmail({ to, subject, html, text, tracking }: EmailOpti
 
       return { success: true, id: messageId }
     } catch (error) {
-      console.error('Resend email error:', error)
-      throw new Error('Failed to send email via Resend')
+      console.error('Resend email error:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        to,
+        subject,
+        fromEmail,
+      })
+      throw new Error(
+        `Failed to send email via Resend: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 }
