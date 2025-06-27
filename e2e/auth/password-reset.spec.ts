@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { AuthHelper } from '../helpers/auth-helpers'
 import { generateRandomUser } from '../helpers/test-data'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('パスワードリセット', () => {
   let authHelper: AuthHelper
 

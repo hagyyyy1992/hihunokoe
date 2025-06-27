@@ -3,6 +3,7 @@ import {
   passwordResetExecutionLimiter,
   getClientIP,
   createRateLimitErrorResponse,
+  resetAllRateLimiters,
 } from '../../src/lib/rate-limiter'
 
 describe('Rate Limiter', () => {
@@ -196,6 +197,119 @@ describe('Rate Limiter', () => {
 
       expect(response.retryAfter).toBe(30)
       expect(response.message).toBe('1分後に再試行してください。')
+    })
+  })
+
+  describe('RateLimiter cleanup機能', () => {
+    it('期限切れエントリの動作確認', () => {
+      const originalNow = Date.now
+      let mockTime = 1000000
+      Date.now = jest.fn(() => mockTime)
+
+      // エントリを作成
+      passwordResetLimiter.checkLimit('127.0.0.1')
+      expect(passwordResetLimiter.size()).toBe(1)
+
+      // 時間を進めて期限切れにする
+      mockTime += 16 * 60 * 1000 // 16分後
+
+      // 期限切れエントリで再リクエスト（新しいエントリが作成される）
+      const result = passwordResetLimiter.checkLimit('127.0.0.1')
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(2) // 新しいエントリなので最大値-1
+
+      Date.now = originalNow
+    })
+
+    it('size()メソッドで現在のエントリ数を取得できる', () => {
+      expect(passwordResetLimiter.size()).toBe(0)
+
+      passwordResetLimiter.checkLimit('127.0.0.1')
+      expect(passwordResetLimiter.size()).toBe(1)
+
+      passwordResetLimiter.checkLimit('192.168.1.1')
+      expect(passwordResetLimiter.size()).toBe(2)
+    })
+  })
+
+  describe('resetAllRateLimiters', () => {
+    it('test環境で全てのレート制限をリセットする', () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'test',
+        configurable: true,
+      })
+
+      // レート制限を作成
+      passwordResetLimiter.checkLimit('127.0.0.1')
+      passwordResetExecutionLimiter.checkLimit('127.0.0.1')
+
+      expect(passwordResetLimiter.size()).toBe(1)
+      expect(passwordResetExecutionLimiter.size()).toBe(1)
+
+      // リセット実行
+      resetAllRateLimiters()
+
+      expect(passwordResetLimiter.size()).toBe(0)
+      expect(passwordResetExecutionLimiter.size()).toBe(0)
+
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: originalNodeEnv,
+        configurable: true,
+      })
+    })
+
+    it('development環境で全てのレート制限をリセットする', () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'development',
+        configurable: true,
+      })
+
+      // レート制限を作成
+      passwordResetLimiter.checkLimit('127.0.0.1')
+      passwordResetExecutionLimiter.checkLimit('127.0.0.1')
+
+      expect(passwordResetLimiter.size()).toBe(1)
+      expect(passwordResetExecutionLimiter.size()).toBe(1)
+
+      // リセット実行
+      resetAllRateLimiters()
+
+      expect(passwordResetLimiter.size()).toBe(0)
+      expect(passwordResetExecutionLimiter.size()).toBe(0)
+
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: originalNodeEnv,
+        configurable: true,
+      })
+    })
+
+    it('production環境では何もしない', () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        configurable: true,
+      })
+
+      // レート制限を作成
+      passwordResetLimiter.checkLimit('127.0.0.1')
+      passwordResetExecutionLimiter.checkLimit('127.0.0.1')
+
+      expect(passwordResetLimiter.size()).toBe(1)
+      expect(passwordResetExecutionLimiter.size()).toBe(1)
+
+      // リセット実行（何もしない）
+      resetAllRateLimiters()
+
+      // エントリは残っている
+      expect(passwordResetLimiter.size()).toBe(1)
+      expect(passwordResetExecutionLimiter.size()).toBe(1)
+
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: originalNodeEnv,
+        configurable: true,
+      })
     })
   })
 })
