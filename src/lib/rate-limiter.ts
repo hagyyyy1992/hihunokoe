@@ -120,3 +120,11 @@ export function createRateLimitErrorResponse(resetTime: number) {
     message: `${Math.ceil(resetTimeInSeconds / 60)}分後に再試行してください。`,
   }
 }
+
+// テスト用：全てのレート制限をリセット
+export function resetAllRateLimiters(): void {
+  if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+    passwordResetLimiter.clear()
+    passwordResetExecutionLimiter.clear()
+  }
+}

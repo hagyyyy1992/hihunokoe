@@ -7,8 +7,16 @@ test.describe('パスワードリセット', () => {
 
   test.beforeEach(async ({ page }) => {
     authHelper = new AuthHelper(page)
-    // レート制限をクリアするため、各テスト間で少し待機
-    await page.waitForTimeout(1000)
+
+    // テスト用：レート制限をリセット
+    try {
+      await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
+    } catch (error) {
+      console.log('Rate limiter reset failed (continuing anyway):', error)
+    }
+
+    // 少し待機してからテスト開始
+    await page.waitForTimeout(500)
   })
 
   test.describe('パスワードリセット要求', () => {
