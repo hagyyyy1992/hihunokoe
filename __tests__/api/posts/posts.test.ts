@@ -1,9 +1,9 @@
 // Mock the modules first
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
 }))
 
-jest.mock('../../../src/lib/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   prisma: {
     post: {
       create: jest.fn(),
@@ -14,7 +14,7 @@ jest.mock('../../../src/lib/prisma', () => ({
   isDatabaseAvailable: jest.fn(),
 }))
 
-jest.mock('../../../src/lib/mock-data', () => ({
+jest.mock('@/lib/mock-data', () => ({
   MOCK_POSTS: [
     {
       id: 'mock-1',
@@ -41,9 +41,9 @@ jest.mock('../../../src/lib/mock-data', () => ({
 
 import { NextRequest } from 'next/server'
 import { POST, GET } from '../../../src/app/api/posts/route'
-import * as authModule from '../../../src/lib/auth/auth'
-import * as prismaModule from '../../../src/lib/prisma'
-import { MOCK_POSTS } from '../../../src/lib/mock-data'
+import * as authModule from '@/lib/auth/auth'
+import * as prismaModule from '@/lib/prisma'
+import { MOCK_POSTS } from '@/lib/mock-data'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<

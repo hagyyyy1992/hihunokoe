@@ -217,6 +217,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               value={formData.title}
               onChange={handleInputChange}
               placeholder="例: ○○クリームを敏感肌で試してみました"
+              data-testid="post-title-input"
             />
 
             <Input
@@ -239,6 +240,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 value={formData.cosmeticCategory}
                 onChange={handleInputChange}
                 className="select"
+                data-testid="category-select"
               >
                 <option value="">選択してください</option>
                 <option value="toner">化粧水</option>
@@ -269,6 +271,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 onChange={handleInputChange}
                 className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
+                data-testid="post-content-textarea"
               />
             </div>
           </div>
@@ -675,6 +678,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               variant="primary"
               disabled={loading || !isStepValid(1)}
               loading={loading}
+              data-testid="publish-button"
             >
               {isEditMode ? '更新する' : '投稿する'}
             </Button>
