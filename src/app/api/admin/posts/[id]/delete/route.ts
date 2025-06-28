@@ -1,14 +1,26 @@
-import { NextResponse } from 'next/server'
-import { withAdminAuth, AdminRequest } from '@/lib/auth/admin-middleware'
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken, isAdmin, logAdminAction } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import { logAdminAction } from '@/lib/auth/auth'
 
-const handler = async (req: AdminRequest, context?: { params?: Record<string, string> }) => {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const token =
+    req.headers.get('authorization')?.replace('Bearer ', '') ||
+    req.cookies.get('auth-token')?.value
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
+  }
+
+  const user = verifyToken(token)
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 })
+  }
+
+  if (!isAdmin(user)) {
+    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+  }
   try {
-    const postId = context?.params?.id
-    if (!postId) {
-      return NextResponse.json({ error: 'Post ID is required' }, { status: 400 })
-    }
+    const postId = params.id
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json({ error: 'Database not available in mock mode' }, { status: 503 })
@@ -39,14 +51,14 @@ const handler = async (req: AdminRequest, context?: { params?: Record<string, st
 
     // 管理者ログを記録
     await logAdminAction(
-      req.user!.id,
+      user.id,
       'POST_DELETE',
       postId,
       {
         postTitle: postToDelete.title,
         postUser: postToDelete.user.userName,
       },
-      req.ip || 'unknown',
+      req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
       req.headers.get('user-agent') || 'unknown'
     )
 
@@ -60,4 +72,4 @@ const handler = async (req: AdminRequest, context?: { params?: Record<string, st
   }
 }
 
-export const POST = withAdminAuth(handler)
+}

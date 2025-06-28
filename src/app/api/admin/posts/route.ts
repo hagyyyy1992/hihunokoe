@@ -1,9 +1,24 @@
-import { NextResponse } from 'next/server'
-import { withAdminAuth } from '@/lib/auth/admin-middleware'
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken, isAdmin } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_USERS } from '@/lib/mock-data'
 
-const handler = async () => {
+export async function GET(req: NextRequest) {
+  const token =
+    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
+  }
+
+  const user = verifyToken(token)
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 })
+  }
+
+  if (!isAdmin(user)) {
+    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+  }
   try {
     if (!isDatabaseAvailable()) {
       // モックデータを使用
@@ -65,5 +80,3 @@ const handler = async () => {
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
   }
 }
-
-export const GET = withAdminAuth(handler)
