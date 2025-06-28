@@ -1,10 +1,10 @@
 // Mock password reset module
-jest.mock('../../../src/lib/auth/password-reset', () => ({
+jest.mock('@/lib/auth/password-reset', () => ({
   sendPasswordResetEmail: jest.fn(),
 }))
 
 // Mock prisma with proper typing
-jest.mock('../../../src/lib/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
@@ -14,7 +14,7 @@ jest.mock('../../../src/lib/prisma', () => ({
 }))
 
 // Mock rate limiter
-jest.mock('../../../src/lib/rate-limiter', () => ({
+jest.mock('@/lib/rate-limiter', () => ({
   passwordResetLimiter: {
     checkLimit: jest.fn(),
   },
@@ -24,9 +24,9 @@ jest.mock('../../../src/lib/rate-limiter', () => ({
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/forgot-password/route'
-import * as passwordResetModule from '../../../src/lib/auth/password-reset'
-import * as prismaModule from '../../../src/lib/prisma'
-import * as rateLimiterModule from '../../../src/lib/rate-limiter'
+import * as passwordResetModule from '@/lib/auth/password-reset'
+import * as prismaModule from '@/lib/prisma'
+import * as rateLimiterModule from '@/lib/rate-limiter'
 
 const mockSendPasswordResetEmail =
   passwordResetModule.sendPasswordResetEmail as jest.MockedFunction<

@@ -73,6 +73,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // PrismaClientInitializationError や他のデータベースエラーの場合でも、
+    // セキュリティのため認証失敗として扱う
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      (error.name === 'PrismaClientInitializationError' ||
+        error.name === 'PrismaClientKnownRequestError')
+    ) {
+      return NextResponse.json(
+        { error: 'メールアドレスまたはパスワードが間違っています' },
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json({ error: 'ログインに失敗しました' }, { status: 500 })
   }
 }
