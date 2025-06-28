@@ -6,6 +6,7 @@ import DeleteAccountPage from '../../src/app/account/delete/page'
 // モック
 const mockPush = jest.fn()
 const mockUseRouter = jest.fn()
+const mockLogout = jest.fn()
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -18,6 +19,12 @@ jest.mock('next/navigation', () => ({
   }),
 }))
 
+jest.mock('../../src/lib/auth/AuthContext', () => ({
+  useAuth: () => ({
+    logout: mockLogout,
+  }),
+}))
+
 // fetchをモック
 global.fetch = jest.fn()
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>
@@ -25,6 +32,7 @@ const mockFetch = fetch as jest.MockedFunction<typeof fetch>
 describe('DeleteAccountPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockLogout.mockResolvedValue(undefined)
   })
 
   it('初期状態で警告メッセージと継続ボタンが表示される', () => {
@@ -106,6 +114,10 @@ describe('DeleteAccountPage', () => {
         },
         body: JSON.stringify({ password: 'test123' }),
       })
+    })
+
+    await waitFor(() => {
+      expect(mockLogout).toHaveBeenCalled()
     })
 
     await waitFor(() => {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +15,7 @@ export default function DeleteAccountPage() {
   const [error, setError] = useState('')
   const [showConfirmation, setShowConfirmation] = useState(false)
   const router = useRouter()
+  const { logout } = useAuth()
 
   const handleDeleteAccount = async () => {
     if (!password) {
@@ -39,7 +41,8 @@ export default function DeleteAccountPage() {
         throw new Error(data.error || 'アカウント削除に失敗しました')
       }
 
-      // 削除成功時はトップページにリダイレクト
+      // 削除成功時は認証状態をクリアしてトップページにリダイレクト
+      await logout()
       router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'アカウント削除に失敗しました')
