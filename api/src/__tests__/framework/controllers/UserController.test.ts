@@ -40,7 +40,7 @@ describe('UserController', () => {
       expect(response.status).toBe(200)
       expect(responseData.user.id).toBe('1')
       expect(responseData.user.email).toBe('test@example.com')
-      expect(responseData.user.username).toBe('testuser')
+      expect(responseData.user.userName).toBe('testuser') // Fixed: userName instead of username
       expect(responseData.user.emailVerified).toBe(true)
     })
 
