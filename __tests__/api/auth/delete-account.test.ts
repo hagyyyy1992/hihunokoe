@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server'
-import { DELETE } from '@/app/api/auth/delete-account/route'
-import { deleteUserAccount, verifyToken } from '@/lib/auth/auth'
+import { DELETE } from '../../../src/app/api/auth/delete-account/route'
+import { deleteUserAccount, verifyToken } from '../../../src/lib/auth/auth'
 import { cookies } from 'next/headers'
 
 // モック
-jest.mock('@/lib/auth/auth')
+jest.mock('../../../src/lib/auth/auth')
 jest.mock('next/headers')
 
 const mockDeleteUserAccount = deleteUserAccount as jest.MockedFunction<typeof deleteUserAccount>

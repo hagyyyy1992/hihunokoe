@@ -1,10 +1,13 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
-import DeleteAccountPage from '@/app/account/delete/page'
+import DeleteAccountPage from '../../src/app/account/delete/page'
 
 // モック
-jest.mock('next/navigation')
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}))
+
 const mockPush = jest.fn()
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 
