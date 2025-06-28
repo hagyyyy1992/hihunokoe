@@ -57,7 +57,13 @@ describe('/api/auth/me', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.user).toEqual(mockUser)
+      // 新しいクリーンアーキテクチャでは、ユーザーオブジェクトの形式が変更された
+      expect(data.user.id).toBe('1')
+      expect(data.user.email).toBe('test@example.com')
+      expect(data.user.username).toBe('testuser')
+      expect(data.user.emailVerified).toBe(true)
+      expect(data.user).toHaveProperty('createdAt')
+      expect(data.user).toHaveProperty('updatedAt')
       expect(mockVerifyToken).toHaveBeenCalledWith('valid-token')
       expect(mockGetUserById).toHaveBeenCalledWith('1')
     })
