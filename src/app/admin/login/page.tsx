@@ -63,7 +63,9 @@ export default function AdminLoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-800 font-medium">メールアドレス</Label>
+              <Label htmlFor="email" className="text-gray-800 font-medium">
+                メールアドレス
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -75,7 +77,9 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-800 font-medium">パスワード</Label>
+              <Label htmlFor="password" className="text-gray-800 font-medium">
+                パスワード
+              </Label>
               <Input
                 id="password"
                 type="password"
