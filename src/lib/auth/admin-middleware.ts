@@ -6,16 +6,10 @@ export interface AdminRequest extends NextRequest {
   ip?: string
 }
 
-export function withAdminAuth(
-  handler: (
-    req: AdminRequest,
-    context: { params: Promise<Record<string, string>> }
-  ) => Promise<Response>
+export function withAdminAuth<T = Record<string, string>>(
+  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
 ) {
-  return async (
-    req: NextRequest,
-    context: { params: Promise<Record<string, string>> }
-  ): Promise<Response> => {
+  return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
       req.cookies.get('auth-token')?.value
@@ -41,16 +35,10 @@ export function withAdminAuth(
   }
 }
 
-export function requireSuperAdmin(
-  handler: (
-    req: AdminRequest,
-    context: { params: Promise<Record<string, string>> }
-  ) => Promise<Response>
+export function requireSuperAdmin<T = Record<string, string>>(
+  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
 ) {
-  return async (
-    req: NextRequest,
-    context: { params: Promise<Record<string, string>> }
-  ): Promise<Response> => {
+  return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
       req.cookies.get('auth-token')?.value
