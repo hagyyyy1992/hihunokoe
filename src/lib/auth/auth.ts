@@ -276,7 +276,7 @@ export async function logAdminAction(
         userId,
         action,
         target,
-        details: details as any,
+        details: details ? JSON.parse(JSON.stringify(details)) : null,
         ipAddress,
         userAgent,
       },
