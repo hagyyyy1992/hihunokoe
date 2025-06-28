@@ -14,7 +14,7 @@ jest.mock('@/lib/mock-data', () => {
   // モックデータを変数として定義して、テスト間で共有できるようにする
   const mockPostsData = [
     {
-      id: 'mock-post-1',
+      id: '550e8400-e29b-41d4-a716-446655440001',
       title: 'Test Post 1',
       content: 'Test content 1',
       cosmeticName: 'Test Cosmetic 1',
@@ -23,11 +23,11 @@ jest.mock('@/lib/mock-data', () => {
       moodTag: 'good',
       status: 'published',
       viewCount: 10,
-      userId: 'user-1',
-      user: { id: 'user-1', userName: 'testuser1' },
+      userId: '550e8400-e29b-41d4-a716-446655440011',
+      user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
     },
     {
-      id: 'mock-post-2',
+      id: '550e8400-e29b-41d4-a716-446655440002',
       title: 'Test Post 2',
       content: 'Test content 2',
       cosmeticName: 'Test Cosmetic 2',
@@ -36,18 +36,18 @@ jest.mock('@/lib/mock-data', () => {
       moodTag: 'love',
       status: 'published',
       viewCount: 5,
-      userId: 'user-2',
-      user: { id: 'user-2', userName: 'testuser2' },
+      userId: '550e8400-e29b-41d4-a716-446655440012',
+      user: { id: '550e8400-e29b-41d4-a716-446655440012', userName: 'testuser2' },
     },
     {
-      id: 'draft-post',
+      id: '550e8400-e29b-41d4-a716-446655440003',
       title: 'Draft Post',
       content: 'Draft content',
       cosmeticName: 'Draft Cosmetic',
       status: 'draft',
       viewCount: 0,
-      userId: 'user-3',
-      user: { id: 'user-3', userName: 'testuser3' },
+      userId: '550e8400-e29b-41d4-a716-446655440013',
+      user: { id: '550e8400-e29b-41d4-a716-446655440013', userName: 'testuser3' },
     },
   ]
 
@@ -78,9 +78,21 @@ jest.mock('@/lib/auth/auth', () => ({
 const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
 
 // AuthUser型に合わせたモックユーザー
-const mockUser1 = { id: 'user-1', userName: 'testuser1', email: 'user1@example.com' }
-const mockUser2 = { id: 'user-2', userName: 'testuser2', email: 'user2@example.com' }
-const mockUser3 = { id: 'user-3', userName: 'testuser3', email: 'user3@example.com' }
+const mockUser1 = {
+  id: '550e8400-e29b-41d4-a716-446655440011',
+  userName: 'testuser1',
+  email: 'user1@example.com',
+}
+const mockUser2 = {
+  id: '550e8400-e29b-41d4-a716-446655440012',
+  userName: 'testuser2',
+  email: 'user2@example.com',
+}
+const mockUser3 = {
+  id: '550e8400-e29b-41d4-a716-446655440013',
+  userName: 'testuser3',
+  email: 'user3@example.com',
+}
 
 describe('/api/posts/[id]', () => {
   beforeEach(() => {
@@ -129,14 +141,14 @@ describe('/api/posts/[id]', () => {
 
   describe('GET', () => {
     it('存在する投稿を取得できる（モックモード）', async () => {
-      const request = createRequest('mock-post-1')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
       const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
       expect(data.post).toMatchObject({
-        id: 'mock-post-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Test Post 1',
         content: 'Test content 1',
         cosmeticName: 'Test Cosmetic 1',
@@ -150,7 +162,7 @@ describe('/api/posts/[id]', () => {
 
     it('存在する投稿を取得できる（データベースモード）', async () => {
       const mockPost = {
-        id: 'post-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Database Post',
         content: 'Database content',
         cosmeticName: 'Database Cosmetic',
@@ -178,7 +190,7 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
       mockPrisma.post.update.mockResolvedValue({ ...mockPost, viewCount: 6 })
 
-      const request = createRequest('post-1')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
       const response = await GET(request)
       const data = await response.json()
@@ -187,7 +199,7 @@ describe('/api/posts/[id]', () => {
       expect(data.post).toEqual(mockPost)
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
         where: {
-          id: 'post-1',
+          id: '550e8400-e29b-41d4-a716-446655440001',
           status: 'published',
         },
         include: {
@@ -253,7 +265,7 @@ describe('/api/posts/[id]', () => {
         },
       })
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
-        where: { id: 'post-1' },
+        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         data: {
           viewCount: {
             increment: 1,
@@ -263,7 +275,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('存在しない投稿の場合、404エラーを返す（モックモード）', async () => {
-      const request = createRequest('non-existent-post')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440099')
 
       const response = await GET(request)
       const data = await response.json()
@@ -276,7 +288,7 @@ describe('/api/posts/[id]', () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(null)
 
-      const request = createRequest('non-existent-post')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440099')
 
       const response = await GET(request)
       const data = await response.json()
@@ -286,7 +298,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('ドラフト投稿は取得できない（モックモード）', async () => {
-      const request = createRequest('draft-post')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440003')
 
       const response = await GET(request)
       const data = await response.json()
@@ -299,7 +311,7 @@ describe('/api/posts/[id]', () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
 
-      const request = createRequest('post-1')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
       const response = await GET(request)
       const data = await response.json()
@@ -310,7 +322,7 @@ describe('/api/posts/[id]', () => {
 
     it('閲覧数更新でエラーが発生しても投稿は返される（データベースモード）', async () => {
       const mockPost = {
-        id: 'post-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Database Post',
         content: 'Database content',
         status: 'published',
@@ -324,7 +336,7 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
       mockPrisma.post.update.mockRejectedValue(new Error('Update error'))
 
-      const request = createRequest('post-1')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
       const response = await GET(request)
 
@@ -334,27 +346,27 @@ describe('/api/posts/[id]', () => {
 
     it('複数の投稿を順次取得できる（モックモード）', async () => {
       // 最初の投稿
-      const request1 = createRequest('mock-post-1')
+      const request1 = createRequest('550e8400-e29b-41d4-a716-446655440001')
       const response1 = await GET(request1)
       const data1 = await response1.json()
 
       expect(response1.status).toBe(200)
-      expect(data1.post.id).toBe('mock-post-1')
+      expect(data1.post.id).toBe('550e8400-e29b-41d4-a716-446655440001')
       expect(data1.post.viewCount).toBe(11)
 
       // 2番目の投稿
-      const request2 = createRequest('mock-post-2')
+      const request2 = createRequest('550e8400-e29b-41d4-a716-446655440002')
       const response2 = await GET(request2)
       const data2 = await response2.json()
 
       expect(response2.status).toBe(200)
-      expect(data2.post.id).toBe('mock-post-2')
+      expect(data2.post.id).toBe('550e8400-e29b-41d4-a716-446655440002')
       expect(data2.post.viewCount).toBe(6) // 5 + 1
     })
 
     it('コメントと共感データが正しく含まれる（データベースモード）', async () => {
       const mockPost = {
-        id: 'post-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Post with interactions',
         status: 'published',
         user: { id: 'user-1', userName: 'author' },
@@ -399,7 +411,7 @@ describe('/api/posts/[id]', () => {
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
       mockPrisma.post.update.mockResolvedValue(mockPost)
 
-      const request = createRequest('post-1')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
       const response = await GET(request)
       const data = await response.json()
@@ -419,7 +431,9 @@ describe('/api/posts/[id]', () => {
     })
 
     it('認証されていない場合、401エラーを返す', async () => {
-      const request = createRequest('mock-post-1', 'PUT', { title: 'Updated Title' })
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001', 'PUT', {
+        title: 'Updated Title',
+      })
 
       const response = await PUT(request)
       const data = await response.json()
@@ -432,7 +446,7 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(null)
 
       const request = createRequest(
-        'mock-post-1',
+        '550e8400-e29b-41d4-a716-446655440001',
         'PUT',
         { title: 'Updated Title' },
         'invalid-token'
@@ -457,7 +471,12 @@ describe('/api/posts/[id]', () => {
         moodTag: 'love',
       }
 
-      const request = createRequest('mock-post-1', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -465,7 +484,7 @@ describe('/api/posts/[id]', () => {
       expect(response.status).toBe(200)
       expect(data.message).toBe('投稿が更新されました（デモモード）')
       expect(data.post).toMatchObject({
-        id: 'mock-post-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         ...updateData,
       })
     })
@@ -475,8 +494,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
       const mockPost = {
-        id: 'post-1',
-        userId: 'user-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        userId: '550e8400-e29b-41d4-a716-446655440011',
       }
 
       const updateData = {
@@ -491,13 +510,18 @@ describe('/api/posts/[id]', () => {
       const updatedPost = {
         ...mockPost,
         ...updateData,
-        user: { id: 'user-1', userName: 'testuser1' },
+        user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
       }
 
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
       mockPrisma.post.update.mockResolvedValue(updatedPost)
 
-      const request = createRequest('post-1', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -506,11 +530,11 @@ describe('/api/posts/[id]', () => {
       expect(data.message).toBe('投稿が更新されました')
       expect(data.post).toEqual(updatedPost)
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 'post-1' },
+        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         select: { userId: true },
       })
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
-        where: { id: 'post-1' },
+        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         data: {
           ...updateData,
           experienceDetails: undefined,
@@ -537,7 +561,12 @@ describe('/api/posts/[id]', () => {
         cosmeticName: 'Updated Cosmetic',
       }
 
-      const request = createRequest('mock-post-1', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -551,8 +580,8 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser2)
 
       const mockPost = {
-        id: 'post-1',
-        userId: 'user-1', // 別のユーザーの投稿
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        userId: '550e8400-e29b-41d4-a716-446655440011', // 別のユーザーの投稿
       }
 
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
@@ -563,7 +592,12 @@ describe('/api/posts/[id]', () => {
         cosmeticName: 'Updated Cosmetic',
       }
 
-      const request = createRequest('post-1', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -582,7 +616,12 @@ describe('/api/posts/[id]', () => {
         cosmeticName: 'Updated Cosmetic',
       }
 
-      const request = createRequest('non-existent-post', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440099',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -602,7 +641,12 @@ describe('/api/posts/[id]', () => {
         cosmeticName: 'Updated Cosmetic',
       }
 
-      const request = createRequest('non-existent-post', 'PUT', updateData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440099',
+        'PUT',
+        updateData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -622,7 +666,12 @@ describe('/api/posts/[id]', () => {
         cosmeticName: 'Updated Cosmetic',
       }
 
-      const request = createRequest('mock-post-1', 'PUT', invalidData, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'PUT',
+        invalidData,
+        'valid-token'
+      )
 
       const response = await PUT(request)
       const data = await response.json()
@@ -638,7 +687,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('認証されていない場合、401エラーを返す', async () => {
-      const request = createRequest('mock-post-1', 'DELETE')
+      const request = createRequest('550e8400-e29b-41d4-a716-446655440001', 'DELETE')
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -650,7 +699,12 @@ describe('/api/posts/[id]', () => {
     it('トークンが無効な場合、401エラーを返す', async () => {
       mockVerifyToken.mockReturnValue(null)
 
-      const request = createRequest('mock-post-1', 'DELETE', null, 'invalid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'DELETE',
+        null,
+        'invalid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -662,7 +716,12 @@ describe('/api/posts/[id]', () => {
     it('自分の投稿を削除できる（モックモード）', async () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
-      const request = createRequest('mock-post-1', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -676,14 +735,19 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
       const mockPost = {
-        id: 'post-1',
-        userId: 'user-1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        userId: '550e8400-e29b-41d4-a716-446655440011',
       }
 
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
       mockPrisma.post.delete.mockResolvedValue(mockPost)
 
-      const request = createRequest('post-1', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -691,18 +755,23 @@ describe('/api/posts/[id]', () => {
       expect(response.status).toBe(200)
       expect(data.message).toBe('投稿が削除されました')
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 'post-1' },
+        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         select: { userId: true },
       })
       expect(mockPrisma.post.delete).toHaveBeenCalledWith({
-        where: { id: 'post-1' },
+        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
       })
     })
 
     it('他人の投稿は削除できない（モックモード）', async () => {
       mockVerifyToken.mockReturnValue(mockUser2)
 
-      const request = createRequest('mock-post-1', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -716,13 +785,18 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser2)
 
       const mockPost = {
-        id: 'post-1',
-        userId: 'user-1', // 別のユーザーの投稿
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        userId: '550e8400-e29b-41d4-a716-446655440011', // 別のユーザーの投稿
       }
 
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
 
-      const request = createRequest('post-1', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440001',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -735,7 +809,12 @@ describe('/api/posts/[id]', () => {
     it('存在しない投稿は削除できない（モックモード）', async () => {
       mockVerifyToken.mockReturnValue(mockUser1)
 
-      const request = createRequest('non-existent-post', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440099',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
@@ -749,7 +828,12 @@ describe('/api/posts/[id]', () => {
       mockVerifyToken.mockReturnValue(mockUser1)
       mockPrisma.post.findUnique.mockResolvedValue(null)
 
-      const request = createRequest('non-existent-post', 'DELETE', null, 'valid-token')
+      const request = createRequest(
+        '550e8400-e29b-41d4-a716-446655440099',
+        'DELETE',
+        null,
+        'valid-token'
+      )
 
       const response = await DELETE(request)
       const data = await response.json()
