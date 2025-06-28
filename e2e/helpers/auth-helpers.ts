@@ -1,17 +1,24 @@
 import { Page, expect } from '@playwright/test'
 
 // E2Eテスト用のヘルパー関数
-export async function loginTestUser(page: Page, email: string = 'demo@example.com', password: string = 'demo123') {
+export async function loginTestUser(
+  page: Page,
+  email: string = 'demo@example.com',
+  password: string = 'demo123'
+) {
   const authHelper = new AuthHelper(page)
   await authHelper.login(email, password)
 }
 
-export async function registerTestUser(page: Page, userData: {
-  username: string
-  email: string
-  password: string
-  skinType?: string
-}) {
+export async function registerTestUser(
+  page: Page,
+  userData: {
+    username: string
+    email: string
+    password: string
+    skinType?: string
+  }
+) {
   const authHelper = new AuthHelper(page)
   await authHelper.register(userData)
 }
@@ -19,6 +26,32 @@ export async function registerTestUser(page: Page, userData: {
 export async function logoutTestUser(page: Page) {
   const authHelper = new AuthHelper(page)
   await authHelper.logout()
+}
+
+// E2Eテストで使用される追加の関数
+export async function loginUser(page: Page, email: string = 'demo@example.com', password: string = 'demo123') {
+  return loginTestUser(page, email, password)
+}
+
+export async function createTestUser() {
+  // テスト用の一意なユーザーデータを生成
+  const timestamp = Date.now()
+  return {
+    email: `test-${timestamp}@example.com`,
+    password: 'test123',
+    userName: `testuser-${timestamp}`,
+    skinType: 'normal'
+  }
+}
+
+export async function cleanupTestUser(email: string) {
+  // テストユーザーのクリーンアップ（実際の実装では必要に応じてAPIコールなど）
+  console.log(`Cleaning up test user: ${email}`)
+}
+
+export async function registerAndLoginTestUser(page: Page, userData: { email: string; password: string; userName: string; skinType?: string }) {
+  await registerTestUser(page, userData)
+  await loginTestUser(page, userData.email, userData.password)
 }
 
 export class AuthHelper {

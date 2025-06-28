@@ -99,7 +99,7 @@ export default function DeleteAccountPage() {
               </Alert>
 
               {error && (
-                <Alert className="border-red-200 bg-red-50">
+                <Alert className="border-red-200 bg-red-50" data-testid="error-message">
                   <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}

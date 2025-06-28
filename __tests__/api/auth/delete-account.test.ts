@@ -104,7 +104,7 @@ describe('/api/auth/delete-account', () => {
       // クッキーが削除されることを確認
       const setCookieHeader = response.headers.get('set-cookie')
       expect(setCookieHeader).toContain('auth-token=;')
-      expect(setCookieHeader).toContain('expires=Thu, 01 Jan 1970')
+      expect(setCookieHeader).toContain('Expires=Thu, 01 Jan 1970')
     })
 
     it('アカウント削除でエラーが発生した場合は500エラーを返す', async () => {
