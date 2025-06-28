@@ -16,6 +16,7 @@ model User {
   profileImageUrl         String?          @map("profile_image_url")
   isActive                Boolean          @default(true) @map("is_active")
   deletedAt               DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  role                    UserRole         @default(USER) @map("role")
   createdAt               DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt               DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   emailVerificationExpiry DateTime?        @map("email_verification_expiry") @db.Timestamptz(6)
@@ -35,6 +36,7 @@ model User {
   empathies               Empathy[]
   postPermissions         PostPermission[]
   posts                   Post[]
+  adminLogs               AdminLog[]
 
   @@map("users")
 }
@@ -154,4 +156,26 @@ enum BodyType {
   other          @map("other")
 
   @@map("body_types")
+}
+
+enum UserRole {
+  USER        @map("user")
+  ADMIN       @map("admin")
+  SUPER_ADMIN @map("super_admin")
+
+  @@map("user_roles")
+}
+
+model AdminLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  action    String   @map("action") @db.VarChar(255)
+  target    String?  @map("target") @db.VarChar(255)
+  details   Json?    @map("details")
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_logs")
 }

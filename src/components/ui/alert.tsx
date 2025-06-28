@@ -1,22 +1,29 @@
-import React from 'react'
 import { cn } from '@/lib/utils'
+import { forwardRef } from 'react'
 
-const Alert = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      role="alert"
-      className={cn(
-        'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
-        className
-      )}
-      {...props}
-    />
-  )
-)
+const Alert = forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    variant?: 'default' | 'destructive'
+  }
+>(({ className, variant = 'default', ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'relative w-full rounded-lg border p-4',
+      {
+        'bg-background text-foreground': variant === 'default',
+        'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive':
+          variant === 'destructive',
+      },
+      className
+    )}
+    {...props}
+  />
+))
 Alert.displayName = 'Alert'
 
-const AlertDescription = React.forwardRef<
+const AlertDescription = forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
