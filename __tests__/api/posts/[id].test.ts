@@ -1,5 +1,5 @@
 // Mock the modules first
-jest.mock('../../../src/lib/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   prisma: {
     post: {
       findUnique: jest.fn(),
@@ -10,7 +10,7 @@ jest.mock('../../../src/lib/prisma', () => ({
   isDatabaseAvailable: jest.fn(),
 }))
 
-jest.mock('../../../src/lib/mock-data', () => {
+jest.mock('@/lib/mock-data', () => {
   // モックデータを変数として定義して、テスト間で共有できるようにする
   const mockPostsData = [
     {
@@ -61,9 +61,9 @@ jest.mock('../../../src/lib/mock-data', () => {
 
 import { NextRequest } from 'next/server'
 import { GET, PUT, DELETE } from '../../../src/app/api/posts/[id]/route'
-import * as prismaModule from '../../../src/lib/prisma'
-import { MOCK_POSTS } from '../../../src/lib/mock-data'
-import { verifyToken } from '../../../src/lib/auth/auth'
+import * as prismaModule from '@/lib/prisma'
+import { MOCK_POSTS } from '@/lib/mock-data'
+import { verifyToken } from '@/lib/auth/auth'
 
 const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
   typeof prismaModule.isDatabaseAvailable
@@ -71,7 +71,7 @@ const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedF
 const mockPrisma = prismaModule.prisma as any
 
 // Auth mocking
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
 }))
 

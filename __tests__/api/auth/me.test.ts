@@ -7,7 +7,7 @@ jest.mock('@/lib/auth/auth', () => ({
 import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/me/route'
 import * as authModule from '@/lib/auth/auth'
-import { SkinType } from '../../../src/types'
+import { SkinType } from '@/types'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockGetUserById = authModule.getUserById as jest.MockedFunction<typeof authModule.getUserById>

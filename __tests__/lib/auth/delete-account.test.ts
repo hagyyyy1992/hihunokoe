@@ -1,8 +1,8 @@
-import { deleteUserAccount } from '../../../src/lib/auth/auth'
-import { prisma, isDatabaseAvailable } from '../../../src/lib/prisma'
+import { deleteUserAccount } from '@/lib/auth/auth'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 // モック
-jest.mock('../../../src/lib/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
@@ -20,6 +20,9 @@ const mockPrismaUser = (prisma as any).user
 describe('deleteUserAccount', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // Reset the mocked prisma user object
+    mockPrismaUser.findUnique.mockReset()
+    mockPrismaUser.delete.mockReset()
   })
 
   it('データベースが利用できない場合はエラーを投げる', async () => {
@@ -43,12 +46,18 @@ describe('deleteUserAccount', () => {
     mockPrismaUser.findUnique.mockResolvedValue(null)
 
     const validUuid = '550e8400-e29b-41d4-a716-446655440000'
+
+    // コンソールエラーをモック
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
     await expect(deleteUserAccount(validUuid)).rejects.toThrow('ユーザーが見つかりません')
 
     expect(mockPrismaUser.findUnique).toHaveBeenCalledWith({
       where: { id: validUuid, isActive: true },
     })
     expect(mockPrismaUser.delete).not.toHaveBeenCalled()
+
+    consoleSpy.mockRestore()
   })
 
   it('非アクティブなユーザーの場合はエラーを投げる', async () => {
@@ -56,7 +65,13 @@ describe('deleteUserAccount', () => {
     mockPrismaUser.findUnique.mockResolvedValue(null) // isActive: trueで検索するため見つからない
 
     const validUuid = '550e8400-e29b-41d4-a716-446655440000'
+
+    // コンソールエラーをモック
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
     await expect(deleteUserAccount(validUuid)).rejects.toThrow('ユーザーが見つかりません')
+
+    consoleSpy.mockRestore()
   })
 
   it('正常なユーザーIDでアカウント削除が成功する', async () => {

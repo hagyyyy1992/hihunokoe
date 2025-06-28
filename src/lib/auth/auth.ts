@@ -264,6 +264,10 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     return true
   } catch (error) {
     console.error('Account deletion failed:', error)
+    // Re-throw known application errors
+    if (error instanceof Error && error.message === 'ユーザーが見つかりません') {
+      throw error
+    }
     throw new Error('アカウントの削除に失敗しました')
   }
 }

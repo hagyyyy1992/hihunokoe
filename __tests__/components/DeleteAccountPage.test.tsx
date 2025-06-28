@@ -48,21 +48,16 @@ describe('DeleteAccountPage', () => {
     expect(screen.getByRole('button', { name: /アカウントを削除/ })).toBeInTheDocument()
   })
 
-  it('パスワードが入力されていない場合はエラーメッセージが表示される', async () => {
+  it('パスワードが入力されていない場合は削除ボタンが無効になる', async () => {
     render(<DeleteAccountPage />)
 
     // 継続ボタンをクリック
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
-    // パスワードを入力せずに削除ボタンをクリック
+    // パスワードが入力されていない場合、削除ボタンが無効になることを確認
     const deleteButton = screen.getByRole('button', { name: /アカウントを削除/ })
-    fireEvent.click(deleteButton)
-
-    await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toBeInTheDocument()
-      expect(screen.getByTestId('error-message')).toHaveTextContent('パスワードを入力してください')
-    })
+    expect(deleteButton).toBeDisabled()
   })
 
   it('パスワード入力後に削除ボタンが有効になる', () => {

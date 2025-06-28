@@ -1,18 +1,18 @@
 // Mock the auth module first
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   registerUser: jest.fn(),
 }))
 
 // Mock the email verification module
-jest.mock('../../../src/lib/auth/email-verification', () => ({
+jest.mock('@/lib/auth/email-verification', () => ({
   sendVerificationEmail: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
-import * as authModule from '../../../src/lib/auth/auth'
-import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
-import { SkinType } from '../../../src/types'
+import * as authModule from '@/lib/auth/auth'
+import * as emailVerificationModule from '@/lib/auth/email-verification'
+import { SkinType } from '@/types'
 import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
