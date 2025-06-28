@@ -26,7 +26,7 @@ const handler = async (req: AdminRequest) => {
         isActive: user.isActive ?? true,
         role: 'USER',
         skinType: user.skinType || '',
-        createdAt: user.createdAt || new Date().toISOString(),
+        createdAt: user.createdAt ? (user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt) : new Date().toISOString(),
         postCount: MOCK_POSTS.filter(post => post.userId === user.id).length,
       }))
     } else {

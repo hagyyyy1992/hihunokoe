@@ -276,7 +276,7 @@ export async function logAdminAction(
         userId,
         action,
         target,
-        details,
+        details: details as any,
         ipAddress,
         userAgent,
       },

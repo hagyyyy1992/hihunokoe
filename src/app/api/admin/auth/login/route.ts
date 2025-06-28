@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       'ADMIN_LOGIN',
       undefined,
       { email },
-      request.ip || request.headers.get('x-forwarded-for') || 'unknown',
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       request.headers.get('user-agent') || 'unknown'
     )
 
