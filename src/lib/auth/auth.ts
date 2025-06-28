@@ -188,6 +188,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
+      role: mockUser.role as any,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
@@ -215,6 +216,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
+      role: mockUser.role as any,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
