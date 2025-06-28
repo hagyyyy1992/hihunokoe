@@ -7,7 +7,7 @@ export interface AdminRequest extends NextRequest {
 }
 
 export function withAdminAuth<T = Record<string, string>>(
-  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
+  handler: (req: AdminRequest, context: { params: T }) => Promise<Response>
 ) {
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
@@ -38,7 +38,7 @@ export function withAdminAuth<T = Record<string, string>>(
 }
 
 export function requireSuperAdmin<T = Record<string, string>>(
-  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
+  handler: (req: AdminRequest, context: { params: T }) => Promise<Response>
 ) {
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
