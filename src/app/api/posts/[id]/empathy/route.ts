@@ -50,30 +50,43 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // データベースモードでの共感状態取得
-    const post = await prisma!.post.findUnique({
-      where: {
-        id: postId,
-        status: 'published',
-      },
-      select: { id: true },
-    })
+    let post
+    try {
+      post = await prisma!.post.findUnique({
+        where: {
+          id: postId,
+          status: 'published',
+        },
+        select: { id: true },
+      })
+    } catch (dbError) {
+      console.error('Database error in empathy GET:', dbError)
+      return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+    }
 
     if (!post) {
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
     }
 
-    const empathy = await prisma!.empathy.findUnique({
-      where: {
-        postId_userId: {
-          postId,
-          userId: user.id,
+    let empathy
+    let totalCount
+    try {
+      empathy = await prisma!.empathy.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId: user.id,
+          },
         },
-      },
-    })
+      })
 
-    const totalCount = await prisma!.empathy.count({
-      where: { postId },
-    })
+      totalCount = await prisma!.empathy.count({
+        where: { postId },
+      })
+    } catch (dbError) {
+      console.error('Database error in empathy operations:', dbError)
+      return NextResponse.json({ error: '共感状態の取得に失敗しました' }, { status: 500 })
+    }
 
     return NextResponse.json({
       hasEmpathized: !!empathy,
@@ -153,27 +166,39 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // データベースモードでの共感追加
-    const post = await prisma!.post.findUnique({
-      where: {
-        id: postId,
-        status: 'published',
-      },
-      select: { id: true },
-    })
+    let post
+    try {
+      post = await prisma!.post.findUnique({
+        where: {
+          id: postId,
+          status: 'published',
+        },
+        select: { id: true },
+      })
+    } catch (dbError) {
+      console.error('Database error in empathy POST:', dbError)
+      return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+    }
 
     if (!post) {
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
     }
 
     // 既存の共感をチェック
-    const existingEmpathy = await prisma!.empathy.findUnique({
-      where: {
-        postId_userId: {
-          postId,
-          userId: user.id,
+    let existingEmpathy
+    try {
+      existingEmpathy = await prisma!.empathy.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId: user.id,
+          },
         },
-      },
-    })
+      })
+    } catch (dbError) {
+      console.error('Database error checking existing empathy:', dbError)
+      return NextResponse.json({ error: '共感の追加に失敗しました' }, { status: 500 })
+    }
 
     if (existingEmpathy) {
       return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
@@ -292,26 +317,38 @@ export async function DELETE(
     }
 
     // データベースモードでの共感削除
-    const post = await prisma!.post.findUnique({
-      where: {
-        id: postId,
-        status: 'published',
-      },
-      select: { id: true },
-    })
+    let post
+    try {
+      post = await prisma!.post.findUnique({
+        where: {
+          id: postId,
+          status: 'published',
+        },
+        select: { id: true },
+      })
+    } catch (dbError) {
+      console.error('Database error in empathy DELETE:', dbError)
+      return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+    }
 
     if (!post) {
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
     }
 
-    const empathy = await prisma!.empathy.findUnique({
-      where: {
-        postId_userId: {
-          postId,
-          userId: user.id,
+    let empathy
+    try {
+      empathy = await prisma!.empathy.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId: user.id,
+          },
         },
-      },
-    })
+      })
+    } catch (dbError) {
+      console.error('Database error finding empathy:', dbError)
+      return NextResponse.json({ error: '共感が見つかりません' }, { status: 404 })
+    }
 
     if (!empathy) {
       return NextResponse.json({ error: '共感が見つかりません' }, { status: 404 })
