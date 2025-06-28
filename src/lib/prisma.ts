@@ -24,8 +24,6 @@ if (databaseType !== 'mock') {
     console.error(`❌ Prisma Client initialization failed for ${databaseType}:`, error)
     prismaClient = null
   }
-} else {
-  console.log('🔄 Running in mock mode - using demo data')
 }
 
 export const prisma = prismaClient

@@ -22,19 +22,6 @@ export interface EmailOptions {
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
-  const environment = process.env.VERCEL_ENV || 'local'
-
-  console.log('sendEmail called:', {
-    to,
-    subject,
-    isDevelopment,
-    fromEmail,
-    environment,
-    hasResend: !!resend,
-    resendApiKeySet: !!process.env.RESEND_API_KEY,
-    nodeEnv: process.env.NODE_ENV,
-  })
-
   // 本番環境でRESEND_API_KEYが未設定の場合
   if (!isDevelopment && !resend) {
     console.error('RESEND_API_KEY is not set in production environment', {
@@ -49,7 +36,8 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   }
 
   // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
-  const toEmail = 'k69276780@gmail.com'
+  let toEmail = to
+  toEmail = 'k69276780@gmail.com'
   if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({

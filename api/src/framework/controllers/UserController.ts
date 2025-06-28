@@ -41,12 +41,7 @@ export class UserController {
 
       const result = await this.getUserUseCase.execute({ userId: decoded.id })
 
-      // Convert domain user to AuthUser format for frontend compatibility
       const authUser = this.convertUserToAuthUser(result.user)
-      console.log('[Controller] Converted to AuthUser:', {
-        authUser: { id: authUser.id, email: authUser.email, userName: authUser.userName },
-      })
-
       return NextResponse.json({ user: authUser })
     } catch (error) {
       console.error('[Controller] Get user error:', error)
