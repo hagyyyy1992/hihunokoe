@@ -5,6 +5,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string
   error?: string
   hint?: string
+  showPlaceholderHint?: boolean
   icon?: React.ReactNode
   variant?: 'default' | 'error'
   'data-testid'?: string
@@ -13,10 +14,21 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 const Input = memo(
   React.forwardRef<HTMLInputElement, InputProps>(
     (
-      { className, label, error, hint, icon, variant = 'default', 'data-testid': testId, ...props },
+      {
+        className,
+        label,
+        error,
+        hint,
+        showPlaceholderHint,
+        icon,
+        variant = 'default',
+        'data-testid': testId,
+        ...props
+      },
       ref
     ) => {
       const id = props.id || props.name
+      const displayHint = hint || (showPlaceholderHint && props.placeholder) || ''
 
       return (
         <div className="form-group">
@@ -45,7 +57,7 @@ const Input = memo(
             />
           </div>
           {error && <p className="form-error">{error}</p>}
-          {hint && !error && <p className="form-hint">{hint}</p>}
+          {displayHint && !error && <p className="form-hint">{displayHint}</p>}
         </div>
       )
     }
