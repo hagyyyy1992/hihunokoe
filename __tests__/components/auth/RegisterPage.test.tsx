@@ -38,7 +38,15 @@ jest.mock('next/link', () => {
 })
 
 jest.mock('../../../src/lib/auth/AuthContext', () => ({
-  useAuth: () => ({}),
+  useAuth: () => ({
+    user: null,
+    login: jest.fn(),
+    register: jest.fn(),
+    logout: jest.fn(),
+    refreshAuth: jest.fn(),
+    updateProfile: jest.fn(),
+    loading: false,
+  }),
 }))
 
 describe('RegisterPage', () => {
