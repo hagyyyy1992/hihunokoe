@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
+import EmpathyButton from '@/components/ui/EmpathyButton'
+import { EmpathyType } from '@/types'
 
 interface Post {
   id: string
@@ -129,6 +131,14 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [empathyState, setEmpathyState] = useState<{
+    hasEmpathized: boolean
+    empathyType?: EmpathyType
+    totalCount: number
+  }>({
+    hasEmpathized: false,
+    totalCount: 0,
+  })
 
   const fetchPost = useCallback(async () => {
     try {
@@ -140,6 +150,10 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
+      setEmpathyState(prevState => ({
+        ...prevState,
+        totalCount: data.post._count.empathies,
+      }))
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
@@ -148,11 +162,36 @@ export default function PostDetailPage() {
     }
   }, [id])
 
+  const fetchEmpathyState = useCallback(async () => {
+    if (!user || !id) return
+
+    try {
+      const response = await fetch(`/api/posts/${id}/empathy`)
+      if (response.ok) {
+        const data = await response.json()
+        setEmpathyState({
+          hasEmpathized: data.hasEmpathized,
+          empathyType: data.empathyType,
+          totalCount: data.totalCount,
+        })
+      }
+    } catch (err) {
+      // 共感状態の取得に失敗してもエラーにはしない
+      console.warn('Failed to fetch empathy state:', err)
+    }
+  }, [user, id])
+
   useEffect(() => {
     if (id) {
       fetchPost()
     }
   }, [id, fetchPost])
+
+  useEffect(() => {
+    if (id && user) {
+      fetchEmpathyState()
+    }
+  }, [id, user, fetchEmpathyState])
 
   if (loading) {
     return (
@@ -356,17 +395,6 @@ export default function PostDetailPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                <span>{post._count.empathies} 共感</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
@@ -391,8 +419,16 @@ export default function PostDetailPage() {
               </div>
             </div>
 
-            {user && (
-              <button className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-pink-600 bg-pink-50 rounded-md hover:bg-pink-100 transition-colors">
+            {user ? (
+              <EmpathyButton
+                postId={post.id}
+                initialCount={empathyState.totalCount}
+                initialHasEmpathized={empathyState.hasEmpathized}
+                initialEmpathyType={empathyState.empathyType}
+                size="md"
+              />
+            ) : (
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -401,8 +437,8 @@ export default function PostDetailPage() {
                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                   />
                 </svg>
-                <span>共感する</span>
-              </button>
+                <span>{empathyState.totalCount} 共感</span>
+              </div>
             )}
           </div>
         </article>

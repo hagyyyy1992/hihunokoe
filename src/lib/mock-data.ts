@@ -25,6 +25,23 @@ export const MOCK_USERS = [
   },
 ]
 
+export const MOCK_EMPATHIES = [
+  {
+    id: 'empathy-1',
+    postId: 'post-1',
+    userId: 'demo-user-2',
+    empathyType: 'helpful' as const,
+    createdAt: new Date('2024-01-16'),
+  },
+  {
+    id: 'empathy-2',
+    postId: 'post-2',
+    userId: 'demo-user-1',
+    empathyType: 'interested' as const,
+    createdAt: new Date('2024-01-13'),
+  },
+]
+
 export const MOCK_POSTS = [
   {
     id: 'post-1',
@@ -71,6 +88,7 @@ export const MOCK_POSTS = [
     moodTag: 'good' as const,
     status: 'published' as const,
     viewCount: 125,
+    empathyCount: 8,
     publishedAt: new Date('2024-01-15'),
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-15'),
@@ -133,6 +151,7 @@ export const MOCK_POSTS = [
     moodTag: 'love' as const,
     status: 'published' as const,
     viewCount: 89,
+    empathyCount: 12,
     publishedAt: new Date('2024-01-12'),
     createdAt: new Date('2024-01-12'),
     updatedAt: new Date('2024-01-12'),

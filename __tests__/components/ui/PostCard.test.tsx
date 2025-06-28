@@ -12,6 +12,31 @@ jest.mock('date-fns', () => ({
   formatDistanceToNow: jest.fn(() => '1時間前'),
 }))
 
+// Mock AuthContext
+jest.mock('../../../src/lib/auth/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    login: jest.fn(),
+    logout: jest.fn(),
+    register: jest.fn(),
+    updateProfile: jest.fn(),
+    loading: false,
+    error: null,
+  }),
+}))
+
+// Mock fetch API
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        hasEmpathized: false,
+        totalCount: 5,
+      }),
+  })
+) as jest.Mock
+
 describe('PostCard Component', () => {
   const mockPost = {
     id: 'test-post-1',
@@ -195,7 +220,10 @@ describe('PostCard Component', () => {
   it('カードにhover効果のクラスが適用される', () => {
     const { container } = render(<PostCard post={mockPost} />)
 
-    const card = container.firstChild as HTMLElement
-    expect(card).toHaveClass('hover:shadow-md', 'transition-shadow')
+    // TestWrapperで囲まれるため、PostCardのdivは2番目の子要素
+    const wrapper = container.firstChild as HTMLElement
+    const card = wrapper.firstChild as HTMLElement
+    expect(card).toHaveClass('hover:shadow-md')
+    expect(card).toHaveClass('transition-shadow')
   })
 })
