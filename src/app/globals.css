@@ -148,7 +148,7 @@ body {
 
 /* Component Styles */
 
-/* Button Styles */
+/* Button Styles - Optimized */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -157,10 +157,13 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 0.375rem;
-  transition: all var(--transition-normal);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   border: none;
   cursor: pointer;
   text-decoration: none;
+  will-change: background-color;
 }
 
 .btn:disabled {
@@ -218,7 +221,7 @@ body {
   background-color: #dc2626;
 }
 
-/* Input Styles */
+/* Input Styles - Optimized */
 .input,
 input[type='text'],
 input[type='email'],
@@ -236,8 +239,9 @@ textarea {
   color: #111827 !important;
   background-color: white;
   transition:
-    border-color var(--transition-normal),
-    box-shadow var(--transition-normal);
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  will-change: border-color, box-shadow;
 }
 
 .input::placeholder,
@@ -408,9 +412,10 @@ textarea:focus {
   }
 }
 
-/* Form Components */
+/* Form Components - Optimized */
 .form-group {
   margin-bottom: 1rem;
+  contain: layout style;
 }
 
 .form-label,
