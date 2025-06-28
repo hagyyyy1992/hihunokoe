@@ -47,7 +47,6 @@ jest.mock('next/link', () => {
     ),
   }
 })
-
 describe('LoginPage', () => {
   let mockFetch: jest.MockedFunction<typeof fetch>
   let mockRefreshAuth: jest.Mock
