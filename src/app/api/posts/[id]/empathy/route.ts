@@ -32,6 +32,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
     }
 
+    // UUID validation for user ID
+    const userUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!userUuidRegex.test(user.id)) {
+      console.error('Invalid user UUID in GET:', user.id)
+      return NextResponse.json({ error: 'ユーザーIDが無効です' }, { status: 400 })
+    }
+
     if (!isDatabaseAvailable()) {
       // モックモードでの共感状態取得
       const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
@@ -126,6 +133,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log('POST empathy - user verified:', !!user)
     if (!user) {
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
+    }
+
+    // UUID validation for user ID
+    const userUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!userUuidRegex.test(user.id)) {
+      console.error('Invalid user UUID:', user.id)
+      return NextResponse.json({ error: 'ユーザーIDが無効です' }, { status: 400 })
     }
 
     let body
@@ -324,6 +338,13 @@ export async function DELETE(
     const user = verifyToken(token)
     if (!user) {
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
+    }
+
+    // UUID validation for user ID
+    const userUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!userUuidRegex.test(user.id)) {
+      console.error('Invalid user UUID in DELETE:', user.id)
+      return NextResponse.json({ error: 'ユーザーIDが無効です' }, { status: 400 })
     }
 
     if (!isDatabaseAvailable()) {
