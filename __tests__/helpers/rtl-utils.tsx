@@ -1,11 +1,16 @@
-import { ReactElement } from 'react'
+import { ReactElement, ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
+// Test wrapper with providers
+function TestWrapper({ children }: { children: ReactNode }) {
+  return <div>{children}</div>
+}
 
 // Custom render function with default providers
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
   return render(ui, {
-    // wrapper: ({ children }) => <Provider>{children}</Provider>, // 必要に応じてプロバイダーを追加
+    wrapper: TestWrapper,
     ...options,
   })
 }
