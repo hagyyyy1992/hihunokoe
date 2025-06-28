@@ -136,14 +136,14 @@ describe('/api/posts/[id]', () => {
   }
 
   const createParams = (id: string) => {
-    return { id }
+    return { params: Promise.resolve({ id }) }
   }
 
   describe('GET', () => {
     it('存在する投稿を取得できる（モックモード）', async () => {
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -192,7 +192,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -277,7 +277,7 @@ describe('/api/posts/[id]', () => {
     it('存在しない投稿の場合、404エラーを返す（モックモード）', async () => {
       const request = createRequest('550e8400-e29b-41d4-a716-446655440099')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -290,7 +290,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440099')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -300,7 +300,7 @@ describe('/api/posts/[id]', () => {
     it('ドラフト投稿は取得できない（モックモード）', async () => {
       const request = createRequest('550e8400-e29b-41d4-a716-446655440003')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -313,7 +313,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -338,7 +338,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
 
       // 閲覧数更新エラーでも投稿自体は500エラーになる（全体のエラーハンドリング）
       expect(response.status).toBe(500)
@@ -347,7 +347,7 @@ describe('/api/posts/[id]', () => {
     it('複数の投稿を順次取得できる（モックモード）', async () => {
       // 最初の投稿
       const request1 = createRequest('550e8400-e29b-41d4-a716-446655440001')
-      const response1 = await GET(request1)
+      const response1 = await GET(request1, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data1 = await response1.json()
 
       expect(response1.status).toBe(200)
@@ -356,7 +356,7 @@ describe('/api/posts/[id]', () => {
 
       // 2番目の投稿
       const request2 = createRequest('550e8400-e29b-41d4-a716-446655440002')
-      const response2 = await GET(request2)
+      const response2 = await GET(request2, createParams('550e8400-e29b-41d4-a716-446655440002'))
       const data2 = await response2.json()
 
       expect(response2.status).toBe(200)
@@ -413,7 +413,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request)
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -435,7 +435,7 @@ describe('/api/posts/[id]', () => {
         title: 'Updated Title',
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -452,7 +452,7 @@ describe('/api/posts/[id]', () => {
         'invalid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -478,7 +478,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -523,7 +523,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -568,7 +568,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -599,7 +599,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -623,7 +623,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -648,7 +648,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -673,7 +673,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request)
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -689,7 +689,7 @@ describe('/api/posts/[id]', () => {
     it('認証されていない場合、401エラーを返す', async () => {
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001', 'DELETE')
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -706,7 +706,7 @@ describe('/api/posts/[id]', () => {
         'invalid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -723,7 +723,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -749,7 +749,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -773,7 +773,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -798,7 +798,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -816,7 +816,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -835,7 +835,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(404)

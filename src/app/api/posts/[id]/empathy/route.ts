@@ -11,9 +11,11 @@ const empathySchema = z.object({
 })
 
 // GET: ユーザーの共感状態を取得
-export async function GET(request: NextRequest) {
-  const segments = request.nextUrl.pathname.split('/')
-  const postId = segments[segments.length - 2]
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: postId } = await params
 
   // UUID形式の検証
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -88,9 +90,11 @@ export async function GET(request: NextRequest) {
 }
 
 // POST: 共感を追加
-export async function POST(request: NextRequest) {
-  const segments = request.nextUrl.pathname.split('/')
-  const postId = segments[segments.length - 2]
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: postId } = await params
 
   // UUID形式の検証
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -237,9 +241,11 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE: 共感を削除
-export async function DELETE(request: NextRequest) {
-  const segments = request.nextUrl.pathname.split('/')
-  const postId = segments[segments.length - 2]
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: postId } = await params
 
   // UUID形式の検証
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
