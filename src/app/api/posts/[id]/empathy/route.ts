@@ -133,8 +133,9 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         empathyType,
         createdAt: new Date(),
-      } as const
+      }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       MOCK_EMPATHIES.push(newEmpathy as any)
 
       // 共感数を更新
