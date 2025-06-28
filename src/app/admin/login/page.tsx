@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white border-gray-200 shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">管理者ログイン</CardTitle>
           <CardDescription>
