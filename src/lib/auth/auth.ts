@@ -239,3 +239,31 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
   }
 }
+
+export async function deleteUserAccount(id: string): Promise<boolean> {
+  if (!isDatabaseAvailable() || !isValidUUID(id)) {
+    // モックモードでは削除をサポートしない
+    throw new Error('アカウント削除はモックモードではサポートされていません')
+  }
+
+  try {
+    // ユーザーが存在するか確認
+    const user = await prisma!.user.findUnique({
+      where: { id, isActive: true },
+    })
+
+    if (!user) {
+      throw new Error('ユーザーが見つかりません')
+    }
+
+    // ユーザーを削除（関連データもCascadeで削除される）
+    await prisma!.user.delete({
+      where: { id },
+    })
+
+    return true
+  } catch (error) {
+    console.error('Account deletion failed:', error)
+    throw new Error('アカウントの削除に失敗しました')
+  }
+}
