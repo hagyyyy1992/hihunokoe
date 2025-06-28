@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         where: {
           email: validatedData.email,
           isActive: true,
+          deletedAt: null,
         },
       })
 

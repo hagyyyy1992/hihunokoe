@@ -6,7 +6,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
-      delete: jest.fn(),
+      update: jest.fn(),
     },
   },
   isDatabaseAvailable: jest.fn(),
@@ -22,7 +22,7 @@ describe('deleteUserAccount', () => {
     jest.clearAllMocks()
     // Reset the mocked prisma user object
     mockPrismaUser.findUnique.mockReset()
-    mockPrismaUser.delete.mockReset()
+    mockPrismaUser.update.mockReset()
   })
 
   it('データベースが利用できない場合はエラーを投げる', async () => {
@@ -53,9 +53,9 @@ describe('deleteUserAccount', () => {
     await expect(deleteUserAccount(validUuid)).rejects.toThrow('ユーザーが見つかりません')
 
     expect(mockPrismaUser.findUnique).toHaveBeenCalledWith({
-      where: { id: validUuid, isActive: true },
+      where: { id: validUuid, isActive: true, deletedAt: null },
     })
-    expect(mockPrismaUser.delete).not.toHaveBeenCalled()
+    expect(mockPrismaUser.update).not.toHaveBeenCalled()
 
     consoleSpy.mockRestore()
   })
@@ -74,7 +74,7 @@ describe('deleteUserAccount', () => {
     consoleSpy.mockRestore()
   })
 
-  it('正常なユーザーIDでアカウント削除が成功する', async () => {
+  it('正常なユーザーIDでアカウント論理削除が成功する', async () => {
     mockIsDatabaseAvailable.mockReturnValue(true)
 
     const activeUser = {
@@ -82,20 +82,29 @@ describe('deleteUserAccount', () => {
       userName: 'testuser',
       email: 'test@example.com',
       isActive: true,
+      deletedAt: null,
     }
 
     mockPrismaUser.findUnique.mockResolvedValue(activeUser)
-    mockPrismaUser.delete.mockResolvedValue(activeUser)
+    mockPrismaUser.update.mockResolvedValue({
+      ...activeUser,
+      deletedAt: new Date(),
+      isActive: false,
+    })
 
     const validUuid = '550e8400-e29b-41d4-a716-446655440000'
     const result = await deleteUserAccount(validUuid)
 
     expect(result).toBe(true)
     expect(mockPrismaUser.findUnique).toHaveBeenCalledWith({
-      where: { id: validUuid, isActive: true },
+      where: { id: validUuid, isActive: true, deletedAt: null },
     })
-    expect(mockPrismaUser.delete).toHaveBeenCalledWith({
+    expect(mockPrismaUser.update).toHaveBeenCalledWith({
       where: { id: validUuid },
+      data: {
+        deletedAt: expect.any(Date),
+        isActive: false,
+      },
     })
   })
 
@@ -107,10 +116,11 @@ describe('deleteUserAccount', () => {
       userName: 'testuser',
       email: 'test@example.com',
       isActive: true,
+      deletedAt: null,
     }
 
     mockPrismaUser.findUnique.mockResolvedValue(activeUser)
-    mockPrismaUser.delete.mockRejectedValue(new Error('Database error'))
+    mockPrismaUser.update.mockRejectedValue(new Error('Database error'))
 
     const validUuid = '550e8400-e29b-41d4-a716-446655440000'
 

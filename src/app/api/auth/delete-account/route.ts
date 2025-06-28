@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyToken, deleteUserAccount } from '@/lib/auth/auth'
+import {
+  sendEmail,
+  generateAccountDeletionEmailHtml,
+  generateAccountDeletionEmailText,
+} from '@/lib/email/email'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -23,6 +28,19 @@ export async function DELETE(request: NextRequest) {
 
     // アカウント削除を実行
     await deleteUserAccount(user.id)
+
+    // 削除完了メールを送信
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Usaka アカウント削除完了のお知らせ',
+        html: generateAccountDeletionEmailHtml(user.userName),
+        text: generateAccountDeletionEmailText(user.userName),
+      })
+    } catch (emailError) {
+      console.error('Failed to send account deletion email:', emailError)
+      // メール送信失敗してもアカウント削除は成功とする
+    }
 
     // レスポンスにSet-Cookieヘッダーを追加してトークンを削除
     const response = NextResponse.json(

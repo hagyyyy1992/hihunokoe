@@ -149,7 +149,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       },
     })
 
-    if (user && user.isActive) {
+    if (user && user.isActive && !user.deletedAt) {
       const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
 
       if (isPasswordValid) {
@@ -216,6 +216,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     where: {
       id,
       isActive: true,
+      deletedAt: null,
     },
   })
 
@@ -247,18 +248,26 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
   }
 
   try {
-    // ユーザーが存在するか確認
+    // ユーザーが存在するか確認（論理削除されていないもののみ）
     const user = await prisma!.user.findUnique({
-      where: { id, isActive: true },
+      where: {
+        id,
+        isActive: true,
+        deletedAt: null,
+      },
     })
 
     if (!user) {
       throw new Error('ユーザーが見つかりません')
     }
 
-    // ユーザーを削除（関連データもCascadeで削除される）
-    await prisma!.user.delete({
+    // 論理削除を実行（deletedAtに現在時刻を設定）
+    await prisma!.user.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+        isActive: false,
+      },
     })
 
     return true
