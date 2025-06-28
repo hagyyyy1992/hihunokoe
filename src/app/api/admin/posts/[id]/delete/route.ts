@@ -4,8 +4,7 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') ||
-    req.cookies.get('auth-token')?.value
+    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
@@ -70,6 +69,4 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     console.error('Post delete error:', error)
     return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
   }
-}
-
 }
