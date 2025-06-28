@@ -2,7 +2,15 @@ import { deleteUserAccount } from '../../../src/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '../../../src/lib/prisma'
 
 // モック
-jest.mock('../../../src/lib/prisma')
+jest.mock('../../../src/lib/prisma', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+  isDatabaseAvailable: jest.fn(),
+}))
 
 const mockIsDatabaseAvailable = isDatabaseAvailable as jest.MockedFunction<
   typeof isDatabaseAvailable

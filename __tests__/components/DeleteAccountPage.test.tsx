@@ -4,12 +4,19 @@ import { useRouter } from 'next/navigation'
 import DeleteAccountPage from '../../src/app/account/delete/page'
 
 // モック
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-}))
-
 const mockPush = jest.fn()
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+const mockUseRouter = jest.fn()
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+}))
 
 // fetchをモック
 global.fetch = jest.fn()
@@ -18,14 +25,6 @@ const mockFetch = fetch as jest.MockedFunction<typeof fetch>
 describe('DeleteAccountPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseRouter.mockReturnValue({
-      push: mockPush,
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-    })
   })
 
   it('初期状態で警告メッセージと継続ボタンが表示される', () => {

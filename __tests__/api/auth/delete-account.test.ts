@@ -5,7 +5,9 @@ import { cookies } from 'next/headers'
 
 // モック
 jest.mock('../../../src/lib/auth/auth')
-jest.mock('next/headers')
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(),
+}))
 
 const mockDeleteUserAccount = deleteUserAccount as jest.MockedFunction<typeof deleteUserAccount>
 const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
@@ -18,7 +20,7 @@ describe('/api/auth/delete-account', () => {
 
   describe('DELETE', () => {
     it('認証されていないユーザーは401エラーを返す', async () => {
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue(undefined),
       } as any)
 
@@ -35,7 +37,7 @@ describe('/api/auth/delete-account', () => {
     })
 
     it('無効なトークンの場合は401エラーを返す', async () => {
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'invalid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(null)
@@ -53,7 +55,7 @@ describe('/api/auth/delete-account', () => {
     })
 
     it('パスワードが提供されていない場合は400エラーを返す', async () => {
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue({
@@ -81,7 +83,7 @@ describe('/api/auth/delete-account', () => {
         email: 'test@example.com',
       }
 
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)
@@ -112,7 +114,7 @@ describe('/api/auth/delete-account', () => {
         email: 'test@example.com',
       }
 
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)
@@ -137,7 +139,7 @@ describe('/api/auth/delete-account', () => {
         email: 'test@example.com',
       }
 
-      mockCookies.mockResolvedValue({
+      mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)

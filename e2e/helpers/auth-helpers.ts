@@ -1,5 +1,26 @@
 import { Page, expect } from '@playwright/test'
 
+// E2Eテスト用のヘルパー関数
+export async function loginTestUser(page: Page, email: string = 'demo@example.com', password: string = 'demo123') {
+  const authHelper = new AuthHelper(page)
+  await authHelper.login(email, password)
+}
+
+export async function registerTestUser(page: Page, userData: {
+  username: string
+  email: string
+  password: string
+  skinType?: string
+}) {
+  const authHelper = new AuthHelper(page)
+  await authHelper.register(userData)
+}
+
+export async function logoutTestUser(page: Page) {
+  const authHelper = new AuthHelper(page)
+  await authHelper.logout()
+}
+
 export class AuthHelper {
   constructor(private page: Page) {}
 
