@@ -11,7 +11,7 @@ export function withAdminAuth(
 ) {
   return async (
     req: NextRequest,
-    context?: { params?: Promise<Record<string, string>> }
+    context: { params: Promise<{ id: string }> }
   ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
@@ -34,8 +34,8 @@ export function withAdminAuth(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    // Convert Promise<Record<string, string>> to Record<string, string>
-    const params = context?.params ? await context.params : undefined
+    // Convert Promise<{ id: string }> to Record<string, string>
+    const params = await context.params
     return handler(adminReq, { params })
   }
 }
@@ -45,7 +45,7 @@ export function requireSuperAdmin(
 ) {
   return async (
     req: NextRequest,
-    context?: { params?: Promise<Record<string, string>> }
+    context: { params: Promise<{ id: string }> }
   ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
@@ -71,8 +71,8 @@ export function requireSuperAdmin(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    // Convert Promise<Record<string, string>> to Record<string, string>
-    const params = context?.params ? await context.params : undefined
+    // Convert Promise<{ id: string }> to Record<string, string>
+    const params = await context.params
     return handler(adminReq, { params })
   }
 }
