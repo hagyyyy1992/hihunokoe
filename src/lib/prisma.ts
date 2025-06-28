@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { DB_CONFIG } from './db-config'
+import { DB_CONFIG } from '@/lib/db-config'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
