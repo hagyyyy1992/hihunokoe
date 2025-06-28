@@ -3,5 +3,11 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
+  },
+  "devCommand": "npm run dev",
+  "framework": "nextjs",
+  "analytics": false,
+  "webAnalytics": {
+    "enabled": false
   }
 }

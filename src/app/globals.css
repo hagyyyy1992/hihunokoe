@@ -59,11 +59,20 @@
   --color-pink-900: var(--pink-900);
 }
 
+/* Force light mode - disable dark mode */
+/*
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+*/
+
+/* Force light mode for all cases */
+:root {
+  --background: #f9fafb !important;
+  --foreground: #111827 !important;
 }
 
 /* Firefox-specific fix to prevent unwanted dark mode */
@@ -75,9 +84,14 @@
 }
 
 /* Base Styles */
+html {
+  background: #f9fafb !important;
+  color-scheme: light !important;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--background) !important;
+  color: var(--foreground) !important;
   font-family:
     var(--font-geist-sans),
     -apple-system,
