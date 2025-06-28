@@ -42,12 +42,13 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-admin-features)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
       "Bash(npx prisma:*)",
+      "Bash(ps:*)"
       "Bash(git merge:*)",
       "Bash(export USE_MOCK_DATA=true)",
       "Bash(node:*)",
       "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
       "Bash(-s)"
     ],
-    "deny": []
+    "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
   }
 }

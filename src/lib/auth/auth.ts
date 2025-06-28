@@ -149,51 +149,78 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
 }
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser | null> {
+  console.log('[AUTH] loginUser called with email:', credentials.email)
+
   // データベースが利用可能な場合は、データベースユーザーを優先
-  if (isDatabaseAvailable()) {
-    const user = await prisma!.user.findUnique({
-      where: {
-        email: credentials.email,
-      },
-    })
+  const dbAvailable = isDatabaseAvailable()
+  console.log('[AUTH] Database available:', dbAvailable)
 
-    if (user && user.isActive) {
-      const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
+  if (dbAvailable) {
+    console.log('[AUTH] Attempting database lookup for:', credentials.email)
+    try {
+      const user = await prisma!.user.findUnique({
+        where: {
+          email: credentials.email,
+        },
+      })
+      console.log('[AUTH] Database user found:', !!user)
 
-      if (isPasswordValid) {
-        return {
-          id: user.id,
-          userName: user.userName,
-          email: user.email,
-          role: user.role,
-          birthDate: user.birthDate,
-          gender: user.gender,
-          skinType: user.skinType,
-          skinTypeOther: user.skinTypeOther,
-          allergies: user.allergies,
-          allergiesOther: user.allergiesOther,
-          bodyType: user.bodyType,
-          bodyTypeOther: user.bodyTypeOther,
-          profileImageUrl: user.profileImageUrl || undefined,
-          emailVerified: user.emailVerified,
+      if (user && user.isActive) {
+        console.log('[AUTH] User is active, verifying password...')
+        const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
+        console.log('[AUTH] Password valid:', isPasswordValid)
+
+        if (isPasswordValid) {
+          console.log('[AUTH] Returning database user with role:', user.role)
+          return {
+            id: user.id,
+            userName: user.userName,
+            email: user.email,
+            role: user.role,
+            birthDate: user.birthDate,
+            gender: user.gender,
+            skinType: user.skinType,
+            skinTypeOther: user.skinTypeOther,
+            allergies: user.allergies,
+            allergiesOther: user.allergiesOther,
+            bodyType: user.bodyType,
+            bodyTypeOther: user.bodyTypeOther,
+            profileImageUrl: user.profileImageUrl || undefined,
+            emailVerified: user.emailVerified,
+          }
         }
       }
+    } catch (error) {
+      console.error('[AUTH] Database query error:', error)
+      // Continue to mock user fallback
     }
   }
 
   // データベースが利用できない場合、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
+  console.log('[AUTH] Checking mock users...')
   const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
+  console.log('[AUTH] Mock user found:', !!mockUser)
+
+  if (mockUser) {
+    console.log('[AUTH] Mock user active:', mockUser.isActive)
+    console.log('[AUTH] Mock user role:', mockUser.role)
+    console.log('[AUTH] Password check (demo123):', credentials.password === 'demo123')
+  }
+
   if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
+    console.log('[AUTH] Returning mock user with role:', mockUser.role)
     return {
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
+      role: mockUser.role as UserRole,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
     }
   }
 
+  console.log('[AUTH] No user found, returning null')
   return null
 }
 
@@ -215,6 +242,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
       id: mockUser.id,
       userName: mockUser.userName,
       email: mockUser.email,
+      role: mockUser.role as UserRole,
       skinType: mockUser.skinType || undefined,
       profileImageUrl: mockUser.profileImageUrl || undefined,
       emailVerified: true, // モックユーザーは常に認証済み
@@ -251,7 +279,15 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
 }
 
 export function isAdmin(user: AuthUser | null): boolean {
-  return user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
+  console.log('[AUTH] isAdmin check - user:', user ? 'exists' : 'null')
+  if (user) {
+    console.log('[AUTH] isAdmin check - user role:', user.role)
+    console.log('[AUTH] isAdmin check - UserRole.ADMIN:', UserRole.ADMIN)
+    console.log('[AUTH] isAdmin check - UserRole.SUPER_ADMIN:', UserRole.SUPER_ADMIN)
+  }
+  const result = user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
+  console.log('[AUTH] isAdmin result:', result)
+  return result
 }
 
 export function isSuperAdmin(user: AuthUser | null): boolean {

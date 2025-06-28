@@ -7,6 +7,7 @@ export const MOCK_USERS = [
     email: 'demo@example.com',
     passwordHash: '$2a$12$demo.hash.for.password123', // password: "demo123"
     skinType: 'normal' as const,
+    role: 'USER' as const,
     isActive: true,
     profileImageUrl: null,
     createdAt: new Date('2024-01-01'),
@@ -18,6 +19,19 @@ export const MOCK_USERS = [
     email: 'beauty@example.com',
     passwordHash: '$2a$12$demo.hash.for.password456', // password: "demo123"
     skinType: 'dry' as const,
+    role: 'USER' as const,
+    isActive: true,
+    profileImageUrl: null,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  },
+  {
+    id: 'demo-admin-1',
+    userName: '管理者',
+    email: 'admin@example.com',
+    passwordHash: '$2a$12$demo.hash.for.password789', // password: "demo123"
+    skinType: 'normal' as const,
+    role: 'ADMIN' as const,
     isActive: true,
     profileImageUrl: null,
     createdAt: new Date('2024-01-01'),
