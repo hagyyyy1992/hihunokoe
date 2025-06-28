@@ -79,11 +79,16 @@ export default function EmpathyButton({
       setError(errorMessage)
 
       // エラー時は楽観的UI更新を戻す
-      // ただし、"既に共感済み"エラーの場合は現在の状態を正しく設定
+      // 特定のエラーの場合は適切な状態に設定
       if (errorMessage.includes('既に共感済み')) {
         // すでに共感済みの場合は共感ありの状態に設定
         setHasEmpathized(true)
         setEmpathyType('helpful') // デフォルトタイプ
+        // カウントはサーバーの現在の値を維持（変更しない）
+      } else if (errorMessage.includes('共感が見つかりません')) {
+        // 共感が見つからない場合は共感なしの状態に設定
+        setHasEmpathized(false)
+        setEmpathyType(undefined)
         // カウントはサーバーの現在の値を維持（変更しない）
       } else {
         // その他のエラーの場合は元の状態に戻す
