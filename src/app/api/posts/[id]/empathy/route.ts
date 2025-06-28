@@ -121,8 +121,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { empathyType } = empathySchema.parse(body)
+    let body
+    try {
+      body = await request.json()
+    } catch (jsonError) {
+      console.error('JSON parse error:', jsonError)
+      return NextResponse.json({ error: 'リクエストボディが無効です' }, { status: 400 })
+    }
+
+    let empathyType
+    try {
+      const parsed = empathySchema.parse(body)
+      empathyType = parsed.empathyType
+    } catch (zodError) {
+      console.error('Validation error:', zodError)
+      return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
+    }
 
     if (!isDatabaseAvailable()) {
       // モックモードでの共感追加
@@ -238,23 +252,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
   } catch (error: unknown) {
     console.error('Empathy creation error:', error)
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'name' in error &&
-      error.name === 'ZodError' &&
-      'errors' in error
-    ) {
-      return NextResponse.json(
-        {
-          error: '入力内容に誤りがあります',
-          details: (error as unknown as { errors: unknown }).errors,
-        },
-        { status: 400 }
-      )
-    }
-
     return NextResponse.json({ error: '共感の追加に失敗しました' }, { status: 500 })
   }
 }
