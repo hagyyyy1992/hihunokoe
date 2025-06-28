@@ -202,13 +202,6 @@ describe('RegistrationCompletePage', () => {
     })
   })
 
-  describe('メールアドレスがない場合', () => {
-    it.skip('メールアドレスがない場合は再送信ボタンが無効化される', () => {
-      // This test requires complex mock reset which interferes with React hooks
-      // The functionality is covered by the button disabled attribute test in accessibility section
-    })
-  })
-
   describe('Suspenseとフォールバック', () => {
     it('ローディング状態が表示される', () => {
       // This test would need more complex mocking to test the actual Suspense fallback

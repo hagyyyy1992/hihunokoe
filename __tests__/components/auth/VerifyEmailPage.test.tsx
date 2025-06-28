@@ -226,12 +226,6 @@ describe('VerifyEmailPage', () => {
       )
     })
 
-    it.skip('トークンがない場合にエラーメッセージが表示される', async () => {
-      // This test requires complex mock setup that interferes with the testing environment
-      // The functionality is tested in the component's internal logic
-      // When no token is provided, the component shows the appropriate error message
-    })
-
     it('重複処理を防ぐため一度だけ実行される', async () => {
       mockFetch.mockResolvedValueOnce(
         mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
