@@ -149,14 +149,19 @@ export default function PostDetailPage() {
         throw new Error(data.error || '投稿の取得に失敗しました')
       }
 
+      if (!data.post) {
+        throw new Error('投稿データが見つかりません')
+      }
+
       setPost(data.post)
       setEmpathyState(prevState => ({
         ...prevState,
-        totalCount: data.post._count.empathies,
+        totalCount: data.post._count?.empathies || 0,
       }))
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
+      setPost(null) // エラー時は明示的にnullを設定
     } finally {
       setLoading(false)
     }
@@ -170,14 +175,24 @@ export default function PostDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setEmpathyState({
-          hasEmpathized: data.hasEmpathized,
+          hasEmpathized: data.hasEmpathized || false,
           empathyType: data.empathyType,
-          totalCount: data.totalCount,
+          totalCount: data.totalCount || 0,
+        })
+      } else {
+        // 404やその他のエラーの場合、デフォルト状態を設定
+        setEmpathyState({
+          hasEmpathized: false,
+          totalCount: 0,
         })
       }
     } catch (err) {
       // 共感状態の取得に失敗してもエラーにはしない
       console.warn('Failed to fetch empathy state:', err)
+      setEmpathyState({
+        hasEmpathized: false,
+        totalCount: 0,
+      })
     }
   }, [user, id])
 
@@ -188,10 +203,10 @@ export default function PostDetailPage() {
   }, [id, fetchPost])
 
   useEffect(() => {
-    if (id && user) {
+    if (id && user && post) {
       fetchEmpathyState()
     }
-  }, [id, user, fetchEmpathyState])
+  }, [id, user, post, fetchEmpathyState])
 
   if (loading) {
     return (
