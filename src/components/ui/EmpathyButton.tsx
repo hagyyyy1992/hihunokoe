@@ -79,14 +79,23 @@ export default function EmpathyButton({
       setError(errorMessage)
 
       // エラー時は楽観的UI更新を戻す
-      if (hasEmpathized) {
+      // ただし、"既に共感済み"エラーの場合は現在の状態を正しく設定
+      if (errorMessage.includes('既に共感済み')) {
+        // すでに共感済みの場合は共感ありの状態に設定
         setHasEmpathized(true)
-        setEmpathyType(empathyType)
-        setCount(prevCount => prevCount + 1)
+        setEmpathyType('helpful') // デフォルトタイプ
+        // カウントはサーバーの現在の値を維持（変更しない）
       } else {
-        setHasEmpathized(false)
-        setEmpathyType(undefined)
-        setCount(prevCount => Math.max(0, prevCount - 1))
+        // その他のエラーの場合は元の状態に戻す
+        if (hasEmpathized) {
+          setHasEmpathized(true)
+          setEmpathyType(empathyType)
+          setCount(prevCount => prevCount + 1)
+        } else {
+          setHasEmpathized(false)
+          setEmpathyType(undefined)
+          setCount(prevCount => Math.max(0, prevCount - 1))
+        }
       }
 
       // エラーメッセージを3秒後に消す
