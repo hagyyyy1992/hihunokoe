@@ -19,8 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
   }
   try {
-    const resolvedParams = await params
-    const postId = resolvedParams.id
+    const { id: postId } = await params
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json({ error: 'Database not available in mock mode' }, { status: 503 })
