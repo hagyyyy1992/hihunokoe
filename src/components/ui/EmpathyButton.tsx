@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { EmpathyType } from '@/types'
 
 interface EmpathyButtonProps {
@@ -25,6 +25,13 @@ export default function EmpathyButton({
   const [empathyType, setEmpathyType] = useState<EmpathyType | undefined>(initialEmpathyType)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // propsの変更を監視して内部状態を更新
+  useEffect(() => {
+    setCount(initialCount)
+    setHasEmpathized(initialHasEmpathized)
+    setEmpathyType(initialEmpathyType)
+  }, [initialCount, initialHasEmpathized, initialEmpathyType])
 
   const handleEmpathy = useCallback(async () => {
     if (isLoading) return
