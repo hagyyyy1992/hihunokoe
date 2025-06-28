@@ -11,7 +11,7 @@ export function withAdminAuth(
 ) {
   return async (
     req: NextRequest,
-    context?: { params?: Record<string, string> }
+    context?: { params?: Promise<Record<string, string>> }
   ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
@@ -34,7 +34,9 @@ export function withAdminAuth(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq, context)
+    // Convert Promise<Record<string, string>> to Record<string, string>
+    const params = context?.params ? await context.params : undefined
+    return handler(adminReq, { params })
   }
 }
 
@@ -43,7 +45,7 @@ export function requireSuperAdmin(
 ) {
   return async (
     req: NextRequest,
-    context?: { params?: Record<string, string> }
+    context?: { params?: Promise<Record<string, string>> }
   ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
@@ -69,6 +71,8 @@ export function requireSuperAdmin(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq, context)
+    // Convert Promise<Record<string, string>> to Record<string, string>
+    const params = context?.params ? await context.params : undefined
+    return handler(adminReq, { params })
   }
 }
