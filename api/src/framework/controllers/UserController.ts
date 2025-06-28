@@ -12,6 +12,7 @@ export class UserController {
   }
 
   async getMe(request: NextRequest): Promise<NextResponse> {
+    console.log('getMe')
     try {
       const token = request.cookies.get('auth-token')?.value
 

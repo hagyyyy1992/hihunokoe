@@ -1,10 +1,10 @@
 // Mock password reset module
-jest.mock('../../../src/lib/auth/password-reset', () => ({
+jest.mock('@/lib/auth/password-reset', () => ({
   resetPassword: jest.fn(),
 }))
 
 // Mock rate limiter
-jest.mock('../../../src/lib/rate-limiter', () => ({
+jest.mock('@/lib/rate-limiter', () => ({
   passwordResetExecutionLimiter: {
     checkLimit: jest.fn(),
   },
@@ -14,8 +14,8 @@ jest.mock('../../../src/lib/rate-limiter', () => ({
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/reset-password/route'
-import * as passwordResetModule from '../../../src/lib/auth/password-reset'
-import * as rateLimiterModule from '../../../src/lib/rate-limiter'
+import * as passwordResetModule from '@/lib/auth/password-reset'
+import * as rateLimiterModule from '@/lib/rate-limiter'
 
 const mockResetPassword = passwordResetModule.resetPassword as jest.MockedFunction<
   typeof passwordResetModule.resetPassword

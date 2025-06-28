@@ -1,11 +1,11 @@
 // Mock the password reset module
-jest.mock('../../../src/lib/auth/password-reset', () => ({
+jest.mock('@/lib/auth/password-reset', () => ({
   verifyPasswordResetToken: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/verify-reset-token/route'
-import * as passwordResetModule from '../../../src/lib/auth/password-reset'
+import * as passwordResetModule from '@/lib/auth/password-reset'
 
 const mockVerifyPasswordResetToken =
   passwordResetModule.verifyPasswordResetToken as jest.MockedFunction<

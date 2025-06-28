@@ -1,19 +1,19 @@
 // Mock auth module
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   loginUser: jest.fn(),
   registerUser: jest.fn(),
   generateToken: jest.fn(),
 }))
 
-jest.mock('../../../src/lib/auth/email-verification', () => ({
+jest.mock('@/lib/auth/email-verification', () => ({
   sendVerificationEmail: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { POST as loginPost } from '../../../src/app/api/auth/login/route'
 import { POST as registerPost } from '../../../src/app/api/auth/register/route'
-import * as authModule from '../../../src/lib/auth/auth'
-import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
+import * as authModule from '@/lib/auth/auth'
+import * as emailVerificationModule from '@/lib/auth/email-verification'
 
 const mockLoginUser = authModule.loginUser as jest.MockedFunction<typeof authModule.loginUser>
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<

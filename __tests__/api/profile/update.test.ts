@@ -1,11 +1,11 @@
 // Mock the auth module first
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
   getUserById: jest.fn(),
 }))
 
 // Mock the prisma module
-jest.mock('../../../src/lib/prisma', () => {
+jest.mock('@/lib/prisma', () => {
   return {
     prisma: {
       user: {
@@ -18,10 +18,10 @@ jest.mock('../../../src/lib/prisma', () => {
 
 import { NextRequest } from 'next/server'
 import { PUT } from '../../../src/app/api/profile/update/route'
-import * as authModule from '../../../src/lib/auth/auth'
-import { SkinType } from '../../../src/types'
-import * as prismaModule from '../../../src/lib/prisma'
-import { MOCK_USERS } from '../../../src/lib/mock-data'
+import * as authModule from '@/lib/auth/auth'
+import { SkinType } from '@/types'
+import * as prismaModule from '@/lib/prisma'
+import { MOCK_USERS } from '@/lib/mock-data'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockGetUserById = authModule.getUserById as jest.MockedFunction<typeof authModule.getUserById>
