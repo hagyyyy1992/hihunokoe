@@ -192,7 +192,7 @@ describe('/api/posts/[id]', () => {
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -300,7 +300,7 @@ describe('/api/posts/[id]', () => {
     it('ドラフト投稿は取得できない（モックモード）', async () => {
       const request = createRequest('550e8400-e29b-41d4-a716-446655440003')
 
-      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440003'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -623,7 +623,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
+      const response = await PUT(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -816,7 +816,7 @@ describe('/api/posts/[id]', () => {
         'valid-token'
       )
 
-      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
+      const response = await DELETE(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
       const data = await response.json()
 
       expect(response.status).toBe(404)

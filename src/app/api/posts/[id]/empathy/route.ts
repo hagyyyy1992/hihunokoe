@@ -11,10 +11,7 @@ const empathySchema = z.object({
 })
 
 // GET: ユーザーの共感状態を取得
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: postId } = await params
 
   // UUID形式の検証
@@ -90,10 +87,7 @@ export async function GET(
 }
 
 // POST: 共感を追加
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: postId } = await params
 
   // UUID形式の検証

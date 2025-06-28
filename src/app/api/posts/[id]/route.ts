@@ -66,10 +66,7 @@ const postSchema = z.object({
 })
 
 // GET: 投稿の取得
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: postId } = await params
 
   // UUID形式の検証
@@ -186,10 +183,7 @@ export async function GET(
 }
 
 // PUT: 投稿の更新
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: postId } = await params
 
   // UUID形式の検証
