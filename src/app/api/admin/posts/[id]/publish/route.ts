@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { logAdminAction, adminMiddleware, AdminRequest } from '@/lib/auth/admin-middleware'
+import { withAdminAuth, AdminRequest } from '@/lib/auth/admin-middleware'
+import { logAdminAction } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 const handler = async (req: AdminRequest, context: { params: Promise<{ id: string }> }) => {
@@ -30,7 +31,7 @@ const handler = async (req: AdminRequest, context: { params: Promise<{ id: strin
 
     // 管理者ログを記録
     await logAdminAction(
-      req.user.id,
+      req.user!.id,
       'POST_PUBLISH',
       postId,
       {
@@ -51,4 +52,4 @@ const handler = async (req: AdminRequest, context: { params: Promise<{ id: strin
   }
 }
 
-export const POST = adminMiddleware(handler)
+export const POST = withAdminAuth(handler)
