@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
-import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+import { SkinType, Gender, AllergyType, BodyType, UserRole } from '@prisma/client'
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key'
 
@@ -10,6 +10,7 @@ export interface AuthUser {
   id: string
   userName: string
   email: string
+  role?: UserRole
   birthDate?: Date | null
   gender?: Gender | null
   skinType?: SkinType | null
@@ -55,6 +56,7 @@ export function generateToken(user: AuthUser): string {
       id: user.id,
       userName: user.userName,
       email: user.email,
+      role: user.role,
     },
     JWT_SECRET,
     {
@@ -65,11 +67,17 @@ export function generateToken(user: AuthUser): string {
 
 export function verifyToken(token: string): AuthUser | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; userName: string; email: string }
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: string
+      userName: string
+      email: string
+      role?: UserRole
+    }
     return {
       id: decoded.id,
       userName: decoded.userName,
       email: decoded.email,
+      role: decoded.role,
     }
   } catch {
     return null
@@ -157,6 +165,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
           id: user.id,
           userName: user.userName,
           email: user.email,
+          role: user.role,
           birthDate: user.birthDate,
           gender: user.gender,
           skinType: user.skinType,
@@ -227,6 +236,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     id: user.id,
     userName: user.userName,
     email: user.email,
+    role: user.role,
     birthDate: user.birthDate,
     gender: user.gender,
     skinType: user.skinType,
@@ -237,5 +247,41 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     bodyTypeOther: user.bodyTypeOther,
     profileImageUrl: user.profileImageUrl || undefined,
     emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
+  }
+}
+
+export function isAdmin(user: AuthUser | null): boolean {
+  return user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
+}
+
+export function isSuperAdmin(user: AuthUser | null): boolean {
+  return user?.role === UserRole.SUPER_ADMIN
+}
+
+export async function logAdminAction(
+  userId: string,
+  action: string,
+  target?: string,
+  details?: unknown,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<void> {
+  if (!isDatabaseAvailable()) {
+    return
+  }
+
+  try {
+    await prisma!.adminLog.create({
+      data: {
+        userId,
+        action,
+        target,
+        details: details ? JSON.parse(JSON.stringify(details)) : null,
+        ipAddress,
+        userAgent,
+      },
+    })
+  } catch (error) {
+    console.error('Failed to log admin action:', error)
   }
 }

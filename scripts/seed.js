@@ -25,6 +25,24 @@ async function main() {
 
   console.log('✅ Demo user created:', demoUser.email)
 
+  // 管理者ユーザーの作成
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {
+      role: 'SUPER_ADMIN',
+      emailVerified: true,
+    },
+    create: {
+      userName: 'admin',
+      email: 'admin@example.com',
+      passwordHash: hashedPassword, // 同じパスワード (demo123) を使用
+      role: 'SUPER_ADMIN',
+      emailVerified: true,
+    },
+  })
+
+  console.log('✅ Admin user created:', adminUser.email)
+
   // デモ投稿の作成
   const demoPosts = [
     {
