@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withAdminAuth, AdminRequest } from '@/lib/auth/admin-middleware'
-import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { logAdminAction } from '@/lib/auth/auth'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 const handler = async (req: AdminRequest, context: { params: Promise<{ id: string }> }) => {
   try {
@@ -38,7 +38,7 @@ const handler = async (req: AdminRequest, context: { params: Promise<{ id: strin
         postTitle: updatedPost.title,
         postUser: updatedPost.user.userName,
       },
-      req.ip || 'unknown',
+      req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
       req.headers.get('user-agent') || 'unknown'
     )
 
