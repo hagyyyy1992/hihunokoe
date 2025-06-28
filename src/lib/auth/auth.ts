@@ -96,31 +96,87 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     throw new Error('現在、新規登録は制限されています。デモ用ログイン情報をご利用ください。')
   }
 
+  // アクティブなユーザー（論理削除されていない）の重複チェック
+  const existingActiveUser = await prisma!.user.findFirst({
+    where: {
+      OR: [{ email: data.email }, { userName: data.userName }],
+      isActive: true,
+      deletedAt: null,
+    },
+  })
+
+  if (existingActiveUser) {
+    throw new Error('ユーザー名またはメールアドレスが既に使用されています')
+  }
+
+  // 論理削除されたユーザーが存在するかチェック
+  const deletedUser = await prisma!.user.findFirst({
+    where: {
+      OR: [{ email: data.email }, { userName: data.userName }],
+      isActive: false,
+      deletedAt: { not: null },
+    },
+  })
+
   const hashedPassword = await hashPassword(data.password)
 
   try {
-    const user = await prisma!.user.create({
-      data: {
-        userName: data.userName,
-        email: data.email,
-        passwordHash: hashedPassword,
-        birthDate: data.birthDate,
-        gender: data.gender,
-        skinType: data.skinType,
-        skinTypeOther: data.skinTypeOther,
-        allergies: data.allergies || [],
-        allergiesOther: data.allergiesOther,
-        bodyType: data.bodyType,
-        bodyTypeOther: data.bodyTypeOther,
-        emailVerified:
-          process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production', // テスト環境では未認証、開発環境では認証済み
-      },
-    })
+    let user
+
+    if (deletedUser) {
+      // 論理削除されたユーザーが存在する場合、そのレコードを復活
+      user = await prisma!.user.update({
+        where: { id: deletedUser.id },
+        data: {
+          userName: data.userName,
+          email: data.email,
+          passwordHash: hashedPassword,
+          birthDate: data.birthDate,
+          gender: data.gender,
+          skinType: data.skinType,
+          skinTypeOther: data.skinTypeOther,
+          allergies: data.allergies || [],
+          allergiesOther: data.allergiesOther,
+          bodyType: data.bodyType,
+          bodyTypeOther: data.bodyTypeOther,
+          isActive: true,
+          deletedAt: null,
+          emailVerified:
+            process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
+          // その他のフィールドもリセット
+          profileImageUrl: null,
+          emailVerificationToken: null,
+          emailVerificationExpiry: null,
+          passwordResetToken: null,
+          passwordResetExpiry: null,
+        },
+      })
+    } else {
+      // 新規ユーザー作成
+      user = await prisma!.user.create({
+        data: {
+          userName: data.userName,
+          email: data.email,
+          passwordHash: hashedPassword,
+          birthDate: data.birthDate,
+          gender: data.gender,
+          skinType: data.skinType,
+          skinTypeOther: data.skinTypeOther,
+          allergies: data.allergies || [],
+          allergiesOther: data.allergiesOther,
+          bodyType: data.bodyType,
+          bodyTypeOther: data.bodyTypeOther,
+          emailVerified:
+            process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
+        },
+      })
+    }
 
     return {
       id: user.id,
       userName: user.userName,
       email: user.email,
+      role: user.role,
       birthDate: user.birthDate,
       gender: user.gender,
       skinType: user.skinType,
@@ -133,18 +189,8 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       emailVerified: user.emailVerified,
     }
   } catch (error: unknown) {
-    // Prismaのユニーク制約エラーハンドリング
-    if (error && typeof error === 'object' && 'code' in error) {
-      if (error.code === 'P2002') {
-        // 重複エラーを示すカスタムエラー
-        const duplicateError = new Error(
-          'ユーザー名またはメールアドレスが既に使用されています'
-        ) as Error & { code: string }
-        duplicateError.code = 'P2002'
-        throw duplicateError
-      }
-    }
-    throw new Error('ユーザー名またはメールアドレスが既に使用されています')
+    console.error('User registration error:', error)
+    throw new Error('ユーザー登録に失敗しました')
   }
 }
 

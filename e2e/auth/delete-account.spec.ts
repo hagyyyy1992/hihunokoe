@@ -185,4 +185,72 @@ test.describe('アカウント削除機能', () => {
     await passwordInput.clear()
     await expect(deleteButton).toBeDisabled()
   })
+
+  test('アカウント削除後に同じメールアドレスで再登録できる', async ({ page }) => {
+    // アカウント削除を実行
+    await page.goto('/account/delete')
+    await page.getByRole('button', { name: /アカウント削除を続行/ }).click()
+    await page.getByPlaceholder(/現在のパスワード/).fill(testUser.password)
+    await page.getByRole('button', { name: /アカウントを削除/ }).click()
+
+    // トップページに移動したことを確認
+    await expect(page).toHaveURL('/')
+
+    // 新規登録ページに移動
+    await page.goto('/auth/register')
+
+    // 同じメールアドレスで新しいアカウントを登録
+    await page.getByPlaceholder(/ユーザー名/).fill(testUser.userName + '_new')
+    await page.getByPlaceholder(/メールアドレス/).fill(testUser.email)
+    await page.getByPlaceholder(/パスワード/).fill(testUser.password)
+
+    // 登録ボタンをクリック
+    await page.getByRole('button', { name: /登録/ }).click()
+
+    // 登録完了ページまたはダッシュボードに移動することを確認
+    await expect(page).toHaveURL(/\/(dashboard|auth\/registration-complete)/)
+
+    // 再登録が成功したことを確認（成功メッセージまたはページ遷移で判断）
+    if (page.url().includes('/auth/registration-complete')) {
+      await expect(page.getByText(/ユーザー登録が完了しました/)).toBeVisible()
+    } else {
+      // ダッシュボードに直接移動した場合
+      await expect(page.getByRole('heading', { name: /ダッシュボード/ })).toBeVisible()
+    }
+  })
+
+  test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
+    // アカウント削除を実行
+    await page.goto('/account/delete')
+    await page.getByRole('button', { name: /アカウント削除を続行/ }).click()
+    await page.getByPlaceholder(/現在のパスワード/).fill(testUser.password)
+    await page.getByRole('button', { name: /アカウントを削除/ }).click()
+
+    // トップページに移動したことを確認
+    await expect(page).toHaveURL('/')
+
+    // 新規登録ページに移動
+    await page.goto('/auth/register')
+
+    // 同じユーザー名で新しいアカウントを登録
+    await page.getByPlaceholder(/ユーザー名/).fill(testUser.userName)
+    await page.getByPlaceholder(/メールアドレス/).fill('new_' + testUser.email)
+    await page.getByPlaceholder(/パスワード/).fill(testUser.password)
+
+    // 登録ボタンをクリック
+    await page.getByRole('button', { name: /登録/ }).click()
+
+    // 登録完了ページまたはダッシュボードに移動することを確認
+    await expect(page).toHaveURL(/\/(dashboard|auth\/registration-complete)/)
+
+    // 再登録が成功したことを確認
+    if (page.url().includes('/auth/registration-complete')) {
+      await expect(page.getByText(/ユーザー登録が完了しました/)).toBeVisible()
+    } else {
+      await expect(page.getByRole('heading', { name: /ダッシュボード/ })).toBeVisible()
+    }
+
+    // 追加のクリーンアップ（新しいメールアドレスも削除）
+    await cleanupTestUser('new_' + testUser.email)
+  })
 })
