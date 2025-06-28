@@ -110,13 +110,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
+    console.log('POST empathy - Environment info:')
+    console.log('POST empathy - NODE_ENV:', process.env.NODE_ENV)
+    console.log('POST empathy - USE_MOCK_DATA:', process.env.USE_MOCK_DATA)
+    console.log('POST empathy - DATABASE_URL exists:', !!process.env.DATABASE_URL)
+
     const token = request.cookies.get('auth-token')?.value
+    console.log('POST empathy - auth token exists:', !!token)
 
     if (!token) {
       return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
     }
 
     const user = verifyToken(token)
+    console.log('POST empathy - user verified:', !!user)
     if (!user) {
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
     }
@@ -144,45 +151,63 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (!isDatabaseAvailable()) {
       console.log('Using mock mode for empathy POST')
-      // モックモードでの共感追加
-      const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
-      console.log('Mock mode - found post:', !!post)
-      if (!post) {
-        return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+      try {
+        // モックモードでの共感追加
+        console.log('Mock mode - searching for post with ID:', postId)
+        console.log('Mock mode - MOCK_POSTS length:', MOCK_POSTS.length)
+        console.log('Mock mode - user ID:', user.id)
+
+        const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
+        console.log('Mock mode - found post:', !!post)
+        if (!post) {
+          console.log('Mock mode - post not found')
+          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+        }
+
+        // 既存の共感をチェック
+        console.log('Mock mode - checking existing empathy')
+        const existingEmpathy = MOCK_EMPATHIES.find(
+          e => e.postId === postId && e.userId === user.id
+        )
+        console.log('Mock mode - existing empathy found:', !!existingEmpathy)
+        if (existingEmpathy) {
+          return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
+        }
+
+        // 新しい共感を追加
+        console.log('Mock mode - creating new empathy')
+        const newEmpathy = {
+          id: `empathy-${Date.now()}`,
+          postId,
+          userId: user.id,
+          empathyType,
+          createdAt: new Date(),
+        }
+
+        console.log('Mock mode - adding empathy to MOCK_EMPATHIES')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        MOCK_EMPATHIES.push(newEmpathy as any)
+
+        // 共感数を更新
+        console.log('Mock mode - updating post empathy count')
+        const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
+        if (postIndex !== -1) {
+          MOCK_POSTS[postIndex].empathyCount += 1
+        }
+
+        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
+        console.log('Mock mode - final total count:', totalCount)
+
+        return NextResponse.json({
+          success: true,
+          empathy: newEmpathy,
+          totalCount,
+          message: '共感を追加しました（デモモード）',
+        })
+      } catch (mockError) {
+        console.error('Mock mode error:', mockError)
+        return NextResponse.json({ error: 'モックモードでエラーが発生しました' }, { status: 500 })
       }
-
-      // 既存の共感をチェック
-      const existingEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === user.id)
-      if (existingEmpathy) {
-        return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
-      }
-
-      // 新しい共感を追加
-      const newEmpathy = {
-        id: `empathy-${Date.now()}`,
-        postId,
-        userId: user.id,
-        empathyType,
-        createdAt: new Date(),
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      MOCK_EMPATHIES.push(newEmpathy as any)
-
-      // 共感数を更新
-      const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
-      if (postIndex !== -1) {
-        MOCK_POSTS[postIndex].empathyCount += 1
-      }
-
-      const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-
-      return NextResponse.json({
-        success: true,
-        empathy: newEmpathy,
-        totalCount,
-        message: '共感を追加しました（デモモード）',
-      })
     }
 
     // データベースモードでの共感追加
@@ -228,30 +253,41 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // トランザクションで共感を追加し、投稿の共感数を更新
-    const result = await prisma!.$transaction(async tx => {
-      const empathy = await tx.empathy.create({
-        data: {
-          postId,
-          userId: user.id,
-          empathyType,
-        },
-      })
-
-      await tx.post.update({
-        where: { id: postId },
-        data: {
-          empathyCount: {
-            increment: 1,
+    console.log('Database mode - starting transaction')
+    let result
+    try {
+      result = await prisma!.$transaction(async tx => {
+        console.log('Database mode - creating empathy record')
+        const empathy = await tx.empathy.create({
+          data: {
+            postId,
+            userId: user.id,
+            empathyType,
           },
-        },
-      })
+        })
 
-      const totalCount = await tx.empathy.count({
-        where: { postId },
-      })
+        console.log('Database mode - updating post empathy count')
+        await tx.post.update({
+          where: { id: postId },
+          data: {
+            empathyCount: {
+              increment: 1,
+            },
+          },
+        })
 
-      return { empathy, totalCount }
-    })
+        console.log('Database mode - counting total empathies')
+        const totalCount = await tx.empathy.count({
+          where: { postId },
+        })
+
+        console.log('Database mode - transaction completed successfully')
+        return { empathy, totalCount }
+      })
+    } catch (transactionError) {
+      console.error('Database transaction error:', transactionError)
+      return NextResponse.json({ error: '共感の追加に失敗しました' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,

@@ -44,7 +44,9 @@
       "Bash(npx prisma:*)",
       "Bash(git merge:*)",
       "Bash(export USE_MOCK_DATA=true)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
+      "Bash(-s)"
     ],
     "deny": []
   }
