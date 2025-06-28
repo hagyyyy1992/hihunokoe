@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/auth/AuthContext'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 
 export default function RegisterPage() {
@@ -24,7 +23,6 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const {} = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {

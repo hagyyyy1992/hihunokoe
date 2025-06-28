@@ -38,7 +38,10 @@
       "Bash(gh run view:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-deleted-at-to-user)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" node scripts/seed.js)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" node scripts/seed.js)",
+      "Bash(git merge:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-user-deletedAt)",
+      "Bash(DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)"
     ],
     "deny": []
   }
