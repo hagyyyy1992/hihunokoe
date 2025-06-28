@@ -34,7 +34,13 @@ const mockRefreshAuth = jest.fn()
 
 jest.mock('../../../src/lib/auth/AuthContext', () => ({
   useAuth: () => ({
+    user: null,
+    login: jest.fn(),
+    register: jest.fn(),
+    logout: jest.fn(),
     refreshAuth: mockRefreshAuth,
+    updateProfile: jest.fn(),
+    loading: false,
   }),
 }))
 
