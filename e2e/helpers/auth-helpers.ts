@@ -29,7 +29,11 @@ export async function logoutTestUser(page: Page) {
 }
 
 // E2Eテストで使用される追加の関数
-export async function loginUser(page: Page, email: string = 'demo@example.com', password: string = 'demo123') {
+export async function loginUser(
+  page: Page,
+  email: string = 'demo@example.com',
+  password: string = 'demo123'
+) {
   return loginTestUser(page, email, password)
 }
 
@@ -40,7 +44,7 @@ export async function createTestUser() {
     email: `test-${timestamp}@example.com`,
     password: 'test123',
     userName: `testuser-${timestamp}`,
-    skinType: 'normal'
+    skinType: 'normal',
   }
 }
 
@@ -49,8 +53,17 @@ export async function cleanupTestUser(email: string) {
   console.log(`Cleaning up test user: ${email}`)
 }
 
-export async function registerAndLoginTestUser(page: Page, userData: { email: string; password: string; userName: string; skinType?: string }) {
-  await registerTestUser(page, userData)
+export async function registerAndLoginTestUser(
+  page: Page,
+  userData: { email: string; password: string; userName: string; skinType?: string }
+) {
+  const registerData = {
+    username: userData.userName, // AuthHelperのregisterで期待されるプロパティ名に変換
+    email: userData.email,
+    password: userData.password,
+    skinType: userData.skinType,
+  }
+  await registerTestUser(page, registerData)
   await loginTestUser(page, userData.email, userData.password)
 }
 

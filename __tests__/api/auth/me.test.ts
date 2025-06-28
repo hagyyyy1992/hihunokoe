@@ -1,12 +1,12 @@
 // Mock the auth module first
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
   getUserById: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/me/route'
-import * as authModule from '../../../src/lib/auth/auth'
+import * as authModule from '@/lib/auth/auth'
 import { SkinType } from '../../../src/types'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>

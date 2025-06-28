@@ -60,7 +60,8 @@ describe('DeleteAccountPage', () => {
     fireEvent.click(deleteButton)
 
     await waitFor(() => {
-      expect(screen.getByText('パスワードを入力してください')).toBeInTheDocument()
+      expect(screen.getByTestId('error-message')).toBeInTheDocument()
+      expect(screen.getByTestId('error-message')).toHaveTextContent('パスワードを入力してください')
     })
   })
 
@@ -138,7 +139,8 @@ describe('DeleteAccountPage', () => {
     fireEvent.click(deleteButton)
 
     await waitFor(() => {
-      expect(screen.getByText('ユーザーが見つかりません')).toBeInTheDocument()
+      expect(screen.getByTestId('error-message')).toBeInTheDocument()
+      expect(screen.getByTestId('error-message')).toHaveTextContent('ユーザーが見つかりません')
     })
   })
 
