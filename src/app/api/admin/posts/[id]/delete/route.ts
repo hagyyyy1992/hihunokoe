@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken, isAdmin, logAdminAction } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token =
     req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
 
@@ -19,7 +19,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
   }
   try {
-    const postId = params.id
+    const resolvedParams = await params
+    const postId = resolvedParams.id
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json({ error: 'Database not available in mock mode' }, { status: 503 })

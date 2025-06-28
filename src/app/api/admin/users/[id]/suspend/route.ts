@@ -3,9 +3,10 @@ import { withAdminAuth, AdminRequest } from '@/lib/auth/admin-middleware'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { logAdminAction } from '@/lib/auth/auth'
 
-const handler = async (req: AdminRequest, context?: { params?: Record<string, string> }) => {
+const handler = async (req: AdminRequest, context: { params: Promise<Record<string, string>> }) => {
   try {
-    const userId = context?.params?.id
+    const params = await context.params
+    const userId = params?.id
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
