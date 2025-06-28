@@ -37,6 +37,24 @@ test.describe('アカウント削除機能', () => {
     await expect(page.getByText(/この操作は取り消すことができません/)).toBeVisible()
   })
 
+  test('プロフィールページからアカウント削除ページにアクセスできる', async ({ page }) => {
+    await page.goto('/profile')
+
+    // プロフィールページが表示されることを確認
+    await expect(page.getByRole('heading', { name: /プロフィール/ })).toBeVisible()
+
+    // アカウント設定セクションが表示されることを確認
+    await expect(page.getByText('アカウント設定')).toBeVisible()
+    await expect(page.getByText('危険な操作')).toBeVisible()
+
+    // アカウント削除ボタンをクリック
+    await page.getByRole('button', { name: /アカウントを削除/ }).click()
+
+    // アカウント削除ページにリダイレクトされることを確認
+    await expect(page).toHaveURL('/account/delete')
+    await expect(page.getByRole('heading', { name: /アカウント削除/ })).toBeVisible()
+  })
+
   test('アカウント削除の警告メッセージが適切に表示される', async ({ page }) => {
     await page.goto('/account/delete')
 

@@ -23,6 +23,7 @@ const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 
 // Mock the updateProfile function
 const mockUpdateProfile = jest.fn()
+const mockRouterPush = jest.fn()
 
 describe('ProfilePage Component', () => {
   beforeEach(() => {
@@ -40,7 +41,7 @@ describe('ProfilePage Component', () => {
     })
 
     mockUseRouter.mockReturnValue({
-      push: jest.fn(),
+      push: mockRouterPush,
       replace: jest.fn(),
       back: jest.fn(),
       forward: jest.fn(),
@@ -274,5 +275,30 @@ describe('ProfilePage Component', () => {
 
     // updateProfileが呼ばれていないことを確認
     expect(mockUpdateProfile).not.toHaveBeenCalled()
+  })
+
+  it('アカウント削除ボタンが表示され、クリックすると削除ページに遷移する', async () => {
+    const user = createUser()
+    render(<ProfilePage />)
+
+    // アカウント設定セクションが表示されることを確認
+    expect(screen.getByText('アカウント設定')).toBeInTheDocument()
+    expect(screen.getByText('危険な操作')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        /アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます/
+      )
+    ).toBeInTheDocument()
+
+    // アカウント削除ボタンが表示されることを確認
+    const deleteButton = screen.getByTestId('delete-account-button')
+    expect(deleteButton).toBeInTheDocument()
+    expect(deleteButton).toHaveTextContent('アカウントを削除')
+
+    // ボタンをクリック
+    await user.click(deleteButton)
+
+    // ルーターのpushが呼ばれることを確認
+    expect(mockRouterPush).toHaveBeenCalledWith('/account/delete')
   })
 })
