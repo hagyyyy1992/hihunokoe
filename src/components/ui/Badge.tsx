@@ -2,7 +2,17 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'gray' | 'pink' | 'blue' | 'green' | 'yellow' | 'red'
+  variant?:
+    | 'gray'
+    | 'pink'
+    | 'blue'
+    | 'green'
+    | 'yellow'
+    | 'red'
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
   size?: 'sm' | 'md'
   children: React.ReactNode
 }
@@ -22,6 +32,10 @@ const Badge: React.FC<BadgeProps> = ({
     green: 'badge-green',
     yellow: 'badge-yellow',
     red: 'badge-red',
+    default: 'badge-blue',
+    secondary: 'badge-gray',
+    destructive: 'badge-red',
+    outline: 'border border-gray-300 bg-transparent text-gray-700',
   }
 
   const sizeClasses = {
