@@ -11,7 +11,6 @@ import * as auth from '../../../../../src/lib/auth/auth'
 const mockVerifyToken = auth.verifyToken as jest.MockedFunction<typeof auth.verifyToken>
 const mockGetUserById = auth.getUserById as jest.MockedFunction<typeof auth.getUserById>
 
-
 describe('UserController', () => {
   let userController: UserController
 
@@ -72,7 +71,11 @@ describe('UserController', () => {
       const request = new NextRequest('http://localhost/api/auth/me')
       request.cookies.set('auth-token', 'valid-token')
 
-      mockVerifyToken.mockReturnValue({ id: '999', userName: 'testuser', email: 'test@example.com' })
+      mockVerifyToken.mockReturnValue({
+        id: '999',
+        userName: 'testuser',
+        email: 'test@example.com',
+      })
       mockGetUserById.mockResolvedValue(null)
 
       const response = await userController.getMe(request)
