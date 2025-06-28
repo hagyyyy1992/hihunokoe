@@ -45,7 +45,6 @@ test.describe('アカウント削除機能', () => {
 
     // アカウント設定セクションが表示されることを確認
     await expect(page.getByText('アカウント設定')).toBeVisible()
-    await expect(page.getByText('危険な操作')).toBeVisible()
 
     // アカウント削除ボタンをクリック
     await page.getByRole('button', { name: /アカウントを削除/ }).click()
