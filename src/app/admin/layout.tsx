@@ -14,7 +14,7 @@ import {
   Menu,
   X,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { verifyToken, AuthUser } from '@/lib/auth/auth'
 

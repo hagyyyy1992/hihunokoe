@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { withAdminAuth } from '@/lib/auth/admin-middleware'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_USERS } from '@/lib/mock-data'
 
-const handler = async (req: NextRequest) => {
+const handler = async () => {
   try {
     if (!isDatabaseAvailable()) {
       // モックデータを使用

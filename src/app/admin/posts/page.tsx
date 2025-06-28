@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState, useCallback } from 'react'
+import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/Input'
+import { Badge } from '@/components/ui/Badge'
 import {
   Select,
   SelectContent,
@@ -53,12 +53,24 @@ export default function PostModeration() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [actionType, setActionType] = useState<'publish' | 'unpublish' | 'delete' | null>(null)
 
-  useEffect(() => {
-    fetchPosts()
-  }, [])
+  const filterPosts = useCallback(() => {
+    let filtered = posts
 
-  useEffect(() => {
-    filterPosts()
+    if (searchTerm) {
+      filtered = filtered.filter(
+        post =>
+          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.cosmeticName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.userName.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(post => post.status === statusFilter)
+    }
+
+    setFilteredPosts(filtered)
   }, [posts, searchTerm, statusFilter])
 
   const fetchPosts = async () => {
@@ -85,25 +97,13 @@ export default function PostModeration() {
     }
   }
 
-  const filterPosts = () => {
-    let filtered = posts
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        post =>
-          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.cosmeticName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.userName.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(post => post.status === statusFilter)
-    }
-
-    setFilteredPosts(filtered)
-  }
+  useEffect(() => {
+    filterPosts()
+  }, [filterPosts])
 
   const handlePostAction = async (action: 'publish' | 'unpublish' | 'delete') => {
     if (!selectedPost) return

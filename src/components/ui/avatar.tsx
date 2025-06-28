@@ -13,8 +13,8 @@ const Avatar = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 Avatar.displayName = 'Avatar'
 
 const AvatarImage = forwardRef<HTMLImageElement, React.ImgHTMLAttributes<HTMLImageElement>>(
-  ({ className, ...props }, ref) => (
-    <img ref={ref} className={cn('aspect-square h-full w-full', className)} {...props} />
+  ({ className, alt = '', ...props }, ref) => (
+    <img ref={ref} className={cn('aspect-square h-full w-full', className)} alt={alt} {...props} />
   )
 )
 AvatarImage.displayName = 'AvatarImage'

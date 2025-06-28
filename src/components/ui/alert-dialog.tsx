@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { forwardRef, useState } from 'react'
+import { forwardRef } from 'react'
 
 interface AlertDialogProps {
   open?: boolean
@@ -7,7 +7,7 @@ interface AlertDialogProps {
   children: React.ReactNode
 }
 
-const AlertDialog = ({ open = false, onOpenChange, children }: AlertDialogProps) => {
+const AlertDialog = ({ open = false, children }: AlertDialogProps) => {
   if (!open) return null
 
   return (

@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState, useCallback } from 'react'
+import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/Input'
+import { Badge } from '@/components/ui/Badge'
 import {
   Select,
   SelectContent,
@@ -53,12 +53,28 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [actionType, setActionType] = useState<'activate' | 'suspend' | null>(null)
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
+  const filterUsers = useCallback(() => {
+    let filtered = users
 
-  useEffect(() => {
-    filterUsers()
+    if (searchTerm) {
+      filtered = filtered.filter(
+        user =>
+          user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(user =>
+        statusFilter === 'active' ? user.isActive : !user.isActive
+      )
+    }
+
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === roleFilter)
+    }
+
+    setFilteredUsers(filtered)
   }, [users, searchTerm, statusFilter, roleFilter])
 
   const fetchUsers = async () => {
@@ -85,29 +101,13 @@ export default function UserManagement() {
     }
   }
 
-  const filterUsers = () => {
-    let filtered = users
+  useEffect(() => {
+    fetchUsers()
+  }, [])
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        user =>
-          user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(user =>
-        statusFilter === 'active' ? user.isActive : !user.isActive
-      )
-    }
-
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role === roleFilter)
-    }
-
-    setFilteredUsers(filtered)
-  }
+  useEffect(() => {
+    filterUsers()
+  }, [filterUsers])
 
   const handleUserAction = async (action: 'activate' | 'suspend') => {
     if (!selectedUser) return

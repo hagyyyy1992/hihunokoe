@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { withAdminAuth, AdminRequest } from '@/lib/auth/admin-middleware'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS, MOCK_POSTS } from '@/lib/mock-data'
@@ -7,15 +7,15 @@ import { logAdminAction } from '@/lib/auth/auth'
 const handler = async (req: AdminRequest) => {
   try {
     let users: Array<{
-    id: string
-    userName: string
-    email: string
-    isActive: boolean
-    role: string
-    skinType: string
-    createdAt: string
-    postCount: number
-  }>
+      id: string
+      userName: string
+      email: string
+      isActive: boolean
+      role: string
+      skinType: string
+      createdAt: string
+      postCount: number
+    }>
 
     if (!isDatabaseAvailable()) {
       // モックデータを使用
@@ -90,7 +90,7 @@ const handler = async (req: AdminRequest) => {
       'USERS_EXPORT',
       undefined,
       { userCount: users.length },
-      req.ip || req.headers.get('x-forwarded-for') || 'unknown',
+      req.ip || 'unknown',
       req.headers.get('user-agent') || 'unknown'
     )
 

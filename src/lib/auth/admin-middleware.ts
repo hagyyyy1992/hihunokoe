@@ -3,10 +3,16 @@ import { verifyToken, isAdmin, AuthUser } from './auth'
 
 export interface AdminRequest extends NextRequest {
   user?: AuthUser
+  ip?: string
 }
 
-export function withAdminAuth(handler: (req: AdminRequest) => Promise<Response>) {
-  return async (req: NextRequest): Promise<Response> => {
+export function withAdminAuth(
+  handler: (req: AdminRequest, context?: { params?: Record<string, string> }) => Promise<Response>
+) {
+  return async (
+    req: NextRequest,
+    context?: { params?: Record<string, string> }
+  ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
       req.cookies.get('auth-token')?.value
@@ -26,13 +32,19 @@ export function withAdminAuth(handler: (req: AdminRequest) => Promise<Response>)
 
     const adminReq = req as AdminRequest
     adminReq.user = user
+    adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq)
+    return handler(adminReq, context)
   }
 }
 
-export function requireSuperAdmin(handler: (req: AdminRequest) => Promise<Response>) {
-  return async (req: NextRequest): Promise<Response> => {
+export function requireSuperAdmin(
+  handler: (req: AdminRequest, context?: { params?: Record<string, string> }) => Promise<Response>
+) {
+  return async (
+    req: NextRequest,
+    context?: { params?: Record<string, string> }
+  ): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
       req.cookies.get('auth-token')?.value
@@ -55,7 +67,8 @@ export function requireSuperAdmin(handler: (req: AdminRequest) => Promise<Respon
 
     const adminReq = req as AdminRequest
     adminReq.user = user
+    adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq)
+    return handler(adminReq, context)
   }
 }
