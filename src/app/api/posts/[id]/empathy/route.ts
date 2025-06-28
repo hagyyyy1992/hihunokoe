@@ -138,9 +138,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
     }
 
+    console.log('POST empathy - isDatabaseAvailable:', isDatabaseAvailable())
+    console.log('POST empathy - postId:', postId)
+    console.log('POST empathy - empathyType:', empathyType)
+
     if (!isDatabaseAvailable()) {
+      console.log('Using mock mode for empathy POST')
       // モックモードでの共感追加
       const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
+      console.log('Mock mode - found post:', !!post)
       if (!post) {
         return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
       }
@@ -180,8 +186,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // データベースモードでの共感追加
+    console.log('Using database mode for empathy POST')
     let post
     try {
+      console.log('Searching for post in database with ID:', postId)
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
@@ -189,6 +197,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         },
         select: { id: true },
       })
+      console.log('Database mode - found post:', !!post)
     } catch (dbError) {
       console.error('Database error in empathy POST:', dbError)
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
