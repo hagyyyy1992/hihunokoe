@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken, isAdmin, logAdminAction } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') ||
-    req.cookies.get('auth-token')?.value
+    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
   }
   try {
-    const postId = params.id
+    const { id: postId } = await params
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json({ error: 'Database not available in mock mode' }, { status: 503 })
@@ -70,6 +69,4 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     console.error('Post delete error:', error)
     return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
   }
-}
-
 }

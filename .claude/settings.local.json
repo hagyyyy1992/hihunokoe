@@ -41,6 +41,6 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
       "Bash(npx prisma:*)"
     ],
-    "deny": []
+    "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
   }
 }
