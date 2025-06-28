@@ -7,7 +7,7 @@ export interface AdminRequest extends NextRequest {
 }
 
 export function withAdminAuth<T = Record<string, string>>(
-  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
+  handler: (req: AdminRequest, context: { params: T }) => Promise<Response>
 ) {
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
@@ -31,12 +31,14 @@ export function withAdminAuth<T = Record<string, string>>(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq, context)
+    // Convert Promise<{ id: string }> to Record<string, string>
+    const params = await context.params
+    return handler(adminReq, { params })
   }
 }
 
 export function requireSuperAdmin<T = Record<string, string>>(
-  handler: (req: AdminRequest, context: { params: Promise<T> }) => Promise<Response>
+  handler: (req: AdminRequest, context: { params: T }) => Promise<Response>
 ) {
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
@@ -63,6 +65,8 @@ export function requireSuperAdmin<T = Record<string, string>>(
     adminReq.user = user
     adminReq.ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-    return handler(adminReq, context)
+    // Convert Promise<{ id: string }> to Record<string, string>
+    const params = await context.params
+    return handler(adminReq, { params })
   }
 }

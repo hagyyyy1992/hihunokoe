@@ -36,6 +36,7 @@
       "Bash(gh pr:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
+      "WebFetch(domain:github.com)",
       "Bash(gh issue view:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-deleted-at-to-user)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
@@ -43,9 +44,15 @@
       "Bash(git merge:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-user-deletedAt)",
       "Bash(DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
+      "Bash(DATABASE_URL=\"postgresql://test:test@localhost:5432/test\" DIRECT_URL=\"postgresql://test:test@localhost:5432/test\" npx prisma migrate status)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-admin-features)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(git merge:*)",
+      "Bash(export USE_MOCK_DATA=true)",
+      "Bash(node:*)",
+      "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
+      "Bash(-s)"
     ],
     "deny": []
   }
