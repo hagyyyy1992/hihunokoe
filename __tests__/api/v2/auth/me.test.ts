@@ -58,10 +58,11 @@ describe('/api/v2/auth/me', () => {
       // クリーンアーキテクチャでは、ユーザーオブジェクトの形式が変更された
       expect(data.user.id).toBe('1')
       expect(data.user.email).toBe('test@example.com')
-      expect(data.user.username).toBe('testuser')
+      expect(data.user.userName).toBe('testuser') // Fixed: userName instead of username
       expect(data.user.emailVerified).toBe(true)
-      expect(data.user).toHaveProperty('createdAt')
-      expect(data.user).toHaveProperty('updatedAt')
+      // Note: createdAt and updatedAt are no longer exposed in the AuthUser interface
+      expect(data.user).not.toHaveProperty('createdAt')
+      expect(data.user).not.toHaveProperty('updatedAt')
       expect(mockVerifyToken).toHaveBeenCalledWith('valid-token')
       expect(mockGetUserById).toHaveBeenCalledWith('1')
     })

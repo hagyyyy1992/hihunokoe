@@ -25,17 +25,6 @@ jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
 }))
 
-jest.mock('next/link', () => {
-  return {
-    __esModule: true,
-    default: ({ children, href, ...props }: any) => (
-      <a href={href} {...props}>
-        {children}
-      </a>
-    ),
-  }
-})
-
 jest.mock('../../../src/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
@@ -48,6 +37,16 @@ jest.mock('../../../src/lib/auth/AuthContext', () => ({
   }),
 }))
 
+jest.mock('next/link', () => {
+  return {
+    __esModule: true,
+    default: ({ children, href, ...props }: any) => (
+      <a href={href} {...props}>
+        {children}
+      </a>
+    ),
+  }
+})
 describe('LoginPage', () => {
   let mockFetch: jest.MockedFunction<typeof fetch>
   let mockRefreshAuth: jest.Mock

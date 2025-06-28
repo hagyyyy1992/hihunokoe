@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GetUserUseCase } from '../../usecases/user/GetUserUseCase'
 import { UserRepositoryImpl } from '../../interface-adapters/repositories/UserRepositoryImpl'
-import { verifyToken } from '../../../../src/lib/auth/auth'
+import { verifyToken, AuthUser } from '../../../../src/lib/auth/auth'
+import { User } from '../../domain/entities/User'
 
 export class UserController {
   private getUserUseCase: GetUserUseCase
@@ -9,6 +10,19 @@ export class UserController {
   constructor() {
     const userRepository = new UserRepositoryImpl()
     this.getUserUseCase = new GetUserUseCase(userRepository)
+  }
+
+  /**
+   * Convert domain User entity to AuthUser format for frontend compatibility
+   */
+  private convertUserToAuthUser(domainUser: User): AuthUser {
+    return {
+      id: domainUser.id,
+      userName: domainUser.username, // Convert username to userName
+      email: domainUser.email,
+      emailVerified: domainUser.emailVerified,
+      // Add other fields as needed when domain entity expands
+    }
   }
 
   async getMe(request: NextRequest): Promise<NextResponse> {
@@ -27,7 +41,13 @@ export class UserController {
 
       const result = await this.getUserUseCase.execute({ userId: decoded.id })
 
-      return NextResponse.json({ user: result.user })
+      // Convert domain user to AuthUser format for frontend compatibility
+      const authUser = this.convertUserToAuthUser(result.user)
+      console.log('[Controller] Converted to AuthUser:', {
+        authUser: { id: authUser.id, email: authUser.email, userName: authUser.userName },
+      })
+
+      return NextResponse.json({ user: authUser })
     } catch (error) {
       console.error('[Controller] Get user error:', error)
 

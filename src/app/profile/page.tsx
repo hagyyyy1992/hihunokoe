@@ -336,6 +336,24 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+
+              {/* アカウント設定セクション */}
+              <div className="border-t border-gray-200 pt-6 mt-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">アカウント設定</h3>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-sm text-red-700 mb-4">
+                    アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます。この操作は取り消すことができません。
+                  </p>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => router.push('/account/delete')}
+                    data-testid="delete-account-button"
+                  >
+                    アカウントを削除
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>

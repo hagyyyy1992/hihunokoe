@@ -64,6 +64,7 @@ export async function verifyPasswordResetToken(token: string): Promise<{
       passwordResetExpiry: {
         gt: new Date(),
       },
+      deletedAt: null,
     },
   })
 
@@ -100,6 +101,7 @@ export async function resetPassword(
       passwordResetExpiry: {
         gt: new Date(),
       },
+      deletedAt: null,
     },
   })
 

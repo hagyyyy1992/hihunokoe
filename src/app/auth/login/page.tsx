@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -17,43 +17,46 @@ export default function LoginPage() {
   const { refreshAuth } = useAuth()
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setShowResendButton(false)
-    setLoading(true)
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      setError('')
+      setShowResendButton(false)
+      setLoading(true)
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
 
-      const data = await response.json()
+        const data = await response.json()
 
-      if (response.ok) {
-        await refreshAuth()
-        router.push('/dashboard')
-      } else {
-        setError(data.error || 'ログインに失敗しました')
+        if (response.ok) {
+          await refreshAuth()
+          router.push('/dashboard')
+        } else {
+          setError(data.error || 'ログインに失敗しました')
 
-        // メール認証が必要な場合
-        if (data.emailVerificationRequired) {
-          setShowResendButton(true)
+          // メール認証が必要な場合
+          if (data.emailVerificationRequired) {
+            setShowResendButton(true)
+          }
         }
+      } catch (err: unknown) {
+        console.error('Login error:', err)
+        setError('ログインに失敗しました')
+      } finally {
+        setLoading(false)
       }
-    } catch (err: unknown) {
-      console.error('Login error:', err)
-      setError('ログインに失敗しました')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [email, password, refreshAuth, router]
+  )
 
-  const handleResendEmail = async () => {
+  const handleResendEmail = useCallback(async () => {
     if (!email) return
 
     try {
@@ -77,7 +80,15 @@ export default function LoginPage() {
       console.error('Resend verification error:', error)
       setError('再送信に失敗しました')
     }
-  }
+  }, [email])
+
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value)
+  }, [])
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -147,7 +158,7 @@ export default function LoginPage() {
               autoComplete="email"
               required
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               placeholder="example@example.com"
               data-testid="email-input"
             />
@@ -160,7 +171,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               placeholder="パスワードを入力してください"
               data-testid="password-input"
             />
