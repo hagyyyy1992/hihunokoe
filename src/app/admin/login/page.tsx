@@ -46,11 +46,11 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md bg-white border-gray-200 shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <Card className="w-full max-w-md bg-white border-gray-300 shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">管理者ログイン</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-gray-900">管理者ログイン</CardTitle>
+          <CardDescription className="text-gray-600">
             管理画面にアクセスするには管理者アカウントでログインしてください
           </CardDescription>
         </CardHeader>
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
+              <Label htmlFor="email" className="text-gray-800 font-medium">メールアドレス</Label>
               <Input
                 id="email"
                 type="email"
@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">パスワード</Label>
+              <Label htmlFor="password" className="text-gray-800 font-medium">パスワード</Label>
               <Input
                 id="password"
                 type="password"
