@@ -1,8 +1,8 @@
 import { POST } from '../../../src/app/api/test/reset-rate-limiters/route'
-import { resetAllRateLimiters } from '../../../src/lib/rate-limiter'
+import { resetAllRateLimiters } from '@/lib/rate-limiter'
 
 // resetAllRateLimitersをモック化
-jest.mock('../../../src/lib/rate-limiter', () => ({
+jest.mock('@/lib/rate-limiter', () => ({
   resetAllRateLimiters: jest.fn(),
 }))
 

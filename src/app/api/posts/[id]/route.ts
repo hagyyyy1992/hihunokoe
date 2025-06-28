@@ -71,6 +71,12 @@ export async function GET(request: NextRequest) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
 
+  // UUID形式の検証
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(postId)) {
+    return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+  }
+
   try {
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿取得
@@ -182,6 +188,12 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
+
+  // UUID形式の検証
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(postId)) {
+    return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+  }
 
   try {
     const token = request.cookies.get('auth-token')?.value
@@ -304,6 +316,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const segments = request.nextUrl.pathname.split('/')
   const postId = segments[segments.length - 1]
+
+  // UUID形式の検証
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(postId)) {
+    return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+  }
 
   try {
     const token = request.cookies.get('auth-token')?.value

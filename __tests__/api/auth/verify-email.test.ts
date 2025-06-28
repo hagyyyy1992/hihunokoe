@@ -1,17 +1,17 @@
 // Mock the modules first
-jest.mock('../../../src/lib/auth/email-verification', () => ({
+jest.mock('@/lib/auth/email-verification', () => ({
   verifyEmailToken: jest.fn(),
 }))
 
-jest.mock('../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   generateToken: jest.fn(),
 }))
 
 import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/verify-email/route'
-import * as emailVerificationModule from '../../../src/lib/auth/email-verification'
-import * as authModule from '../../../src/lib/auth/auth'
-import { SkinType } from '../../../src/types'
+import * as emailVerificationModule from '@/lib/auth/email-verification'
+import * as authModule from '@/lib/auth/auth'
+import { SkinType } from '@/types'
 
 const mockVerifyEmailToken = emailVerificationModule.verifyEmailToken as jest.MockedFunction<
   typeof emailVerificationModule.verifyEmailToken

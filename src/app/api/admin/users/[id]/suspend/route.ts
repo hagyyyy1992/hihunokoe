@@ -1,25 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, isAdmin, logAdminAction } from '@/lib/auth/auth'
+import { NextResponse } from 'next/server'
+import { logAdminAction, adminMiddleware, AdminRequest } from '@/lib/auth/admin-middleware'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
-
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
-  }
-
-  const user = verifyToken(token)
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 })
-  }
-
-  if (!isAdmin(user)) {
-    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
-  }
+const handler = async (req: AdminRequest, context: { params: Promise<{ id: string }> }) => {
   try {
-    const { id: userId } = await params
+    const { id: userId } = await context.params
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json({ error: 'Database not available in mock mode' }, { status: 503 })
@@ -38,7 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 管理者ログを記録
     await logAdminAction(
-      user.id,
+      req.user.id,
       'USER_SUSPEND',
       userId,
       { targetUser: updatedUser },
@@ -55,3 +40,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Failed to suspend user' }, { status: 500 })
   }
 }
+
+export const POST = adminMiddleware(handler)

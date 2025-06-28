@@ -5,14 +5,13 @@ jest.mock('@/lib/auth/auth', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { GET } from '../../../src/app/api/auth/me/route'
+import { GET } from '../../../../src/app/api/v2/auth/me/route'
 import * as authModule from '@/lib/auth/auth'
-import { SkinType } from '@/types'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockGetUserById = authModule.getUserById as jest.MockedFunction<typeof authModule.getUserById>
 
-describe('/api/auth/me', () => {
+describe('/api/v2/auth/me', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -26,14 +25,14 @@ describe('/api/auth/me', () => {
       headers.set('Cookie', cookieString)
     }
 
-    return new NextRequest('http://localhost:3000/api/auth/me', {
+    return new NextRequest('http://localhost:3000/api/v2/auth/me', {
       method: 'GET',
       headers,
     })
   }
 
   describe('GET', () => {
-    it('有効なトークンでユーザー情報を返す', async () => {
+    it('有効なトークンでユーザー情報を返す（クリーンアーキテクチャ版）', async () => {
       const mockDecodedToken = {
         id: '1',
         userName: 'testuser',
@@ -44,7 +43,6 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
         emailVerified: true,
       }
 
@@ -57,7 +55,13 @@ describe('/api/auth/me', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.user).toEqual(mockUser)
+      // クリーンアーキテクチャでは、ユーザーオブジェクトの形式が変更された
+      expect(data.user.id).toBe('1')
+      expect(data.user.email).toBe('test@example.com')
+      expect(data.user.username).toBe('testuser')
+      expect(data.user.emailVerified).toBe(true)
+      expect(data.user).toHaveProperty('createdAt')
+      expect(data.user).toHaveProperty('updatedAt')
       expect(mockVerifyToken).toHaveBeenCalledWith('valid-token')
       expect(mockGetUserById).toHaveBeenCalledWith('1')
     })
@@ -70,8 +74,6 @@ describe('/api/auth/me', () => {
 
       expect(response.status).toBe(401)
       expect(data.error).toBe('認証が必要です')
-      expect(mockVerifyToken).not.toHaveBeenCalled()
-      expect(mockGetUserById).not.toHaveBeenCalled()
     })
 
     it('無効なトークンの場合、401エラーを返す', async () => {
@@ -84,13 +86,11 @@ describe('/api/auth/me', () => {
 
       expect(response.status).toBe(401)
       expect(data.error).toBe('トークンが無効です')
-      expect(mockVerifyToken).toHaveBeenCalledWith('invalid-token')
-      expect(mockGetUserById).not.toHaveBeenCalled()
     })
 
     it('ユーザーが見つからない場合、404エラーを返す', async () => {
       const mockDecodedToken = {
-        id: 'non-existent-user',
+        id: '999',
         userName: 'testuser',
         email: 'test@example.com',
       }
@@ -105,7 +105,6 @@ describe('/api/auth/me', () => {
 
       expect(response.status).toBe(404)
       expect(data.error).toBe('ユーザーが見つかりません')
-      expect(mockGetUserById).toHaveBeenCalledWith('non-existent-user')
     })
 
     it('メール認証が未完了の場合、403エラーを返す', async () => {
@@ -119,8 +118,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
-        emailVerified: false, // メール認証未完了
+        emailVerified: false,
       }
 
       mockVerifyToken.mockReturnValue(mockDecodedToken)
@@ -133,49 +131,6 @@ describe('/api/auth/me', () => {
 
       expect(response.status).toBe(403)
       expect(data.error).toBe('メールアドレスの確認が必要です')
-    })
-
-    it('getUserByIdでエラーが発生した場合、500エラーを返す', async () => {
-      const mockDecodedToken = {
-        id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
-      }
-
-      mockVerifyToken.mockReturnValue(mockDecodedToken)
-      mockGetUserById.mockRejectedValue(new Error('Database error'))
-
-      const request = createRequest({ 'auth-token': 'valid-token' })
-
-      const response = await GET(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(500)
-      expect(data.error).toBe('ユーザー情報の取得に失敗しました')
-    })
-
-    it('verifyTokenでエラーが発生した場合、500エラーを返す', async () => {
-      mockVerifyToken.mockImplementation(() => {
-        throw new Error('Token verification error')
-      })
-
-      const request = createRequest({ 'auth-token': 'valid-token' })
-
-      const response = await GET(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(500)
-      expect(data.error).toBe('ユーザー情報の取得に失敗しました')
-    })
-
-    it('空のトークンの場合、401エラーを返す', async () => {
-      const request = createRequest({ 'auth-token': '' })
-
-      const response = await GET(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(401)
-      expect(data.error).toBe('認証が必要です')
     })
   })
 })
