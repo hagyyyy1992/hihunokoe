@@ -42,9 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
+      } else {
+        // Auth failed - explicitly set user to null
+        setUser(null)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
+      // Network error or other issue - set user to null
+      setUser(null)
     } finally {
       setLoading(false)
     }

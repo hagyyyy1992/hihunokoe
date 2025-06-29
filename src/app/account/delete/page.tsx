@@ -31,6 +31,7 @@ export default function DeleteAccountPage() {
     } else {
       // ユーザーが存在しない場合にリダイレクト
       router.replace('/auth/login')
+      return
     }
   }, [user, loading, router])
 

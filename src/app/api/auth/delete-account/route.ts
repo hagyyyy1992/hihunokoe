@@ -21,7 +21,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '無効なトークンです' }, { status: 401 })
     }
 
-    const { password } = await request.json()
+    let requestBody
+    try {
+      requestBody = await request.json()
+    } catch (error) {
+      console.error('Failed to parse request body:', error)
+      return NextResponse.json({ error: 'リクエストボディが無効です' }, { status: 400 })
+    }
+
+    const { password } = requestBody
     if (!password) {
       return NextResponse.json({ error: 'パスワードの確認が必要です' }, { status: 400 })
     }

@@ -110,7 +110,7 @@ describe('/api/auth/login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.error).toBe('メールアドレスまたはパスワードが正しくありません')
+      expect(data.error).toBe('メールアドレスまたはパスワードが間違っています')
     })
 
     it('無効な入力データでバリデーションエラーを返す', async () => {

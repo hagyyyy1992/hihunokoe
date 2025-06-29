@@ -50,9 +50,7 @@ test.describe('アカウント削除機能', () => {
     testUser = await createTestUser()
     // ユーザーを登録してログイン済みの状態にする
     try {
-      console.log('Setting up test user:', testUser.email)
       await registerAndLoginTestUser(page, testUser)
-      console.log('Test user setup completed for:', testUser.email)
     } catch (error) {
       console.error('Failed to setup test user:', error)
       throw error
@@ -63,9 +61,12 @@ test.describe('アカウント削除機能', () => {
     await cleanupTestUser(testUser.email)
   })
 
-  test('ログインしていないユーザーはアカウント削除ページにアクセスできない', async ({ page }) => {
-    // 新しいページ（ログインしていない状態）でテスト
-    const newPage = await page.context().newPage()
+  test('ログインしていないユーザーはアカウント削除ページにアクセスできない', async ({
+    browser,
+  }) => {
+    // 新しいブラウザコンテキスト（ログインしていない状態）でテスト
+    const newContext = await browser.newContext()
+    const newPage = await newContext.newPage()
     await newPage.goto('/account/delete')
 
     // ページの読み込み完了を待つ
@@ -93,7 +94,7 @@ test.describe('アカウント削除機能', () => {
 
     // 最終的にログインページにリダイレクトされることを確認
     await expect(newPage).toHaveURL('/auth/login', { timeout: 5000 })
-    await newPage.close()
+    await newContext.close()
   })
 
   test('ログインユーザーがアカウント削除ページにアクセスできる', async ({ page }) => {
@@ -255,7 +256,7 @@ test.describe('アカウント削除機能', () => {
     await expect(
       page
         .getByTestId('error-message')
-        .or(page.getByText(/メールアドレスまたはパスワードが正しくありません/))
+        .or(page.getByText(/メールアドレスまたはパスワードが間違っています/))
         .or(page.getByText(/ログインに失敗しました/))
     ).toBeVisible()
   })
