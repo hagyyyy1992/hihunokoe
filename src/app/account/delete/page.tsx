@@ -30,7 +30,11 @@ export default function DeleteAccountPage() {
       setIsAuthChecking(false)
     } else {
       // ユーザーが存在しない場合にリダイレクト
-      router.push('/auth/login')
+      const timer = setTimeout(() => {
+        router.push('/auth/login')
+      }, 100) // 短い遅延を追加してレンダリング後にリダイレクト
+
+      return () => clearTimeout(timer)
     }
   }, [user, loading, router])
 

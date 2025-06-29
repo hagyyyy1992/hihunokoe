@@ -175,6 +175,9 @@ test.describe('ログイン', () => {
 
     await authHelper.register(newUser)
 
+    // 登録後、手動でログイン
+    await authHelper.login(newUser.email, newUser.password)
+
     // ログイン状態を確認
     await authHelper.expectToBeLoggedIn()
 

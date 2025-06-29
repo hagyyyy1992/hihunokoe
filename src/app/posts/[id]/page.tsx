@@ -142,7 +142,7 @@ export default function PostDetailPage() {
 
   const fetchPost = useCallback(async () => {
     try {
-      const response = await fetch(`/api/posts/${id}`)
+      const response = await fetch(`/api/posts/get?id=${id}`)
       const data = await response.json()
 
       if (!response.ok) {
