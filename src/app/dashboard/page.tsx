@@ -181,32 +181,6 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">アカウント情報</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-gray-600">ユーザー名:</span>
-                <span className="ml-2 text-gray-900">{user.userName}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-600">メールアドレス:</span>
-                <span className="ml-2 text-gray-900">{user.email}</span>
-              </div>
-              {user.skinType && (
-                <div>
-                  <span className="font-medium text-gray-600">肌タイプ:</span>
-                  <span className="ml-2 text-gray-900">
-                    {user.skinType === 'normal' && '普通肌'}
-                    {user.skinType === 'dry' && '乾燥肌'}
-                    {user.skinType === 'oily' && '脂性肌'}
-                    {user.skinType === 'combination' && '混合肌'}
-                    {user.skinType === 'sensitive' && '敏感肌'}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
