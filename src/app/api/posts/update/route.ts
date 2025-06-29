@@ -202,4 +202,3 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: '投稿の更新に失敗しました' }, { status: 500 })
   }
 }
-

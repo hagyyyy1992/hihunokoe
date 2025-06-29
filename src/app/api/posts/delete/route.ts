@@ -84,4 +84,3 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: '投稿の削除に失敗しました' }, { status: 500 })
   }
 }
-
