@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/Button'
@@ -14,8 +14,33 @@ export default function DeleteAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [isAuthChecking, setIsAuthChecking] = useState(true)
   const router = useRouter()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
+
+  // 認証チェック
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!user) {
+        router.push('/auth/login')
+      } else {
+        setIsAuthChecking(false)
+      }
+    }
+    checkAuth()
+  }, [user, router])
+
+  // 認証チェック中またはユーザーがログインしていない場合はローディング表示
+  if (isAuthChecking || !user) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleDeleteAccount = async () => {
     if (!password) {
@@ -87,6 +112,7 @@ export default function DeleteAccountPage() {
                   onClick={() => setShowConfirmation(true)}
                   variant="danger"
                   className="w-full"
+                  data-testid="continue-delete-button"
                 >
                   アカウント削除を続行
                 </Button>
@@ -123,6 +149,7 @@ export default function DeleteAccountPage() {
                     placeholder="現在のパスワード"
                     disabled={isLoading}
                     className="w-full"
+                    data-testid="delete-password-input"
                   />
                 </div>
 
@@ -136,6 +163,7 @@ export default function DeleteAccountPage() {
                     variant="outline"
                     disabled={isLoading}
                     className="flex-1"
+                    data-testid="cancel-button"
                   >
                     キャンセル
                   </Button>
@@ -144,6 +172,7 @@ export default function DeleteAccountPage() {
                     variant="danger"
                     disabled={isLoading || !password}
                     className="flex-1"
+                    data-testid="delete-account-button"
                   >
                     {isLoading ? '削除中...' : 'アカウントを削除'}
                   </Button>

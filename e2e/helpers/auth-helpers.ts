@@ -42,15 +42,29 @@ export async function createTestUser() {
   const timestamp = Date.now()
   return {
     email: `test-${timestamp}@example.com`,
-    password: 'test123',
+    password: 'test12345', // 8文字以上のパスワード
     userName: `testuser-${timestamp}`,
     skinType: 'normal',
   }
 }
 
 export async function cleanupTestUser(email: string) {
-  // テストユーザーのクリーンアップ（実際の実装では必要に応じてAPIコールなど）
-  console.log(`Cleaning up test user: ${email}`)
+  // テストユーザーのクリーンアップ
+  try {
+    const response = await fetch('http://localhost:3000/api/test/cleanup-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+
+    if (!response.ok) {
+      console.log(`Failed to cleanup test user ${email}: ${response.status}`)
+    }
+  } catch (error) {
+    console.log(`Error cleaning up test user ${email}:`, error)
+  }
 }
 
 export async function registerAndLoginTestUser(
@@ -63,7 +77,12 @@ export async function registerAndLoginTestUser(
     password: userData.password,
     skinType: userData.skinType,
   }
+
+  // Register the user
   await registerTestUser(page, registerData)
+
+  // After successful registration, explicitly login
+  // Note: registerTestUser will leave us on registration-complete page, so we need to navigate to login
   await loginTestUser(page, userData.email, userData.password)
 }
 
@@ -81,6 +100,9 @@ export class AuthHelper {
   ) {
     await this.page.goto('/auth/register')
 
+    // Wait for form to be fully loaded
+    await this.page.waitForSelector('[data-testid="register-form"]', { timeout: 10000 })
+
     await this.page.fill('[data-testid="username-input"]', userData.username)
     await this.page.fill('[data-testid="email-input"]', userData.email)
     await this.page.fill('[data-testid="password-input"]', userData.password)
@@ -94,39 +116,51 @@ export class AuthHelper {
     await this.page.click('[data-testid="register-button"]')
 
     if (expectSuccess) {
-      // Wait for registration to complete and redirect to registration-complete page
+      // Wait for form submission to start
+      await this.page.waitForTimeout(500)
+
+      // Wait for either navigation or error message with extended timeout
       try {
-        // Add extra delay for Mobile Safari
-        const userAgent = await this.page.evaluate(() => navigator.userAgent)
-        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
-        if (isMobileSafari) {
-          await this.page.waitForTimeout(2000)
+        await Promise.race([
+          // Wait for success - registration-complete page
+          expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 45000 }),
+          // Wait for error message to appear (if registration fails)
+          this.page.waitForSelector('[data-testid="error-message"]', { timeout: 45000 }),
+        ])
+
+        // Check if we're on registration-complete page (success)
+        const currentUrl = this.page.url()
+        if (currentUrl.includes('/auth/registration-complete')) {
+          return
         }
-        await expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 30000 })
+
+        // If we're still on register page, check for error
+        const errorElement = this.page.locator('[data-testid="error-message"]')
+        const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
+        if (hasError) {
+          const errorText = await errorElement.textContent()
+          throw new Error(`Registration failed with error: ${errorText}`)
+        }
+
+        throw new Error(
+          `Registration failed - expected registration-complete page but got: ${currentUrl}`
+        )
       } catch (error) {
-        try {
-          // Check for error messages on registration page (with error handling for closed page)
-          const errorElement = this.page.locator('[data-testid="error-message"]')
-          const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
-          if (hasError) {
-            const errorText = await errorElement.textContent()
-            throw new Error(`Registration failed with error: ${errorText}`)
-          }
+        const currentUrl = this.page.url()
 
-          // If no error message but still on registration page, check current URL
-          const currentUrl = this.page.url()
-          throw new Error(
-            `Registration failed - expected registration-complete page but got: ${currentUrl}`
-          )
-        } catch (pageError) {
-          // If page is closed or inaccessible, throw original error
-          console.log('Page is no longer accessible during error handling:', pageError)
-          throw error
+        // Check for error message one more time
+        const errorElement = this.page.locator('[data-testid="error-message"]')
+        const hasError = await errorElement.isVisible({ timeout: 1000 }).catch(() => false)
+
+        if (hasError) {
+          const errorText = await errorElement.textContent()
+          throw new Error(`Registration failed with error: ${errorText}`)
         }
-      }
 
-      // After registration, manually login since registration doesn't auto-login
-      await this.login(userData.email, userData.password)
+        throw new Error(
+          `Registration timeout or failed - expected registration-complete page but got: ${currentUrl}. Original error: ${error instanceof Error ? error.message : String(error)}`
+        )
+      }
     } else {
       // Wait a bit for potential redirect or error message
       await this.page.waitForTimeout(2000)

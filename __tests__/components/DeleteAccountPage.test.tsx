@@ -21,7 +21,12 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('../../src/lib/auth/AuthContext', () => ({
   useAuth: () => ({
-    user: null,
+    user: {
+      id: 'test-user-id',
+      email: 'test@example.com',
+      userName: 'testuser',
+      emailVerified: true,
+    },
     login: jest.fn(),
     register: jest.fn(),
     logout: mockLogout,
