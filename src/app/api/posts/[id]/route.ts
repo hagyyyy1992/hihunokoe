@@ -67,15 +67,21 @@ const postSchema = z.object({
 
 // GET: 投稿の取得
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id: postId } = await params
-
-  // UUID形式の検証
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  if (!uuidRegex.test(postId)) {
-    return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
-  }
-
   try {
+    // パラメータの安全な取得
+    const resolvedParams = await params
+    const postId = resolvedParams.id
+
+    if (!postId) {
+      return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
+    }
+
+    // UUID形式の検証
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(postId)) {
+      return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+    }
+
     if (!isDatabaseAvailable()) {
       // モックモードでの投稿取得
       const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
