@@ -65,43 +65,67 @@ describe('EmpathyButton Component', () => {
 
   it('共感ボタンがクリック可能である', async () => {
     const user = userEvent.setup()
-    mockFetch.mockResolvedValueOnce({
+
+    // Mock the fetch response properly
+    const mockResponse = {
       ok: true,
-      json: () =>
-        Promise.resolve({
-          success: true,
-          empathy: { empathyType: 'helpful' },
-          totalCount: 6,
-        }),
-    })
+      json: jest.fn().mockResolvedValue({
+        success: true,
+        empathy: { empathyType: 'helpful' },
+        totalCount: 6,
+      }),
+    }
+    mockFetch.mockResolvedValueOnce(mockResponse as any)
 
     render(<EmpathyButton {...defaultProps} />)
 
     const button = screen.getByTestId('empathy-button')
     await user.click(button)
 
-    // ボタンがクリックされたことを確認
-    expect(button).toBeInTheDocument()
+    // Wait for the API call to be made
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled()
+    })
+
+    // Verify the correct API endpoint was called
+    expect(mockFetch).toHaveBeenCalledWith('/api/posts/empathy?id=test-post-1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        empathyType: 'helpful',
+      }),
+    })
   })
 
   it('共感済み状態でもクリック可能である', async () => {
     const user = userEvent.setup()
-    mockFetch.mockResolvedValueOnce({
+
+    // Mock the fetch response properly
+    const mockResponse = {
       ok: true,
-      json: () =>
-        Promise.resolve({
-          success: true,
-          totalCount: 4,
-        }),
-    })
+      json: jest.fn().mockResolvedValue({
+        success: true,
+        totalCount: 4,
+      }),
+    }
+    mockFetch.mockResolvedValueOnce(mockResponse as any)
 
     render(<EmpathyButton {...defaultProps} initialHasEmpathized={true} initialCount={5} />)
 
     const button = screen.getByTestId('empathy-button')
     await user.click(button)
 
-    // ボタンがクリックされたことを確認
-    expect(button).toBeInTheDocument()
+    // Wait for the API call to be made
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled()
+    })
+
+    // Verify the correct API endpoint was called
+    expect(mockFetch).toHaveBeenCalledWith('/api/posts/empathy?id=test-post-1', {
+      method: 'DELETE',
+    })
   })
 
   it('アクセシビリティ属性が設定される', () => {
