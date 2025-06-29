@@ -30,16 +30,12 @@ export default function DeleteAccountPage() {
       setIsAuthChecking(false)
     } else {
       // ユーザーが存在しない場合にリダイレクト
-      const timer = setTimeout(() => {
-        router.push('/auth/login')
-      }, 100) // 短い遅延を追加してレンダリング後にリダイレクト
-
-      return () => clearTimeout(timer)
+      router.replace('/auth/login')
     }
   }, [user, loading, router])
 
   // 認証チェック中またはユーザーがログインしていない場合はローディング表示
-  if (isAuthChecking || !user) {
+  if (loading || isAuthChecking || !user) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center">
