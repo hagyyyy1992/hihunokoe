@@ -66,11 +66,17 @@ const postSchema = z.object({
 })
 
 // GET: 投稿の取得
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // パラメータの安全な取得
-    const resolvedParams = await params
-    const postId = resolvedParams.id
+    // デバッグ用ログ
+    console.log('GET /api/posts/[id] called')
+
+    // パラメータの安全な取得 - Next.js 15対応
+    const resolvedParams = await context.params
+    const postId = resolvedParams?.id
+
+    console.log('Resolved params:', JSON.stringify(resolvedParams))
+    console.log('Post ID:', postId)
 
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
