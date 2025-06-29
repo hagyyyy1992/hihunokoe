@@ -96,7 +96,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
 
     try {
-      const url = isEditMode ? `/api/posts/${postId}` : '/api/posts'
+      const url = isEditMode ? `/api/posts/update?id=${postId}` : '/api/posts'
       const method = isEditMode ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -155,7 +155,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     setError('')
 
     try {
-      const response = await fetch(`/api/posts/${postId}`, {
+      const response = await fetch(`/api/posts/delete?id=${postId}`, {
         method: 'DELETE',
       })
 

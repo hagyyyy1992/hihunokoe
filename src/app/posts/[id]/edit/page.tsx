@@ -304,7 +304,7 @@ export default function EditPostPage() {
     setDeleteLoading(true)
 
     try {
-      const response = await fetch(`/api/posts/${post.id}`, {
+      const response = await fetch(`/api/posts/delete?id=${post.id}`, {
         method: 'DELETE',
       })
 

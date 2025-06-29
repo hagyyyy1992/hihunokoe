@@ -229,7 +229,7 @@ test.describe('アカウント削除機能', () => {
       await expect(page.getByTestId('login-button')).toBeVisible()
     } else {
       // トップページにいる場合、ログインリンクが表示される
-      await expect(page.getByRole('link', { name: /ログイン/ })).toBeVisible()
+      await expect(page.getByTestId('login-link')).toBeVisible()
     }
   })
 
@@ -328,17 +328,12 @@ test.describe('アカウント削除機能', () => {
     // 登録ボタンをクリック
     await page.getByTestId('register-button').click()
 
-    // 登録完了ページまたはダッシュボードに移動することを確認
-    await expect(page).toHaveURL(/\/(dashboard|auth\/registration-complete)/)
+    // 登録完了ページに移動することを確認
+    await expect(page).toHaveURL(/\/auth\/registration-complete/)
 
-    // 再登録が成功したことを確認（成功メッセージまたはページ遷移で判断）
-    if (page.url().includes('/auth/registration-complete')) {
-      await expect(page.getByTestId('success-message')).toBeVisible()
-      await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
-    } else {
-      // ダッシュボードに直接移動した場合
-      await expect(page.getByRole('heading', { name: /ダッシュボード/ })).toBeVisible()
-    }
+    // 再登録が成功したことを確認（登録完了ページの要素をチェック）
+    await expect(page.getByTestId('success-message')).toBeVisible()
+    await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
   })
 
   test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
@@ -365,16 +360,12 @@ test.describe('アカウント削除機能', () => {
     // 登録ボタンをクリック
     await page.getByTestId('register-button').click()
 
-    // 登録完了ページまたはダッシュボードに移動することを確認
-    await expect(page).toHaveURL(/\/(dashboard|auth\/registration-complete)/)
+    // 登録完了ページに移動することを確認
+    await expect(page).toHaveURL(/\/auth\/registration-complete/)
 
-    // 再登録が成功したことを確認
-    if (page.url().includes('/auth/registration-complete')) {
-      await expect(page.getByTestId('success-message')).toBeVisible()
-      await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
-    } else {
-      await expect(page.getByRole('heading', { name: /ダッシュボード/ })).toBeVisible()
-    }
+    // 再登録が成功したことを確認（登録完了ページの要素をチェック）
+    await expect(page.getByTestId('success-message')).toBeVisible()
+    await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
 
     // 追加のクリーンアップ（新しいメールアドレスも削除）
     await cleanupTestUser('new_' + testUser.email)
