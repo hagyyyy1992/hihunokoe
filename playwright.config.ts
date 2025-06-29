@@ -78,6 +78,7 @@ export default defineConfig({
       DATABASE_URL: 'postgresql://postgres:password@localhost:5432/usaka_dev',
       NEXTAUTH_SECRET: 'test-secret-key-for-e2e-tests',
       NODE_ENV: 'development',
+      USE_MOCK_DATA: 'false',
     },
   },
 })
