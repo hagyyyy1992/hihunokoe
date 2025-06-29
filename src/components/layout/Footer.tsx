@@ -39,14 +39,6 @@ export default function Footer() {
                   体験を投稿
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/search"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
-                >
-                  検索
-                </Link>
-              </li>
             </ul>
           </div>
 

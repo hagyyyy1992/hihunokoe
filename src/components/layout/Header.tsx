@@ -134,9 +134,6 @@ export default function Header() {
             <Link href="/posts/new" className={getPostNewLinkClass()}>
               体験を投稿
             </Link>
-            <Link href="/search" className={getNavLinkClass('/search')}>
-              検索
-            </Link>
           </nav>
 
           {/* ユーザーメニュー */}
@@ -236,13 +233,6 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   体験を投稿
-                </Link>
-                <Link
-                  href="/search"
-                  className={getMobileNavLinkClass('/search')}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  検索
                 </Link>
                 <hr className="my-2 border-gray-100" />
                 {user ? (
