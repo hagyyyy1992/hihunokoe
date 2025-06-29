@@ -19,7 +19,7 @@ test.describe('アカウント削除機能', () => {
       await page.waitForFunction(
         () => {
           const loadingElement = document.querySelector('.animate-spin')
-          return !loadingElement || !loadingElement.offsetParent
+          return !loadingElement || !(loadingElement as HTMLElement).offsetParent
         },
         { timeout: 10000 }
       )
