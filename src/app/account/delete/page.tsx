@@ -16,19 +16,23 @@ export default function DeleteAccountPage() {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isAuthChecking, setIsAuthChecking] = useState(true)
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const { user, logout, loading } = useAuth()
 
   // 認証チェック
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!user) {
-        router.push('/auth/login')
-      } else {
-        setIsAuthChecking(false)
-      }
+    // AuthContextの読み込みが完了するまで待つ
+    if (loading) {
+      return
     }
-    checkAuth()
-  }, [user, router])
+
+    // 読み込み完了後にユーザー状態を確認
+    if (user) {
+      setIsAuthChecking(false)
+    } else {
+      // ユーザーが存在しない場合にリダイレクト
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
 
   // 認証チェック中またはユーザーがログインしていない場合はローディング表示
   if (isAuthChecking || !user) {

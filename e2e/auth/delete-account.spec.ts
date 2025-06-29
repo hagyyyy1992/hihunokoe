@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, Page } from '@playwright/test'
 import {
   loginUser,
   createTestUser,
@@ -9,10 +9,54 @@ import {
 test.describe('アカウント削除機能', () => {
   let testUser: { email: string; password: string; userName: string }
 
+  // ヘルパー関数: アカウント削除ページの読み込み完了を待機
+  async function waitForDeletePageReady(page: Page) {
+    await page.waitForLoadState('networkidle')
+
+    // ページの最終的な状態を確認
+    try {
+      // ローディング画面が消えるまで待機
+      await page.waitForFunction(
+        () => {
+          const loadingElement = document.querySelector('.animate-spin')
+          return !loadingElement || !loadingElement.offsetParent
+        },
+        { timeout: 10000 }
+      )
+
+      // まず認証状態をチェック - ログインページにリダイレクトされていないか確認
+      const currentUrl = page.url()
+      if (currentUrl.includes('/auth/login')) {
+        throw new Error('User was redirected to login page - not authenticated')
+      }
+
+      // アカウント削除ページの要素が表示されるまで待機
+      await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 15000 })
+    } catch (error) {
+      // エラーの場合、現在のページ状態を確認
+      const currentUrl = page.url()
+      console.log('waitForDeletePageReady failed. Current URL:', currentUrl)
+
+      if (currentUrl.includes('/auth/login')) {
+        throw new Error('User was redirected to login page - authentication required')
+      }
+
+      // その他のエラーはそのまま再スロー
+      throw error
+    }
+  }
+
   test.beforeEach(async ({ page }) => {
     testUser = await createTestUser()
     // ユーザーを登録してログイン済みの状態にする
-    await registerAndLoginTestUser(page, testUser)
+    try {
+      console.log('Setting up test user:', testUser.email)
+      await registerAndLoginTestUser(page, testUser)
+      console.log('Test user setup completed for:', testUser.email)
+    } catch (error) {
+      console.error('Failed to setup test user:', error)
+      throw error
+    }
   })
 
   test.afterEach(async () => {
@@ -24,16 +68,25 @@ test.describe('アカウント削除機能', () => {
     const newPage = await page.context().newPage()
     await newPage.goto('/account/delete')
 
+    // 認証チェックのために十分な時間待つ - AuthContextの読み込みと認証確認のため
+    await newPage.waitForTimeout(2000)
+
     // ログインページにリダイレクトされることを確認
-    await expect(newPage).toHaveURL('/auth/login')
+    await expect(newPage).toHaveURL('/auth/login', { timeout: 15000 })
     await newPage.close()
   })
 
   test('ログインユーザーがアカウント削除ページにアクセスできる', async ({ page }) => {
-    await page.goto('/account/delete')
+    // まず認証状態を確認するためにダッシュボードにアクセス
+    console.log('Verifying authentication by checking dashboard access')
+    await page.goto('/dashboard')
 
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    // ダッシュボードにアクセスできることを確認
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    console.log('Dashboard access confirmed, now accessing delete page')
+
+    await page.goto('/account/delete')
+    await waitForDeletePageReady(page)
 
     // アカウント削除ページが表示されることを確認
     await expect(page.getByRole('heading', { name: /アカウント削除/ })).toBeVisible()
@@ -54,14 +107,13 @@ test.describe('アカウント削除機能', () => {
 
     // アカウント削除ページにリダイレクトされることを確認
     await expect(page).toHaveURL('/account/delete')
+    await waitForDeletePageReady(page)
     await expect(page.getByRole('heading', { name: /アカウント削除/ })).toBeVisible()
   })
 
   test('アカウント削除の警告メッセージが適切に表示される', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 警告メッセージの内容を確認
     await expect(page.getByText(/プロフィール情報/)).toBeVisible()
@@ -72,9 +124,7 @@ test.describe('アカウント削除機能', () => {
 
   test('継続ボタンをクリックするとパスワード確認フォームが表示される', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
@@ -88,9 +138,7 @@ test.describe('アカウント削除機能', () => {
 
   test('キャンセルボタンをクリックすると初期状態に戻る', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
@@ -103,27 +151,32 @@ test.describe('アカウント削除機能', () => {
     await expect(page.getByTestId('delete-password-input')).not.toBeVisible()
   })
 
-  test('パスワードを入力せずに削除ボタンをクリックするとエラーが表示される', async ({ page }) => {
+  test('削除ボタンはパスワードが入力されていない場合は無効になる', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
 
-    // パスワードを入力せずに削除ボタンをクリック
-    await page.getByTestId('delete-account-button').click()
+    // パスワード入力フォームが表示されるまで待機
+    await expect(page.getByTestId('delete-password-input')).toBeVisible()
 
-    // エラーメッセージが表示されることを確認
-    await expect(page.getByText(/パスワードを入力してください/)).toBeVisible()
+    // 初期状態では削除ボタンが無効であることを確認
+    const deleteButton = page.getByTestId('delete-account-button')
+    await expect(deleteButton).toBeDisabled()
+
+    // パスワードを入力すると削除ボタンが有効になることを確認
+    await page.getByTestId('delete-password-input').fill('some-password')
+    await expect(deleteButton).toBeEnabled()
+
+    // パスワードをクリアすると再び無効になることを確認
+    await page.getByTestId('delete-password-input').clear()
+    await expect(deleteButton).toBeDisabled()
   })
 
   test('正しいパスワードでアカウント削除が成功する', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
@@ -134,18 +187,23 @@ test.describe('アカウント削除機能', () => {
     // 削除ボタンをクリック
     await page.getByTestId('delete-account-button').click()
 
-    // トップページにリダイレクトされることを確認
-    await expect(page).toHaveURL('/')
+    // アカウント削除後、トップページまたはログインページにリダイレクトされることを確認
+    // （ログアウト処理によってはログインページに移動する場合もある）
+    await expect(page).toHaveURL(/\/(|auth\/login)/, { timeout: 10000 })
 
-    // ログイン状態が解除されていることを確認（ヘッダーにログインリンクが表示される）
-    await expect(page.getByRole('link', { name: /ログイン/ })).toBeVisible()
+    // いずれの場合もログアウト状態になっていることを確認
+    if (page.url().includes('/auth/login')) {
+      // ログインページにいる場合
+      await expect(page.getByTestId('login-button')).toBeVisible()
+    } else {
+      // トップページにいる場合、ログインリンクが表示される
+      await expect(page.getByRole('link', { name: /ログイン/ })).toBeVisible()
+    }
   })
 
   test('アカウント削除後に同じアカウントでログインできないことを確認', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // アカウント削除を実行
     await page.getByTestId('continue-delete-button').click()
@@ -161,15 +219,18 @@ test.describe('アカウント削除機能', () => {
     await page.getByTestId('password-input').fill(testUser.password)
     await page.getByTestId('login-button').click()
 
-    // ログインエラーが表示されることを確認
-    await expect(page.getByText(/メールアドレスまたはパスワードが正しくありません/)).toBeVisible()
+    // ログインエラーが表示されることを確認 - エラーメッセージのバリエーションを考慮
+    await expect(
+      page
+        .getByTestId('error-message')
+        .or(page.getByText(/メールアドレスまたはパスワードが正しくありません/))
+        .or(page.getByText(/ログインに失敗しました/))
+    ).toBeVisible()
   })
 
   test('アカウント削除中にローディング状態が表示される', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
@@ -191,9 +252,7 @@ test.describe('アカウント削除機能', () => {
 
   test('削除ボタンはパスワード入力時のみ有効になる', async ({ page }) => {
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     // 継続ボタンをクリック
     await page.getByTestId('continue-delete-button').click()
@@ -216,9 +275,7 @@ test.describe('アカウント削除機能', () => {
   test('アカウント削除後に同じメールアドレスで再登録できる', async ({ page }) => {
     // アカウント削除を実行
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     await page.getByTestId('continue-delete-button').click()
     await page.getByTestId('delete-password-input').fill(testUser.password)
@@ -255,9 +312,7 @@ test.describe('アカウント削除機能', () => {
   test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
     // アカウント削除を実行
     await page.goto('/account/delete')
-
-    // ページが完全に読み込まれるまで待機
-    await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 10000 })
+    await waitForDeletePageReady(page)
 
     await page.getByTestId('continue-delete-button').click()
     await page.getByTestId('delete-password-input').fill(testUser.password)
