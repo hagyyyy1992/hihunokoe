@@ -18,8 +18,8 @@ jest.mock('@/lib/prisma', () => ({
 
 jest.mock('@/lib/mock-data', () => {
   // テスト用のモックデータ配列を定義
-  const mockPosts = []
-  const mockEmpathies = []
+  const mockPosts: any[] = []
+  const mockEmpathies: any[] = []
 
   return {
     MOCK_POSTS: mockPosts,
