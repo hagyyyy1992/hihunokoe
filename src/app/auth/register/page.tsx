@@ -1,9 +1,54 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+
+// 定数として外に出して再作成を防ぐ
+const SKIN_TYPE_OPTIONS = [
+  { value: '', label: '選択してください' },
+  { value: 'normal', label: '普通肌' },
+  { value: 'dry', label: '乾燥肌' },
+  { value: 'oily', label: '脂性肌' },
+  { value: 'combination', label: '混合肌' },
+  { value: 'sensitive', label: '敏感肌' },
+  { value: 'other', label: 'その他' },
+] as const
+
+const GENDER_OPTIONS = [
+  { value: '', label: '選択してください' },
+  { value: 'male', label: '男性' },
+  { value: 'female', label: '女性' },
+  { value: 'non_binary', label: 'ノンバイナリー' },
+  { value: 'prefer_not_to_say', label: '回答しない' },
+  { value: 'other', label: 'その他' },
+] as const
+
+const ALLERGY_OPTIONS = [
+  { value: 'fragrance', label: '香料' },
+  { value: 'alcohol', label: 'アルコール' },
+  { value: 'paraben', label: 'パラベン' },
+  { value: 'sulfate', label: '硫酸塩' },
+  { value: 'silicone', label: 'シリコン' },
+  { value: 'mineral_oil', label: 'ミネラルオイル' },
+  { value: 'formaldehyde', label: 'ホルムアルデヒド' },
+  { value: 'latex', label: 'ラテックス' },
+  { value: 'nickel', label: 'ニッケル' },
+  { value: 'other', label: 'その他' },
+] as const
+
+const BODY_TYPE_OPTIONS = [
+  { value: '', label: '選択してください' },
+  { value: 'atopic', label: 'アトピー性皮膚炎' },
+  { value: 'sensitive_skin', label: '敏感肌' },
+  { value: 'acne_prone', label: 'ニキビ肌' },
+  { value: 'mature_skin', label: '年齢肌' },
+  { value: 'pigmentation', label: '色素沈着' },
+  { value: 'rosacea', label: '酒さ' },
+  { value: 'eczema', label: '湿疹' },
+  { value: 'other', label: 'その他' },
+] as const
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -66,8 +111,7 @@ export default function RegisterPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // WebKit環境でのCookie設定完了を待つ
-        await new Promise(resolve => setTimeout(resolve, 200))
+        // Cookie設定は同期的に処理されるため遅延不要
 
         // 登録完了画面にリダイレクト
         router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
@@ -82,7 +126,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     if (name === 'allergies') {
       // Handle multiple select for allergies
@@ -91,61 +135,17 @@ export default function RegisterPage() {
         selectElement.selectedOptions,
         option => option.value as AllergyType
       )
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         allergies: selectedValues,
-      })
+      }))
     } else {
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         [name]: value,
-      })
+      }))
     }
-  }
-
-  const skinTypeOptions = [
-    { value: '', label: '選択してください' },
-    { value: 'normal', label: '普通肌' },
-    { value: 'dry', label: '乾燥肌' },
-    { value: 'oily', label: '脂性肌' },
-    { value: 'combination', label: '混合肌' },
-    { value: 'sensitive', label: '敏感肌' },
-    { value: 'other', label: 'その他' },
-  ]
-
-  const genderOptions = [
-    { value: '', label: '選択してください' },
-    { value: 'male', label: '男性' },
-    { value: 'female', label: '女性' },
-    { value: 'non_binary', label: 'ノンバイナリー' },
-    { value: 'prefer_not_to_say', label: '回答しない' },
-    { value: 'other', label: 'その他' },
-  ]
-
-  const allergyOptions = [
-    { value: 'fragrance', label: '香料' },
-    { value: 'alcohol', label: 'アルコール' },
-    { value: 'paraben', label: 'パラベン' },
-    { value: 'sulfate', label: '硫酸塩' },
-    { value: 'silicone', label: 'シリコン' },
-    { value: 'mineral_oil', label: 'ミネラルオイル' },
-    { value: 'formaldehyde', label: 'ホルムアルデヒド' },
-    { value: 'latex', label: 'ラテックス' },
-    { value: 'nickel', label: 'ニッケル' },
-    { value: 'other', label: 'その他' },
-  ]
-
-  const bodyTypeOptions = [
-    { value: '', label: '選択してください' },
-    { value: 'atopic', label: 'アトピー性皮膚炎' },
-    { value: 'sensitive_skin', label: '敏感肌' },
-    { value: 'acne_prone', label: 'ニキビ肌' },
-    { value: 'mature_skin', label: '年齢肌' },
-    { value: 'pigmentation', label: '色素沈着' },
-    { value: 'rosacea', label: '酒さ' },
-    { value: 'eczema', label: '湿疹' },
-    { value: 'other', label: 'その他' },
-  ]
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -246,7 +246,7 @@ export default function RegisterPage() {
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   data-testid="gender-select"
                 >
-                  {genderOptions.map(option => (
+                  {GENDER_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -268,7 +268,7 @@ export default function RegisterPage() {
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   data-testid="skin-type-select"
                 >
-                  {skinTypeOptions.map(option => (
+                  {SKIN_TYPE_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -305,7 +305,7 @@ export default function RegisterPage() {
                   size={5}
                   data-testid="allergies-select"
                 >
-                  {allergyOptions.map(option => (
+                  {ALLERGY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -343,7 +343,7 @@ export default function RegisterPage() {
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   data-testid="body-type-select"
                 >
-                  {bodyTypeOptions.map(option => (
+                  {BODY_TYPE_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
