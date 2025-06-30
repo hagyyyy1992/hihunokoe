@@ -75,9 +75,6 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     const resolvedParams = await context.params
     const postId = resolvedParams?.id
 
-    console.log('Resolved params:', JSON.stringify(resolvedParams))
-    console.log('Post ID:', postId)
-
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
     }
