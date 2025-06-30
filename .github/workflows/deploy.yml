@@ -112,16 +112,11 @@ jobs:
         run: npx playwright install-deps chromium
         if: steps.playwright-cache.outputs.cache-hit == 'true'
 
-      - name: Start development server
+      - name: Kill any existing process on port 3000
         run: |
-          npm run dev &
-          sleep 10
-        env:
-          NODE_ENV: development
-
-      - name: Wait for server to be ready
-        run: |
-          timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+          if lsof -i:3000; then
+            lsof -ti:3000 | xargs kill -9 || true
+          fi
 
       - name: Run basic E2E test
         run: npx playwright test e2e/auth/basic-auth.spec.ts --grep "登録ページが正しく表示される" --project=chromium --reporter=line
