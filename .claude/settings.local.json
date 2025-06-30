@@ -53,8 +53,13 @@
       "Bash(export USE_MOCK_DATA=true)",
       "Bash(node:*)",
       "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
-      "Bash(-s)"
+      "Bash(-s)",
+      "Bash(gh workflow:*)"
     ],
-    "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
+    "deny": [
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)",
+      "Bash(git merge:*)"
+    ]
   }
 }
