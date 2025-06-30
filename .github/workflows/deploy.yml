@@ -120,7 +120,7 @@ jobs:
           fi
 
       - name: Run basic E2E test
-        run: npx playwright test e2e/auth/basic-auth.spec.ts --grep "登録ページが正しく表示される" --project=chromium --reporter=line
+        run: npx playwright test e2e/auth/basic-auth.spec.ts --project=chromium --reporter=line
         env:
           CI: true
 
