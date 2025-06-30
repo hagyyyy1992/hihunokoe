@@ -171,7 +171,7 @@ export default function PostDetailPage() {
     if (!user || !id) return
 
     try {
-      const response = await fetch(`/api/posts/${id}/empathy`)
+      const response = await fetch(`/api/posts/empathy?id=${id}`)
       if (response.ok) {
         const data = await response.json()
         setEmpathyState({
