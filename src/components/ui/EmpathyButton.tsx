@@ -10,6 +10,7 @@ interface EmpathyButtonProps {
   initialEmpathyType?: EmpathyType
   className?: string
   size?: 'sm' | 'md' | 'lg'
+  initializing?: boolean
 }
 
 export default function EmpathyButton({
@@ -19,6 +20,7 @@ export default function EmpathyButton({
   initialEmpathyType,
   className = '',
   size = 'md',
+  initializing = false,
 }: EmpathyButtonProps) {
   const [count, setCount] = useState(initialCount)
   const [hasEmpathized, setHasEmpathized] = useState(initialHasEmpathized)
@@ -34,7 +36,7 @@ export default function EmpathyButton({
   }, [initialCount, initialHasEmpathized, initialEmpathyType])
 
   const handleEmpathy = useCallback(async () => {
-    if (isLoading) return
+    if (isLoading || initializing) return
 
     setIsLoading(true)
     setError('')
@@ -115,7 +117,7 @@ export default function EmpathyButton({
     } finally {
       setIsLoading(false)
     }
-  }, [hasEmpathized, isLoading, postId, empathyType])
+  }, [hasEmpathized, isLoading, postId, empathyType, initializing])
 
   // サイズに応じたスタイル
   const sizeClasses = {
@@ -164,7 +166,7 @@ export default function EmpathyButton({
     <div className="relative">
       <button
         onClick={handleEmpathy}
-        disabled={isLoading}
+        disabled={isLoading || initializing}
         className={buttonClasses}
         aria-label={hasEmpathized ? '共感を取り消す' : '共感する'}
         data-testid="empathy-button"
@@ -190,7 +192,7 @@ export default function EmpathyButton({
         </span>
 
         {/* ローディングインジケーター */}
-        {isLoading && (
+        {(isLoading || initializing) && (
           <div
             className={`${currentSize.icon} animate-spin rounded-full border-2 border-current border-t-transparent`}
           />

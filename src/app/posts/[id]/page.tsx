@@ -135,9 +135,11 @@ export default function PostDetailPage() {
     hasEmpathized: boolean
     empathyType?: EmpathyType
     totalCount: number
+    isLoading: boolean
   }>({
     hasEmpathized: false,
     totalCount: 0,
+    isLoading: false,
   })
 
   const fetchPost = useCallback(async () => {
@@ -170,6 +172,11 @@ export default function PostDetailPage() {
   const fetchEmpathyState = useCallback(async () => {
     if (!user || !id) return
 
+    setEmpathyState(prevState => ({
+      ...prevState,
+      isLoading: true,
+    }))
+
     try {
       const response = await fetch(`/api/posts/empathy?id=${id}`)
       if (response.ok) {
@@ -178,12 +185,14 @@ export default function PostDetailPage() {
           hasEmpathized: data.hasEmpathized || false,
           empathyType: data.empathyType,
           totalCount: data.totalCount || 0,
+          isLoading: false,
         })
       } else {
         // 404やその他のエラーの場合、デフォルト状態を設定
         setEmpathyState({
           hasEmpathized: false,
           totalCount: 0,
+          isLoading: false,
         })
       }
     } catch (err) {
@@ -192,6 +201,7 @@ export default function PostDetailPage() {
       setEmpathyState({
         hasEmpathized: false,
         totalCount: 0,
+        isLoading: false,
       })
     }
   }, [user, id])
@@ -440,6 +450,7 @@ export default function PostDetailPage() {
                 initialCount={empathyState.totalCount}
                 initialHasEmpathized={empathyState.hasEmpathized}
                 initialEmpathyType={empathyState.empathyType}
+                initializing={empathyState.isLoading}
                 size="md"
               />
             ) : (
