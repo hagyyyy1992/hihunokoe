@@ -56,10 +56,6 @@
       "Bash(-s)",
       "Bash(gh workflow:*)"
     ],
-    "deny": [
-      "Bash(gh pr merge:*)",
-      "Bash(gh pr close:*)",
-      "Bash(git merge:*)"
-    ]
+    "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
   }
 }
