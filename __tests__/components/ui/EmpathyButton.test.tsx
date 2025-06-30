@@ -17,10 +17,6 @@ jest.mock('../../../src/lib/auth/AuthContext', () => ({
   }),
 }))
 
-// Mock fetch API
-const mockFetch = jest.fn()
-global.fetch = mockFetch
-
 describe('EmpathyButton Component', () => {
   const defaultProps = {
     postId: 'test-post-1',
@@ -28,8 +24,11 @@ describe('EmpathyButton Component', () => {
     initialHasEmpathized: false,
   }
 
+  let mockFetch: jest.MockedFunction<typeof fetch>
+
   beforeEach(() => {
-    setupComponentTest()
+    const setup = setupComponentTest()
+    mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
     mockFetch.mockClear()
   })
 
@@ -66,16 +65,28 @@ describe('EmpathyButton Component', () => {
   it('共感ボタンがクリック可能である', async () => {
     const user = userEvent.setup()
 
-    // Mock the fetch response properly
-    const mockResponse = {
+    // Mock the fetch response properly with all required Response properties
+    mockFetch.mockResolvedValueOnce({
       ok: true,
+      status: 200,
+      statusText: 'OK',
       json: jest.fn().mockResolvedValue({
         success: true,
         empathy: { empathyType: 'helpful' },
         totalCount: 6,
       }),
-    }
-    mockFetch.mockResolvedValueOnce(mockResponse as any)
+      text: jest.fn().mockResolvedValue(''),
+      blob: jest.fn(),
+      arrayBuffer: jest.fn(),
+      formData: jest.fn(),
+      headers: new Headers(),
+      url: '/api/posts/empathy?id=test-post-1',
+      redirected: false,
+      type: 'basic',
+      clone: jest.fn(),
+      body: null,
+      bodyUsed: false,
+    } as unknown as Response)
 
     render(<EmpathyButton {...defaultProps} />)
 
@@ -102,15 +113,27 @@ describe('EmpathyButton Component', () => {
   it('共感済み状態でもクリック可能である', async () => {
     const user = userEvent.setup()
 
-    // Mock the fetch response properly
-    const mockResponse = {
+    // Mock the fetch response properly with all required Response properties
+    mockFetch.mockResolvedValueOnce({
       ok: true,
+      status: 200,
+      statusText: 'OK',
       json: jest.fn().mockResolvedValue({
         success: true,
         totalCount: 4,
       }),
-    }
-    mockFetch.mockResolvedValueOnce(mockResponse as any)
+      text: jest.fn().mockResolvedValue(''),
+      blob: jest.fn(),
+      arrayBuffer: jest.fn(),
+      formData: jest.fn(),
+      headers: new Headers(),
+      url: '/api/posts/empathy?id=test-post-1',
+      redirected: false,
+      type: 'basic',
+      clone: jest.fn(),
+      body: null,
+      bodyUsed: false,
+    } as unknown as Response)
 
     render(<EmpathyButton {...defaultProps} initialHasEmpathized={true} initialCount={5} />)
 
