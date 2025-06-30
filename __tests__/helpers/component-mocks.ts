@@ -161,3 +161,14 @@ export const mockRouter = {
 // Mock pathname and search params
 export const mockPathname = '/'
 export const mockSearchParams = new URLSearchParams()
+
+// Complete AuthContext mock
+export const mockAuthContext = {
+  user: null,
+  loading: false,
+  login: jest.fn(),
+  register: jest.fn(),
+  logout: jest.fn(),
+  refreshAuth: jest.fn(),
+  updateProfile: jest.fn(),
+}
