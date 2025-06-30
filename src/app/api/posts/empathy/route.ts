@@ -13,8 +13,6 @@ const empathySchema = z.object({
 // GET: ユーザーの共感状態を取得 (query parameter使用)
 export async function GET(request: NextRequest) {
   try {
-    console.log('GET /api/posts/empathy called')
-
     // クエリパラメータからIDを取得
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')

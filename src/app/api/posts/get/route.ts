@@ -5,9 +5,6 @@ import { MOCK_POSTS } from '@/lib/mock-data'
 // GET: 投稿の取得 (query parameter使用)
 export async function GET(request: NextRequest) {
   try {
-    // デバッグ用ログ
-    console.log('GET /api/posts/get called')
-
     // クエリパラメータからIDを取得
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
