@@ -117,20 +117,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    console.log('POST empathy - Environment info:')
-    console.log('POST empathy - NODE_ENV:', process.env.NODE_ENV)
-    console.log('POST empathy - USE_MOCK_DATA:', process.env.USE_MOCK_DATA)
-    console.log('POST empathy - DATABASE_URL exists:', !!process.env.DATABASE_URL)
-
     const token = request.cookies.get('auth-token')?.value
-    console.log('POST empathy - auth token exists:', !!token)
 
     if (!token) {
       return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
     }
 
     const user = verifyToken(token)
-    console.log('POST empathy - user verified:', !!user)
     if (!user) {
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
     }
@@ -158,10 +151,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       console.error('Validation error:', zodError)
       return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
     }
-
-    console.log('POST empathy - isDatabaseAvailable:', isDatabaseAvailable())
-    console.log('POST empathy - postId:', postId)
-    console.log('POST empathy - empathyType:', empathyType)
 
     if (!isDatabaseAvailable()) {
       console.log('Using mock mode for empathy POST')

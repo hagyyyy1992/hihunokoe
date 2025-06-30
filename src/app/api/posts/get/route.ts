@@ -9,8 +9,6 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
 
-    console.log('Post ID from query:', postId)
-
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
     }

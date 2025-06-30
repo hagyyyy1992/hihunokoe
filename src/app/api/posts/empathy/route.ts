@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
 
-    console.log('Post ID from query:', postId)
-
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
     }
@@ -117,13 +115,9 @@ export async function GET(request: NextRequest) {
 // POST: 共感を追加 (query parameter使用)
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/posts/empathy called')
-
     // クエリパラメータからIDを取得
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
-
-    console.log('Post ID from query:', postId)
 
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
@@ -135,20 +129,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
     }
 
-    console.log('POST empathy - Environment info:')
-    console.log('POST empathy - NODE_ENV:', process.env.NODE_ENV)
-    console.log('POST empathy - USE_MOCK_DATA:', process.env.USE_MOCK_DATA)
-    console.log('POST empathy - DATABASE_URL exists:', !!process.env.DATABASE_URL)
-
     const token = request.cookies.get('auth-token')?.value
-    console.log('POST empathy - auth token exists:', !!token)
 
     if (!token) {
       return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
     }
 
     const user = verifyToken(token)
-    console.log('POST empathy - user verified:', !!user)
+
     if (!user) {
       return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
     }
@@ -177,37 +165,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
     }
 
-    console.log('POST empathy - isDatabaseAvailable:', isDatabaseAvailable())
-    console.log('POST empathy - postId:', postId)
-    console.log('POST empathy - empathyType:', empathyType)
-
     if (!isDatabaseAvailable()) {
-      console.log('Using mock mode for empathy POST')
       try {
         // モックモードでの共感追加
-        console.log('Mock mode - searching for post with ID:', postId)
-        console.log('Mock mode - MOCK_POSTS length:', MOCK_POSTS.length)
-        console.log('Mock mode - user ID:', user.id)
 
         const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
-        console.log('Mock mode - found post:', !!post)
+
         if (!post) {
-          console.log('Mock mode - post not found')
           return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
         }
 
         // 既存の共感をチェック
-        console.log('Mock mode - checking existing empathy')
+
         const existingEmpathy = MOCK_EMPATHIES.find(
           e => e.postId === postId && e.userId === user.id
         )
-        console.log('Mock mode - existing empathy found:', !!existingEmpathy)
+
         if (existingEmpathy) {
           return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
         }
 
         // 新しい共感を追加
-        console.log('Mock mode - creating new empathy')
+
         const newEmpathy = {
           id: `empathy-${Date.now()}`,
           postId,
@@ -216,19 +195,17 @@ export async function POST(request: NextRequest) {
           createdAt: new Date(),
         }
 
-        console.log('Mock mode - adding empathy to MOCK_EMPATHIES')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         MOCK_EMPATHIES.push(newEmpathy as any)
 
         // 共感数を更新
-        console.log('Mock mode - updating post empathy count')
+
         const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
         if (postIndex !== -1) {
           MOCK_POSTS[postIndex].empathyCount += 1
         }
 
         const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-        console.log('Mock mode - final total count:', totalCount)
 
         return NextResponse.json({
           success: true,
@@ -243,10 +220,9 @@ export async function POST(request: NextRequest) {
     }
 
     // データベースモードでの共感追加
-    console.log('Using database mode for empathy POST')
+
     let post
     try {
-      console.log('Searching for post in database with ID:', postId)
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
@@ -254,7 +230,6 @@ export async function POST(request: NextRequest) {
         },
         select: { id: true },
       })
-      console.log('Database mode - found post:', !!post)
     } catch (dbError) {
       console.error('Database error in empathy POST:', dbError)
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
@@ -285,11 +260,10 @@ export async function POST(request: NextRequest) {
     }
 
     // トランザクションで共感を追加し、投稿の共感数を更新
-    console.log('Database mode - starting transaction')
+
     let result
     try {
       result = await prisma!.$transaction(async tx => {
-        console.log('Database mode - creating empathy record')
         const empathy = await tx.empathy.create({
           data: {
             postId,
@@ -298,7 +272,6 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        console.log('Database mode - updating post empathy count')
         await tx.post.update({
           where: { id: postId },
           data: {
@@ -308,12 +281,10 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        console.log('Database mode - counting total empathies')
         const totalCount = await tx.empathy.count({
           where: { postId },
         })
 
-        console.log('Database mode - transaction completed successfully')
         return { empathy, totalCount }
       })
     } catch (transactionError) {
@@ -336,13 +307,9 @@ export async function POST(request: NextRequest) {
 // DELETE: 共感を削除 (query parameter使用)
 export async function DELETE(request: NextRequest) {
   try {
-    console.log('DELETE /api/posts/empathy called')
-
     // クエリパラメータからIDを取得
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
-
-    console.log('Post ID from query:', postId)
 
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
