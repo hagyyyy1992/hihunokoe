@@ -4,6 +4,7 @@ import { authenticateRequest } from '@/lib/auth/auth'
 import { createApiError, handleApiError } from '@/lib/api-error'
 import { isDatabaseAvailable } from '@/lib/prisma'
 import { prisma } from '@/lib/prisma'
+import { MOCK_POSTS } from '@/lib/mock-data'
 
 const createCommentSchema = z.object({
   content: z
@@ -72,14 +73,58 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id: postId } = await params
 
     if (!isDatabaseAvailable()) {
-      // モックデータを返す
+      // モックデータから投稿を確認
+      const mockPost = MOCK_POSTS.find(p => p.id === postId)
+      if (!mockPost) {
+        return NextResponse.json(createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'), {
+          status: 404,
+        })
+      }
+
+      // モックコメントを返す
+      const mockComments = mockPost.comments || []
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedComments = mockComments.slice(startIndex, endIndex)
+
+      const formattedComments = paginatedComments.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+        user: {
+          id: comment.user.id,
+          userName: comment.user.userName,
+          skinType: comment.user.skinType || undefined,
+          profileImageUrl: comment.user.profileImageUrl || undefined,
+        },
+        replies: comment.replies?.map(reply => ({
+          id: reply.id,
+          content: reply.content,
+          createdAt: reply.createdAt.toISOString(),
+          updatedAt: reply.updatedAt.toISOString(),
+          user: {
+            id: reply.user.id,
+            userName: reply.user.userName,
+            skinType: reply.user.skinType || undefined,
+            profileImageUrl: reply.user.profileImageUrl || undefined,
+          },
+          isEdited: reply.createdAt.getTime() !== reply.updatedAt.getTime(),
+          canEdit: false,
+          canDelete: false,
+        })) || [],
+        isEdited: comment.createdAt.getTime() !== comment.updatedAt.getTime(),
+        canEdit: false,
+        canDelete: false,
+      }))
+
       return NextResponse.json({
-        comments: [],
+        comments: formattedComments,
         pagination: {
           page,
           limit,
-          total: 0,
-          hasMore: false,
+          total: mockComments.length,
+          hasMore: endIndex < mockComments.length,
         },
       })
     }
@@ -198,6 +243,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { id: postId } = await params
 
     if (!isDatabaseAvailable()) {
+      // モックデータから投稿を確認
+      const mockPost = MOCK_POSTS.find(p => p.id === postId)
+      if (!mockPost) {
+        return NextResponse.json(createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'), {
+          status: 404,
+        })
+      }
+
       return NextResponse.json(
         createApiError('SERVICE_UNAVAILABLE', 'データベースが利用できません'),
         { status: 503 }
