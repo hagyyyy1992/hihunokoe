@@ -102,7 +102,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     const post = await prisma!.post.findUnique({
       where: {
         id: postId,
-        status: 'published',
+        isPublished: true,
       },
       include: {
         user: {
