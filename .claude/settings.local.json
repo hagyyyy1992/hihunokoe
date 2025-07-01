@@ -57,9 +57,7 @@
       "Bash(-s)",
       "Bash(cp:*)",
       "Bash(sed:*)",
-      "Bash(git rebase:*)",
-      "Bash(git pull:*)",
-      "Bash(git rebase:*)"
+      "Bash(git pull:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",

@@ -1,6 +1,6 @@
-import { User } from '../../domain/entities/User'
-import { UserRepository } from '../../domain/repositories/UserRepository'
-import { getUserById } from '../../../../src/lib/auth/auth'
+import { User } from '@api/domain/entities/User'
+import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { getUserById } from '@/lib/auth/auth'
 
 export class UserRepositoryImpl implements UserRepository {
   async findById(id: string): Promise<User | null> {

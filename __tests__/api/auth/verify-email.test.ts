@@ -8,7 +8,7 @@ jest.mock('@/lib/auth/auth', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { GET } from '../../../src/app/api/auth/verify-email/route'
+import { GET } from '@/app/api/auth/verify-email/route'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
 import * as authModule from '@/lib/auth/auth'
 import { SkinType } from '@/types'

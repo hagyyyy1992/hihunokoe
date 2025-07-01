@@ -40,7 +40,7 @@ jest.mock('@/lib/mock-data', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { POST, GET } from '../../../src/app/api/posts/route'
+import { POST, GET } from '@/app/api/posts/route'
 import * as authModule from '@/lib/auth/auth'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'

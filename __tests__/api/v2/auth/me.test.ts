@@ -5,7 +5,7 @@ jest.mock('@/lib/auth/auth', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { GET } from '../../../../src/app/api/v2/auth/me/route'
+import { GET } from '@/app/api/v2/auth/me/route'
 import * as authModule from '@/lib/auth/auth'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
