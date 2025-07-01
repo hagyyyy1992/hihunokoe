@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GetUserUseCase } from '../../usecases/user/GetUserUseCase'
-import { UserRepositoryImpl } from '../../interface-adapters/repositories/UserRepositoryImpl'
-import { verifyToken, AuthUser } from '../../../../src/lib/auth/auth'
-import { User } from '../../domain/entities/User'
+import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
+import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { User } from '@api/domain/entities/User'
 
 export class UserController {
-  private getUserUseCase: GetUserUseCase
+  private getUserInputPort: GetUserInputPort
 
-  constructor() {
-    const userRepository = new UserRepositoryImpl()
-    this.getUserUseCase = new GetUserUseCase(userRepository)
+  constructor(getUserInputPort: GetUserInputPort) {
+    this.getUserInputPort = getUserInputPort
   }
 
   /**
@@ -39,7 +37,7 @@ export class UserController {
         return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
       }
 
-      const result = await this.getUserUseCase.execute({ userId: decoded.id })
+      const result = await this.getUserInputPort.execute({ userId: decoded.id })
 
       const authUser = this.convertUserToAuthUser(result.user)
       return NextResponse.json({ user: authUser })

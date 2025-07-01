@@ -3,9 +3,9 @@ import {
   screen,
   expectElementToBeVisible,
   expectElementToHaveText,
-} from '../../helpers/rtl-utils'
-import PostCard from '../../../src/components/ui/PostCard'
-import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
+} from '@tests/helpers/rtl-utils'
+import PostCard from '@/components/ui/PostCard'
+import { setupComponentTest, cleanupComponentTest } from '@tests/helpers/component-test-setup'
 
 // Mock date-fns
 jest.mock('date-fns', () => ({
@@ -13,7 +13,7 @@ jest.mock('date-fns', () => ({
 }))
 
 // Mock AuthContext
-jest.mock('../../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     login: jest.fn(),

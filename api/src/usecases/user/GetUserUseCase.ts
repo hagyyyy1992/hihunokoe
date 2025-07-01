@@ -1,5 +1,6 @@
-import { User } from '../../domain/entities/User'
-import { UserRepository } from '../../domain/repositories/UserRepository'
+import { User } from '@api/domain/entities/User'
+import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { GetUserInputPort } from './GetUserInputPort'
 
 export interface GetUserUseCaseInput {
   userId: string
@@ -9,7 +10,7 @@ export interface GetUserUseCaseOutput {
   user: User
 }
 
-export class GetUserUseCase {
+export class GetUserUseCase implements GetUserInputPort {
   constructor(private userRepository: UserRepository) {}
 
   async execute(input: GetUserUseCaseInput): Promise<GetUserUseCaseOutput> {

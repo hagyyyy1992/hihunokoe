@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { DELETE } from '../../../src/app/api/auth/delete-account/route'
+import { DELETE } from '@/app/api/auth/delete-account/route'
 import { deleteUserAccount, verifyToken } from '@/lib/auth/auth'
 import { cookies } from 'next/headers'
 

@@ -1,6 +1,6 @@
-import { GetUserUseCase } from '../../../usecases/user/GetUserUseCase'
-import { UserRepository } from '../../../domain/repositories/UserRepository'
-import { User } from '../../../domain/entities/User'
+import { GetUserUseCase } from '@api/usecases/user/GetUserUseCase'
+import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { User } from '@api/domain/entities/User'
 
 class MockUserRepository implements UserRepository {
   private users: User[] = []
