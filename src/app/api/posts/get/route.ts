@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
             id: true,
             userName: true,
             skinType: true,
-            profileImageUrl: true,
           },
         },
         empathies: {

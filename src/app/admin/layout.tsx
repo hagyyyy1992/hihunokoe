@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import { verifyToken, AuthUser } from '@/lib/auth/auth'
 
 interface AdminLayoutProps {
@@ -128,9 +128,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t">
           <div className="flex items-center mb-4">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback>{user.userName.slice(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
+            <Avatar name={user.userName} size="md" />
             <div className="ml-3">
               <p className="text-sm font-medium text-gray-900">{user.userName}</p>
               <p className="text-xs text-gray-500">

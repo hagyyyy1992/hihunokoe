@@ -176,7 +176,6 @@ describe('/api/posts/[id]', () => {
           userName: 'testuser',
           displayName: 'Test User',
           skinType: 'normal',
-          profileImageUrl: null,
         },
         empathies: [],
         comments: [],
@@ -208,7 +207,6 @@ describe('/api/posts/[id]', () => {
               id: true,
               userName: true,
               skinType: true,
-              profileImageUrl: true,
             },
           },
           empathies: {

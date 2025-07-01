@@ -75,7 +75,6 @@ export async function PUT(request: NextRequest) {
         data: {
           userName: validatedData.userName,
           skinType: validatedData.skinType ? (validatedData.skinType as SkinType) : null,
-          profileImageUrl: validatedData.profileImageUrl || null,
           updatedAt: new Date(),
         },
       })
@@ -87,7 +86,6 @@ export async function PUT(request: NextRequest) {
           userName: updatedUser.userName,
           email: updatedUser.email,
           skinType: updatedUser.skinType || undefined,
-          profileImageUrl: updatedUser.profileImageUrl || undefined,
           emailVerified: updatedUser.emailVerified,
         },
       })

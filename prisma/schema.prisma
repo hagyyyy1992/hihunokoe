@@ -13,6 +13,8 @@ model User {
   userName                String           @unique @map("user_name") @db.VarChar(100)
   email                   String           @unique @db.VarChar(255)
   passwordHash            String           @map("password_hash") @db.VarChar(255)
+  isActive                Boolean          @default(true) @map("is_active")
+  deletedAt               DateTime?        @map("deleted_at") @db.Timestamptz(6)
   role                    UserRole         @default(USER) @map("role")
   isActive                Boolean          @default(true) @map("is_active")
   emailVerified           Boolean          @default(false) @map("email_verified")

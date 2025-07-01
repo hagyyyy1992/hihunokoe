@@ -10,7 +10,6 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "Bash(rg:*)",
-
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
@@ -20,7 +19,6 @@
       "Bash(git worktree:*)",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
-
       "Bash(gh pr:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
@@ -29,7 +27,6 @@
       "Bash(gh issue view:*)",
       "Bash(gh workflow:*)",
       "WebFetch(domain:github.com)",
-
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
@@ -40,7 +37,6 @@
       "Bash(npx playwright test:*)",
       "Bash(npx depcheck:*)",
       "Bash(npx next:*)",
-
       "Bash(npx prisma:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
@@ -49,16 +45,21 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:Gfp5LLJp5ThtyYNt@db.getpoicarcllsyvdzncp.supabase.co:5432/postgres\" DIRECT_URL=\"postgresql://postgres:Gfp5LLJp5ThtyYNt@db.getpoicarcllsyvdzncp.supabase.co:5432/postgres\" node scripts/seed.js)",
-
       "Bash(docker:*)",
       "Bash(docker exec:*)",
       "Bash(docker rm:*)",
       "Bash(docker stop:*)",
-
       "Bash(export USE_MOCK_DATA=true)",
       "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
-      "Bash(-s)"
+      "Bash(-s)",
+      "Bash(export USE_MOCK_DATA=true)",
+      "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
+      "Bash(-s)",
+      "Bash(cp:*)",
+      "Bash(sed:*)",
+      "Bash(git rebase:*)",
+      "Bash(git pull:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",
