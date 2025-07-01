@@ -2,68 +2,64 @@
   "permissions": {
     "allow": [
       "Bash(curl:*)",
-      "Bash(docker:*)",
-      "Bash(docker exec:*)",
-      "Bash(docker rm:*)",
-      "Bash(docker stop:*)",
       "Bash(find:*)",
-      "Bash(gh pr create:*)",
-      "Bash(gh pr edit:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(ps:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(rg:*)",
+
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
       "Bash(git fetch:*)",
       "Bash(git push:*)",
+      "Bash(git merge:*)",
       "Bash(git worktree:*)",
-      "Bash(grep:*)",
-      "Bash(kill:*)",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)",
+
+      "Bash(gh pr:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh workflow:*)",
+      "WebFetch(domain:github.com)",
+
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
+      "Bash(npm outdated)",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
       "Bash(npx jest:*)",
       "Bash(npx playwright test:*)",
+      "Bash(npx depcheck:*)",
+
+      "Bash(npx prisma:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
-      "Bash(npx tsc:*)",
-      "Bash(pkill:*)",
-      "Bash(rg:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma db push)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate deploy)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force --skip-seed)",
-      "Bash(gh pr:*)",
-      "Bash(gh run list:*)",
-      "Bash(gh run view:*)",
-      "WebFetch(domain:github.com)",
-      "Bash(gh issue view:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-deleted-at-to-user)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" node scripts/seed.js)",
-      "Bash(git merge:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-user-deletedAt)",
-      "Bash(DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
-      "Bash(DATABASE_URL=\"postgresql://test:test@localhost:5432/test\" DIRECT_URL=\"postgresql://test:test@localhost:5432/test\" npx prisma migrate status)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate dev --name add-admin-features)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
-      "Bash(npx prisma:*)",
-      "Bash(ps:*)",
-      "Bash(git merge:*)",
-      "Bash(export USE_MOCK_DATA=true)",
-      "Bash(node:*)",
-      "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
-      "Bash(-s)",
-      "Bash(gh workflow:*)",
-      "Bash(npm outdated)",
-      "Bash(npx depcheck:*)"
+
+      "Bash(docker:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker stop:*)",
+
+      "Bash(export USE_MOCK_DATA=true)"
     ],
     "deny": [
-      "Bash(gh pr merge:*)",
-      "Bash(gh pr close:*)",
       "Bash(git push origin main:*)",
       "Bash(git push --force:*)",
       "Bash(git checkout main && git merge:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)",
       "Bash(rm -rf:*)",
       "Bash(sudo:*)",
       "Bash(chmod 777:*)"
@@ -72,14 +68,20 @@
   "project_context": {
     "name": "Usaka",
     "description": "Cosmetics experience sharing service",
-    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS"],
+    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS", "Vercel"],
     "key_commands": {
       "dev": "npm run dev:setup",
       "test": "npm test",
       "e2e": "npm run test:e2e",
       "db_setup": "npm run db:setup",
       "db_migrate": "npm run db:migrate",
-      "format_and_lint": "npm run format && npm run lint"
+      "format_and_lint": "npm run format && npm run lint",
+      "quality_check": "npm run format && npm run lint && npm test && npx tsc --noEmit"
+    },
+    "environments": {
+      "development": "Local with Docker PostgreSQL + MailHog",
+      "preview": "Vercel Preview Deployments (per PR)",
+      "production": "Vercel + Supabase"
     }
   },
   "claude_preferences": {
@@ -87,6 +89,7 @@
     "run_tests_before_commit": true,
     "prefer_typescript": true,
     "use_existing_patterns": true,
-    "security_first": true
+    "security_first": true,
+    "vercel_optimized": true
   }
 }
