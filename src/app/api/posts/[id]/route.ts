@@ -110,7 +110,6 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
             id: true,
             userName: true,
             skinType: true,
-            profileImageUrl: true,
           },
         },
         empathies: {

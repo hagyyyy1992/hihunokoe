@@ -50,7 +50,6 @@ interface Post {
     id: string
     userName: string
     skinType?: string
-    profileImageUrl?: string
   }
   empathies: Array<{
     id: string

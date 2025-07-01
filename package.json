@@ -37,7 +37,7 @@
     "db:clean": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate reset --force"
   },
   "dependencies": {
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "^6.11.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.6.1",
@@ -79,7 +79,7 @@
     "jest-environment-jsdom": "^30.0.2",
     "node-fetch": "^2.7.0",
     "prettier": "^3.5.3",
-    "prisma": "^6.10.1",
+    "prisma": "^6.11.0",
     "supertest": "^7.1.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.0",
