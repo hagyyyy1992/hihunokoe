@@ -117,7 +117,6 @@ describe('ProfilePage Component', () => {
     // フォームが表示されていることを確認
     expect(screen.getByTestId('username-input')).toBeInTheDocument()
     expect(screen.getByTestId('skin-type-select')).toBeInTheDocument()
-    expect(screen.getByTestId('profile-image-url-input')).toBeInTheDocument()
 
     // 保存ボタンとキャンセルボタンが表示されていることを確認
     expect(screen.getByTestId('save-profile-button')).toBeInTheDocument()
@@ -140,15 +139,9 @@ describe('ProfilePage Component', () => {
     const skinTypeSelect = screen.getByTestId('skin-type-select')
     await user.selectOptions(skinTypeSelect, 'dry')
 
-    // プロフィール画像URLを変更
-    const profileImageUrlInput = screen.getByTestId('profile-image-url-input')
-    await user.clear(profileImageUrlInput)
-    await user.type(profileImageUrlInput, 'https://example.com/image.jpg')
-
     // 入力値が変更されていることを確認
     expect(usernameInput).toHaveValue('newusername')
     expect(skinTypeSelect).toHaveValue('dry')
-    expect(profileImageUrlInput).toHaveValue('https://example.com/image.jpg')
   })
 
   it('プロフィールを正常に更新する', async () => {
@@ -170,7 +163,6 @@ describe('ProfilePage Component', () => {
     expect(mockUpdateProfile).toHaveBeenCalledWith({
       userName: 'newusername',
       skinType: mockUser.skinType,
-      profileImageUrl: '',
     })
 
     // 成功メッセージが表示されることを確認
@@ -248,30 +240,6 @@ describe('ProfilePage Component', () => {
 
     // 元のユーザー名が表示されていることを確認
     expect(screen.getByText(`@${mockUser.userName}`)).toBeInTheDocument()
-
-    // updateProfileが呼ばれていないことを確認
-    expect(mockUpdateProfile).not.toHaveBeenCalled()
-  })
-
-  it('プロフィール画像URLのバリデーションエラーを表示する', async () => {
-    const user = createUser()
-    render(<ProfilePage />)
-
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
-
-    // 無効なURLを入力
-    const profileImageUrlInput = screen.getByTestId('profile-image-url-input')
-    await user.clear(profileImageUrlInput)
-    await user.type(profileImageUrlInput, 'invalid-url')
-
-    // 保存ボタンをクリック
-    await user.click(screen.getByTestId('save-profile-button'))
-
-    // バリデーションエラーが表示されることを確認
-    expect(
-      screen.getByText('有効なURLを入力してください（http://またはhttps://で始まる必要があります）')
-    ).toBeInTheDocument()
 
     // updateProfileが呼ばれていないことを確認
     expect(mockUpdateProfile).not.toHaveBeenCalled()

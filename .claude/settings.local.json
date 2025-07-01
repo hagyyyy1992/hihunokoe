@@ -51,8 +51,13 @@
       "Bash(docker exec:*)",
       "Bash(docker rm:*)",
       "Bash(docker stop:*)",
-
-      "Bash(export USE_MOCK_DATA=true)"
+      "Bash(export USE_MOCK_DATA=true)",
+      "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
+      "Bash(-s)",
+      "Bash(cp:*)",
+      "Bash(sed:*)",
+      "Bash(git rebase:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",

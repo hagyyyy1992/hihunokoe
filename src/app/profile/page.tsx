@@ -6,7 +6,6 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import Image from 'next/image'
 
 export default function ProfilePage() {
   const { user, loading, updateProfile } = useAuth()
@@ -15,12 +14,10 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     userName: '',
     skinType: '',
-    profileImageUrl: '',
   })
   const [formErrors, setFormErrors] = useState({
     userName: '',
     skinType: '',
-    profileImageUrl: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' })
@@ -34,7 +31,6 @@ export default function ProfilePage() {
       setFormData({
         userName: user.userName || '',
         skinType: user.skinType || '',
-        profileImageUrl: user.profileImageUrl || '',
       })
     }
   }, [user, loading, router])
@@ -43,7 +39,6 @@ export default function ProfilePage() {
     const errors = {
       userName: '',
       skinType: '',
-      profileImageUrl: '',
     }
     let isValid = true
 
@@ -54,12 +49,6 @@ export default function ProfilePage() {
 
     if (formData.userName.trim().length > 50) {
       errors.userName = 'ユーザー名は50文字以内で入力してください'
-      isValid = false
-    }
-
-    if (formData.profileImageUrl && !formData.profileImageUrl.match(/^(https?:\/\/).+/i)) {
-      errors.profileImageUrl =
-        '有効なURLを入力してください（http://またはhttps://で始まる必要があります）'
       isValid = false
     }
 
@@ -189,16 +178,6 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                <Input
-                  label="プロフィール画像URL"
-                  name="profileImageUrl"
-                  value={formData.profileImageUrl}
-                  onChange={handleInputChange}
-                  error={formErrors.profileImageUrl}
-                  hint="画像のURLを入力してください（PNG, JPG, GIF, WEBP形式）"
-                  data-testid="profile-image-url-input"
-                />
-
                 <div className="flex space-x-4 pt-4">
                   <Button
                     type="submit"
@@ -216,12 +195,10 @@ export default function ProfilePage() {
                       setFormData({
                         userName: user.userName || '',
                         skinType: user.skinType || '',
-                        profileImageUrl: user.profileImageUrl || '',
                       })
                       setFormErrors({
                         userName: '',
                         skinType: '',
-                        profileImageUrl: '',
                       })
                     }}
                     data-testid="cancel-edit-button"
@@ -234,42 +211,11 @@ export default function ProfilePage() {
           ) : (
             <div className="space-y-6">
               <div className="flex items-center space-x-6 p-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-lg border border-pink-200">
-                {formData.profileImageUrl ? (
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
-                    <Image
-                      src={formData.profileImageUrl}
-                      alt={formData.userName || formData.userName}
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                      onError={e => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        const parent = target.parentElement
-                        if (parent) {
-                          parent.classList.add(
-                            'bg-pink-100',
-                            'flex',
-                            'items-center',
-                            'justify-center'
-                          )
-                          const span = document.createElement('span')
-                          span.className = 'text-pink-600 text-2xl font-bold'
-                          span.textContent = (formData.userName || formData.userName || '')
-                            .charAt(0)
-                            .toUpperCase()
-                          parent.appendChild(span)
-                        }
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border-4 border-white shadow-lg">
-                    <span className="text-pink-600 text-2xl font-bold">
-                      {(formData.userName || formData.userName || '').charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+                <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border-4 border-white shadow-lg">
+                  <span className="text-pink-600 text-2xl font-bold">
+                    {(formData.userName || '').charAt(0).toUpperCase()}
+                  </span>
+                </div>
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     {formData.userName || formData.userName}

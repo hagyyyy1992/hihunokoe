@@ -64,7 +64,6 @@ describe('/api/profile/update', () => {
         userName: 'testuser',
         email: 'test@example.com',
         skinType: 'normal' as SkinType,
-        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -76,7 +75,6 @@ describe('/api/profile/update', () => {
         ...mockUser,
         userName: 'newusername',
         skinType: 'dry',
-        profileImageUrl: 'https://example.com/image.jpg',
         updatedAt: new Date(),
       }
 
@@ -88,7 +86,6 @@ describe('/api/profile/update', () => {
       const requestBody = {
         userName: 'newusername',
         skinType: 'dry',
-        profileImageUrl: 'https://example.com/image.jpg',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -103,7 +100,6 @@ describe('/api/profile/update', () => {
         userName: updatedUser.userName,
         email: updatedUser.email,
         skinType: updatedUser.skinType,
-        profileImageUrl: updatedUser.profileImageUrl,
         emailVerified: updatedUser.emailVerified,
       })
 
@@ -114,7 +110,6 @@ describe('/api/profile/update', () => {
         data: {
           userName: 'newusername',
           skinType: 'dry',
-          profileImageUrl: 'https://example.com/image.jpg',
           updatedAt: expect.any(Date),
         },
       })
@@ -190,7 +185,6 @@ describe('/api/profile/update', () => {
         userName: 'testuser',
         email: 'test@example.com',
         skinType: 'normal' as SkinType,
-        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -200,41 +194,6 @@ describe('/api/profile/update', () => {
       // ユーザー名が短すぎる
       const requestBody = {
         userName: 'ab', // 3文字未満
-      }
-
-      const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
-
-      const response = await PUT(request)
-      const data = await response.json()
-
-      expect(response.status).toBe(400)
-      expect(data.error).toBe('入力データが無効です')
-      expect(data.details).toBeDefined()
-    })
-
-    it('無効なプロフィール画像URLの場合、400エラーを返す', async () => {
-      const mockDecodedToken = {
-        id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
-      }
-
-      const mockUser = {
-        id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
-        skinType: 'normal' as SkinType,
-        profileImageUrl: undefined,
-        emailVerified: true,
-      }
-
-      mockVerifyToken.mockReturnValue(mockDecodedToken)
-      mockGetUserById.mockResolvedValue(mockUser)
-
-      // 無効なURL
-      const requestBody = {
-        userName: 'newusername',
-        profileImageUrl: 'invalid-url',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -259,7 +218,6 @@ describe('/api/profile/update', () => {
         userName: 'testuser',
         email: 'test@example.com',
         skinType: 'normal' as SkinType,
-        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -310,7 +268,6 @@ describe('/api/profile/update', () => {
         email: 'demo@example.com',
         displayName: 'Demo User',
         skinType: 'normal',
-        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -360,7 +317,6 @@ describe('/api/profile/update', () => {
         userName: 'testuser',
         email: 'test@example.com',
         skinType: 'normal' as SkinType,
-        profileImageUrl: undefined,
         emailVerified: true,
       }
 

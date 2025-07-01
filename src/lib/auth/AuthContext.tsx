@@ -23,7 +23,6 @@ interface RegisterData {
 interface UpdateProfileData {
   userName: string
   skinType?: string | null
-  profileImageUrl?: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)

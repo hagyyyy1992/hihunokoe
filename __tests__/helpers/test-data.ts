@@ -121,7 +121,6 @@ export const createMockPrismaPostResponse = (overrides: Partial<any> = {}) => ({
     id: 'test-user-id',
     userName: 'Test User',
     skinType: 'normal',
-    profileImageUrl: null,
   },
   empathies: [],
   comments: [],
