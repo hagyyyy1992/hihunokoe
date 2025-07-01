@@ -46,6 +46,7 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
+
       "Bash(docker:*)",
       "Bash(docker exec:*)",
       "Bash(docker rm:*)",
