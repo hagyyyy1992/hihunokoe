@@ -14,13 +14,11 @@ export async function generateVerificationToken(): Promise<string> {
 
 export async function createVerificationToken(userId: string): Promise<string> {
   const token = await generateVerificationToken()
-  const expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24時間後
 
   await prisma.user.update({
     where: { id: userId },
     data: {
       emailVerificationToken: token,
-      emailVerificationExpiry: expiryDate,
     },
   })
 
@@ -62,10 +60,6 @@ export async function verifyEmailToken(token: string): Promise<{
   const user = await prisma.user.findFirst({
     where: {
       emailVerificationToken: token,
-      emailVerificationExpiry: {
-        gt: new Date(),
-      },
-      deletedAt: null,
     },
   })
 
@@ -81,7 +75,6 @@ export async function verifyEmailToken(token: string): Promise<{
     data: {
       emailVerified: true,
       emailVerificationToken: null,
-      emailVerificationExpiry: null,
     },
   })
 
@@ -102,7 +95,6 @@ export async function isEmailVerified(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
-      deletedAt: null,
     },
     select: { emailVerified: true },
   })
@@ -117,7 +109,6 @@ export async function resendVerificationEmail(
   const user = await prisma.user.findUnique({
     where: {
       email,
-      deletedAt: null,
     },
     select: { id: true, userName: true, emailVerified: true },
   })

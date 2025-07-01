@@ -6,7 +6,7 @@ export const MOCK_USERS = [
     userName: 'デモユーザー',
     email: 'demo@example.com',
     passwordHash: '$2a$12$demo.hash.for.password123', // password: "demo123"
-    skinType: 'normal' as const,
+    skinType: 'NORMAL' as const,
     role: 'USER' as const,
     isActive: true,
     createdAt: new Date('2024-01-01'),
@@ -17,7 +17,7 @@ export const MOCK_USERS = [
     userName: '美容好きさん',
     email: 'beauty@example.com',
     passwordHash: '$2a$12$demo.hash.for.password456', // password: "demo123"
-    skinType: 'dry' as const,
+    skinType: 'DRY' as const,
     role: 'USER' as const,
     isActive: true,
     createdAt: new Date('2024-01-01'),
@@ -28,7 +28,7 @@ export const MOCK_USERS = [
     userName: '管理者',
     email: 'admin@example.com',
     passwordHash: '$2a$12$demo.hash.for.password789', // password: "demo123"
-    skinType: 'normal' as const,
+    skinType: 'NORMAL' as const,
     role: 'ADMIN' as const,
     isActive: true,
     createdAt: new Date('2024-01-01'),
@@ -74,7 +74,7 @@ export const MOCK_POSTS = [
 総合的には満足しています。リピートを検討中です。`,
     cosmeticName: 'SK-II フェイシャルトリートメントエッセンス',
     cosmeticCategory: 'toner' as const,
-    skinType: 'normal' as const,
+    skinType: 'NORMAL' as const,
     usageSituation: {
       season: 'winter',
       timeOfDay: 'both',
@@ -137,7 +137,7 @@ export const MOCK_POSTS = [
 ドラッグストアで手軽に買えるのも◎`,
     cosmeticName: 'セタフィル モイスチャライジングローション',
     cosmeticCategory: 'emulsion' as const,
-    skinType: 'sensitive' as const,
+    skinType: 'SENSITIVE' as const,
     usageSituation: {
       season: 'autumn',
       timeOfDay: 'both',

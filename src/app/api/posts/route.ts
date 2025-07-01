@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { z } from 'zod'
+import { SkinType } from '@prisma/client'
 
 // UUID形式のチェック用関数
 function isValidUUID(str: string): boolean {
@@ -30,7 +31,7 @@ const postSchema = z.object({
       'other',
     ])
     .optional(),
-  skinType: z.enum(['normal', 'dry', 'oily', 'combination', 'sensitive']).optional(),
+  skinType: z.enum(['NORMAL', 'DRY', 'OILY', 'COMBINATION', 'SENSITIVE']).optional(),
   usageSituation: z
     .object({
       season: z.enum(['spring', 'summer', 'autumn', 'winter']).optional(),
@@ -94,13 +95,12 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory,
-        skinType: validatedData.skinType,
-        usageSituation: validatedData.usageSituation,
-        experienceDetails: validatedData.experienceDetails,
-        moodTag: validatedData.moodTag,
-        publishedAt: new Date(),
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
+        skinType: validatedData.skinType as SkinType,
+        productRating: 5,
+        mood: validatedData.moodTag || 'good',
+        isPublished: true,
         user: {
           id: user.id,
           userName: user.userName,
@@ -119,13 +119,12 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory,
-        skinType: validatedData.skinType,
-        usageSituation: validatedData.usageSituation,
-        experienceDetails: validatedData.experienceDetails,
-        moodTag: validatedData.moodTag,
-        publishedAt: new Date(),
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
+        skinType: validatedData.skinType as SkinType,
+        productRating: 5,
+        mood: validatedData.moodTag || 'good',
+        isPublished: true,
       },
       include: {
         user: {
@@ -259,7 +258,7 @@ export async function GET(request: NextRequest) {
           },
         },
         orderBy: {
-          publishedAt: 'desc',
+          createdAt: 'desc',
         },
         skip,
         take: limit,

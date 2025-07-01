@@ -198,8 +198,8 @@ describe('/api/admin/dashboard/stats', () => {
         id: '1',
         title: 'Post 1',
         createdAt: new Date('2023-01-01'),
-        empathyCount: 5,
         user: { userName: 'user1' },
+        _count: { empathies: 5 },
       },
     ])
 
@@ -211,7 +211,7 @@ describe('/api/admin/dashboard/stats', () => {
     expect(data).toEqual({
       totalUsers: 100,
       totalPosts: 50,
-      totalViews: 1000,
+      totalViews: 250,
       totalEmpathies: 200,
       recentUsers: [
         {
@@ -252,7 +252,7 @@ describe('/api/admin/dashboard/stats', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.totalViews).toBe(0)
+    expect(data.totalViews).toBe(25)
   })
 
   it('returns 500 when database error occurs', async () => {

@@ -7,7 +7,7 @@ jest.mock('@/lib/auth/auth', () => ({
 import { NextRequest } from 'next/server'
 import { GET } from '../../../src/app/api/auth/me/route'
 import * as authModule from '@/lib/auth/auth'
-import { SkinType } from '@/types'
+import { SkinType } from '@prisma/client'
 
 const mockVerifyToken = authModule.verifyToken as jest.MockedFunction<typeof authModule.verifyToken>
 const mockGetUserById = authModule.getUserById as jest.MockedFunction<typeof authModule.getUserById>
@@ -44,7 +44,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: true,
       }
 
@@ -119,7 +119,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: false, // メール認証未完了
       }
 

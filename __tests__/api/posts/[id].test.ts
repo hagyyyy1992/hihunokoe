@@ -19,7 +19,7 @@ jest.mock('@/lib/mock-data', () => {
       content: 'Test content 1',
       cosmeticName: 'Test Cosmetic 1',
       cosmeticCategory: 'toner',
-      skinType: 'normal',
+      skinType: 'NORMAL',
       moodTag: 'good',
       status: 'published',
       viewCount: 10,
@@ -32,7 +32,7 @@ jest.mock('@/lib/mock-data', () => {
       content: 'Test content 2',
       cosmeticName: 'Test Cosmetic 2',
       cosmeticCategory: 'serum',
-      skinType: 'dry',
+      skinType: 'DRY',
       moodTag: 'love',
       status: 'published',
       viewCount: 5,
@@ -153,7 +153,7 @@ describe('/api/posts/[id]', () => {
         content: 'Test content 1',
         cosmeticName: 'Test Cosmetic 1',
         cosmeticCategory: 'toner',
-        skinType: 'normal',
+        skinType: 'NORMAL',
         moodTag: 'good',
         status: 'published',
         viewCount: 11, // 閲覧数が増加
@@ -167,7 +167,7 @@ describe('/api/posts/[id]', () => {
         content: 'Database content',
         cosmeticName: 'Database Cosmetic',
         cosmeticCategory: 'toner',
-        skinType: 'normal',
+        skinType: 'NORMAL',
         moodTag: 'good',
         status: 'published',
         viewCount: 5,
@@ -175,7 +175,8 @@ describe('/api/posts/[id]', () => {
           id: 'user-1',
           userName: 'testuser',
           displayName: 'Test User',
-          skinType: 'normal',
+          skinType: 'NORMAL',
+          profileImageUrl: null,
         },
         empathies: [],
         comments: [],
@@ -199,7 +200,7 @@ describe('/api/posts/[id]', () => {
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
         where: {
           id: '550e8400-e29b-41d4-a716-446655440001',
-          status: 'published',
+          isPublished: true,
         },
         include: {
           user: {
@@ -221,7 +222,7 @@ describe('/api/posts/[id]', () => {
           },
           comments: {
             where: {
-              isActive: true,
+              isPublished: true,
               parentCommentId: null,
             },
             include: {
@@ -234,7 +235,7 @@ describe('/api/posts/[id]', () => {
               },
               replies: {
                 where: {
-                  isActive: true,
+                  isPublished: true,
                 },
                 include: {
                   user: {
@@ -262,14 +263,8 @@ describe('/api/posts/[id]', () => {
           },
         },
       })
-      expect(mockPrisma.post.update).toHaveBeenCalledWith({
-        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
-        data: {
-          viewCount: {
-            increment: 1,
-          },
-        },
-      })
+      // viewCount は現在のスキーマでは追跡されていない
+      expect(mockPrisma.post.update).not.toHaveBeenCalled()
     })
 
     it('存在しない投稿の場合、404エラーを返す（モックモード）', async () => {
@@ -318,7 +313,7 @@ describe('/api/posts/[id]', () => {
       expect(data.error).toBe('投稿の取得に失敗しました')
     })
 
-    it('閲覧数更新でエラーが発生しても投稿は返される（データベースモード）', async () => {
+    it('投稿の取得が正常に行われる（データベースモード、viewCount更新なし）', async () => {
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Database Post',
@@ -332,14 +327,14 @@ describe('/api/posts/[id]', () => {
 
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockRejectedValue(new Error('Update error'))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
 
-      // 閲覧数更新エラーでも投稿自体は500エラーになる（全体のエラーハンドリング）
-      expect(response.status).toBe(500)
+      // viewCount更新が実装されていないため、通常通り200が返される
+      expect(response.status).toBe(200)
+      expect(mockPrisma.post.update).not.toHaveBeenCalled()
     })
 
     it('複数の投稿を順次取得できる（モックモード）', async () => {
@@ -383,7 +378,7 @@ describe('/api/posts/[id]', () => {
               id: 'user-3',
               userName: 'commenter',
               displayName: 'Commenter',
-              skinType: 'normal',
+              skinType: 'NORMAL',
             },
             replies: [
               {
@@ -534,9 +529,12 @@ describe('/api/posts/[id]', () => {
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         data: {
-          ...updateData,
-          experienceDetails: undefined,
-          usageSituation: undefined,
+          title: updateData.title,
+          content: updateData.content,
+          productName: updateData.cosmeticName,
+          productCategory: updateData.cosmeticCategory,
+          skinType: 'DRY',
+          mood: updateData.moodTag,
         },
         include: {
           user: {

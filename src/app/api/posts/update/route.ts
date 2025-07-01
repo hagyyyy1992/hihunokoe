@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { z } from 'zod'
+import { SkinType } from '@prisma/client'
 
 const postSchema = z.object({
   title: z.string().min(1).max(200),
@@ -118,7 +119,7 @@ export async function PUT(request: NextRequest) {
         ...post,
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
+        productName: validatedData.cosmeticName,
         cosmeticCategory: validatedData.cosmeticCategory || post.cosmeticCategory,
         skinType: validatedData.skinType || post.skinType,
         usageSituation: validatedData.usageSituation || post.usageSituation,
@@ -156,12 +157,11 @@ export async function PUT(request: NextRequest) {
       data: {
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory,
-        skinType: validatedData.skinType,
-        usageSituation: validatedData.usageSituation,
-        experienceDetails: validatedData.experienceDetails,
-        moodTag: validatedData.moodTag,
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
+        skinType: validatedData.skinType as SkinType,
+        productRating: 5,
+        mood: validatedData.moodTag || 'good',
       },
       include: {
         user: {

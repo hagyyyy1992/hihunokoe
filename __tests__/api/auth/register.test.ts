@@ -12,7 +12,7 @@ import { NextRequest } from 'next/server'
 import { POST } from '../../../src/app/api/auth/register/route'
 import * as authModule from '@/lib/auth/auth'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
-import { SkinType } from '@/types'
+import { SkinType } from '@prisma/client'
 import { Gender, AllergyType, BodyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
@@ -44,11 +44,12 @@ describe('/api/auth/register', () => {
     userName: 'testuser',
     email: 'test@example.com',
     password: 'password123',
-    birthDate: new Date('1990-01-01'),
-    gender: 'male' as const,
-    skinType: 'normal' as const,
-    allergies: ['fragrance'] as const,
-    bodyType: 'atopic' as const,
+    age: 30,
+    gender: 'MALE' as const,
+    skinType: 'NORMAL' as const,
+    allergies: ['COSMETICS'] as const,
+    bodyType: 'AVERAGE' as const,
+    selfIntroduction: 'Hello, I am a test user',
   }
 
   describe('POST', () => {
@@ -57,14 +58,12 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
-        skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
-        allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
+        age: 30,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
+        allergies: ['COSMETICS' as AllergyType],
+        bodyType: 'AVERAGE' as BodyType,
+        selfIntroduction: 'Hello, I am a test user',
         emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
@@ -79,14 +78,12 @@ describe('/api/auth/register', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        birthDate: mockUser.birthDate.toISOString(),
+        age: mockUser.age,
         gender: mockUser.gender,
         skinType: mockUser.skinType,
-        skinTypeOther: mockUser.skinTypeOther,
         allergies: mockUser.allergies,
-        allergiesOther: mockUser.allergiesOther,
         bodyType: mockUser.bodyType,
-        bodyTypeOther: mockUser.bodyTypeOther,
+        selfIntroduction: mockUser.selfIntroduction,
         emailVerified: mockUser.emailVerified,
       })
       expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
@@ -104,6 +101,7 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
+        age: undefined,
         birthDate: undefined,
         gender: undefined,
         skinType: undefined,
@@ -112,6 +110,7 @@ describe('/api/auth/register', () => {
         allergiesOther: undefined,
         bodyType: undefined,
         bodyTypeOther: undefined,
+        selfIntroduction: undefined,
         emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
@@ -126,14 +125,12 @@ describe('/api/auth/register', () => {
         id: mockUser.id,
         userName: mockUser.userName,
         email: mockUser.email,
-        birthDate: mockUser.birthDate,
-        gender: mockUser.gender,
-        skinType: mockUser.skinType,
-        skinTypeOther: mockUser.skinTypeOther,
-        allergies: mockUser.allergies,
-        allergiesOther: mockUser.allergiesOther,
-        bodyType: mockUser.bodyType,
-        bodyTypeOther: mockUser.bodyTypeOther,
+        age: undefined,
+        gender: undefined,
+        skinType: undefined,
+        allergies: undefined,
+        bodyType: undefined,
+        selfIntroduction: undefined,
         emailVerified: mockUser.emailVerified,
       })
     })
@@ -260,7 +257,7 @@ describe('/api/auth/register', () => {
     })
 
     it('有効な肌タイプの値が受け入れられる', async () => {
-      const skinTypes = ['normal', 'dry', 'oily', 'combination', 'sensitive']
+      const skinTypes = ['NORMAL', 'DRY', 'OILY', 'MIXED', 'SENSITIVE']
 
       for (const skinType of skinTypes) {
         const testData = {
@@ -293,14 +290,12 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
-        skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
-        allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
+        age: 30,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
+        allergies: ['COSMETICS' as AllergyType],
+        bodyType: 'AVERAGE' as BodyType,
+        selfIntroduction: 'Hello, I am a test user',
         emailVerified: false,
       }
 
@@ -335,14 +330,12 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
-        skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
-        allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
+        age: 30,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
+        allergies: ['COSMETICS' as AllergyType],
+        bodyType: 'AVERAGE' as BodyType,
+        selfIntroduction: 'Hello, I am a test user',
         emailVerified: false,
       }
 
@@ -377,14 +370,12 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
-        skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
-        allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
+        age: 30,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
+        allergies: ['COSMETICS' as AllergyType],
+        bodyType: 'AVERAGE' as BodyType,
+        selfIntroduction: 'Hello, I am a test user',
         emailVerified: false,
       }
 
@@ -419,14 +410,12 @@ describe('/api/auth/register', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
-        skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
-        allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
+        age: 30,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
+        allergies: ['COSMETICS' as AllergyType],
+        bodyType: 'AVERAGE' as BodyType,
+        selfIntroduction: 'Hello, I am a test user',
         emailVerified: false,
       }
 

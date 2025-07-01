@@ -92,7 +92,6 @@ describe('/api/auth/forgot-password', () => {
         where: {
           email: 'test@example.com',
           isActive: true,
-          deletedAt: null,
         },
       })
       expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
@@ -116,7 +115,6 @@ describe('/api/auth/forgot-password', () => {
         where: {
           email: 'nonexistent@example.com',
           isActive: true,
-          deletedAt: null,
         },
       })
       // メール送信は呼ばれない

@@ -19,7 +19,7 @@ jest.mock('@/lib/prisma', () => {
 import { NextRequest } from 'next/server'
 import { PUT } from '../../../src/app/api/profile/update/route'
 import * as authModule from '@/lib/auth/auth'
-import { SkinType } from '@/types'
+import { SkinType } from '@prisma/client'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
 
@@ -63,7 +63,8 @@ describe('/api/profile/update', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
+        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -74,7 +75,8 @@ describe('/api/profile/update', () => {
       const updatedUser = {
         ...mockUser,
         userName: 'newusername',
-        skinType: 'dry',
+        skinType: 'DRY',
+        profileImageUrl: 'https://example.com/image.jpg',
         updatedAt: new Date(),
       }
 
@@ -85,7 +87,8 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        skinType: 'dry',
+        skinType: 'DRY',
+        profileImageUrl: 'https://example.com/image.jpg',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -109,7 +112,8 @@ describe('/api/profile/update', () => {
         where: { id: '1' },
         data: {
           userName: 'newusername',
-          skinType: 'dry',
+          skinType: 'DRY',
+          profileImageUrl: 'https://example.com/image.jpg',
           updatedAt: expect.any(Date),
         },
       })
@@ -184,7 +188,8 @@ describe('/api/profile/update', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
+        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -206,6 +211,42 @@ describe('/api/profile/update', () => {
       expect(data.details).toBeDefined()
     })
 
+    it('無効なプロフィール画像URLの場合、400エラーを返す', async () => {
+      const mockDecodedToken = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+      }
+
+      const mockUser = {
+        id: '1',
+        userName: 'testuser',
+        email: 'test@example.com',
+        skinType: 'NORMAL' as SkinType,
+        profileImageUrl: undefined,
+        emailVerified: true,
+      }
+
+      mockVerifyToken.mockReturnValue(mockDecodedToken)
+      mockGetUserById.mockResolvedValue(mockUser)
+
+      // 無効なURL
+      const requestBody = {
+        userName: 'newusername',
+        profileImageUrl: 'invalid-url',
+      }
+
+      const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
+
+      const response = await PUT(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('入力データが無効です')
+      expect(data.details).toBeDefined()
+    })
+
+>>>>>>> 912bef5 (fix: テスト失敗修正とコード品質改善 - すべてのテストが通るように調整)
     it('データベースが利用できない場合、モックレスポンスを返す', async () => {
       const mockDecodedToken = {
         id: '1',
@@ -217,7 +258,8 @@ describe('/api/profile/update', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
+        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -231,7 +273,7 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newusername',
-        skinType: 'dry',
+        skinType: 'DRY',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -244,7 +286,7 @@ describe('/api/profile/update', () => {
       expect(data.user).toEqual({
         ...mockUser,
         userName: 'newusername',
-        skinType: 'dry',
+        skinType: 'DRY',
       })
 
       // データベース更新は呼ばれていないことを確認
@@ -267,7 +309,8 @@ describe('/api/profile/update', () => {
         userName: 'demouser',
         email: 'demo@example.com',
         displayName: 'Demo User',
-        skinType: 'normal',
+        skinType: 'NORMAL',
+        profileImageUrl: undefined,
         emailVerified: true,
       }
 
@@ -281,7 +324,7 @@ describe('/api/profile/update', () => {
 
       const requestBody = {
         userName: 'newdemouser',
-        skinType: 'dry',
+        skinType: 'DRY',
       }
 
       const request = createRequest(requestBody, { 'auth-token': 'valid-token' })
@@ -294,7 +337,7 @@ describe('/api/profile/update', () => {
       expect(data.user).toEqual({
         ...mockUser,
         userName: 'newdemouser',
-        skinType: 'dry',
+        skinType: 'DRY',
       })
 
       // データベース更新は呼ばれていないことを確認
@@ -316,7 +359,8 @@ describe('/api/profile/update', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
+        profileImageUrl: undefined,
         emailVerified: true,
       }
 

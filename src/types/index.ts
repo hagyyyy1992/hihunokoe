@@ -1,10 +1,10 @@
-// 肌タイプの型定義
+// 肌タイプの型定義 - Prismaから再エクスポート
 export type SkinType =
-  | 'normal' // 普通肌
-  | 'dry' // 乾燥肌
-  | 'oily' // 脂性肌
-  | 'combination' // 混合肌
-  | 'sensitive' // 敏感肌
+  | 'NORMAL' // 普通肌
+  | 'DRY' // 乾燥肌
+  | 'OILY' // 脂性肌
+  | 'COMBINATION' // 混合肌
+  | 'SENSITIVE' // 敏感肌
 
 // コスメカテゴリの型定義
 export type CosmeticCategory =

@@ -71,7 +71,7 @@ describe('/api/posts/empathy (query parameter)', () => {
       content: 'Test content 1',
       cosmeticName: 'Test Cosmetic 1',
       cosmeticCategory: 'toner',
-      skinType: 'normal',
+      skinType: 'NORMAL',
       moodTag: 'good',
       status: 'published',
       viewCount: 10,
@@ -150,7 +150,7 @@ describe('/api/posts/empathy (query parameter)', () => {
 
       expect(response.status).toBe(200)
       expect(data.hasEmpathized).toBe(true)
-      expect(data.empathyType).toBe('helpful')
+      expect(data.empathyType).toBe('like')
       expect(data.totalCount).toBe(1)
     })
 

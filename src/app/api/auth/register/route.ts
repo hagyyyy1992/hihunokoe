@@ -8,17 +8,12 @@ const registerSchema = z.object({
   userName: z.string().min(3).max(100),
   email: z.string().email(),
   password: z.string().min(8),
-  birthDate: z
-    .string()
-    .optional()
-    .transform(val => (val ? new Date(val) : undefined)),
+  age: z.number().int().min(1).max(120).optional(),
   gender: z.nativeEnum(Gender).optional(),
   skinType: z.nativeEnum(SkinType).optional(),
-  skinTypeOther: z.string().max(100).optional(),
   allergies: z.array(z.nativeEnum(AllergyType)).optional(),
-  allergiesOther: z.string().optional(),
   bodyType: z.nativeEnum(BodyType).optional(),
-  bodyTypeOther: z.string().max(100).optional(),
+  selfIntroduction: z.string().max(1000).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -68,14 +63,12 @@ export async function POST(request: NextRequest) {
         id: user.id,
         userName: user.userName,
         email: user.email,
-        birthDate: user.birthDate,
+        age: user.age,
         gender: user.gender,
         skinType: user.skinType,
-        skinTypeOther: user.skinTypeOther,
         allergies: user.allergies,
-        allergiesOther: user.allergiesOther,
         bodyType: user.bodyType,
-        bodyTypeOther: user.bodyTypeOther,
+        selfIntroduction: user.selfIntroduction,
         emailVerified: user.emailVerified,
       },
       message: 'ユーザー登録が完了しました。確認メールをご確認ください。',

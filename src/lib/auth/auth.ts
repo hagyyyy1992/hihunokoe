@@ -11,6 +11,7 @@ export interface AuthUser {
   userName: string
   email: string
   role?: UserRole
+  age?: number | null
   birthDate?: Date | null
   gender?: Gender | null
   skinType?: SkinType | null
@@ -19,6 +20,8 @@ export interface AuthUser {
   allergiesOther?: string | null
   bodyType?: BodyType | null
   bodyTypeOther?: string | null
+  selfIntroduction?: string | null
+  profileImageUrl?: string
   emailVerified?: boolean
 }
 
@@ -31,6 +34,7 @@ export interface RegisterData {
   userName: string
   email: string
   password: string
+  age?: number
   birthDate?: Date
   gender?: Gender
   skinType?: SkinType
@@ -39,6 +43,7 @@ export interface RegisterData {
   allergiesOther?: string
   bodyType?: BodyType
   bodyTypeOther?: string
+  selfIntroduction?: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -100,7 +105,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     where: {
       OR: [{ email: data.email }, { userName: data.userName }],
       isActive: true,
-      deletedAt: null,
     },
   })
 
@@ -113,7 +117,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     where: {
       OR: [{ email: data.email }, { userName: data.userName }],
       isActive: false,
-      deletedAt: { not: null },
     },
   })
 
@@ -130,23 +133,17 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
           userName: data.userName,
           email: data.email,
           passwordHash: hashedPassword,
-          birthDate: data.birthDate,
           gender: data.gender,
           skinType: data.skinType,
-          skinTypeOther: data.skinTypeOther,
           allergies: data.allergies || [],
-          allergiesOther: data.allergiesOther,
           bodyType: data.bodyType,
-          bodyTypeOther: data.bodyTypeOther,
           isActive: true,
-          deletedAt: null,
           emailVerified:
             process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
           // その他のフィールドもリセット
           emailVerificationToken: null,
-          emailVerificationExpiry: null,
-          passwordResetToken: null,
-          passwordResetExpiry: null,
+          resetPasswordToken: null,
+          resetPasswordExpires: null,
         },
       })
     } else {
@@ -156,14 +153,12 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
           userName: data.userName,
           email: data.email,
           passwordHash: hashedPassword,
-          birthDate: data.birthDate,
+          age: data.age,
           gender: data.gender,
           skinType: data.skinType,
-          skinTypeOther: data.skinTypeOther,
           allergies: data.allergies || [],
-          allergiesOther: data.allergiesOther,
           bodyType: data.bodyType,
-          bodyTypeOther: data.bodyTypeOther,
+          selfIntroduction: data.selfIntroduction,
           emailVerified:
             process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
         },
@@ -175,14 +170,14 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       userName: user.userName,
       email: user.email,
       role: user.role,
-      birthDate: user.birthDate,
+      age: user.age,
       gender: user.gender,
       skinType: user.skinType,
-      skinTypeOther: user.skinTypeOther,
       allergies: user.allergies,
-      allergiesOther: user.allergiesOther,
       bodyType: user.bodyType,
       bodyTypeOther: user.bodyTypeOther,
+      selfIntroduction: user.selfIntroduction,
+      profileImageUrl: user.profileImageUrl || undefined,
       emailVerified: user.emailVerified,
     }
   } catch (error: unknown) {
@@ -208,7 +203,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       })
       console.log('[AUTH] Database user found:', !!user)
 
-      if (user && user.isActive && !user.deletedAt) {
+      if (user && user.isActive) {
         console.log('[AUTH] User is active, verifying password...')
         const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
         console.log('[AUTH] Password valid:', isPasswordValid)
@@ -220,14 +215,12 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
             userName: user.userName,
             email: user.email,
             role: user.role,
-            birthDate: user.birthDate,
             gender: user.gender,
             skinType: user.skinType,
-            skinTypeOther: user.skinTypeOther,
             allergies: user.allergies,
-            allergiesOther: user.allergiesOther,
             bodyType: user.bodyType,
             bodyTypeOther: user.bodyTypeOther,
+            profileImageUrl: user.profileImageUrl || undefined,
             emailVerified: user.emailVerified,
           }
         }
@@ -293,7 +286,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     where: {
       id,
       isActive: true,
-      deletedAt: null,
     },
   })
 
@@ -306,14 +298,12 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     userName: user.userName,
     email: user.email,
     role: user.role,
-    birthDate: user.birthDate,
     gender: user.gender,
     skinType: user.skinType,
-    skinTypeOther: user.skinTypeOther,
     allergies: user.allergies,
-    allergiesOther: user.allergiesOther,
     bodyType: user.bodyType,
     bodyTypeOther: user.bodyTypeOther,
+    profileImageUrl: user.profileImageUrl || undefined,
     emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
   }
 }
@@ -330,7 +320,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       where: {
         id,
         isActive: true,
-        deletedAt: null,
       },
     })
 
@@ -342,7 +331,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     await prisma!.user.update({
       where: { id },
       data: {
-        deletedAt: new Date(),
         isActive: false,
       },
     })
@@ -391,7 +379,7 @@ export async function logAdminAction(
       data: {
         userId,
         action,
-        target,
+        targetId: target,
         details: details ? JSON.parse(JSON.stringify(details)) : null,
         ipAddress,
         userAgent,

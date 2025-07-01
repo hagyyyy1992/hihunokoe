@@ -22,7 +22,7 @@ jest.mock('@/lib/mock-data', () => ({
       content: 'Test content 1',
       cosmeticName: 'Test Cosmetic 1',
       cosmeticCategory: 'toner',
-      skinType: 'normal',
+      skinType: 'NORMAL',
       moodTag: 'good',
       user: { id: 'user-1', userName: 'testuser1' },
     },
@@ -32,7 +32,7 @@ jest.mock('@/lib/mock-data', () => ({
       content: 'Test content 2',
       cosmeticName: 'Test Cosmetic 2',
       cosmeticCategory: 'serum',
-      skinType: 'dry',
+      skinType: 'DRY',
       moodTag: 'love',
       user: { id: 'user-2', userName: 'testuser2' },
     },
@@ -90,19 +90,8 @@ describe('/api/posts', () => {
     content: 'This is a test post content',
     cosmeticName: 'Test Cosmetic',
     cosmeticCategory: 'toner',
-    skinType: 'normal',
+    skinType: 'NORMAL',
     moodTag: 'good',
-    usageSituation: {
-      season: 'spring',
-      timeOfDay: 'morning',
-    },
-    experienceDetails: {
-      texture: {
-        type: 'watery',
-        spreadability: 'easy',
-        absorption: 'fast',
-      },
-    },
   }
 
   describe('POST', () => {
@@ -125,10 +114,10 @@ describe('/api/posts', () => {
         userId: mockUser.id,
         title: validPostData.title,
         content: validPostData.content,
-        cosmeticName: validPostData.cosmeticName,
-        cosmeticCategory: validPostData.cosmeticCategory,
+        productName: validPostData.cosmeticName,
+        productCategory: validPostData.cosmeticCategory,
         skinType: validPostData.skinType,
-        moodTag: validPostData.moodTag,
+        mood: validPostData.moodTag,
       })
       expect(data.message).toBe('投稿が作成されました（デモモード）')
       expect(data.post.id).toMatch(/^mock-post-/)
@@ -144,13 +133,18 @@ describe('/api/posts', () => {
       const mockCreatedPost = {
         id: 'post-id',
         userId: mockUser.id,
-        ...validPostData,
+        title: validPostData.title,
+        content: validPostData.content,
+        productName: validPostData.cosmeticName,
+        productCategory: validPostData.cosmeticCategory,
+        skinType: validPostData.skinType,
+        mood: validPostData.moodTag,
         publishedAt: new Date(),
         user: {
           id: mockUser.id,
           userName: mockUser.userName,
           displayName: null,
-          skinType: 'normal',
+          skinType: 'NORMAL',
         },
       }
 
@@ -169,10 +163,10 @@ describe('/api/posts', () => {
         userId: mockCreatedPost.userId,
         title: mockCreatedPost.title,
         content: mockCreatedPost.content,
-        cosmeticName: mockCreatedPost.cosmeticName,
-        cosmeticCategory: mockCreatedPost.cosmeticCategory,
+        productName: mockCreatedPost.productName,
+        productCategory: mockCreatedPost.productCategory,
         skinType: mockCreatedPost.skinType,
-        moodTag: mockCreatedPost.moodTag,
+        mood: mockCreatedPost.mood,
         user: mockCreatedPost.user,
       })
       expect(data.message).toBe('投稿が作成されました')
@@ -181,13 +175,12 @@ describe('/api/posts', () => {
           userId: mockUser.id,
           title: validPostData.title,
           content: validPostData.content,
-          cosmeticName: validPostData.cosmeticName,
-          cosmeticCategory: validPostData.cosmeticCategory,
+          productName: validPostData.cosmeticName,
+          productCategory: validPostData.cosmeticCategory || 'other',
           skinType: validPostData.skinType,
-          usageSituation: validPostData.usageSituation,
-          experienceDetails: validPostData.experienceDetails,
-          moodTag: validPostData.moodTag,
-          publishedAt: expect.any(Date),
+          productRating: 5,
+          mood: validPostData.moodTag || 'good',
+          isPublished: true,
         },
         include: {
           user: {
@@ -336,14 +329,14 @@ describe('/api/posts', () => {
     })
 
     it('肌タイプでフィルタリングできる（モックモード）', async () => {
-      const request = createGetRequest({ skinType: 'normal' })
+      const request = createGetRequest({ skinType: 'NORMAL' })
 
       const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
       expect(data.posts).toHaveLength(1)
-      expect(data.posts[0].skinType).toBe('normal')
+      expect(data.posts[0].skinType).toBe('NORMAL')
     })
 
     it('カテゴリでフィルタリングできる（モックモード）', async () => {
@@ -399,7 +392,7 @@ describe('/api/posts', () => {
 
     it('複数のフィルターを組み合わせて使用できる（モックモード）', async () => {
       const request = createGetRequest({
-        skinType: 'dry',
+        skinType: 'DRY',
         category: 'serum',
         moodTag: 'love',
       })
@@ -410,7 +403,7 @@ describe('/api/posts', () => {
       expect(response.status).toBe(200)
       expect(data.posts).toHaveLength(1)
       expect(data.posts[0]).toMatchObject({
-        skinType: 'dry',
+        skinType: 'DRY',
         cosmeticCategory: 'serum',
         moodTag: 'love',
       })

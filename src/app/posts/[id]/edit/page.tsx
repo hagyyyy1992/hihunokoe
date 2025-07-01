@@ -148,7 +148,7 @@ export default function EditPostPage() {
 
   const validateSkinType = (type?: string): SkinType | '' => {
     if (!type) return ''
-    const validTypes: SkinType[] = ['normal', 'dry', 'oily', 'combination', 'sensitive']
+    const validTypes: SkinType[] = ['NORMAL', 'DRY', 'OILY', 'COMBINATION', 'SENSITIVE']
     return validTypes.includes(type as SkinType) ? (type as SkinType) : ''
   }
 

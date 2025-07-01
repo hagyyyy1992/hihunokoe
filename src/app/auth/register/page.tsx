@@ -8,46 +8,46 @@ import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 // 定数として外に出して再作成を防ぐ
 const SKIN_TYPE_OPTIONS = [
   { value: '', label: '選択してください' },
-  { value: 'normal', label: '普通肌' },
-  { value: 'dry', label: '乾燥肌' },
-  { value: 'oily', label: '脂性肌' },
-  { value: 'combination', label: '混合肌' },
-  { value: 'sensitive', label: '敏感肌' },
-  { value: 'other', label: 'その他' },
+  { value: 'NORMAL', label: '普通肌' },
+  { value: 'DRY', label: '乾燥肌' },
+  { value: 'OILY', label: '脂性肌' },
+  { value: 'COMBINATION', label: '混合肌' },
+  { value: 'SENSITIVE', label: '敏感肌' },
+  { value: 'OTHER', label: 'その他' },
 ] as const
 
 const GENDER_OPTIONS = [
   { value: '', label: '選択してください' },
-  { value: 'male', label: '男性' },
-  { value: 'female', label: '女性' },
-  { value: 'non_binary', label: 'ノンバイナリー' },
-  { value: 'prefer_not_to_say', label: '回答しない' },
-  { value: 'other', label: 'その他' },
+  { value: 'MALE', label: '男性' },
+  { value: 'FEMALE', label: '女性' },
+  { value: 'NON_BINARY', label: 'ノンバイナリー' },
+  { value: 'PREFER_NOT_TO_SAY', label: '回答しない' },
+  { value: 'OTHER', label: 'その他' },
 ] as const
 
 const ALLERGY_OPTIONS = [
-  { value: 'fragrance', label: '香料' },
-  { value: 'alcohol', label: 'アルコール' },
-  { value: 'paraben', label: 'パラベン' },
-  { value: 'sulfate', label: '硫酸塩' },
-  { value: 'silicone', label: 'シリコン' },
-  { value: 'mineral_oil', label: 'ミネラルオイル' },
-  { value: 'formaldehyde', label: 'ホルムアルデヒド' },
-  { value: 'latex', label: 'ラテックス' },
-  { value: 'nickel', label: 'ニッケル' },
-  { value: 'other', label: 'その他' },
+  { value: 'FRAGRANCE', label: '香料' },
+  { value: 'ALCOHOL', label: 'アルコール' },
+  { value: 'PARABEN', label: 'パラベン' },
+  { value: 'SULFATE', label: '硫酸塩' },
+  { value: 'SILICONE', label: 'シリコン' },
+  { value: 'MINERAL_OIL', label: 'ミネラルオイル' },
+  { value: 'FORMALDEHYDE', label: 'ホルムアルデヒド' },
+  { value: 'LATEX', label: 'ラテックス' },
+  { value: 'NICKEL', label: 'ニッケル' },
+  { value: 'OTHER', label: 'その他' },
 ] as const
 
 const BODY_TYPE_OPTIONS = [
   { value: '', label: '選択してください' },
-  { value: 'atopic', label: 'アトピー性皮膚炎' },
-  { value: 'sensitive_skin', label: '敏感肌' },
-  { value: 'acne_prone', label: 'ニキビ肌' },
-  { value: 'mature_skin', label: '年齢肌' },
-  { value: 'pigmentation', label: '色素沈着' },
-  { value: 'rosacea', label: '酒さ' },
-  { value: 'eczema', label: '湿疹' },
-  { value: 'other', label: 'その他' },
+  { value: 'ATOPIC', label: 'アトピー性皮膚炎' },
+  { value: 'SENSITIVE_SKIN', label: '敏感肌' },
+  { value: 'ACNE_PRONE', label: 'ニキビ肌' },
+  { value: 'MATURE_SKIN', label: '年齢肌' },
+  { value: 'PIGMENTATION', label: '色素沈着' },
+  { value: 'ROSACEA', label: '酒さ' },
+  { value: 'ECZEMA', label: '湿疹' },
+  { value: 'OTHER', label: 'その他' },
 ] as const
 
 export default function RegisterPage() {
@@ -275,7 +275,7 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
-              {formData.skinType === 'other' && (
+              {(formData.skinType as string) === 'OTHER' && (
                 <div className="mt-2">
                   <input
                     name="skinTypeOther"
@@ -350,7 +350,7 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
-              {formData.bodyType === 'other' && (
+              {(formData.bodyType as string) === 'OTHER' && (
                 <div className="mt-2">
                   <input
                     name="bodyTypeOther"

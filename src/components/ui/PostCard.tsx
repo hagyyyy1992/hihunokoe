@@ -48,6 +48,12 @@ const categoryLabels: Record<string, string> = {
 }
 
 const skinTypeLabels: Record<string, string> = {
+  NORMAL: '普通肌',
+  DRY: '乾燥肌',
+  OILY: '脂性肌',
+  COMBINATION: '混合肌',
+  SENSITIVE: '敏感肌',
+  // Legacy support for lowercase values
   normal: '普通肌',
   dry: '乾燥肌',
   oily: '脂性肌',
