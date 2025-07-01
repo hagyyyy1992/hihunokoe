@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         hasEmpathized: !!empathy,
-        empathyType: empathy?.empathyType,
+        empathyType: empathy ? 'like' : null,
         totalCount,
       })
     }
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
-          status: 'published',
+          isPublished: true,
         },
         select: { id: true },
       })
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       hasEmpathized: !!empathy,
-      empathyType: empathy?.empathyType,
+      empathyType: empathy ? 'like' : null,
       totalCount,
     })
   } catch (error) {
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
-          status: 'published',
+          isPublished: true,
         },
         select: { id: true },
       })
@@ -268,18 +268,10 @@ export async function POST(request: NextRequest) {
           data: {
             postId,
             userId: user.id,
-            empathyType,
           },
         })
 
-        await tx.post.update({
-          where: { id: postId },
-          data: {
-            empathyCount: {
-              increment: 1,
-            },
-          },
-        })
+        // Empathy count is calculated via relation count
 
         const totalCount = await tx.empathy.count({
           where: { postId },
@@ -377,7 +369,7 @@ export async function DELETE(request: NextRequest) {
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
-          status: 'published',
+          isPublished: true,
         },
         select: { id: true },
       })
@@ -420,14 +412,7 @@ export async function DELETE(request: NextRequest) {
         },
       })
 
-      await tx.post.update({
-        where: { id: postId },
-        data: {
-          empathyCount: {
-            decrement: 1,
-          },
-        },
-      })
+      // Empathy count is calculated via relation count
 
       return await tx.empathy.count({
         where: { postId },
