@@ -36,6 +36,9 @@ model User {
   postPermissions         PostPermission[]
   posts                   Post[]
   adminLogs               AdminLog[]
+  reportsBy               Report[] @relation("ReportedBy")
+  reportsAgainst          Report[] @relation("ReportsAgainst")
+  reportsResolved         Report[] @relation("ReportsResolved")
 
   @@map("users")
 }
@@ -60,6 +63,7 @@ model Post {
   comments          Comment[]
   empathies         Empathy[]
   postPermissions   PostPermission[]
+  reports           Report[]
   user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("posts")
@@ -102,6 +106,7 @@ model Comment {
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   parentComment   Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
   replies         Comment[] @relation("CommentReplies")
+  reports         Report[]
   post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -177,4 +182,50 @@ model AdminLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("admin_logs")
+}
+
+model Report {
+  id           String      @id @default(uuid()) @db.Uuid
+  reporterId   String      @map("reporter_id") @db.Uuid
+  reportedId   String?     @map("reported_id") @db.Uuid
+  postId       String?     @map("post_id") @db.Uuid
+  commentId    String?     @map("comment_id") @db.Uuid
+  reason       ReportReason @map("reason")
+  description  String?     @map("description")
+  status       ReportStatus @default(PENDING) @map("status")
+  resolvedBy   String?     @map("resolved_by") @db.Uuid
+  resolvedAt   DateTime?   @map("resolved_at") @db.Timestamptz(6)
+  resolution   String?     @map("resolution")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
+  reporter     User        @relation("ReportedBy", fields: [reporterId], references: [id], onDelete: Cascade)
+  reported     User?       @relation("ReportsAgainst", fields: [reportedId], references: [id], onDelete: Cascade)
+  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment      Comment?    @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  resolver     User?       @relation("ReportsResolved", fields: [resolvedBy], references: [id], onDelete: SetNull)
+
+  @@map("reports")
+}
+
+enum ReportReason {
+  SPAM           @map("spam")
+  HARASSMENT     @map("harassment")
+  INAPPROPRIATE  @map("inappropriate")
+  COPYRIGHT      @map("copyright")
+  FAKE_INFO      @map("fake_info")
+  VIOLENCE       @map("violence")
+  HATE_SPEECH    @map("hate_speech")
+  OTHER          @map("other")
+
+  @@map("report_reasons")
+}
+
+enum ReportStatus {
+  PENDING    @map("pending")
+  REVIEWING  @map("reviewing")
+  RESOLVED   @map("resolved")
+  DISMISSED  @map("dismissed")
+
+  @@map("report_statuses")
 }
