@@ -85,6 +85,7 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
           <CommentItem
             key={comment.id}
             comment={comment}
+            postId={postId}
             onReplySuccess={handleReplySuccess(comment.id)}
             onEditSuccess={handleEditSuccess}
             onDeleteSuccess={handleDeleteSuccess}

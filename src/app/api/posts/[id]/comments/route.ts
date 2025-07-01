@@ -47,7 +47,7 @@ const commentRateLimit = new Map<string, { count: number; lastReset: number }>()
 
 function checkRateLimit(userId: string): boolean {
   const now = Date.now()
-  const windowMs = 30 * 1000 // 30秒
+  const windowMs = 5 * 1000 // 5秒
   const maxRequests = 1
 
   const userLimit = commentRateLimit.get(userId)
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // レート制限チェック
     if (!checkRateLimit(userId)) {
       return NextResponse.json(
-        createApiError('RATE_LIMIT_EXCEEDED', '投稿間隔を空けてください（30秒に1回まで）'),
+        createApiError('RATE_LIMIT_EXCEEDED', '投稿間隔を空けてください（5秒に1回まで）'),
         { status: 429 }
       )
     }

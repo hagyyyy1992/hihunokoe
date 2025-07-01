@@ -9,6 +9,7 @@ import CommentForm from './CommentForm'
 
 interface CommentItemProps {
   comment: Comment
+  postId: string
   isReply?: boolean
   onReplySuccess?: (reply: Comment) => void
   onEditSuccess?: (updatedComment: Comment) => void
@@ -25,6 +26,7 @@ const skinTypeLabels: Record<string, string> = {
 
 export default function CommentItem({
   comment,
+  postId,
   isReply = false,
   onReplySuccess,
   onEditSuccess,
@@ -38,8 +40,8 @@ export default function CommentItem({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [error, setError] = useState('')
 
-  const canEdit = user && comment.canEdit && user.id === comment.user.id
-  const canDelete = user && comment.canDelete && user.id === comment.user.id
+  const canEdit = user && user.id === comment.user.id
+  const canDelete = user && user.id === comment.user.id
   const canReply = user && !isReply // 返信への返信は不可
 
   const handleReplySuccess = (reply: Comment) => {
@@ -72,6 +74,7 @@ export default function CommentItem({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ content: editContent }),
+        credentials: 'same-origin',
       })
 
       const data = await response.json()
@@ -105,6 +108,7 @@ export default function CommentItem({
     try {
       const response = await fetch(`/api/comments/${comment.id}`, {
         method: 'DELETE',
+        credentials: 'same-origin',
       })
 
       const data = await response.json()
@@ -221,7 +225,7 @@ export default function CommentItem({
           {showReplyForm && canReply && (
             <div className="mt-3">
               <CommentForm
-                postId={comment.id}
+                postId={postId}
                 parentCommentId={comment.id}
                 onSuccess={handleReplySuccess}
                 onCancel={() => setShowReplyForm(false)}
@@ -237,6 +241,7 @@ export default function CommentItem({
                 <CommentItem
                   key={reply.id}
                   comment={reply}
+                  postId={postId}
                   isReply={true}
                   onEditSuccess={onEditSuccess}
                   onDeleteSuccess={onDeleteSuccess}

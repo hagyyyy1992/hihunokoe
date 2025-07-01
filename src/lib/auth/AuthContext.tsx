@@ -37,7 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/v2/auth/me')
+      const response = await fetch('/api/v2/auth/me', {
+        credentials: 'same-origin',
+      })
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
@@ -63,8 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'same-origin',
       })
-
       const data = await response.json()
 
       if (!response.ok) {
@@ -86,8 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(registerData),
+        credentials: 'same-origin',
       })
-
       const data = await response.json()
 
       if (!response.ok) {
@@ -106,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'same-origin',
       })
       setUser(null)
     } catch (error) {
@@ -126,8 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(profileData),
+        credentials: 'same-origin',
       })
-
       const data = await response.json()
 
       if (!response.ok) {

@@ -67,11 +67,16 @@ export default function CommentForm({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        credentials: 'same-origin', // Cookieを送信
       })
 
       const data = await response.json()
 
       if (!response.ok) {
+        // レート制限エラーの場合は詳細なメッセージを表示
+        if (response.status === 429) {
+          throw new Error(data.error || '投稿間隔を空けてください')
+        }
         throw new Error(data.error || 'コメントの投稿に失敗しました')
       }
 

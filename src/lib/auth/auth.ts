@@ -409,12 +409,28 @@ export async function logAdminAction(
 export async function authenticateRequest(
   request: Request
 ): Promise<{ userId: string; user: AuthUser }> {
+  // まずAuthorizationヘッダーをチェック
   const authHeader = request.headers.get('Authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  let token: string | undefined
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7)
+  } else {
+    // AuthorizationヘッダーがなければCookieをチェック
+    const cookieHeader = request.headers.get('Cookie')
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').map(c => c.trim())
+      const authCookie = cookies.find(cookie => cookie.startsWith('auth-token='))
+      if (authCookie) {
+        token = authCookie.split('=')[1]
+      }
+    }
+  }
+
+  if (!token) {
     throw new Error('認証が必要です')
   }
 
-  const token = authHeader.substring(7)
   const user = verifyToken(token)
 
   if (!user) {
