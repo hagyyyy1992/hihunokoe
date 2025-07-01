@@ -4,7 +4,7 @@ jest.mock('@/lib/auth/email-verification', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { POST } from '../../../src/app/api/auth/resend-verification/route'
+import { POST } from '@/app/api/auth/resend-verification/route'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
 
 const mockResendVerificationEmail =

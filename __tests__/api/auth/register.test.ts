@@ -9,7 +9,7 @@ jest.mock('@/lib/auth/email-verification', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { POST } from '../../../src/app/api/auth/register/route'
+import { POST } from '@/app/api/auth/register/route'
 import * as authModule from '@/lib/auth/auth'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
 import { SkinType } from '@/types'

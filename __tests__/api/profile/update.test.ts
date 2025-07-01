@@ -17,7 +17,7 @@ jest.mock('@/lib/prisma', () => {
 })
 
 import { NextRequest } from 'next/server'
-import { PUT } from '../../../src/app/api/profile/update/route'
+import { PUT } from '@/app/api/profile/update/route'
 import * as authModule from '@/lib/auth/auth'
 import { SkinType } from '@/types'
 import * as prismaModule from '@/lib/prisma'

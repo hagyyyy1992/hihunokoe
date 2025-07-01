@@ -4,7 +4,7 @@ jest.mock('@/lib/auth/password-reset', () => ({
 }))
 
 import { NextRequest } from 'next/server'
-import { POST } from '../../../src/app/api/auth/verify-reset-token/route'
+import { POST } from '@/app/api/auth/verify-reset-token/route'
 import * as passwordResetModule from '@/lib/auth/password-reset'
 
 const mockVerifyPasswordResetToken =
