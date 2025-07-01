@@ -58,6 +58,33 @@
       "Bash(npm outdated)",
       "Bash(npx depcheck:*)"
     ],
-    "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
+    "deny": [
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)",
+      "Bash(git merge:*)",
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)",
+      "Bash(chmod 777:*)"
+    ]
+  },
+  "project_context": {
+    "name": "Usaka",
+    "description": "Cosmetics experience sharing service",
+    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS"],
+    "key_commands": {
+      "dev": "npm run dev:setup",
+      "test": "npm test",
+      "e2e": "npm run test:e2e",
+      "db_setup": "npm run db:setup",
+      "db_migrate": "npm run db:migrate",
+      "format_and_lint": "npm run format && npm run lint"
+    }
+  },
+  "claude_preferences": {
+    "auto_format": true,
+    "run_tests_before_commit": true,
+    "prefer_typescript": true,
+    "use_existing_patterns": true,
+    "security_first": true
   }
 }
