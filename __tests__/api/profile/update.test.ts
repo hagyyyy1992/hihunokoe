@@ -206,7 +206,6 @@ describe('/api/profile/update', () => {
       expect(data.details).toBeDefined()
     })
 
-
     it('データベースが利用できない場合、モックレスポンスを返す', async () => {
       const mockDecodedToken = {
         id: '1',

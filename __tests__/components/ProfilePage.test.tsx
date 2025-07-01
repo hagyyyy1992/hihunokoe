@@ -139,7 +139,6 @@ describe('ProfilePage Component', () => {
     const skinTypeSelect = screen.getByTestId('skin-type-select')
     await user.selectOptions(skinTypeSelect, 'dry')
 
-
     // 入力値が変更されていることを確認
     expect(usernameInput).toHaveValue('newusername')
     expect(skinTypeSelect).toHaveValue('dry')
@@ -245,7 +244,6 @@ describe('ProfilePage Component', () => {
     // updateProfileが呼ばれていないことを確認
     expect(mockUpdateProfile).not.toHaveBeenCalled()
   })
-
 
   it('アカウント削除ボタンが表示され、クリックすると削除ページに遷移する', async () => {
     const user = createUser()
