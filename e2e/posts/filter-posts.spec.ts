@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '../helpers/auth-helpers'
-import { PostHelper } from '../helpers/post-helpers'
-import { generateRandomUser, testPosts } from '../helpers/test-data'
+import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { PostHelper } from '@e2e/helpers/post-helpers'
+import { generateRandomUser, testPosts } from '@e2e/helpers/test-data'
 
 test.describe('投稿検索・フィルタリング', () => {
   let authHelper: AuthHelper

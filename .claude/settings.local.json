@@ -17,6 +17,7 @@
       "Bash(git push:*)",
       "Bash(git merge:*)",
       "Bash(git worktree:*)",
+      "Bash(git rebase:*)",
       "Bash(gh pr:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
@@ -58,8 +59,8 @@
       "Bash(npm outdated)",
       "Bash(npx depcheck:*)",
       "Bash(cp:*)",
-      "Bash(git pull:*)",
       "Bash(git rebase:*)"
+      "Bash(git pull:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",

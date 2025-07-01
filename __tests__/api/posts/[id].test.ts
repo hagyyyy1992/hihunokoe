@@ -60,7 +60,7 @@ jest.mock('@/lib/mock-data', () => {
 })
 
 import { NextRequest } from 'next/server'
-import { GET, PUT, DELETE } from '../../../src/app/api/posts/[id]/route'
+import { GET, PUT, DELETE } from '@/app/api/posts/[id]/route'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { verifyToken } from '@/lib/auth/auth'
