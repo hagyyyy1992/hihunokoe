@@ -18,7 +18,7 @@ async function main() {
       userName: 'demo_user',
       email: 'demo@example.com',
       passwordHash: hashedPassword,
-      skinType: 'normal',
+      skinType: 'NORMAL',
       emailVerified: true, // メール認証済みに設定
     },
   })
@@ -51,7 +51,7 @@ async function main() {
         '敏感肌の私でも安心して使える化粧水を見つけました。刺激もなく、しっとりとした仕上がりで満足しています。',
       cosmeticName: 'ナチュラル保湿化粧水',
       cosmeticCategory: 'toner',
-      skinType: 'sensitive',
+      skinType: 'SENSITIVE',
       moodTag: 'love',
       usageSituation: {
         season: 'winter',
@@ -87,7 +87,7 @@ async function main() {
         'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
       cosmeticName: 'やさしいクレンジングオイル',
       cosmeticCategory: 'cleansing',
-      skinType: 'combination',
+      skinType: 'MIXED',
       moodTag: 'good',
       usageSituation: {
         season: 'spring',
