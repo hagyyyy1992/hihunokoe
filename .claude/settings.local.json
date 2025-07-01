@@ -59,7 +59,7 @@
       "Bash(npm outdated)",
       "Bash(npx depcheck:*)",
       "Bash(cp:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
       "Bash(git pull:*)"
     ],
     "deny": [
