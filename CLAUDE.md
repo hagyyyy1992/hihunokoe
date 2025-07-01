@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Usaka is a cosmetics experience sharing service built with Next.js 15 and TypeScript. The application allows users to share authentic cosmetic experiences and discover products that might suit their skin type and preferences.
+Usaka is a comprehensive cosmetics experience sharing service built with Next.js 15 and TypeScript. The application allows users to share authentic cosmetic experiences, discover products that might suit their skin type and preferences, and includes a complete admin panel for content moderation and user management.
 
 ## Architecture
 
@@ -20,16 +20,19 @@ Usaka is a cosmetics experience sharing service built with Next.js 15 and TypeSc
 
 The application uses a flexible database configuration system (`src/lib/db-config.ts`) that supports:
 
-- **Local development**: Docker PostgreSQL container
+- **Local development**: Docker PostgreSQL container with Adminer web interface
 - **Production**: Supabase
 - **Mock mode**: In-memory demo data when database is unavailable
+- **Database tools**: Docker Compose includes Adminer (http://localhost:8080) for database management
 
 ### Key Files
 
 - `src/lib/auth/auth.ts` - Authentication logic with dual mode (database/mock)
+- `src/lib/auth/admin-middleware.ts` - Admin authentication middleware
 - `src/lib/prisma.ts` - Database client initialization
-- `prisma/schema.prisma` - Database schema with User, Post, Empathy, Comment models
+- `prisma/schema.prisma` - Database schema with User, Post, Empathy, Comment, AdminLog models
 - `src/lib/mock-data.ts` - Demo data for offline development
+- `src/app/admin/` - Complete admin panel with dashboard, user management, and content moderation
 
 ## Development Commands
 
@@ -91,7 +94,7 @@ npm run format
 npm run format:check
 ```
 
-### Email Testing
+### Email & Database Testing
 
 ```bash
 # Start MailHog for email testing
@@ -99,6 +102,10 @@ npm run mailhog:start
 
 # Stop MailHog
 npm run mailhog:stop
+
+# Database management
+npm run db:clean    # Reset database with force
+npm run db:status   # Check database connection status
 ```
 
 ## Code Conventions
@@ -107,13 +114,20 @@ npm run mailhog:stop
 
 - Use `src/lib/auth/auth.ts` for all authentication operations
 - Authentication automatically falls back to mock users when database is unavailable
-- Email verification is currently skipped in development (`emailVerified: true`)
+- Email verification system is implemented with configurable email providers
+- Password reset functionality with secure token-based flow
+- Account deletion with cascade deletion of user data
+- Admin authentication with role-based access control (USER, ADMIN, SUPER_ADMIN)
+- Admin action logging in AdminLog model
 
 ### Database Operations
 
 - Always check `isDatabaseAvailable()` before database operations
 - Use the dual-mode pattern: try database first, fallback to mock data
 - All database models use UUID primary keys
+- Soft deletion for users with `deletedAt` timestamp
+- Comprehensive user profile fields including skin type, allergies, body type
+- Admin logging for all administrative actions
 
 ### Component Structure
 
@@ -126,8 +140,12 @@ npm run mailhog:stop
 
 - All API routes follow Next.js App Router conventions
 - Use proper error handling and status codes
-- Authentication routes in `src/app/api/auth/`
-- Post-related routes in `src/app/api/posts/`
+- Authentication routes in `src/app/api/auth/` (login, register, password reset, email verification, account deletion)
+- Post-related routes in `src/app/api/posts/` (CRUD operations, empathy system)
+- Admin routes in `src/app/api/admin/` (user management, post moderation, dashboard stats)
+- Profile management in `src/app/api/profile/`
+- Testing utilities in `src/app/api/test/` (cleanup, rate limiter reset)
+- API versioning support with `src/app/api/v2/`
 
 ## Git Commit Message Conventions
 
@@ -182,17 +200,22 @@ update: 更新
 - Production requires `RESEND_API_KEY` for email functionality
 - Database URLs are managed by `db-config.ts`
 
-### Mock Data
+### Mock Data & Admin Panel
 
 - Demo users available for testing (password: `demo123`)
 - Mock mode enables offline development
 - Controlled by `USE_MOCK_DATA` environment variable
+- Admin panel accessible at `/admin` with role-based permissions
+- Admin dashboard with user statistics and content moderation tools
+- Comprehensive user management with activation/suspension features
 
 ### Email System
 
-- Email verification system is implemented but temporarily disabled
+- Complete email verification system with configurable providers
+- Password reset emails with secure token-based flow
 - MailHog runs on http://localhost:8025 for testing
 - Production uses Resend API
+- Configurable email templates and providers in `src/lib/email/`
 
 ## Testing Strategy
 
@@ -416,49 +439,4 @@ docs/
     ├── maintenance.md                  # 保守・運用
     ├── troubleshooting.md              # トラブルシューティング
     └── legal-compliance.md             # 法的コンプライアンス
-```
-
-## 将来的なアーキテクチャ方針
-
-### ⚠️ 注意：以下は将来的な設計方針であり、現在の実装とは異なります
-
-現在はNext.js App Routerを使用したモノリシックな構成ですが、将来的にはクリーンアーキテクチャへの段階的な移行を検討しています。
-
-**現在の構成との主な違い：**
-
-- 現在：Next.js単体のフルスタックアプリケーション
-- 将来：APIとWebを分離したモジュラーモノリス構成
-- 移行時期：未定（ビジネス要件に応じて検討）
-
-### クリーンアーキテクチャ構成例（将来的な参考）
-
-```
-api/
-   │──src/
-      │── domain/             # ドメイン層
-      │   │── entities/       # エンティティ
-      │   │── value-objects/  # 値オブジェクト
-      │   │── repositories/   # リポジトリインターフェース
-      │
-      │── usecases/ # ユースケース
-      │   │
-      │   │── user/
-      │   │   │── CreateUserUseCase.ts
-      │   │   │── UpdateUserUseCase.ts
-      │   │   │── GetUserUseCase.ts
-      │   │
-      │   │── admin/
-      │       │── AdminUseCase.ts
-      │       │── EmailTrackingUseCase.ts
-      │
-      │── interface-adapters/   # インターフェースアダプター層
-      │   │── repositories/     # リポジトリ実装
-      │
-      │── framework/            # フレームワーク層
-         │── controllers/      # コントローラー
-         │── graphql/          # GraphQL
-         │── prisma/           # Prisma DB
-         │── external-service/ # 外部サービス
-web/
-   │──src/...
 ```
