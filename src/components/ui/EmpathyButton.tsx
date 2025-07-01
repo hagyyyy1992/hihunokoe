@@ -92,7 +92,7 @@ export default function EmpathyButton({
       if (errorMessage.includes('既に共感済み')) {
         // すでに共感済みの場合は共感ありの状態に設定
         setHasEmpathized(true)
-        setEmpathyType('helpful') // デフォルトタイプ
+        setEmpathyType('HELPFUL') // デフォルトタイプ
         // カウントはサーバーの現在の値を維持（変更しない）
       } else if (errorMessage.includes('共感が見つかりません')) {
         // 共感が見つからない場合は共感なしの状態に設定

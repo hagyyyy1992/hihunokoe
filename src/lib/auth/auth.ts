@@ -100,7 +100,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     where: {
       OR: [{ email: data.email }, { userName: data.userName }],
       isActive: true,
-      deletedAt: null,
     },
   })
 
@@ -139,14 +138,13 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
           bodyType: data.bodyType,
           bodyTypeOther: data.bodyTypeOther,
           isActive: true,
-          deletedAt: null,
           emailVerified:
             process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
           // その他のフィールドもリセット
           emailVerificationToken: null,
           emailVerificationExpiry: null,
-          passwordResetToken: null,
-          passwordResetExpiry: null,
+          resetPasswordToken: null,
+          resetPasswordExpires: null,
         },
       })
     } else {
@@ -256,7 +254,9 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       userName: mockUser.userName,
       email: mockUser.email,
       role: mockUser.role as UserRole,
-      skinType: mockUser.skinType || undefined,
+      skinType:
+        (mockUser.skinType?.toUpperCase() as 'NORMAL' | 'DRY' | 'OILY' | 'MIXED' | 'SENSITIVE') ||
+        undefined,
       emailVerified: true, // モックユーザーは常に認証済み
     }
   }
@@ -284,7 +284,9 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
       userName: mockUser.userName,
       email: mockUser.email,
       role: mockUser.role as UserRole,
-      skinType: mockUser.skinType || undefined,
+      skinType:
+        (mockUser.skinType?.toUpperCase() as 'NORMAL' | 'DRY' | 'OILY' | 'MIXED' | 'SENSITIVE') ||
+        undefined,
       emailVerified: true, // モックユーザーは常に認証済み
     }
   }
@@ -293,7 +295,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     where: {
       id,
       isActive: true,
-      deletedAt: null,
     },
   })
 
@@ -330,7 +331,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       where: {
         id,
         isActive: true,
-        deletedAt: null,
       },
     })
 
@@ -391,7 +391,7 @@ export async function logAdminAction(
       data: {
         userId,
         action,
-        target,
+        targetId: target,
         details: details ? JSON.parse(JSON.stringify(details)) : null,
         ipAddress,
         userAgent,

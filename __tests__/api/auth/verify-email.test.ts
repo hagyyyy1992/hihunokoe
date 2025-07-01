@@ -39,7 +39,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: true,
       }
 
@@ -170,7 +170,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: true,
       }
 
@@ -211,7 +211,7 @@ describe('/api/auth/verify-email', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: true,
       }
 

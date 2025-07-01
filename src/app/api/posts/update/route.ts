@@ -24,44 +24,8 @@ const postSchema = z.object({
       'other',
     ])
     .optional(),
-  skinType: z.enum(['normal', 'dry', 'oily', 'combination', 'sensitive']).optional(),
-  usageSituation: z
-    .object({
-      season: z.enum(['spring', 'summer', 'autumn', 'winter']).optional(),
-      timeOfDay: z.enum(['morning', 'evening', 'both']).optional(),
-      menstrualCycle: z.enum(['before', 'during', 'after', 'none']).optional(),
-      skinCondition: z.enum(['good', 'unstable', 'problematic']).optional(),
-      weatherCondition: z.enum(['humid', 'dry', 'hot', 'cold', 'normal']).optional(),
-    })
-    .optional(),
-  experienceDetails: z
-    .object({
-      fragrance: z
-        .object({
-          type: z.enum(['none', 'floral', 'citrus', 'herbal', 'chemical', 'other']),
-          intensity: z.enum(['weak', 'moderate', 'strong']),
-          description: z.string().optional(),
-        })
-        .optional(),
-      texture: z
-        .object({
-          type: z.enum(['watery', 'gel', 'cream', 'oil', 'powder', 'other']),
-          spreadability: z.enum(['easy', 'moderate', 'difficult']),
-          absorption: z.enum(['fast', 'moderate', 'slow']),
-          description: z.string().optional(),
-        })
-        .optional(),
-      afterUse: z
-        .object({
-          moisture: z.enum(['very_dry', 'dry', 'normal', 'moist', 'very_moist']),
-          texture: z.enum(['rough', 'normal', 'smooth', 'very_smooth']),
-          comfort: z.enum(['uncomfortable', 'normal', 'comfortable', 'very_comfortable']),
-          duration: z.enum(['short', 'moderate', 'long']),
-          description: z.string().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
+  skinType: z.enum(['NORMAL', 'DRY', 'OILY', 'MIXED', 'SENSITIVE', 'OTHER']).optional(),
+  productRating: z.number().min(1).max(5).optional(),
   moodTag: z.enum(['disappointed', 'okay', 'good', 'love', 'perfect']).optional(),
 })
 
@@ -118,12 +82,11 @@ export async function PUT(request: NextRequest) {
         ...post,
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory || post.cosmeticCategory,
-        skinType: validatedData.skinType || post.skinType,
-        usageSituation: validatedData.usageSituation || post.usageSituation,
-        experienceDetails: validatedData.experienceDetails || post.experienceDetails,
-        moodTag: validatedData.moodTag || post.moodTag,
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
+        skinType: validatedData.skinType || 'NORMAL',
+        productRating: validatedData.productRating || 5,
+        mood: validatedData.moodTag || 'good',
         updatedAt: new Date(),
       }
 
@@ -156,12 +119,11 @@ export async function PUT(request: NextRequest) {
       data: {
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory,
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
         skinType: validatedData.skinType,
-        usageSituation: validatedData.usageSituation,
-        experienceDetails: validatedData.experienceDetails,
-        moodTag: validatedData.moodTag,
+        productRating: validatedData.productRating,
+        mood: validatedData.moodTag,
       },
       include: {
         user: {

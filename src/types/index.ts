@@ -1,10 +1,36 @@
 // 肌タイプの型定義
 export type SkinType =
-  | 'normal' // 普通肌
-  | 'dry' // 乾燥肌
-  | 'oily' // 脂性肌
-  | 'combination' // 混合肌
-  | 'sensitive' // 敏感肌
+  | 'NORMAL' // 普通肌
+  | 'DRY' // 乾燥肌
+  | 'OILY' // 脂性肌
+  | 'MIXED' // 混合肌
+  | 'SENSITIVE' // 敏感肌
+  | 'OTHER' // その他
+
+// 性別の型定義
+export type Gender =
+  | 'MALE' // 男性
+  | 'FEMALE' // 女性
+  | 'OTHER' // その他
+  | 'NO_ANSWER' // 回答しない
+
+// 体型の型定義
+export type BodyType =
+  | 'SLIM' // スリム
+  | 'AVERAGE' // 普通
+  | 'PLUMP' // ぽっちゃり
+  | 'OTHER' // その他
+
+// アレルギータイプの型定義
+export type AllergyType =
+  | 'POLLEN' // 花粉
+  | 'DUST' // ホコリ
+  | 'FOOD' // 食べ物
+  | 'METAL' // 金属
+  | 'COSMETICS' // 化粧品
+  | 'CHEMICALS' // 化学物質
+  | 'ANIMALS' // 動物
+  | 'MEDICATIONS' // 薬
 
 // コスメカテゴリの型定義
 export type CosmeticCategory =
@@ -62,11 +88,10 @@ export type MoodTag =
 
 // 共感タイプ
 export type EmpathyType =
-  | 'understand' // わかる
-  | 'interested' // 気になってた
-  | 'helpful' // 参考になった
-  | 'similar' // 似た経験
-  | 'thanks' // ありがとう
+  | 'LIKE' // いいね
+  | 'LOVE' // 大好き
+  | 'HELPFUL' // 参考になった
+  | 'AMAZING' // すごい
 
 // 投稿ステータス
 export type PostStatus = 'draft' | 'published' | 'archived'

@@ -44,7 +44,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: true,
       }
 
@@ -119,7 +119,7 @@ describe('/api/auth/me', () => {
         id: '1',
         userName: 'testuser',
         email: 'test@example.com',
-        skinType: 'normal' as SkinType,
+        skinType: 'NORMAL' as SkinType,
         emailVerified: false, // メール認証未完了
       }
 

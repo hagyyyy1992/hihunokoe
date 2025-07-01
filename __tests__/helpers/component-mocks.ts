@@ -5,7 +5,7 @@ export const mockUser = {
   userName: 'testuser',
   email: 'test@example.com',
   displayName: 'Test User',
-  skinType: 'normal' as const,
+  skinType: 'NORMAL' as const,
   emailVerified: true,
 }
 
@@ -15,7 +15,7 @@ export const mockPost = {
   content: 'This is a test post content for testing components.',
   cosmeticName: 'Test Cosmetic',
   cosmeticCategory: 'toner' as const,
-  skinType: 'normal' as const,
+  skinType: 'NORMAL' as const,
   moodTag: 'good' as const,
   publishedAt: new Date('2024-01-01'),
   viewCount: 42,
@@ -56,7 +56,7 @@ export const mockPosts = [
     content: 'Another test post content',
     cosmeticName: 'Another Cosmetic',
     cosmeticCategory: 'serum' as const,
-    skinType: 'dry' as const,
+    skinType: 'DRY' as const,
     moodTag: 'love' as const,
   },
 ]
@@ -72,7 +72,7 @@ export const mockRegisterFormData = {
   email: 'test@example.com',
   password: 'password123',
   displayName: 'Test User',
-  skinType: 'normal' as const,
+  skinType: 'NORMAL' as const,
 }
 
 export const mockPostFormData = {
@@ -80,7 +80,7 @@ export const mockPostFormData = {
   content: 'This is a new test post content',
   cosmeticName: 'New Test Cosmetic',
   cosmeticCategory: 'toner' as const,
-  skinType: 'normal' as const,
+  skinType: 'NORMAL' as const,
   moodTag: 'good' as const,
   usageSituation: {
     season: 'spring' as const,

@@ -90,6 +90,16 @@ describe('/api/posts', () => {
     content: 'This is a test post content',
     cosmeticName: 'Test Cosmetic',
     cosmeticCategory: 'toner',
+    skinType: 'NORMAL',
+    productRating: 5,
+    moodTag: 'good',
+  }
+
+  const oldValidPostData = {
+    title: 'Test Post',
+    content: 'This is a test post content',
+    cosmeticName: 'Test Cosmetic',
+    cosmeticCategory: 'toner',
     skinType: 'normal',
     moodTag: 'good',
     usageSituation: {
@@ -125,10 +135,10 @@ describe('/api/posts', () => {
         userId: mockUser.id,
         title: validPostData.title,
         content: validPostData.content,
-        cosmeticName: validPostData.cosmeticName,
-        cosmeticCategory: validPostData.cosmeticCategory,
+        productName: validPostData.cosmeticName,
+        productCategory: validPostData.cosmeticCategory,
         skinType: validPostData.skinType,
-        moodTag: validPostData.moodTag,
+        mood: validPostData.moodTag,
       })
       expect(data.message).toBe('投稿が作成されました（デモモード）')
       expect(data.post.id).toMatch(/^mock-post-/)
@@ -144,13 +154,23 @@ describe('/api/posts', () => {
       const mockCreatedPost = {
         id: 'post-id',
         userId: mockUser.id,
-        ...validPostData,
+        title: validPostData.title,
+        content: validPostData.content,
+        productName: validPostData.cosmeticName,
+        productCategory: validPostData.cosmeticCategory,
+        skinType: validPostData.skinType,
+        productRating: validPostData.productRating,
+        mood: validPostData.moodTag,
         publishedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isPublished: false,
+        empathyCount: 0,
         user: {
           id: mockUser.id,
           userName: mockUser.userName,
           displayName: null,
-          skinType: 'normal',
+          skinType: 'NORMAL',
         },
       }
 
@@ -169,10 +189,10 @@ describe('/api/posts', () => {
         userId: mockCreatedPost.userId,
         title: mockCreatedPost.title,
         content: mockCreatedPost.content,
-        cosmeticName: mockCreatedPost.cosmeticName,
-        cosmeticCategory: mockCreatedPost.cosmeticCategory,
+        productName: mockCreatedPost.productName,
+        productCategory: mockCreatedPost.productCategory,
         skinType: mockCreatedPost.skinType,
-        moodTag: mockCreatedPost.moodTag,
+        mood: mockCreatedPost.mood,
         user: mockCreatedPost.user,
       })
       expect(data.message).toBe('投稿が作成されました')
@@ -181,12 +201,11 @@ describe('/api/posts', () => {
           userId: mockUser.id,
           title: validPostData.title,
           content: validPostData.content,
-          cosmeticName: validPostData.cosmeticName,
-          cosmeticCategory: validPostData.cosmeticCategory,
+          productName: validPostData.cosmeticName,
+          productCategory: validPostData.cosmeticCategory,
           skinType: validPostData.skinType,
-          usageSituation: validPostData.usageSituation,
-          experienceDetails: validPostData.experienceDetails,
-          moodTag: validPostData.moodTag,
+          productRating: validPostData.productRating,
+          mood: validPostData.moodTag,
           publishedAt: expect.any(Date),
         },
         include: {

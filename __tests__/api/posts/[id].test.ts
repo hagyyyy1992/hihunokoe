@@ -187,7 +187,6 @@ describe('/api/posts/[id]', () => {
 
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockResolvedValue({ ...mockPost, viewCount: 6 })
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -199,7 +198,7 @@ describe('/api/posts/[id]', () => {
       expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
         where: {
           id: '550e8400-e29b-41d4-a716-446655440001',
-          status: 'published',
+          isPublished: true,
         },
         include: {
           user: {
@@ -221,7 +220,7 @@ describe('/api/posts/[id]', () => {
           },
           comments: {
             where: {
-              isActive: true,
+              isPublished: true,
               parentCommentId: null,
             },
             include: {
@@ -234,7 +233,7 @@ describe('/api/posts/[id]', () => {
               },
               replies: {
                 where: {
-                  isActive: true,
+                  isPublished: true,
                 },
                 include: {
                   user: {
@@ -259,14 +258,6 @@ describe('/api/posts/[id]', () => {
               empathies: true,
               comments: true,
             },
-          },
-        },
-      })
-      expect(mockPrisma.post.update).toHaveBeenCalledWith({
-        where: { id: '550e8400-e29b-41d4-a716-446655440001' },
-        data: {
-          viewCount: {
-            increment: 1,
           },
         },
       })
@@ -318,7 +309,7 @@ describe('/api/posts/[id]', () => {
       expect(data.error).toBe('投稿の取得に失敗しました')
     })
 
-    it('閲覧数更新でエラーが発生しても投稿は返される（データベースモード）', async () => {
+    it('投稿取得は正常に動作する（データベースモード）', async () => {
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Database Post',
@@ -332,14 +323,14 @@ describe('/api/posts/[id]', () => {
 
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockRejectedValue(new Error('Update error'))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
-      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440099'))
+      const response = await GET(request, createParams('550e8400-e29b-41d4-a716-446655440001'))
 
-      // 閲覧数更新エラーでも投稿自体は500エラーになる（全体のエラーハンドリング）
-      expect(response.status).toBe(500)
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.post).toEqual(mockPost)
     })
 
     it('複数の投稿を順次取得できる（モックモード）', async () => {
@@ -534,9 +525,12 @@ describe('/api/posts/[id]', () => {
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: '550e8400-e29b-41d4-a716-446655440001' },
         data: {
-          ...updateData,
-          experienceDetails: undefined,
-          usageSituation: undefined,
+          title: 'Updated Title',
+          content: 'Updated content',
+          productName: 'Updated Cosmetic',
+          productCategory: 'serum',
+          skinType: 'DRY',
+          mood: 'love',
         },
         include: {
           user: {

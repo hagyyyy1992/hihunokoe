@@ -275,7 +275,7 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
-              {formData.skinType === 'other' && (
+              {formData.skinType === 'OTHER' && (
                 <div className="mt-2">
                   <input
                     name="skinTypeOther"
@@ -350,7 +350,7 @@ export default function RegisterPage() {
                   ))}
                 </select>
               </div>
-              {formData.bodyType === 'other' && (
+              {formData.bodyType === 'OTHER' && (
                 <div className="mt-2">
                   <input
                     name="bodyTypeOther"

@@ -65,7 +65,6 @@ export async function verifyEmailToken(token: string): Promise<{
       emailVerificationExpiry: {
         gt: new Date(),
       },
-      deletedAt: null,
     },
   })
 
@@ -102,7 +101,6 @@ export async function isEmailVerified(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
-      deletedAt: null,
     },
     select: { emailVerified: true },
   })
@@ -117,7 +115,6 @@ export async function resendVerificationEmail(
   const user = await prisma.user.findUnique({
     where: {
       email,
-      deletedAt: null,
     },
     select: { id: true, userName: true, emailVerified: true },
   })

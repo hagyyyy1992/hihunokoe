@@ -16,18 +16,22 @@ model User {
   isActive                Boolean          @default(true) @map("is_active")
   deletedAt               DateTime?        @map("deleted_at") @db.Timestamptz(6)
   role                    UserRole         @default(USER) @map("role")
-  isActive                Boolean          @default(true) @map("is_active")
   emailVerified           Boolean          @default(false) @map("email_verified")
   emailVerificationToken  String?          @map("email_verification_token")
+  emailVerificationExpiry DateTime?        @map("email_verification_expiry") @db.Timestamptz(6)
   resetPasswordToken      String?          @map("reset_password_token")
   resetPasswordExpires    DateTime?        @map("reset_password_expires") @db.Timestamptz(6)
   lastLogin               DateTime?        @map("last_login") @db.Timestamptz(6)
   profileImageUrl         String?          @map("profile_image_url")
   skinType                SkinType?        @map("skin_type")
+  skinTypeOther           String?          @map("skin_type_other")
   age                     Int?             @map("age")
+  birthDate               DateTime?        @map("birth_date") @db.Date
   gender                  Gender?          @map("gender")
   allergies               AllergyType[]    @map("allergies")
+  allergiesOther          String?          @map("allergies_other")
   bodyType                BodyType?        @map("body_type")
+  bodyTypeOther           String?          @map("body_type_other")
   selfIntroduction        String?          @map("self_introduction") @db.Text
   createdAt               DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt               DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -54,6 +58,8 @@ model Post {
   content           String             @db.Text
   mood              String             @db.VarChar(50)
   isPublished       Boolean            @default(false) @map("is_published")
+  publishedAt       DateTime?          @map("published_at") @db.Timestamptz(6)
+  empathyCount      Int                @default(0) @map("empathy_count")
   userId            String             @map("user_id") @db.Uuid
   createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -67,12 +73,13 @@ model Post {
 }
 
 model Empathy {
-  id        String   @id @default(uuid()) @db.Uuid
-  postId    String   @map("post_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String      @id @default(uuid()) @db.Uuid
+  postId      String      @map("post_id") @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  empathyType EmpathyType @default(LIKE) @map("empathy_type")
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  post        Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
   @@map("empathies")
@@ -157,6 +164,7 @@ enum SkinType {
   MIXED     @map("mixed")
   SENSITIVE @map("sensitive")
   NORMAL    @map("normal")
+  OTHER     @map("other")
 
   @@map("skin_types")
 }
@@ -187,6 +195,7 @@ enum BodyType {
   SLIM     @map("slim")
   AVERAGE  @map("average")
   PLUMP    @map("plump")
+  OTHER    @map("other")
 
   @@map("body_types")
 }
@@ -219,4 +228,13 @@ enum ReportStatus {
   DISMISSED  @map("dismissed")
 
   @@map("report_statuses")
+}
+
+enum EmpathyType {
+  LIKE       @map("like")
+  LOVE       @map("love")
+  HELPFUL    @map("helpful")
+  AMAZING    @map("amazing")
+
+  @@map("empathy_types")
 }

@@ -53,7 +53,7 @@ describe('deleteUserAccount', () => {
     await expect(deleteUserAccount(validUuid)).rejects.toThrow('ユーザーが見つかりません')
 
     expect(mockPrismaUser.findUnique).toHaveBeenCalledWith({
-      where: { id: validUuid, isActive: true, deletedAt: null },
+      where: { id: validUuid, isActive: true },
     })
     expect(mockPrismaUser.update).not.toHaveBeenCalled()
 
@@ -97,7 +97,7 @@ describe('deleteUserAccount', () => {
 
     expect(result).toBe(true)
     expect(mockPrismaUser.findUnique).toHaveBeenCalledWith({
-      where: { id: validUuid, isActive: true, deletedAt: null },
+      where: { id: validUuid, isActive: true },
     })
     expect(mockPrismaUser.update).toHaveBeenCalledWith({
       where: { id: validUuid },

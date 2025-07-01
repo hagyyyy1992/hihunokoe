@@ -174,11 +174,7 @@ describe('EmpathyButton Component', () => {
 
   it('初期共感タイプが設定される', () => {
     render(
-      <EmpathyButton
-        {...defaultProps}
-        initialHasEmpathized={true}
-        initialEmpathyType="interested"
-      />
+      <EmpathyButton {...defaultProps} initialHasEmpathized={true} initialEmpathyType="HELPFUL" />
     )
 
     // この場合、UIに直接表示されないが、内部状態として保持される

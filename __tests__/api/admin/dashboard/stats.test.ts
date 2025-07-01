@@ -188,7 +188,6 @@ describe('/api/admin/dashboard/stats', () => {
     const mockPrisma = prisma as any
     mockPrisma.user.count.mockResolvedValue(100)
     mockPrisma.post.count.mockResolvedValue(50)
-    mockPrisma.post.aggregate.mockResolvedValue({ _sum: { viewCount: 1000 } })
     mockPrisma.empathy.count.mockResolvedValue(200)
     mockPrisma.user.findMany.mockResolvedValue([
       { id: '1', userName: 'user1', email: 'user1@example.com', createdAt: new Date('2023-01-01') },
@@ -198,8 +197,8 @@ describe('/api/admin/dashboard/stats', () => {
         id: '1',
         title: 'Post 1',
         createdAt: new Date('2023-01-01'),
-        empathyCount: 5,
         user: { userName: 'user1' },
+        _count: { empathies: 5 },
       },
     ])
 
@@ -211,7 +210,7 @@ describe('/api/admin/dashboard/stats', () => {
     expect(data).toEqual({
       totalUsers: 100,
       totalPosts: 50,
-      totalViews: 1000,
+      totalViews: 200, // Using empathy count as engagement metric
       totalEmpathies: 200,
       recentUsers: [
         {
@@ -233,7 +232,7 @@ describe('/api/admin/dashboard/stats', () => {
     })
   })
 
-  it('handles null viewCount aggregate', async () => {
+  it('handles zero empathy count', async () => {
     const user = { id: '1', role: 'ADMIN' }
     mockVerifyToken.mockReturnValue(user as any)
     mockIsAdmin.mockReturnValue(true)
@@ -242,8 +241,7 @@ describe('/api/admin/dashboard/stats', () => {
     const mockPrisma = prisma as any
     mockPrisma.user.count.mockResolvedValue(10)
     mockPrisma.post.count.mockResolvedValue(5)
-    mockPrisma.post.aggregate.mockResolvedValue({ _sum: { viewCount: null } })
-    mockPrisma.empathy.count.mockResolvedValue(20)
+    mockPrisma.empathy.count.mockResolvedValue(0)
     mockPrisma.user.findMany.mockResolvedValue([])
     mockPrisma.post.findMany.mockResolvedValue([])
 

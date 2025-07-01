@@ -18,8 +18,8 @@ export async function createPasswordResetToken(userId: string): Promise<string> 
   await prisma!.user.update({
     where: { id: userId },
     data: {
-      passwordResetToken: token,
-      passwordResetExpiry: expiryDate,
+      resetPasswordToken: token,
+      resetPasswordExpires: expiryDate,
     },
   })
 
@@ -59,11 +59,10 @@ export async function verifyPasswordResetToken(token: string): Promise<{
 }> {
   const user = await prisma!.user.findFirst({
     where: {
-      passwordResetToken: token,
-      passwordResetExpiry: {
+      resetPasswordToken: token,
+      resetPasswordExpires: {
         gt: new Date(),
       },
-      deletedAt: null,
     },
   })
 
@@ -95,11 +94,10 @@ export async function resetPassword(
 }> {
   const user = await prisma!.user.findFirst({
     where: {
-      passwordResetToken: token,
-      passwordResetExpiry: {
+      resetPasswordToken: token,
+      resetPasswordExpires: {
         gt: new Date(),
       },
-      deletedAt: null,
     },
   })
 
@@ -116,8 +114,8 @@ export async function resetPassword(
     where: { id: user.id },
     data: {
       passwordHash: hashedPassword,
-      passwordResetToken: null,
-      passwordResetExpiry: null,
+      resetPasswordToken: null,
+      resetPasswordExpires: null,
     },
   })
 
