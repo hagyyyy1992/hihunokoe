@@ -176,7 +176,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 id: true,
                 userName: true,
                 skinType: true,
-                  },
+              },
             },
           },
           orderBy: { createdAt: 'asc' },
