@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '../helpers/auth-helpers'
-import { generateRandomUser } from '../helpers/test-data'
+import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { generateRandomUser } from '@e2e/helpers/test-data'
 
 // レート制限テストは他のテストと分離するため、シリアル実行に加えて特別な分離設定を使用
 test.describe.configure({ mode: 'serial', timeout: 90000 })

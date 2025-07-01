@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '../helpers/auth-helpers'
-import { generateRandomUser } from '../helpers/test-data'
+import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { generateRandomUser } from '@e2e/helpers/test-data'
 
 test.describe('ユーザー登録', () => {
   let authHelper: AuthHelper
