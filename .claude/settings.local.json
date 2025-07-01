@@ -27,6 +27,7 @@
       "Bash(gh issue view:*)",
       "Bash(gh workflow:*)",
       "WebFetch(domain:github.com)",
+
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
