@@ -125,7 +125,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         },
         comments: {
           where: {
-            isActive: true,
+            isPublished: true,
             parentCommentId: null, // トップレベルコメントのみ
           },
           include: {
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
             },
             replies: {
               where: {
-                isActive: true,
+                isPublished: true,
               },
               include: {
                 user: {
@@ -172,14 +172,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     // 閲覧数を増加
-    await prisma!.post.update({
-      where: { id: postId },
-      data: {
-        viewCount: {
-          increment: 1,
-        },
-      },
-    })
+    // View count not tracked in current schema
 
     return NextResponse.json({ post })
   } catch (error) {
@@ -270,12 +263,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: {
         title: validatedData.title,
         content: validatedData.content,
-        cosmeticName: validatedData.cosmeticName,
-        cosmeticCategory: validatedData.cosmeticCategory,
-        skinType: validatedData.skinType,
-        usageSituation: validatedData.usageSituation,
-        experienceDetails: validatedData.experienceDetails,
-        moodTag: validatedData.moodTag,
+        productName: validatedData.cosmeticName,
+        productCategory: validatedData.cosmeticCategory || 'other',
+        skinType: validatedData.skinType?.toUpperCase() as
+          | 'OILY'
+          | 'DRY'
+          | 'MIXED'
+          | 'SENSITIVE'
+          | 'NORMAL',
+        mood: validatedData.moodTag || 'good',
       },
       include: {
         user: {
