@@ -49,46 +49,20 @@ async function main() {
       title: '敏感肌でも使えた！優しい化粧水',
       content:
         '敏感肌の私でも安心して使える化粧水を見つけました。刺激もなく、しっとりとした仕上がりで満足しています。',
-      cosmeticName: 'ナチュラル保湿化粧水',
-      cosmeticCategory: 'toner',
+      productName: 'ナチュラル保湿化粧水',
+      productCategory: 'toner',
       skinType: 'SENSITIVE',
-      moodTag: 'love',
-      usageSituation: {
-        season: 'winter',
-        timeOfDay: 'morning',
-        menstrualCycle: 'normal',
-        skinCondition: 'stable',
-        weatherCondition: 'dry',
-      },
-      experienceDetails: {
-        fragrance: {
-          type: 'none',
-          intensity: 'none',
-          description: '無香料でよかった',
-        },
-        texture: {
-          type: 'liquid',
-          spreadability: 'easy',
-          absorption: 'fast',
-          description: 'さらっとしているのにしっとり',
-        },
-        afterUse: {
-          moisture: 'moist',
-          texture: 'smooth',
-          comfort: 'comfortable',
-          duration: 'long',
-          description: '一日中潤いが続いた',
-        },
-      },
+      productRating: 5,
+      mood: 'love',
     },
     {
       title: 'リピ決定！コスパ最高のクレンジング',
       content:
         'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
-      cosmeticName: 'やさしいクレンジングオイル',
-      cosmeticCategory: 'cleansing',
+      productName: 'やさしいクレンジングオイル',
+      productCategory: 'cleansing',
       skinType: 'MIXED',
-      moodTag: 'good',
+      mood: 'good',
       usageSituation: {
         season: 'spring',
         timeOfDay: 'evening',
