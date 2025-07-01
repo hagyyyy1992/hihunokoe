@@ -246,7 +246,6 @@ describe('/api/profile/update', () => {
       expect(data.details).toBeDefined()
     })
 
->>>>>>> 912bef5 (fix: テスト失敗修正とコード品質改善 - すべてのテストが通るように調整)
     it('データベースが利用できない場合、モックレスポンスを返す', async () => {
       const mockDecodedToken = {
         id: '1',

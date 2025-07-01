@@ -175,7 +175,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       skinType: user.skinType,
       allergies: user.allergies,
       bodyType: user.bodyType,
-      bodyTypeOther: user.bodyTypeOther,
       selfIntroduction: user.selfIntroduction,
       profileImageUrl: user.profileImageUrl || undefined,
       emailVerified: user.emailVerified,
@@ -219,7 +218,6 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
             skinType: user.skinType,
             allergies: user.allergies,
             bodyType: user.bodyType,
-            bodyTypeOther: user.bodyTypeOther,
             profileImageUrl: user.profileImageUrl || undefined,
             emailVerified: user.emailVerified,
           }
@@ -302,7 +300,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     skinType: user.skinType,
     allergies: user.allergies,
     bodyType: user.bodyType,
-    bodyTypeOther: user.bodyTypeOther,
     profileImageUrl: user.profileImageUrl || undefined,
     emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
   }

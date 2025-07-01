@@ -75,6 +75,7 @@ export async function PUT(request: NextRequest) {
         data: {
           userName: validatedData.userName,
           skinType: validatedData.skinType ? (validatedData.skinType as SkinType) : null,
+          profileImageUrl: validatedData.profileImageUrl,
           updatedAt: new Date(),
         },
       })

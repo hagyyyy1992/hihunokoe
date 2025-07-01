@@ -201,7 +201,7 @@ describe('/api/posts/[id]/empathy', () => {
 
       expect(response.status).toBe(200)
       expect(data.hasEmpathized).toBe(true)
-      expect(data.empathyType).toBe('helpful')
+      expect(data.empathyType).toBe('like')
       expect(data.totalCount).toBe(1)
     })
 
@@ -215,7 +215,7 @@ describe('/api/posts/[id]/empathy', () => {
 
       expect(response.status).toBe(200)
       expect(data.hasEmpathized).toBe(false)
-      expect(data.empathyType).toBeUndefined()
+      expect(data.empathyType).toBe(null)
       expect(data.totalCount).toBe(1)
     })
 
@@ -273,7 +273,7 @@ describe('/api/posts/[id]/empathy', () => {
 
       expect(response.status).toBe(200)
       expect(data.hasEmpathized).toBe(true)
-      expect(data.empathyType).toBe('helpful')
+      expect(data.empathyType).toBe('like')
       expect(data.totalCount).toBe(5)
     })
 
@@ -295,7 +295,7 @@ describe('/api/posts/[id]/empathy', () => {
 
       expect(response.status).toBe(200)
       expect(data.hasEmpathized).toBe(false)
-      expect(data.empathyType).toBeUndefined()
+      expect(data.empathyType).toBe(null)
       expect(data.totalCount).toBe(3)
     })
 
