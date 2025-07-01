@@ -8,6 +8,7 @@ import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
 import EmpathyButton from '@/components/ui/EmpathyButton'
 import { EmpathyType } from '@/types'
+import CommentList from '@/components/comments/CommentList'
 
 interface Post {
   id: string
@@ -469,68 +470,7 @@ export default function PostDetailPage() {
         </article>
 
         {/* コメントセクション */}
-        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-6">
-            コメント ({post._count.comments})
-          </h3>
-
-          {user ? (
-            <div className="mb-6">
-              <textarea
-                placeholder="コメントを書く..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                rows={3}
-              />
-              <div className="mt-3 flex justify-end">
-                <button className="px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-md hover:bg-pink-700 transition-colors">
-                  コメントする
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="mb-6 p-4 bg-gray-50 rounded-md text-center">
-              <p className="text-gray-600">コメントするにはログインが必要です</p>
-            </div>
-          )}
-
-          {/* コメント一覧 */}
-          <div className="space-y-6">
-            {post.comments.map(comment => (
-              <div key={comment.id} className="border-b border-gray-100 pb-6">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                    <span className="text-pink-600 font-medium text-xs">
-                      {comment.user.userName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-medium text-gray-900">{comment.user.userName}</span>
-                      {comment.user.skinType && (
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                          {skinTypeLabels[comment.user.skinType]}
-                        </span>
-                      )}
-                      <time className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                          addSuffix: true,
-                          locale: ja,
-                        })}
-                      </time>
-                    </div>
-                    <p className="text-gray-700 text-sm leading-relaxed">{comment.content}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {post.comments.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">まだコメントがありません</p>
-            </div>
-          )}
-        </section>
+        <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
       </div>
     </div>
   )

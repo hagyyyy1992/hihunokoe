@@ -272,12 +272,16 @@ function isValidUUID(str: string): boolean {
 }
 
 export async function getUserById(id: string): Promise<AuthUser | null> {
-  if (!isDatabaseAvailable() || !isValidUUID(id)) {
-    // モックモードまたは無効なUUIDの場合
-    const mockUser = MOCK_USERS.find(u => u.id === id && u.isActive)
-    if (!mockUser) {
-      return null
-    }
+  // まずデータベースが利用可能で、有効なUUIDの場合はデータベースを検索
+  if (isDatabaseAvailable() && isValidUUID(id)) {
+    try {
+      const user = await prisma!.user.findUnique({
+        where: {
+          id,
+          isActive: true,
+          deletedAt: null,
+        },
+      })
 
     return {
       id: mockUser.id,
@@ -303,19 +307,12 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
   }
 
   return {
-    id: user.id,
-    userName: user.userName,
-    email: user.email,
-    role: user.role,
-    birthDate: user.birthDate,
-    gender: user.gender,
-    skinType: user.skinType,
-    skinTypeOther: user.skinTypeOther,
-    allergies: user.allergies,
-    allergiesOther: user.allergiesOther,
-    bodyType: user.bodyType,
-    bodyTypeOther: user.bodyTypeOther,
-    emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
+    id: mockUser.id,
+    userName: mockUser.userName,
+    email: mockUser.email,
+    role: mockUser.role as UserRole,
+    skinType: mockUser.skinType || undefined,
+    emailVerified: true, // モックユーザーは常に認証済み
   }
 }
 
@@ -400,4 +397,38 @@ export async function logAdminAction(
   } catch (error) {
     console.error('Failed to log admin action:', error)
   }
+}
+
+export async function authenticateRequest(
+  request: Request
+): Promise<{ userId: string; user: AuthUser }> {
+  // まずAuthorizationヘッダーをチェック
+  const authHeader = request.headers.get('Authorization')
+  let token: string | undefined
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7)
+  } else {
+    // AuthorizationヘッダーがなければCookieをチェック
+    const cookieHeader = request.headers.get('Cookie')
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').map(c => c.trim())
+      const authCookie = cookies.find(cookie => cookie.startsWith('auth-token='))
+      if (authCookie) {
+        token = authCookie.split('=')[1]
+      }
+    }
+  }
+
+  if (!token) {
+    throw new Error('認証が必要です')
+  }
+
+  const user = verifyToken(token)
+
+  if (!user) {
+    throw new Error('無効なトークンです')
+  }
+
+  return { userId: user.id, user }
 }

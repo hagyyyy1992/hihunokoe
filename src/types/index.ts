@@ -98,3 +98,32 @@ export type PostStatus = 'draft' | 'published' | 'archived'
 
 // 権限タイプ
 export type PermissionType = 'view' | 'edit' | 'delete'
+
+// コメント関連の型定義
+export interface Comment {
+  id: string
+  content: string
+  createdAt: string
+  updatedAt: string
+  user: {
+    id: string
+    userName: string
+    skinType?: string
+    profileImageUrl?: string
+  }
+  replies?: Comment[]
+  isEdited: boolean
+  canEdit: boolean
+  canDelete: boolean
+}
+
+export interface CommentFormData {
+  content: string
+}
+
+export interface CommentsPagination {
+  page: number
+  limit: number
+  total: number
+  hasMore: boolean
+}
