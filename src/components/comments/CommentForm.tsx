@@ -131,13 +131,6 @@ export default function CommentForm({
       {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md">{error}</div>}
 
       <div className={`flex ${isReply ? 'justify-end' : 'justify-between'} items-center`}>
-        {!isReply && (
-          <div className="text-xs text-gray-500">
-            <span className="mr-4">Shift + Enter で改行</span>
-            <span>Enter で投稿</span>
-          </div>
-        )}
-
         <div className="flex items-center space-x-2">
           {isReply && onCancel && (
             <button
