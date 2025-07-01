@@ -54,7 +54,9 @@
       "Bash(node:*)",
       "Bash(-w \"\\nHTTP Status: %{http_code}\\n\" )",
       "Bash(-s)",
-      "Bash(gh workflow:*)"
+      "Bash(gh workflow:*)",
+      "Bash(npm outdated)",
+      "Bash(npx depcheck:*)"
     ],
     "deny": ["Bash(gh pr merge:*)", "Bash(gh pr close:*)", "Bash(git merge:*)"]
   }
