@@ -10,7 +10,6 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "Bash(rg:*)",
-
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
@@ -18,7 +17,6 @@
       "Bash(git push:*)",
       "Bash(git merge:*)",
       "Bash(git worktree:*)",
-
       "Bash(gh pr:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
@@ -27,7 +25,6 @@
       "Bash(gh issue view:*)",
       "Bash(gh workflow:*)",
       "WebFetch(domain:github.com)",
-
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
@@ -37,7 +34,6 @@
       "Bash(npx jest:*)",
       "Bash(npx playwright test:*)",
       "Bash(npx depcheck:*)",
-
       "Bash(npx prisma:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
@@ -46,7 +42,6 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma generate)",
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npm run db:seed)",
-
       "Bash(docker:*)",
       "Bash(docker exec:*)",
       "Bash(docker rm:*)",
@@ -57,7 +52,8 @@
       "Bash(cp:*)",
       "Bash(sed:*)",
       "Bash(git rebase:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",
@@ -73,7 +69,14 @@
   "project_context": {
     "name": "Usaka",
     "description": "Cosmetics experience sharing service",
-    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS", "Vercel"],
+    "tech_stack": [
+      "Next.js",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Vercel"
+    ],
     "key_commands": {
       "dev": "npm run dev:setup",
       "test": "npm test",
