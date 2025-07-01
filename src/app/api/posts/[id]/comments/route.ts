@@ -76,9 +76,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // モックデータから投稿を確認
       const mockPost = MOCK_POSTS.find(p => p.id === postId)
       if (!mockPost) {
-        return NextResponse.json(createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'), {
-          status: 404,
-        })
+        return NextResponse.json(
+          createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'),
+          {
+            status: 404,
+          }
+        )
       }
 
       // モックコメントを返す
@@ -98,7 +101,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           skinType: comment.user.skinType || undefined,
           profileImageUrl: comment.user.profileImageUrl || undefined,
         },
-        replies: comment.replies?.map(reply => ({
+        replies: (comment.replies || []).map((reply: any) => ({
           id: reply.id,
           content: reply.content,
           createdAt: reply.createdAt.toISOString(),
@@ -112,7 +115,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           isEdited: reply.createdAt.getTime() !== reply.updatedAt.getTime(),
           canEdit: false,
           canDelete: false,
-        })) || [],
+        })),
         isEdited: comment.createdAt.getTime() !== comment.updatedAt.getTime(),
         canEdit: false,
         canDelete: false,
@@ -246,9 +249,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // モックデータから投稿を確認
       const mockPost = MOCK_POSTS.find(p => p.id === postId)
       if (!mockPost) {
-        return NextResponse.json(createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'), {
-          status: 404,
-        })
+        return NextResponse.json(
+          createApiError('RESOURCE_NOT_FOUND', '投稿が見つかりませんでした'),
+          {
+            status: 404,
+          }
+        )
       }
 
       return NextResponse.json(
