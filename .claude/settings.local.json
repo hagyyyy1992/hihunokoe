@@ -37,6 +37,7 @@
       "Bash(npx jest:*)",
       "Bash(npx playwright test:*)",
       "Bash(npx depcheck:*)",
+
       "Bash(npx prisma:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
