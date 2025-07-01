@@ -136,6 +136,22 @@ npm run db:status   # Check database connection status
 - Layout components in `src/components/layout/`
 - Follow existing naming conventions and prop patterns
 
+### Import Path Conventions
+
+- **Always use absolute paths with `@/` prefix** instead of relative paths (`../`, `./`)
+- Available path mappings in `tsconfig.json`:
+  - `@/*` → `./src/*` (main source code)
+  - `@api/*` → `./api/src/*` (clean architecture API layer)
+  - `@tests/*` → `./__tests__/*` (test files)
+  - `@e2e/*` → `./e2e/*` (E2E test files)
+- **Examples:**
+  - ❌ `import { auth } from '../../../lib/auth/auth'`
+  - ✅ `import { auth } from '@/lib/auth/auth'`
+  - ❌ `import { UserController } from '../../../../../../api/src/framework/controllers/UserController'`
+  - ✅ `import { UserController } from '@api/framework/controllers/UserController'`
+- **Test files**: Use `@/` for source imports, `@tests/` for test helpers
+- **Exceptions**: Only use relative paths for same-directory imports (e.g., `./types`)
+
 ### API Routes
 
 - All API routes follow Next.js App Router conventions

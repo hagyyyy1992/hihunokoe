@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GetUserInputPort } from '../../usecases/user/GetUserInputPort'
-import { verifyToken, AuthUser } from '../../../../src/lib/auth/auth'
-import { User } from '../../domain/entities/User'
+import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
+import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { User } from '@api/domain/entities/User'
 
 export class UserController {
   private getUserInputPort: GetUserInputPort

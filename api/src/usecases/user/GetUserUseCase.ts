@@ -1,5 +1,5 @@
-import { User } from '../../domain/entities/User'
-import { UserRepository } from '../../domain/repositories/UserRepository'
+import { User } from '@api/domain/entities/User'
+import { UserRepository } from '@api/domain/repositories/UserRepository'
 import { GetUserInputPort } from './GetUserInputPort'
 
 export interface GetUserUseCaseInput {

@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server'
 
-jest.mock('../../../../../src/lib/auth/auth', () => ({
+jest.mock('@/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
 }))
 
-import { UserController } from '../../../framework/controllers/UserController'
-import { GetUserInputPort } from '../../../usecases/user/GetUserInputPort'
-import { User } from '../../../domain/entities/User'
-import * as auth from '../../../../../src/lib/auth/auth'
+import { UserController } from '@api/framework/controllers/UserController'
+import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
+import { User } from '@api/domain/entities/User'
+import * as auth from '@/lib/auth/auth'
 
 const mockVerifyToken = auth.verifyToken as jest.MockedFunction<typeof auth.verifyToken>
 

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import { UserController } from '../../../../../../api/src/framework/controllers/UserController'
-import { GetUserUseCase } from '../../../../../../api/src/usecases/user/GetUserUseCase'
-import { UserRepositoryImpl } from '../../../../../../api/src/interface-adapters/repositories/UserRepositoryImpl'
+import { UserController } from '@api/framework/controllers/UserController'
+import { GetUserUseCase } from '@api/usecases/user/GetUserUseCase'
+import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 
 // 依存関係の組み立て
 const userRepository = new UserRepositoryImpl()
