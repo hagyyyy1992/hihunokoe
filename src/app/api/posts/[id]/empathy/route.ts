@@ -153,32 +153,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     if (!isDatabaseAvailable()) {
-      console.log('Using mock mode for empathy POST')
       try {
         // モックモードでの共感追加
-        console.log('Mock mode - searching for post with ID:', postId)
-        console.log('Mock mode - MOCK_POSTS length:', MOCK_POSTS.length)
-        console.log('Mock mode - user ID:', user.id)
 
         const post = MOCK_POSTS.find(p => p.id === postId && p.status === 'published')
-        console.log('Mock mode - found post:', !!post)
         if (!post) {
-          console.log('Mock mode - post not found')
           return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
         }
 
         // 既存の共感をチェック
-        console.log('Mock mode - checking existing empathy')
         const existingEmpathy = MOCK_EMPATHIES.find(
           e => e.postId === postId && e.userId === user.id
         )
-        console.log('Mock mode - existing empathy found:', !!existingEmpathy)
         if (existingEmpathy) {
           return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
         }
 
         // 新しい共感を追加
-        console.log('Mock mode - creating new empathy')
         const newEmpathy = {
           id: `empathy-${Date.now()}`,
           postId,
@@ -187,19 +178,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           createdAt: new Date(),
         }
 
-        console.log('Mock mode - adding empathy to MOCK_EMPATHIES')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         MOCK_EMPATHIES.push(newEmpathy as any)
 
         // 共感数を更新
-        console.log('Mock mode - updating post empathy count')
         const postIndex = MOCK_POSTS.findIndex(p => p.id === postId)
         if (postIndex !== -1) {
           MOCK_POSTS[postIndex].empathyCount += 1
         }
 
         const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-        console.log('Mock mode - final total count:', totalCount)
 
         return NextResponse.json({
           success: true,
@@ -214,10 +202,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // データベースモードでの共感追加
-    console.log('Using database mode for empathy POST')
     let post
     try {
-      console.log('Searching for post in database with ID:', postId)
       post = await prisma!.post.findUnique({
         where: {
           id: postId,
@@ -225,7 +211,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         },
         select: { id: true },
       })
-      console.log('Database mode - found post:', !!post)
     } catch (dbError) {
       console.error('Database error in empathy POST:', dbError)
       return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
@@ -256,11 +241,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // トランザクションで共感を追加し、投稿の共感数を更新
-    console.log('Database mode - starting transaction')
     let result
     try {
       result = await prisma!.$transaction(async tx => {
-        console.log('Database mode - creating empathy record')
         const empathy = await tx.empathy.create({
           data: {
             postId,
@@ -269,7 +252,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         })
 
-        console.log('Database mode - updating post empathy count')
         await tx.post.update({
           where: { id: postId },
           data: {
@@ -279,12 +261,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         })
 
-        console.log('Database mode - counting total empathies')
         const totalCount = await tx.empathy.count({
           where: { postId },
         })
 
-        console.log('Database mode - transaction completed successfully')
         return { empathy, totalCount }
       })
     } catch (transactionError) {
