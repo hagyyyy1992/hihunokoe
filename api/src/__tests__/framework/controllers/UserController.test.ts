@@ -1,29 +1,45 @@
 import { NextRequest } from 'next/server'
 
-jest.mock('@/lib/auth/auth', () => ({
+jest.mock('../../../../../src/lib/auth/auth', () => ({
   verifyToken: jest.fn(),
-  getUserById: jest.fn(),
 }))
 
 import { UserController } from '../../../framework/controllers/UserController'
-import * as auth from '@/lib/auth/auth'
+import { GetUserInputPort } from '../../../usecases/user/GetUserInputPort'
+import { User } from '../../../domain/entities/User'
+import * as auth from '../../../../../src/lib/auth/auth'
 
 const mockVerifyToken = auth.verifyToken as jest.MockedFunction<typeof auth.verifyToken>
-const mockGetUserById = auth.getUserById as jest.MockedFunction<typeof auth.getUserById>
+
+class MockGetUserInputPort implements GetUserInputPort {
+  private mockExecute = jest.fn()
+
+  async execute(input: { userId: string }): Promise<{ user: User }> {
+    return this.mockExecute(input)
+  }
+
+  getMockExecute() {
+    return this.mockExecute
+  }
+}
 
 describe('UserController', () => {
   let userController: UserController
+  let mockGetUserInputPort: MockGetUserInputPort
 
   beforeEach(() => {
-    userController = new UserController()
+    mockGetUserInputPort = new MockGetUserInputPort()
+    userController = new UserController(mockGetUserInputPort)
     jest.clearAllMocks()
   })
 
-  const mockUser = {
+  const mockDomainUser: User = {
     id: '1',
     email: 'test@example.com',
-    userName: 'testuser',
+    username: 'testuser',
     emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   }
 
   describe('getMe', () => {
@@ -32,7 +48,7 @@ describe('UserController', () => {
       request.cookies.set('auth-token', 'valid-token')
 
       mockVerifyToken.mockReturnValue({ id: '1', userName: 'testuser', email: 'test@example.com' })
-      mockGetUserById.mockResolvedValue(mockUser)
+      mockGetUserInputPort.getMockExecute().mockResolvedValue({ user: mockDomainUser })
 
       const response = await userController.getMe(request)
       const responseData = await response.json()
@@ -40,7 +56,7 @@ describe('UserController', () => {
       expect(response.status).toBe(200)
       expect(responseData.user.id).toBe('1')
       expect(responseData.user.email).toBe('test@example.com')
-      expect(responseData.user.userName).toBe('testuser') // Fixed: userName instead of username
+      expect(responseData.user.userName).toBe('testuser')
       expect(responseData.user.emailVerified).toBe(true)
     })
 
@@ -76,7 +92,7 @@ describe('UserController', () => {
         userName: 'testuser',
         email: 'test@example.com',
       })
-      mockGetUserById.mockResolvedValue(null)
+      mockGetUserInputPort.getMockExecute().mockRejectedValue(new Error('ユーザーが見つかりません'))
 
       const response = await userController.getMe(request)
       const responseData = await response.json()
@@ -89,9 +105,10 @@ describe('UserController', () => {
       const request = new NextRequest('http://localhost/api/auth/me')
       request.cookies.set('auth-token', 'valid-token')
 
-      const unverifiedUser = { ...mockUser, emailVerified: false }
       mockVerifyToken.mockReturnValue({ id: '1', userName: 'testuser', email: 'test@example.com' })
-      mockGetUserById.mockResolvedValue(unverifiedUser)
+      mockGetUserInputPort
+        .getMockExecute()
+        .mockRejectedValue(new Error('メールアドレスの確認が必要です'))
 
       const response = await userController.getMe(request)
       const responseData = await response.json()
