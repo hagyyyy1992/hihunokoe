@@ -47,44 +47,46 @@ export async function GET(req: NextRequest) {
     }
 
     // データベースから統計データを取得
-    const [totalUsers, totalPosts, totalViews, totalEmpathies, recentUsers, recentPosts] =
-      await Promise.all([
-        prisma!.user.count({ where: { isActive: true } }),
-        prisma!.post.count(),
-        prisma!.post.aggregate({ _sum: { viewCount: true } }),
-        prisma!.empathy.count(),
-        prisma!.user.findMany({
-          where: { isActive: true },
-          orderBy: { createdAt: 'desc' },
-          take: 5,
-          select: {
-            id: true,
-            userName: true,
-            email: true,
-            createdAt: true,
-          },
-        }),
-        prisma!.post.findMany({
-          orderBy: { createdAt: 'desc' },
-          take: 5,
-          select: {
-            id: true,
-            title: true,
-            createdAt: true,
-            empathyCount: true,
-            user: {
-              select: {
-                userName: true,
-              },
+    const [totalUsers, totalPosts, totalEmpathies, recentUsers, recentPosts] = await Promise.all([
+      prisma!.user.count({ where: { isActive: true } }),
+      prisma!.post.count(),
+      prisma!.empathy.count(),
+      prisma!.user.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          userName: true,
+          email: true,
+          createdAt: true,
+        },
+      }),
+      prisma!.post.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          user: {
+            select: {
+              userName: true,
             },
           },
-        }),
-      ])
+          _count: {
+            select: {
+              empathies: true,
+            },
+          },
+        },
+      }),
+    ])
 
     const stats = {
       totalUsers,
       totalPosts,
-      totalViews: totalViews._sum.viewCount || 0,
+      totalViews: totalEmpathies, // Using empathy count as engagement metric
       totalEmpathies,
       recentUsers: recentUsers.map(user => ({
         id: user.id,
@@ -97,7 +99,7 @@ export async function GET(req: NextRequest) {
         title: post.title,
         userName: post.user.userName,
         createdAt: post.createdAt.toISOString(),
-        empathyCount: post.empathyCount,
+        empathyCount: post._count.empathies,
       })),
     }
 

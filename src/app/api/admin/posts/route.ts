@@ -46,14 +46,17 @@ export async function GET(req: NextRequest) {
         id: true,
         title: true,
         content: true,
-        status: true,
-        empathyCount: true,
-        viewCount: true,
+        isPublished: true,
         createdAt: true,
-        cosmeticName: true,
+        productName: true,
         user: {
           select: {
             userName: true,
+          },
+        },
+        _count: {
+          select: {
+            empathies: true,
           },
         },
       },
@@ -67,11 +70,11 @@ export async function GET(req: NextRequest) {
       title: post.title,
       content: post.content,
       userName: post.user.userName,
-      status: post.status,
-      empathyCount: post.empathyCount,
-      viewCount: post.viewCount,
+      status: post.isPublished ? 'published' : 'draft',
+      empathyCount: post._count.empathies,
+      viewCount: post._count.empathies, // Using empathy count as engagement metric
       createdAt: post.createdAt.toISOString(),
-      cosmeticName: post.cosmeticName,
+      cosmeticName: post.productName,
     }))
 
     return NextResponse.json(postsWithUserName)

@@ -15,8 +15,7 @@ const handler = async (req: AdminRequest, context: { params: Promise<{ id: strin
     const updatedPost = await prisma!.post.update({
       where: { id: postId },
       data: {
-        status: 'published',
-        publishedAt: new Date(),
+        isPublished: true,
       },
       select: {
         id: true,

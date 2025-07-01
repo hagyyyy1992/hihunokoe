@@ -14,7 +14,7 @@ const handler = async (req: AdminRequest, context: { params: Promise<{ id: strin
     // 投稿を非公開状態に変更
     const updatedPost = await prisma!.post.update({
       where: { id: postId },
-      data: { status: 'hidden' },
+      data: { isPublished: false },
       select: {
         id: true,
         title: true,
