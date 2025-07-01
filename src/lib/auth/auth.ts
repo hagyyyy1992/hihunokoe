@@ -407,3 +407,21 @@ export async function logAdminAction(
     console.error('Failed to log admin action:', error)
   }
 }
+
+export async function authenticateRequest(
+  request: Request
+): Promise<{ userId: string; user: AuthUser }> {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('認証が必要です')
+  }
+
+  const token = authHeader.substring(7)
+  const user = verifyToken(token)
+
+  if (!user) {
+    throw new Error('無効なトークンです')
+  }
+
+  return { userId: user.id, user }
+}
