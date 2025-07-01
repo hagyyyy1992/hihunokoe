@@ -1,5 +1,30 @@
 # Pull Request
 
+## 関連Issue / Related Issues
+
+<!-- 関連するIssueがある場合はURLまたは番号を記載してください -->
+
+### 解決するIssue / Resolves Issues
+
+<!-- このPRで解決されるIssueを記載してください -->
+
+- Closes #[issue_number]
+- Fixes #[issue_number]
+- Resolves #[issue_number]
+
+### 関連するIssue / Related Issues
+
+<!-- このPRに関連するがまだ解決されないIssueを記載してください -->
+
+- Related to #[issue_number]
+- See also #[issue_number]
+
+### Issue URL
+
+<!-- GitHub Issue以外の管理ツールを使用している場合はURLを記載してください -->
+
+- Issue URL: [issue_url]
+
 ## 概要 / Summary
 
 <!-- このPRで行った変更の概要を記載してください -->
@@ -43,13 +68,6 @@
 ## スクリーンショット・動画 / Screenshots/Videos
 
 <!-- UI変更がある場合は、Before/Afterのスクリーンショットや動画を添付してください -->
-
-## 関連Issue / Related Issues
-
-<!-- 関連するIssueがある場合は記載してください -->
-
-- Closes #
-- Related to #
 
 ## 注意事項 / Notes
 
