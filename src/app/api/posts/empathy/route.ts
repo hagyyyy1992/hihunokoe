@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         hasEmpathized: !!empathy,
-        empathyType: empathy ? 'like' : null,
+        empathyType: empathy ? empathy.empathyType : undefined,
         totalCount,
       })
     }
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       hasEmpathized: !!empathy,
-      empathyType: empathy ? 'like' : null,
+      empathyType: empathy ? empathy.empathyType : undefined,
       totalCount,
     })
   } catch (error) {

@@ -44,11 +44,11 @@ describe('/api/auth/register', () => {
     userName: 'testuser',
     email: 'test@example.com',
     password: 'password123',
-    birthDate: new Date('1990-01-01'),
-    gender: 'male' as const,
-    skinType: 'normal' as const,
-    allergies: ['fragrance'] as const,
-    bodyType: 'atopic' as const,
+    birthDate: '1990-01-01',
+    gender: 'MALE' as const,
+    skinType: 'NORMAL' as const,
+    allergies: ['COSMETICS'] as const,
+    bodyType: 'AVERAGE' as const,
   }
 
   describe('POST', () => {
@@ -58,12 +58,12 @@ describe('/api/auth/register', () => {
         userName: 'testuser',
         email: 'test@example.com',
         birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
+        allergies: ['COSMETICS' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
+        bodyType: 'AVERAGE' as BodyType,
         bodyTypeOther: null,
         emailVerified: false,
       }
@@ -90,7 +90,10 @@ describe('/api/auth/register', () => {
         emailVerified: mockUser.emailVerified,
       })
       expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
-      expect(mockRegisterUser).toHaveBeenCalledWith(validRegistrationData)
+      expect(mockRegisterUser).toHaveBeenCalledWith({
+        ...validRegistrationData,
+        birthDate: new Date('1990-01-01'),
+      })
     })
 
     it('最小限の必須フィールドでユーザー登録が成功する', async () => {
@@ -260,7 +263,7 @@ describe('/api/auth/register', () => {
     })
 
     it('有効な肌タイプの値が受け入れられる', async () => {
-      const skinTypes = ['normal', 'dry', 'oily', 'combination', 'sensitive']
+      const skinTypes = ['NORMAL', 'DRY', 'OILY', 'MIXED', 'SENSITIVE']
 
       for (const skinType of skinTypes) {
         const testData = {
@@ -294,12 +297,12 @@ describe('/api/auth/register', () => {
         userName: 'testuser',
         email: 'test@example.com',
         birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
+        allergies: ['COSMETICS' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
+        bodyType: 'AVERAGE' as BodyType,
         bodyTypeOther: null,
         emailVerified: false,
       }
@@ -336,12 +339,12 @@ describe('/api/auth/register', () => {
         userName: 'testuser',
         email: 'test@example.com',
         birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
+        allergies: ['COSMETICS' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
+        bodyType: 'AVERAGE' as BodyType,
         bodyTypeOther: null,
         emailVerified: false,
       }
@@ -378,12 +381,12 @@ describe('/api/auth/register', () => {
         userName: 'testuser',
         email: 'test@example.com',
         birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
+        allergies: ['COSMETICS' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
+        bodyType: 'AVERAGE' as BodyType,
         bodyTypeOther: null,
         emailVerified: false,
       }
@@ -420,12 +423,12 @@ describe('/api/auth/register', () => {
         userName: 'testuser',
         email: 'test@example.com',
         birthDate: new Date('1990-01-01'),
-        gender: 'male' as Gender,
-        skinType: 'normal' as SkinType,
+        gender: 'MALE' as Gender,
+        skinType: 'NORMAL' as SkinType,
         skinTypeOther: null,
-        allergies: ['fragrance' as AllergyType],
+        allergies: ['COSMETICS' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
+        bodyType: 'AVERAGE' as BodyType,
         bodyTypeOther: null,
         emailVerified: false,
       }
