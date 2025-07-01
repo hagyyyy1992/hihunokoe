@@ -99,7 +99,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           id: comment.user.id,
           userName: comment.user.userName,
           skinType: comment.user.skinType || undefined,
-          profileImageUrl: comment.user.profileImageUrl || undefined,
         },
         replies: (comment.replies || []).map((reply: typeof comment) => ({
           id: reply.id,
@@ -110,7 +109,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             id: reply.user.id,
             userName: reply.user.userName,
             skinType: reply.user.skinType || undefined,
-            profileImageUrl: reply.user.profileImageUrl || undefined,
           },
           isEdited: reply.createdAt.getTime() !== reply.updatedAt.getTime(),
           canEdit: false,

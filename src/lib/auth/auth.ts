@@ -297,7 +297,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
           allergiesOther: user.allergiesOther,
           bodyType: user.bodyType,
           bodyTypeOther: user.bodyTypeOther,
-          profileImageUrl: user.profileImageUrl || undefined,
           emailVerified: user.emailVerified,
         }
       }
@@ -319,7 +318,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     email: mockUser.email,
     role: mockUser.role as UserRole,
     skinType: mockUser.skinType || undefined,
-    profileImageUrl: mockUser.profileImageUrl || undefined,
     emailVerified: true, // モックユーザーは常に認証済み
   }
 }
