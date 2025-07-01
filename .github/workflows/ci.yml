@@ -1,0 +1,191 @@
+name: CI - Pull Request Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npx tsc --noEmit
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build test
+        run: npm run build:local
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          DIRECT_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+  e2e-tests:
+    name: E2E Tests (Basic)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> $GITHUB_OUTPUT
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Install Playwright system dependencies
+        run: npx playwright install-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+
+      - name: Kill any existing process on port 3000
+        run: |
+          if lsof -i:3000; then
+            lsof -ti:3000 | xargs kill -9 || true
+          fi
+
+      - name: Run basic E2E test
+        run: npx playwright test e2e/auth/basic-auth.spec.ts --project=chromium --reporter=line
+        env:
+          CI: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-pr
+          path: playwright-report/
+
+  # Summary job for branch protection rules
+  ci-status:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, build-test, unit-tests, e2e-tests]
+    if: always()
+    steps:
+      - name: Check CI Results
+        run: |
+          echo "Lint & Type Check: ${{ needs.lint-and-typecheck.result }}"
+          echo "Build Test: ${{ needs.build-test.result }}"
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+
+          # Essential checks must pass
+          if [[ "${{ needs.lint-and-typecheck.result }}" != "success" || 
+                "${{ needs.build-test.result }}" != "success" || 
+                "${{ needs.unit-tests.result }}" != "success" ]]; then
+            echo "❌ Essential CI checks failed"
+            exit 1
+          fi
+
+          # E2E tests are optional for PR merge
+          if [[ "${{ needs.e2e-tests.result }}" == "success" ]]; then
+            echo "✅ All checks passed including E2E tests"
+            echo "🌐 Vercel Preview Deployment will be available for testing"
+          else
+            echo "⚠️ E2E tests failed, but essential checks passed"
+            echo "PR can be merged, but E2E issues should be addressed"
+            echo "🌐 Vercel Preview Deployment available - test manually before merge"
+          fi
+
+  # Optional: Preview deployment verification
+  preview-verification:
+    name: Preview Deployment Verification
+    needs: [ci-status]
+    runs-on: ubuntu-latest
+    if: needs.ci-status.result == 'success'
+    continue-on-error: true
+    steps:
+      - name: Wait for Vercel Preview
+        run: |
+          echo "⏳ Waiting for Vercel Preview Deployment..."
+          echo "This typically takes 1-2 minutes for Next.js apps"
+          sleep 60
+
+      - name: Preview deployment info
+        run: |
+          echo "🔍 Vercel Preview Deployment Information:"
+          echo "📋 Preview URL: Available in PR comments (auto-generated by Vercel)"
+          echo "🤖 Bot comment: Check PR for Vercel bot deployment comment"
+          echo "🌐 Format: https://usaka-{hash}-{team}.vercel.app"
+          echo ""
+          echo "✅ Manual verification recommended:"
+          echo "  1. Check Vercel bot comment for Preview URL"
+          echo "  2. Test key user flows in Preview environment"
+          echo "  3. Verify API endpoints work correctly"
+          echo "  4. Check responsive design on different devices"
+          echo ""
+          echo "💡 Tip: Use Preview URL for stakeholder review before merge"
