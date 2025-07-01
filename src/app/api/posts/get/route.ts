@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const post = await prisma!.post.findUnique({
       where: {
         id: postId,
-        status: 'published',
+        isPublished: true,
       },
       include: {
         user: {
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         },
         comments: {
           where: {
-            isActive: true,
+            isPublished: true,
             parentCommentId: null, // トップレベルコメントのみ
           },
           include: {
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
             },
             replies: {
               where: {
-                isActive: true,
+                isPublished: true,
               },
               include: {
                 user: {
@@ -108,14 +108,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 閲覧数を増加
-    await prisma!.post.update({
-      where: { id: postId },
-      data: {
-        viewCount: {
-          increment: 1,
-        },
-      },
-    })
+    // View count not tracked in current schema
 
     return NextResponse.json({ post })
   } catch (error) {
