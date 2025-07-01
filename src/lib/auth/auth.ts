@@ -272,49 +272,55 @@ function isValidUUID(str: string): boolean {
 }
 
 export async function getUserById(id: string): Promise<AuthUser | null> {
-  if (!isDatabaseAvailable() || !isValidUUID(id)) {
-    // モックモードまたは無効なUUIDの場合
-    const mockUser = MOCK_USERS.find(u => u.id === id && u.isActive)
-    if (!mockUser) {
-      return null
-    }
+  // まずデータベースが利用可能で、有効なUUIDの場合はデータベースを検索
+  if (isDatabaseAvailable() && isValidUUID(id)) {
+    try {
+      const user = await prisma!.user.findUnique({
+        where: {
+          id,
+          isActive: true,
+          deletedAt: null,
+        },
+      })
 
-    return {
-      id: mockUser.id,
-      userName: mockUser.userName,
-      email: mockUser.email,
-      role: mockUser.role as UserRole,
-      skinType: mockUser.skinType || undefined,
-      emailVerified: true, // モックユーザーは常に認証済み
+      if (user) {
+        return {
+          id: user.id,
+          userName: user.userName,
+          email: user.email,
+          role: user.role,
+          birthDate: user.birthDate,
+          gender: user.gender,
+          skinType: user.skinType,
+          skinTypeOther: user.skinTypeOther,
+          allergies: user.allergies,
+          allergiesOther: user.allergiesOther,
+          bodyType: user.bodyType,
+          bodyTypeOther: user.bodyTypeOther,
+          profileImageUrl: user.profileImageUrl || undefined,
+          emailVerified: user.emailVerified,
+        }
+      }
+    } catch (error) {
+      console.error('[AUTH] Database query error in getUserById:', error)
+      // Continue to mock user fallback
     }
   }
 
-  const user = await prisma!.user.findUnique({
-    where: {
-      id,
-      isActive: true,
-      deletedAt: null,
-    },
-  })
-
-  if (!user) {
+  // データベースが利用できない場合、無効なUUID、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
+  const mockUser = MOCK_USERS.find(u => u.id === id && u.isActive)
+  if (!mockUser) {
     return null
   }
 
   return {
-    id: user.id,
-    userName: user.userName,
-    email: user.email,
-    role: user.role,
-    birthDate: user.birthDate,
-    gender: user.gender,
-    skinType: user.skinType,
-    skinTypeOther: user.skinTypeOther,
-    allergies: user.allergies,
-    allergiesOther: user.allergiesOther,
-    bodyType: user.bodyType,
-    bodyTypeOther: user.bodyTypeOther,
-    emailVerified: user.emailVerified, // 重要: emailVerifiedを含める
+    id: mockUser.id,
+    userName: mockUser.userName,
+    email: mockUser.email,
+    role: mockUser.role as UserRole,
+    skinType: mockUser.skinType || undefined,
+    profileImageUrl: mockUser.profileImageUrl || undefined,
+    emailVerified: true, // モックユーザーは常に認証済み
   }
 }
 
