@@ -83,12 +83,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       select: {
         id: true,
         postId: true,
-        isActive: true,
+        isPublished: true,
         parentCommentId: true,
       },
     })
 
-    if (!parentComment || !parentComment.isActive) {
+    if (!parentComment || !parentComment.isPublished) {
       return NextResponse.json(
         createApiError('RESOURCE_NOT_FOUND', 'コメントが見つかりませんでした'),
         { status: 404 }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         postId: parentComment.postId,
         userId,
         parentCommentId,
-        isActive: true,
+        isPublished: true,
       },
       include: {
         user: {

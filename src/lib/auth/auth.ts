@@ -283,26 +283,29 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
         },
       })
 
-    return {
-      id: mockUser.id,
-      userName: mockUser.userName,
-      email: mockUser.email,
-      role: mockUser.role as UserRole,
-      skinType:
-        (mockUser.skinType?.toUpperCase() as 'NORMAL' | 'DRY' | 'OILY' | 'MIXED' | 'SENSITIVE') ||
-        undefined,
-      emailVerified: true, // モックユーザーは常に認証済み
+      if (!user) {
+        return null
+      }
+
+      return {
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+        role: user.role as UserRole,
+        skinType:
+          (user.skinType?.toUpperCase() as 'NORMAL' | 'DRY' | 'OILY' | 'MIXED' | 'SENSITIVE') ||
+          undefined,
+        emailVerified: user.emailVerified,
+      }
+    } catch (error) {
+      console.error('Database error in getUserById:', error)
+      // データベースエラーの場合、フォールバックとしてモックデータを確認
     }
   }
 
-  const user = await prisma!.user.findUnique({
-    where: {
-      id,
-      isActive: true,
-    },
-  })
-
-  if (!user) {
+  // モックデータまたはデータベースエラー時のフォールバック
+  const mockUser = MOCK_USERS.find(u => u.id === id)
+  if (!mockUser) {
     return null
   }
 
@@ -311,7 +314,9 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     userName: mockUser.userName,
     email: mockUser.email,
     role: mockUser.role as UserRole,
-    skinType: mockUser.skinType || undefined,
+    skinType:
+      (mockUser.skinType?.toUpperCase() as 'NORMAL' | 'DRY' | 'OILY' | 'MIXED' | 'SENSITIVE') ||
+      undefined,
     emailVerified: true, // モックユーザーは常に認証済み
   }
 }
