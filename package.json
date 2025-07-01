@@ -27,7 +27,7 @@
     "dev:setup": "npm run db:setup && npx prisma migrate dev && npm run db:seed && npm run mailhog:start",
     "db:reset": "docker-compose down -v && docker volume prune -f && docker-compose up -d postgres && sleep 3 && npm run db:migrate",
     "db:migrate": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma migrate dev && npm run db:seed",
-    "db:studio": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" prisma studio",
+    "db:studio": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka\" DIRECT_URL=\"postgresql://postgres:password@localhost:5432/usaka\" prisma studio",
     "db:status": "node scripts/check-db-status.js",
     "db:seed": "node scripts/seed.js",
     "db:nuke": "docker-compose down && docker volume rm usaka_postgres_data || true && docker-compose up -d postgres && sleep 5 && npm run db:migrate",

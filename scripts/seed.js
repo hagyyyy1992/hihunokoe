@@ -62,34 +62,8 @@ async function main() {
       productName: 'やさしいクレンジングオイル',
       productCategory: 'cleansing',
       skinType: 'MIXED',
+      productRating: 4,
       mood: 'good',
-      usageSituation: {
-        season: 'spring',
-        timeOfDay: 'evening',
-        menstrualCycle: 'normal',
-        skinCondition: 'stable',
-        weatherCondition: 'normal',
-      },
-      experienceDetails: {
-        fragrance: {
-          type: 'citrus',
-          intensity: 'weak',
-          description: 'ほんのり柑橘系',
-        },
-        texture: {
-          type: 'oil',
-          spreadability: 'easy',
-          absorption: 'moderate',
-          description: 'するっと落ちる',
-        },
-        afterUse: {
-          moisture: 'balanced',
-          texture: 'smooth',
-          comfort: 'comfortable',
-          duration: 'moderate',
-          description: 'つっぱらず良い感じ',
-        },
-      },
     },
   ]
 
