@@ -78,7 +78,7 @@ describe('Footer', () => {
   it('renders the copyright notice', () => {
     render(<Footer />)
 
-    expect(screen.getByText('© 2024 Usaka. All rights reserved.')).toBeInTheDocument()
+    expect(screen.getByText('© 2025 Usaka. All rights reserved.')).toBeInTheDocument()
   })
 
   it('applies correct CSS classes for layout', () => {
