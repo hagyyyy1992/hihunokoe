@@ -19,6 +19,7 @@
       "Bash(git worktree:*)",
       "Bash(git rebase:*)",
       "Bash(git pull:*)",
+      "Bash(git stash:*)",
       "Bash(gh pr:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
