@@ -101,7 +101,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           skinType: comment.user.skinType || undefined,
           profileImageUrl: comment.user.profileImageUrl || undefined,
         },
-        replies: (comment.replies || []).map((reply: any) => ({
+        replies: (comment.replies || []).map((reply: typeof comment) => ({
           id: reply.id,
           content: reply.content,
           createdAt: reply.createdAt.toISOString(),
