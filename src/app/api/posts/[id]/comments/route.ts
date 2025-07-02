@@ -66,6 +66,7 @@ function checkRateLimit(userId: string): boolean {
 }
 
 // GET /api/posts/[id]/comments - コメント一覧取得
+// Fixed Vercel deployment routing issue
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { searchParams } = new URL(request.url)
