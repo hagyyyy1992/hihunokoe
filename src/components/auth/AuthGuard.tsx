@@ -61,7 +61,7 @@ export function LoginPrompt({
       <p className="text-gray-600 mb-2 text-sm">{message}</p>
       <Link
         href="/auth/login"
-        className="inline-block bg-primary-500 text-white px-4 py-1.5 rounded-md hover:bg-primary-600 transition-colors text-sm"
+        className="inline-block bg-primary-500 text-gray-600 px-4 py-1.5 rounded-md hover:bg-primary-600 transition-colors text-sm"
       >
         ログインする
       </Link>
