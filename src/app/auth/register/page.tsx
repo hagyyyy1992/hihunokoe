@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
 import { Input } from '@/components/ui/Input'
+import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
+import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
 
 // 定数として外に出して再作成を防ぐ
 const SKIN_TYPE_OPTIONS = [
@@ -366,19 +368,26 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <Input
-              label="パスワード"
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="パスワードを入力してください"
-              hint="8文字以上で入力してください"
-              data-testid="password-input"
-            />
+            <div>
+              <Input
+                label="パスワード"
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="パスワードを入力してください"
+                data-testid="password-input"
+              />
+              <PasswordStrengthIndicator
+                password={formData.password}
+                userName={formData.userName}
+                email={formData.email}
+              />
+              <PasswordRequirements password={formData.password} />
+            </div>
 
             <Input
               label="パスワード確認"

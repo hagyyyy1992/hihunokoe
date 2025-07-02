@@ -133,7 +133,7 @@ describe('ResetPasswordPage', () => {
 
       expect(passwordInput).toHaveAttribute('type', 'password')
       expect(passwordInput).toHaveAttribute('required')
-      expect(passwordInput).toHaveAttribute('placeholder', '8文字以上で入力してください')
+      expect(passwordInput).toHaveAttribute('placeholder', '新しいパスワードを入力してください')
 
       expect(confirmPasswordInput).toHaveAttribute('type', 'password')
       expect(confirmPasswordInput).toHaveAttribute('required')
