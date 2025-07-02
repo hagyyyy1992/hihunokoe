@@ -277,8 +277,8 @@ describe('RegisterPage', () => {
       // label関連付けの確認
       expect(screen.getByText('ユーザー名 *')).toBeInTheDocument()
       expect(screen.getByText('メールアドレス *')).toBeInTheDocument()
-      expect(screen.getByText('パスワード *')).toBeInTheDocument()
-      expect(screen.getByText('パスワード確認 *')).toBeInTheDocument()
+      expect(screen.getByText('パスワード')).toBeInTheDocument()
+      expect(screen.getByText('パスワード確認')).toBeInTheDocument()
     })
   })
 })
