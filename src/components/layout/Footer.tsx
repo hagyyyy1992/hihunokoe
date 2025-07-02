@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 export default function Footer() {
+  const { user } = useAuth()
   return (
     <footer className="bg-gray-50 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,14 +35,16 @@ export default function Footer() {
                   体験を見る
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/posts/new"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
-                >
-                  体験を投稿
-                </Link>
-              </li>
+              {user && (
+                <li>
+                  <Link
+                    href="/posts/new"
+                    className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  >
+                    体験を投稿
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
