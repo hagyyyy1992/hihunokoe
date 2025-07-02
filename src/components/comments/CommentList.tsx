@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useComments } from '@/hooks/useComments'
 import CommentForm from './CommentForm'
 import CommentItem from './CommentItem'
+import { AuthGuard, LoginPrompt } from '@/components/auth/AuthGuard'
 
 interface CommentListProps {
   postId: string
@@ -54,15 +55,11 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
       </h3>
 
       {/* コメント投稿フォーム */}
-      {user ? (
-        <div className="mb-6">
+      <div className="mb-6">
+        <AuthGuard fallback={<LoginPrompt message="コメントを投稿するにはログインが必要です" />}>
           <CommentForm postId={postId} onSuccess={handleCommentSuccess} />
-        </div>
-      ) : (
-        <div className="mb-6 p-4 bg-gray-50 rounded-md text-center">
-          <p className="text-gray-600">コメントするにはログインが必要です</p>
-        </div>
-      )}
+        </AuthGuard>
+      </div>
 
       {/* エラー表示 */}
       {error && (
