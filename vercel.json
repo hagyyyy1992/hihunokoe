@@ -1,4 +1,15 @@
 {
+  "functions": {
+    "src/app/api/test/**/*.ts": false,
+    "src/app/api/v2/**/*.ts": false,
+    "src/app/api/posts/test/**/*.ts": false,
+    "src/app/api/comments/**/*.ts": false,
+    "src/app/api/posts/comments/**/*.ts": false,
+    "src/app/api/posts/empathy/**/*.ts": false,
+    "src/app/api/posts/get/**/*.ts": false,
+    "src/app/api/posts/delete/**/*.ts": false,
+    "src/app/api/posts/update/**/*.ts": false
+  },
   "headers": [
     {
       "source": "/api/(.*)",
