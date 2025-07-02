@@ -481,7 +481,21 @@ export default function PostDetailPage() {
         </article>
 
         {/* コメントセクション */}
-        <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
+        <AuthGuard
+          fallback={
+            <div className="bg-gray-50 p-6 rounded-lg text-center">
+              <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
+              <Link
+                href="/auth/login"
+                className="inline-block bg-primary-500 text-white px-6 py-2 rounded-md hover:bg-primary-600 transition-colors"
+              >
+                ログインする
+              </Link>
+            </div>
+          }
+        >
+          <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
+        </AuthGuard>
       </div>
     </div>
   )
