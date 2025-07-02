@@ -68,7 +68,7 @@ export default function CommentItem({
     setError('')
 
     try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
+      const response = await fetch(`/api/comments/edit?id=${comment.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function CommentItem({
     setError('')
 
     try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
+      const response = await fetch(`/api/comments/edit?id=${comment.id}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       })
