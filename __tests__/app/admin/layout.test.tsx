@@ -87,13 +87,18 @@ describe('AdminLayout', () => {
 
   it('shows loading state initially', async () => {
     // Mock API call that takes time to resolve
-    mockFetch.mockImplementation(() => 
-      new Promise(resolve => 
-        setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ user: { id: '1', userName: 'admin', role: 'ADMIN' } })
-        } as Response), 100)
-      )
+    mockFetch.mockImplementation(
+      () =>
+        new Promise(resolve =>
+          setTimeout(
+            () =>
+              resolve({
+                ok: true,
+                json: async () => ({ user: { id: '1', userName: 'admin', role: 'ADMIN' } }),
+              } as Response),
+            100
+          )
+        )
     )
 
     render(
@@ -126,7 +131,7 @@ describe('AdminLayout', () => {
     mockFetch.mockResolvedValue({
       ok: false,
       status: 401,
-      json: async () => ({ error: 'Unauthorized' })
+      json: async () => ({ error: 'Unauthorized' }),
     } as Response)
 
     render(
@@ -150,8 +155,8 @@ describe('AdminLayout', () => {
           userName: 'user',
           email: 'user@example.com',
           role: 'USER',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -175,8 +180,8 @@ describe('AdminLayout', () => {
           userName: 'admin',
           email: 'admin@example.com',
           role: 'ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -199,8 +204,8 @@ describe('AdminLayout', () => {
           userName: 'admin',
           email: 'admin@example.com',
           role: 'ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -227,8 +232,8 @@ describe('AdminLayout', () => {
           userName: 'admin',
           email: 'admin@example.com',
           role: 'ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -253,8 +258,8 @@ describe('AdminLayout', () => {
           userName: 'superadmin',
           email: 'superadmin@example.com',
           role: 'SUPER_ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -277,8 +282,8 @@ describe('AdminLayout', () => {
           userName: 'admin',
           email: 'admin@example.com',
           role: 'ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(
@@ -304,8 +309,8 @@ describe('AdminLayout', () => {
           userName: 'admin',
           email: 'admin@example.com',
           role: 'ADMIN',
-        }
-      })
+        },
+      }),
     } as Response)
 
     render(

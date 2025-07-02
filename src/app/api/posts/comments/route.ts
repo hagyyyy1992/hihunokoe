@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
     const totalComments = await prisma!.comment.count({
       where: {
         postId,
-        isActive: true,
+        isPublished: true,
         parentCommentId: null, // トップレベルコメントのみ
       },
     })
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     const comments = await prisma!.comment.findMany({
       where: {
         postId,
-        isActive: true,
+        isPublished: true,
         parentCommentId: null, // トップレベルコメントのみ
       },
       include: {
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
           },
         },
         replies: {
-          where: { isActive: true },
+          where: { isPublished: true },
           include: {
             user: {
               select: {
@@ -293,7 +293,7 @@ export async function POST(request: NextRequest) {
         content,
         postId,
         userId,
-        isActive: true,
+        isPublished: true,
       },
       include: {
         user: {
