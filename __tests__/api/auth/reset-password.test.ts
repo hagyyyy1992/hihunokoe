@@ -228,7 +228,7 @@ describe('/api/auth/reset-password', () => {
 
     it('最小限の有効なパスワード（8文字）でリセットが成功する', async () => {
       const validToken = 'valid-token-12345'
-      const minPassword = '12345678' // 最小8文字
+      const minPassword = 'Pass123!' // 最小8文字で3種類の文字種
 
       mockResetPassword.mockResolvedValue({
         success: true,
