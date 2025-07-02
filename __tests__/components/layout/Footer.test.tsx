@@ -3,6 +3,7 @@
  */
 import { render, screen } from '@testing-library/react'
 import Footer from '@/components/layout/Footer'
+import { AuthProvider } from '@/lib/auth/AuthContext'
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
@@ -15,22 +16,27 @@ jest.mock('next/link', () => {
   }
 })
 
+// Helper function to render with AuthProvider
+const renderWithAuth = (component: React.ReactElement) => {
+  return render(<AuthProvider>{component}</AuthProvider>)
+}
+
 describe('Footer', () => {
   it('renders the footer element', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
     const footer = screen.getByRole('contentinfo')
     expect(footer).toBeInTheDocument()
   })
 
   it('renders the Usaka logo and brand name', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
 
     expect(screen.getByText('U')).toBeInTheDocument()
     expect(screen.getByText('Usaka')).toBeInTheDocument()
   })
 
   it('renders the service description', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
 
     expect(
       screen.getByText(/化粧品の本当の使い心地を、体験談で共有するコミュニティ。/)
@@ -40,8 +46,8 @@ describe('Footer', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders service navigation links', () => {
-    render(<Footer />)
+  it('renders service navigation links for non-logged in users', () => {
+    renderWithAuth(<Footer />)
 
     expect(screen.getByText('サービス')).toBeInTheDocument()
 
@@ -49,13 +55,13 @@ describe('Footer', () => {
     expect(postsLink).toBeInTheDocument()
     expect(postsLink).toHaveAttribute('href', '/posts')
 
-    const newPostLink = screen.getByRole('link', { name: '体験を投稿' })
-    expect(newPostLink).toBeInTheDocument()
-    expect(newPostLink).toHaveAttribute('href', '/posts/new')
+    // 非ログインユーザーには「体験を投稿」リンクは表示されない
+    const newPostLink = screen.queryByRole('link', { name: '体験を投稿' })
+    expect(newPostLink).not.toBeInTheDocument()
   })
 
   it('renders support navigation links', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
 
     expect(screen.getByText('サポート')).toBeInTheDocument()
 
@@ -76,13 +82,13 @@ describe('Footer', () => {
   })
 
   it('renders the copyright notice', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
 
     expect(screen.getByText('© 2025 Usaka. All rights reserved.')).toBeInTheDocument()
   })
 
   it('applies correct CSS classes for layout', () => {
-    const { container } = render(<Footer />)
+    const { container } = renderWithAuth(<Footer />)
 
     const footer = container.querySelector('footer')
     expect(footer).toHaveClass('bg-gray-50', 'border-t', 'border-gray-100')
@@ -92,7 +98,7 @@ describe('Footer', () => {
   })
 
   it('applies hover styles to navigation links', () => {
-    render(<Footer />)
+    renderWithAuth(<Footer />)
 
     const links = screen.getAllByRole('link')
     links.forEach(link => {
@@ -101,7 +107,7 @@ describe('Footer', () => {
   })
 
   it('renders logo with correct styling', () => {
-    const { container } = render(<Footer />)
+    const { container } = renderWithAuth(<Footer />)
 
     const logoContainer = container.querySelector('.w-8.h-8.bg-pink-100.rounded-full')
     expect(logoContainer).toBeInTheDocument()
