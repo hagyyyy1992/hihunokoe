@@ -91,6 +91,19 @@ export async function PUT(request: NextRequest) {
             skinType: true,
           },
         },
+        replies: {
+          where: { isActive: true },
+          include: {
+            user: {
+              select: {
+                id: true,
+                userName: true,
+                skinType: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
       },
     })
 
@@ -104,7 +117,22 @@ export async function PUT(request: NextRequest) {
         userName: updatedComment.user.userName,
         skinType: updatedComment.user.skinType || undefined,
       },
-      replies: [],
+      replies:
+        updatedComment.replies?.map(reply => ({
+          id: reply.id,
+          content: reply.content,
+          createdAt: reply.createdAt.toISOString(),
+          updatedAt: reply.updatedAt.toISOString(),
+          user: {
+            id: reply.user.id,
+            userName: reply.user.userName,
+            skinType: reply.user.skinType || undefined,
+          },
+          replies: [],
+          isEdited: reply.createdAt.getTime() !== reply.updatedAt.getTime(),
+          canEdit: false, // 返信の権限は親コンポーネントで判定
+          canDelete: false,
+        })) || [],
       isEdited: updatedComment.createdAt.getTime() !== updatedComment.updatedAt.getTime(),
       canEdit: true,
       canDelete: true,
