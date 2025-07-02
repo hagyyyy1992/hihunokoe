@@ -47,7 +47,7 @@ describe('Email Verification Flow', () => {
     const registrationData = {
       userName: 'testuser',
       email: 'test@example.com',
-      password: 'password123',
+      password: 'SecurePass123!',
     }
 
     const mockUser = {

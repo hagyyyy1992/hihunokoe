@@ -4,7 +4,8 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-
+import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
+import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
 import Link from 'next/link'
 
 function ResetPasswordForm() {
@@ -70,6 +71,7 @@ function ResetPasswordForm() {
       return
     }
 
+    // パスワードの強度チェックはAPI側で行うため、ここでは基本的なチェックのみ
     if (password.length < 8) {
       setError('パスワードは8文字以上で入力してください')
       return
@@ -185,10 +187,12 @@ function ResetPasswordForm() {
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="8文字以上で入力してください"
+                  placeholder="新しいパスワードを入力してください"
                   disabled={loading}
                   className="mt-1"
                 />
+                <PasswordStrengthIndicator password={password} />
+                <PasswordRequirements password={password} />
               </div>
 
               <div>

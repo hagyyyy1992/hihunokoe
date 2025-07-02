@@ -3,11 +3,11 @@ import { registerUser } from '@/lib/auth/auth'
 import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+import { createPasswordSchemaWithUserInfo } from '@/lib/auth/password-validation'
 
-const registerSchema = z.object({
+const baseRegisterSchema = z.object({
   userName: z.string().min(3).max(100),
   email: z.string().email(),
-  password: z.string().min(8),
   birthDate: z
     .string()
     .optional()
@@ -24,6 +24,18 @@ const registerSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+
+    // 基本的なバリデーション
+    const baseValidation = baseRegisterSchema.parse(body)
+
+    // パスワードのバリデーション（ユーザー情報を考慮）
+    const passwordSchema = createPasswordSchemaWithUserInfo(
+      baseValidation.userName,
+      baseValidation.email
+    )
+    const registerSchema = baseRegisterSchema.extend({
+      password: passwordSchema,
+    })
 
     const validatedData = registerSchema.parse(body)
 

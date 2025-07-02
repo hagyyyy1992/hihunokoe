@@ -6,10 +6,11 @@ import {
   getClientIP,
   createRateLimitErrorResponse,
 } from '@/lib/rate-limiter'
+import { passwordSchema } from '@/lib/auth/password-validation'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'トークンが必要です'),
-  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
+  password: passwordSchema,
 })
 
 export async function POST(request: NextRequest) {

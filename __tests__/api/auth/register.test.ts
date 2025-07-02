@@ -41,9 +41,9 @@ describe('/api/auth/register', () => {
   }
 
   const validRegistrationData = {
-    userName: 'testuser',
-    email: 'test@example.com',
-    password: 'password123',
+    userName: 'demouser',
+    email: 'demo@example.com',
+    password: 'SecurePass123!', // パスワード強度要件を満たし、ユーザー名を含まない
     birthDate: new Date('1990-01-01'),
     gender: 'male' as const,
     skinType: 'normal' as const,
@@ -55,8 +55,8 @@ describe('/api/auth/register', () => {
     it('正常なユーザー登録リクエストで成功レスポンスを返す', async () => {
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: new Date('1990-01-01'),
         gender: 'male' as Gender,
         skinType: 'normal' as SkinType,
@@ -95,15 +95,15 @@ describe('/api/auth/register', () => {
 
     it('最小限の必須フィールドでユーザー登録が成功する', async () => {
       const minimalData = {
-        userName: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
+        userName: 'demouser',
+        email: 'demo@example.com',
+        password: 'SecurePass123!',
       }
 
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: undefined,
         gender: undefined,
         skinType: undefined,
@@ -199,6 +199,34 @@ describe('/api/auth/register', () => {
       expect(data.error).toBe('入力内容に誤りがあります')
     })
 
+    it('パスワードが強度要件を満たさない場合、バリデーションエラーを返す', async () => {
+      const invalidData = {
+        ...validRegistrationData,
+        password: 'password123', // よくあるパスワード
+      }
+
+      const request = createRequest(invalidData)
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('入力内容に誤りがあります')
+    })
+
+    it('パスワードにユーザー名が含まれる場合、バリデーションエラーを返す', async () => {
+      const invalidData = {
+        ...validRegistrationData,
+        password: 'demouser123!A', // ユーザー名を含む
+      }
+
+      const request = createRequest(invalidData)
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('入力内容に誤りがあります')
+    })
+
     it('無効な肌タイプでバリデーションエラーを返す', async () => {
       const invalidData = {
         ...validRegistrationData,
@@ -233,7 +261,7 @@ describe('/api/auth/register', () => {
 
     it('必須フィールドが欠如している場合、バリデーションエラーを返す', async () => {
       const incompleteData = {
-        email: 'test@example.com',
+        email: 'demo@example.com',
         password: 'password123',
         // userName が欠如
       }
@@ -270,8 +298,8 @@ describe('/api/auth/register', () => {
 
         const mockUser = {
           id: '1',
-          userName: 'testuser',
-          email: 'test@example.com',
+          userName: 'demouser',
+          email: 'demo@example.com',
           skinType: skinType as SkinType,
           emailVerified: false,
         }
@@ -291,8 +319,8 @@ describe('/api/auth/register', () => {
     it('確認メール送信に失敗してもユーザー登録は成功する（エラーケース）', async () => {
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: new Date('1990-01-01'),
         gender: 'male' as Gender,
         skinType: 'normal' as SkinType,
@@ -323,7 +351,7 @@ describe('/api/auth/register', () => {
           message: 'Email service error',
           stack: expect.any(String),
           userId: '1',
-          email: 'test@example.com',
+          email: 'demo@example.com',
         })
       )
 
@@ -333,8 +361,8 @@ describe('/api/auth/register', () => {
     it('非Errorオブジェクトのメール送信エラーを処理', async () => {
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: new Date('1990-01-01'),
         gender: 'male' as Gender,
         skinType: 'normal' as SkinType,
@@ -365,7 +393,7 @@ describe('/api/auth/register', () => {
           message: 'Unknown error',
           stack: undefined,
           userId: '1',
-          email: 'test@example.com',
+          email: 'demo@example.com',
         })
       )
 
@@ -375,8 +403,8 @@ describe('/api/auth/register', () => {
     it('hostヘッダーがない場合のbaseURL処理', async () => {
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: new Date('1990-01-01'),
         gender: 'male' as Gender,
         skinType: 'normal' as SkinType,
@@ -408,8 +436,8 @@ describe('/api/auth/register', () => {
       expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
       expect(mockSendVerificationEmail).toHaveBeenCalledWith(
         '1',
-        'test@example.com',
-        'testuser',
+        'demo@example.com',
+        'demouser',
         undefined
       )
     })
@@ -417,8 +445,8 @@ describe('/api/auth/register', () => {
     it('x-forwarded-protoヘッダーがない場合のプロトコル処理', async () => {
       const mockUser = {
         id: '1',
-        userName: 'testuser',
-        email: 'test@example.com',
+        userName: 'demouser',
+        email: 'demo@example.com',
         birthDate: new Date('1990-01-01'),
         gender: 'male' as Gender,
         skinType: 'normal' as SkinType,
@@ -451,8 +479,8 @@ describe('/api/auth/register', () => {
       expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
       expect(mockSendVerificationEmail).toHaveBeenCalledWith(
         '1',
-        'test@example.com',
-        'testuser',
+        'demo@example.com',
+        'demouser',
         'http://localhost:3000'
       )
     })
