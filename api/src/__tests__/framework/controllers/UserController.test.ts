@@ -35,23 +35,14 @@ describe.skip('UserController', () => {
     jest.clearAllMocks()
   })
 
-  const mockDomainUser: User = new (jest.requireActual('@api/domain/entities/User').User)(
-    '1',
-    'test@example.com',
-    'testuser',
-    'hashed-password',
-    true,
-    null,
-    null,
-    null,
-    0,
-    null,
-    'USER',
-    true,
-    null,
-    new Date(),
-    new Date()
-  )
+  const mockDomainUser: User = {
+    id: '1',
+    email: 'test@example.com',
+    username: 'testuser',
+    emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as any
 
   describe.skip('getMe', () => {
     it('should return user when authenticated', async () => {
