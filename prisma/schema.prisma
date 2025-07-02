@@ -72,19 +72,6 @@ model Post {
   @@map("posts")
 }
 
-model Empathy {
-  id          String      @id @default(uuid()) @db.Uuid
-  postId      String      @map("post_id") @db.Uuid
-  userId      String      @map("user_id") @db.Uuid
-  empathyType EmpathyType @default(LIKE) @map("empathy_type")
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  post        Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@map("empathies")
-}
-
 model PostPermission {
   id             String   @id @default(uuid()) @db.Uuid
   postId         String   @map("post_id") @db.Uuid
@@ -100,6 +87,19 @@ model PostPermission {
 
   @@unique([postId, userId, permissionType])
   @@map("post_permissions")
+}
+
+model Empathy {
+  id          String      @id @default(uuid()) @db.Uuid
+  postId      String      @map("post_id") @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  empathyType EmpathyType @default(LIKE) @map("empathy_type")
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  post        Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("empathies")
 }
 
 model Comment {
