@@ -1,13 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
-import { verifyToken, AuthUser } from '@/lib/auth/auth'
 import { User } from '@api/domain/entities/User'
+import { TokenService } from '@api/domain/services/TokenService'
+import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+
+interface AuthUser {
+  id: string
+  userName: string
+  email: string
+  emailVerified: boolean
+  role?: string
+}
 
 export class UserController {
   private getUserInputPort: GetUserInputPort
+  private tokenService: TokenService
+  private authSessionRepository: AuthSessionRepository
 
-  constructor(getUserInputPort: GetUserInputPort) {
+  constructor(
+    getUserInputPort: GetUserInputPort,
+    tokenService: TokenService,
+    authSessionRepository: AuthSessionRepository
+  ) {
     this.getUserInputPort = getUserInputPort
+    this.tokenService = tokenService
+    this.authSessionRepository = authSessionRepository
   }
 
   /**
@@ -19,25 +36,25 @@ export class UserController {
       userName: domainUser.username, // Convert username to userName
       email: domainUser.email,
       emailVerified: domainUser.emailVerified,
-      // Add other fields as needed when domain entity expands
+      role: domainUser.role
     }
   }
 
   async getMe(request: NextRequest): Promise<NextResponse> {
     try {
-      const token = request.cookies.get('auth-token')?.value
+      const authHeader = request.headers.get('authorization')
+      const token = authHeader?.replace('Bearer ', '') || request.cookies.get('auth-token')?.value
 
       if (!token) {
         return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
       }
 
-      const decoded = verifyToken(token)
-
-      if (!decoded) {
+      const session = await this.authSessionRepository.findByToken(token)
+      if (!session || !session.isValid()) {
         return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
       }
 
-      const result = await this.getUserInputPort.execute({ userId: decoded.id })
+      const result = await this.getUserInputPort.execute({ userId: session.userId })
 
       const authUser = this.convertUserToAuthUser(result.user)
       return NextResponse.json({ user: authUser })
