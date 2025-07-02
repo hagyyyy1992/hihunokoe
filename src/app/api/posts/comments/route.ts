@@ -15,6 +15,7 @@ const createCommentSchema = z.object({
 })
 
 const querySchema = z.object({
+  id: z.string().min(1, '投稿IDは必須です'),
   page: z
     .string()
     .optional()
@@ -65,13 +66,11 @@ function checkRateLimit(userId: string): boolean {
   return true
 }
 
-// GET /api/posts/[id]/comments - コメント一覧取得
-// Fixed Vercel deployment routing issue
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+// GET /api/posts/comments - コメント一覧取得 (query parameter使用)
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const { page, limit } = querySchema.parse(Object.fromEntries(searchParams))
-    const { id: postId } = await params
+    const { id: postId, page, limit } = querySchema.parse(Object.fromEntries(searchParams))
 
     if (!isDatabaseAvailable()) {
       // モックデータから投稿を確認
@@ -149,7 +148,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const totalComments = await prisma!.comment.count({
       where: {
         postId,
-        isPublished: true,
+        isActive: true,
         parentCommentId: null, // トップレベルコメントのみ
       },
     })
@@ -158,7 +157,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const comments = await prisma!.comment.findMany({
       where: {
         postId,
-        isPublished: true,
+        isActive: true,
         parentCommentId: null, // トップレベルコメントのみ
       },
       include: {
@@ -170,7 +169,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
         replies: {
-          where: { isPublished: true },
+          where: { isActive: true },
           include: {
             user: {
               select: {
@@ -234,11 +233,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-// POST /api/posts/[id]/comments - コメント投稿
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+// POST /api/posts/comments - コメント投稿 (query parameter使用)
+export async function POST(request: NextRequest) {
   try {
     const { userId } = await authenticateRequest(request)
-    const { id: postId } = await params
+    const { searchParams } = new URL(request.url)
+    const postId = searchParams.get('id')
+
+    if (!postId) {
+      return NextResponse.json(createApiError('BAD_REQUEST', '投稿IDが指定されていません'), {
+        status: 400,
+      })
+    }
 
     if (!isDatabaseAvailable()) {
       // モックデータから投稿を確認
@@ -287,7 +293,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         content,
         postId,
         userId,
-        isPublished: true,
+        isActive: true,
       },
       include: {
         user: {
