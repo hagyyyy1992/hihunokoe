@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+import { Input } from '@/components/ui/Input'
 
 // 定数として外に出して再作成を防ぐ
 const SKIN_TYPE_OPTIONS = [
@@ -365,46 +366,32 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                パスワード *
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                  placeholder="パスワードを入力してください"
-                  data-testid="password-input"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">8文字以上で入力してください</p>
-            </div>
+            <Input
+              label="パスワード"
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="パスワードを入力してください"
+              hint="8文字以上で入力してください"
+              data-testid="password-input"
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                パスワード確認 *
-              </label>
-              <div className="mt-1">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                  placeholder="パスワードを再度入力してください"
-                  data-testid="confirm-password-input"
-                />
-              </div>
-            </div>
+            <Input
+              label="パスワード確認"
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="パスワードを再度入力してください"
+              data-testid="confirm-password-input"
+            />
 
             <div>
               <button

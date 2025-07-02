@@ -65,7 +65,9 @@
       "Bash(-s)",
       "Bash(cp:*)",
       "Bash(sed:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx next lint:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",

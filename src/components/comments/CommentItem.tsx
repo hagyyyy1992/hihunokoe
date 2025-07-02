@@ -68,7 +68,7 @@ export default function CommentItem({
     setError('')
 
     try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
+      const response = await fetch(`/api/comments/edit?id=${comment.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,12 @@ export default function CommentItem({
 
       setIsEditing(false)
       if (onEditSuccess) {
-        onEditSuccess(data.comment)
+        // APIから返信データがない場合は、既存の返信を保持
+        const updatedComment = {
+          ...data.comment,
+          replies: data.comment.replies || comment.replies || [],
+        }
+        onEditSuccess(updatedComment)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'コメントの編集に失敗しました'
@@ -106,7 +111,7 @@ export default function CommentItem({
     setError('')
 
     try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
+      const response = await fetch(`/api/comments/edit?id=${comment.id}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       })
@@ -253,8 +258,8 @@ export default function CommentItem({
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">コメントを削除しますか？</h3>
             <p className="text-sm text-gray-600 mb-6">
               この操作は元に戻せません。本当に削除してもよろしいですか？

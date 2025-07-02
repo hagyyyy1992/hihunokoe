@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import { cn } from '@/lib/utils'
+import { usePasswordToggle } from '@/hooks/usePasswordToggle'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -23,12 +24,16 @@ const Input = memo(
         icon,
         variant = 'default',
         'data-testid': testId,
+        type,
         ...props
       },
       ref
     ) => {
+      const { inputType, PasswordToggleIcon } = usePasswordToggle()
       const id = props.id || props.name
       const displayHint = hint || (showPlaceholderHint && props.placeholder) || ''
+      const isPasswordField = type === 'password'
+      const finalInputType = isPasswordField ? inputType : type
 
       return (
         <div className="form-group">
@@ -46,15 +51,24 @@ const Input = memo(
             )}
             <input
               ref={ref}
+              type={finalInputType}
               className={cn(
                 'input',
                 icon && 'pl-10',
+                isPasswordField && 'pr-10',
                 variant === 'error' && 'input-error',
                 className
               )}
               data-testid={testId || `${props.name}-input`}
               {...props}
             />
+            {isPasswordField && (
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <div data-testid={`${props.name}-password-toggle`}>
+                  <PasswordToggleIcon />
+                </div>
+              </div>
+            )}
           </div>
           {error && <p className="form-error">{error}</p>}
           {displayHint && !error && <p className="form-hint">{displayHint}</p>}
