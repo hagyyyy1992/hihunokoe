@@ -1,12 +1,16 @@
 import { User, UserRole } from '@api/domain/entities/User'
-import { UserRepository, CreateUserData, UpdateUserData } from '@api/domain/repositories/UserRepository'
+import {
+  UserRepository,
+  CreateUserData,
+  UpdateUserData,
+} from '@api/domain/repositories/UserRepository'
 import { prisma } from '@/lib/prisma'
 import { User as PrismaUser } from '@prisma/client'
 
 export class UserRepositoryImpl implements UserRepository {
   async findById(id: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.findUnique({
       where: { id },
     })
@@ -17,7 +21,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.findUnique({
       where: { email },
     })
@@ -28,7 +32,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async findByUsername(username: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.findUnique({
       where: { userName: username },
     })
@@ -39,7 +43,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async findByEmailVerificationToken(token: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.findFirst({
       where: { emailVerificationToken: token },
     })
@@ -50,7 +54,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async findByPasswordResetToken(token: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.findFirst({
       where: { passwordResetToken: token },
     })
@@ -61,7 +65,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async create(user: CreateUserData): Promise<User> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.create({
       data: {
         userName: user.username,
@@ -101,7 +105,7 @@ export class UserRepositoryImpl implements UserRepository {
       updateData.failedLoginAttempts = data.failedLoginAttempts
 
     if (!prisma) throw new Error('Database connection not available')
-    
+
     const prismaUser = await prisma.user.update({
       where: { id },
       data: updateData,
@@ -112,7 +116,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async delete(id: string): Promise<void> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     await prisma.user.update({
       where: { id },
       data: { deletedAt: new Date() },
@@ -121,7 +125,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async incrementFailedLoginAttempts(id: string): Promise<void> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     await prisma.$executeRaw`
       UPDATE users 
       SET failed_login_attempts = COALESCE(failed_login_attempts, 0) + 1 
@@ -131,7 +135,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async resetFailedLoginAttempts(id: string): Promise<void> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     await prisma.$executeRaw`
       UPDATE users 
       SET failed_login_attempts = 0 
@@ -141,7 +145,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async lockAccount(id: string, until: Date): Promise<void> {
     if (!prisma) throw new Error('Database connection not available')
-    
+
     await prisma.$executeRaw`
       UPDATE users 
       SET locked_until = ${until} 

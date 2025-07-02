@@ -1,5 +1,9 @@
 import { GetUserUseCase } from '@api/usecases/user/GetUserUseCase'
-import { UserRepository, CreateUserData, UpdateUserData } from '@api/domain/repositories/UserRepository'
+import {
+  UserRepository,
+  CreateUserData,
+  UpdateUserData,
+} from '@api/domain/repositories/UserRepository'
 import { User, UserRole } from '@api/domain/entities/User'
 
 class MockUserRepository implements UserRepository {
