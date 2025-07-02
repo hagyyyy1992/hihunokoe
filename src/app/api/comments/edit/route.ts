@@ -61,11 +61,11 @@ export async function PUT(request: NextRequest) {
       select: {
         id: true,
         userId: true,
-        isActive: true,
+        isPublished: true,
       },
     })
 
-    if (!existingComment || !existingComment.isActive) {
+    if (!existingComment || !existingComment.isPublished) {
       return NextResponse.json(
         createApiError('RESOURCE_NOT_FOUND', 'コメントが見つかりませんでした'),
         { status: 404 }
@@ -92,7 +92,7 @@ export async function PUT(request: NextRequest) {
           },
         },
         replies: {
-          where: { isActive: true },
+          where: { isPublished: true },
           include: {
             user: {
               select: {
@@ -176,11 +176,11 @@ export async function DELETE(request: NextRequest) {
       select: {
         id: true,
         userId: true,
-        isActive: true,
+        isPublished: true,
       },
     })
 
-    if (!existingComment || !existingComment.isActive) {
+    if (!existingComment || !existingComment.isPublished) {
       return NextResponse.json(
         createApiError('RESOURCE_NOT_FOUND', 'コメントが見つかりませんでした'),
         { status: 404 }
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest) {
     // 論理削除（isActiveをfalseに設定）
     await prisma!.comment.update({
       where: { id: commentId },
-      data: { isActive: false },
+      data: { isPublished: false },
     })
 
     return NextResponse.json({
