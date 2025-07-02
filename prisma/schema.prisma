@@ -26,13 +26,13 @@ model User {
   lastLogin               DateTime?        @map("last_login") @db.Timestamptz(6)
   profileImageUrl         String?          @map("profile_image_url")
   skinType                SkinType?        @map("skin_type")
-  skinTypeOther           String?          @map("skin_type_other")
   age                     Int?             @map("age")
   birthDate               DateTime?        @map("birth_date") @db.Date
   gender                  Gender?          @map("gender")
   allergies               AllergyType[]    @map("allergies")
   allergiesOther          String?          @map("allergies_other")
   bodyType                BodyType?        @map("body_type")
+  skinTypeOther           String?          @map("skin_type_other")
   bodyTypeOther           String?          @map("body_type_other")
   selfIntroduction        String?          @map("self_introduction") @db.Text
   comments                Comment[]
