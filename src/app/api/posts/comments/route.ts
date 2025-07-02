@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
     const postId = searchParams.get('id')
 
     if (!postId) {
-      return NextResponse.json(createApiError('VALIDATION_ERROR', '投稿IDが指定されていません'), {
+      return NextResponse.json(createApiError('BAD_REQUEST', '投稿IDが指定されていません'), {
         status: 400,
       })
     }
