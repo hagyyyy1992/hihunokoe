@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/avatar'
-import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { AuthUser } from '@/lib/auth/auth'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -38,24 +38,46 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('auth-token='))
-      ?.split('=')[1]
+    const checkAuth = async () => {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth-token='))
+        ?.split('=')[1]
 
-    if (!token) {
-      router.push('/admin/login')
-      return
+      if (!token) {
+        router.push('/admin/login')
+        return
+      }
+
+      try {
+        const response = await fetch('/api/admin/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Authentication failed')
+        }
+
+        const userData = await response.json()
+        if (
+          !userData.user ||
+          (userData.user.role !== 'ADMIN' && userData.user.role !== 'SUPER_ADMIN')
+        ) {
+          router.push('/admin/login')
+          return
+        }
+
+        setUser(userData.user)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        router.push('/admin/login')
+      }
     }
 
-    const userData = verifyToken(token)
-    if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN')) {
-      router.push('/admin/login')
-      return
-    }
-
-    setUser(userData)
-    setIsLoading(false)
+    checkAuth()
   }, [router])
 
   const handleLogout = () => {

@@ -35,7 +35,13 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'ログインに失敗しました')
       }
 
-      document.cookie = `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
+      // localhostでは secure フラグを外す
+      const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      const cookieOptions = isLocalhost
+        ? `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`
+        : `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
+
+      document.cookie = cookieOptions
 
       router.push('/admin/dashboard')
     } catch (error) {

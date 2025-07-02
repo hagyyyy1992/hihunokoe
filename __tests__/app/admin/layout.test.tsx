@@ -4,17 +4,14 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useRouter, usePathname } from 'next/navigation'
 import AdminLayout from '@/app/admin/layout'
-import { verifyToken } from '@/lib/auth/auth'
-
 // Mock dependencies
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   usePathname: jest.fn(),
 }))
 
-jest.mock('@/lib/auth/auth', () => ({
-  verifyToken: jest.fn(),
-}))
+// Mock fetch globally
+global.fetch = jest.fn()
 
 jest.mock('@/components/ui/Button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
@@ -52,7 +49,7 @@ jest.mock('next/link', () => {
 })
 
 const mockPush = jest.fn()
-const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
+const mockFetch = fetch as jest.MockedFunction<typeof fetch>
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>
 
@@ -89,18 +86,24 @@ describe('AdminLayout', () => {
   })
 
   it('shows loading state initially', async () => {
-    // Mock initial loading state - no user returned yet
-    mockVerifyToken.mockReturnValue(null)
+    // Mock API call that takes time to resolve
+    mockFetch.mockImplementation(() => 
+      new Promise(resolve => 
+        setTimeout(() => resolve({
+          ok: true,
+          json: async () => ({ user: { id: '1', userName: 'admin', role: 'ADMIN' } })
+        } as Response), 100)
+      )
+    )
 
-    // Simulate initial loading by not returning user immediately
     render(
       <AdminLayout>
         <div data-testid="admin-content">Admin Content</div>
       </AdminLayout>
     )
 
-    // In loading state, should not show admin content yet
-    expect(screen.queryByTestId('admin-content')).not.toBeInTheDocument()
+    // Should show loading state initially
+    expect(screen.getByText('認証中...')).toBeInTheDocument()
   })
 
   it('redirects to login when no token is present', () => {
@@ -118,8 +121,13 @@ describe('AdminLayout', () => {
     expect(mockPush).toHaveBeenCalledWith('/admin/login')
   })
 
-  it('redirects to login when token is invalid', () => {
-    mockVerifyToken.mockReturnValue(null)
+  it('redirects to login when token is invalid', async () => {
+    // Mock API call returning 401 error
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({ error: 'Unauthorized' })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -127,16 +135,24 @@ describe('AdminLayout', () => {
       </AdminLayout>
     )
 
-    expect(mockPush).toHaveBeenCalledWith('/admin/login')
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/admin/login')
+    })
   })
 
-  it('redirects to login when user is not admin', () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'user',
-      email: 'user@example.com',
-      role: 'USER',
-    })
+  it('redirects to login when user is not admin', async () => {
+    // Mock API call returning non-admin user
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'user',
+          email: 'user@example.com',
+          role: 'USER',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -144,16 +160,24 @@ describe('AdminLayout', () => {
       </AdminLayout>
     )
 
-    expect(mockPush).toHaveBeenCalledWith('/admin/login')
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/admin/login')
+    })
   })
 
   it('renders admin layout for valid admin user', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    })
+    // Mock successful API call with admin user
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -167,12 +191,17 @@ describe('AdminLayout', () => {
   })
 
   it('renders navigation items', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -190,12 +219,17 @@ describe('AdminLayout', () => {
   })
 
   it('shows user info and logout button', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -211,12 +245,17 @@ describe('AdminLayout', () => {
   })
 
   it('shows super admin role correctly', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'superadmin',
-      email: 'superadmin@example.com',
-      role: 'SUPER_ADMIN',
-    })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'superadmin',
+          email: 'superadmin@example.com',
+          role: 'SUPER_ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -230,12 +269,17 @@ describe('AdminLayout', () => {
   })
 
   it('handles logout correctly', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
@@ -252,12 +296,17 @@ describe('AdminLayout', () => {
   })
 
   it('toggles sidebar on mobile', async () => {
-    mockVerifyToken.mockReturnValue({
-      id: '1',
-      userName: 'admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }
+      })
+    } as Response)
 
     render(
       <AdminLayout>
