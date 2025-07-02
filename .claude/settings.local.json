@@ -54,7 +54,9 @@
       "Bash(docker:*)",
       "Bash(docker exec:*)",
       "Bash(docker rm:*)",
-      "Bash(docker stop:*)"
+      "Bash(docker stop:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx next lint:*)"
     ],
     "deny": [
       "Bash(git push origin main:*)",
