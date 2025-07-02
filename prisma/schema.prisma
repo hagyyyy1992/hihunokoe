@@ -120,20 +120,6 @@ model Comment {
   @@map("comments")
 }
 
-model AdminLog {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  action    String   @map("action") @db.VarChar(100)
-  targetId  String?  @map("target_id") @db.Uuid
-  details   Json?    @map("details")
-  ipAddress String?  @map("ip_address") @db.VarChar(45)
-  userAgent String?  @map("user_agent") @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("admin_logs")
-}
-
 model Report {
   id          String       @id @default(uuid()) @db.Uuid
   reporterId  String       @map("reporter_id") @db.Uuid
@@ -237,4 +223,18 @@ enum EmpathyType {
   AMAZING @map("amazing")
 
   @@map("empathy_types")
+}
+
+model AdminLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  action    String   @map("action") @db.VarChar(100)
+  targetId  String?  @map("target_id") @db.Uuid
+  details   Json?    @map("details")
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_logs")
 }
