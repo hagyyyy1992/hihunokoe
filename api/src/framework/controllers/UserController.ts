@@ -36,7 +36,7 @@ export class UserController {
       userName: domainUser.username, // Convert username to userName
       email: domainUser.email,
       emailVerified: domainUser.emailVerified,
-      role: domainUser.role
+      role: domainUser.role,
     }
   }
 

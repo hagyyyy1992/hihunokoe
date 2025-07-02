@@ -1,4 +1,8 @@
-import { RegisterInputPort, RegisterInput, RegisterOutput } from '@api/usecases/auth/RegisterInputPort'
+import {
+  RegisterInputPort,
+  RegisterInput,
+  RegisterOutput,
+} from '@api/usecases/auth/RegisterInputPort'
 import { UserRepository } from '@api/domain/repositories/UserRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
@@ -34,14 +38,14 @@ export class RegisterUseCase implements RegisterInputPort {
       lockedUntil: null,
       role: UserRole.USER,
       active: true,
-      deletedAt: null
+      deletedAt: null,
     })
 
     return {
       id: user.id,
       email: user.email,
       username: user.username,
-      emailVerificationToken: emailVerificationToken
+      emailVerificationToken: emailVerificationToken,
     }
   }
 

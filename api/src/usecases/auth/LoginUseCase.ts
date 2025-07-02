@@ -10,7 +10,7 @@ import {
   InvalidCredentialsError,
   AccountLockedError,
   AccountInactiveError,
-  EmailNotVerifiedError
+  EmailNotVerifiedError,
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class LoginUseCase implements LoginInputPort {
@@ -61,18 +61,13 @@ export class LoginUseCase implements LoginInputPort {
     const token = await this.tokenService.generateToken({
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     })
 
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 24)
 
-    const session = new AuthSession(
-      user.id,
-      token,
-      expiresAt,
-      new Date()
-    )
+    const session = new AuthSession(user.id, token, expiresAt, new Date())
 
     await this.authSessionRepository.create(session)
 
@@ -83,14 +78,14 @@ export class LoginUseCase implements LoginInputPort {
         email: user.email,
         username: user.username,
         role: user.role,
-        emailVerified: user.emailVerified
-      }
+        emailVerified: user.emailVerified,
+      },
     }
   }
 
   private async handleFailedLogin(userId: string): Promise<void> {
     await this.userRepository.incrementFailedLoginAttempts(userId)
-    
+
     const user = await this.userRepository.findById(userId)
     if (user && user.failedLoginAttempts >= this.MAX_FAILED_ATTEMPTS) {
       const lockUntil = new Date()

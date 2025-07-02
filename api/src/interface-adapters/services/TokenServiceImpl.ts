@@ -12,7 +12,7 @@ export class TokenServiceImpl implements TokenService {
 
   async generateToken(payload: AuthTokenPayload): Promise<string> {
     return jwt.sign(payload, this.jwtSecret, {
-      expiresIn: '24h'
+      expiresIn: '24h',
     })
   }
 

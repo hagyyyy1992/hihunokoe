@@ -9,7 +9,7 @@ import {
   InvalidCredentialsError,
   AccountLockedError,
   AccountInactiveError,
-  EmailNotVerifiedError
+  EmailNotVerifiedError,
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AuthController {
@@ -31,10 +31,7 @@ export class AuthController {
       const { email, password } = body
 
       if (!email || !password) {
-        return NextResponse.json(
-          { error: 'Email and password are required' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
       }
 
       const loginUseCase = new LoginUseCase(
@@ -49,14 +46,11 @@ export class AuthController {
       return NextResponse.json({
         success: true,
         token: result.token,
-        user: result.user
+        user: result.user,
       })
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
-        return NextResponse.json(
-          { error: 'Invalid email or password' },
-          { status: 401 }
-        )
+        return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
       }
       if (error instanceof AccountLockedError) {
         return NextResponse.json(
@@ -65,10 +59,7 @@ export class AuthController {
         )
       }
       if (error instanceof AccountInactiveError) {
-        return NextResponse.json(
-          { error: 'Account is inactive' },
-          { status: 403 }
-        )
+        return NextResponse.json({ error: 'Account is inactive' }, { status: 403 })
       }
       if (error instanceof EmailNotVerifiedError) {
         return NextResponse.json(
@@ -76,12 +67,9 @@ export class AuthController {
           { status: 403 }
         )
       }
-      
+
       console.error('Login error:', error)
-      return NextResponse.json(
-        { error: 'An error occurred during login' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'An error occurred during login' }, { status: 500 })
     }
   }
 
@@ -108,41 +96,26 @@ export class AuthController {
       return NextResponse.json({
         success: true,
         message: 'Registration successful. Please check your email to verify your account.',
-        userId: result.id
+        userId: result.id,
       })
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Email already exists') {
-          return NextResponse.json(
-            { error: 'Email already exists' },
-            { status: 409 }
-          )
+          return NextResponse.json({ error: 'Email already exists' }, { status: 409 })
         }
         if (error.message === 'Username already exists') {
-          return NextResponse.json(
-            { error: 'Username already exists' },
-            { status: 409 }
-          )
+          return NextResponse.json({ error: 'Username already exists' }, { status: 409 })
         }
         if (error.message.includes('Invalid email format')) {
-          return NextResponse.json(
-            { error: 'Invalid email format' },
-            { status: 400 }
-          )
+          return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
         }
         if (error.message.includes('Password must be')) {
-          return NextResponse.json(
-            { error: error.message },
-            { status: 400 }
-          )
+          return NextResponse.json({ error: error.message }, { status: 400 })
         }
       }
-      
+
       console.error('Registration error:', error)
-      return NextResponse.json(
-        { error: 'An error occurred during registration' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'An error occurred during registration' }, { status: 500 })
     }
   }
 }
