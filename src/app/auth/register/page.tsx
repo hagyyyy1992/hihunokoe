@@ -134,9 +134,7 @@ export default function RegisterPage() {
         }
 
         // より詳細なエラーメッセージを構築
-        if (data.details) {
-          errorMessage = data.details
-        } else if (data.message) {
+        if (data.message) {
           errorMessage = data.message
         }
 
