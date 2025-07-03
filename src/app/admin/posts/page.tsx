@@ -80,7 +80,7 @@ export default function PostModeration() {
         .find(row => row.startsWith('auth-token='))
         ?.split('=')[1]
 
-      const response = await fetch('/api/admin/posts', {
+      const response = await fetch('/apis/admin/posts', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

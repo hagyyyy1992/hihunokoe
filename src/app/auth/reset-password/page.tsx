@@ -30,7 +30,7 @@ function ResetPasswordForm() {
 
     const verifyToken = async () => {
       try {
-        const response = await fetch('/api/auth/verify-reset-token', {
+        const response = await fetch('/apis/auth/verify-reset-token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ function ResetPasswordForm() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch('/apis/auth/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

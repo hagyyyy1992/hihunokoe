@@ -58,8 +58,8 @@ export default function CommentForm({
 
     try {
       const url = parentCommentId
-        ? `/api/comments/reply?id=${parentCommentId}`
-        : `/api/posts/comments?id=${postId}`
+        ? `/apis/comments/reply?id=${parentCommentId}`
+        : `/apis/posts/comments?id=${postId}`
 
       const response = await fetch(url, {
         method: 'POST',

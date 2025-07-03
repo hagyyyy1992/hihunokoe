@@ -86,7 +86,7 @@ export default function PostCard({ post }: PostCardProps) {
     if (!user || !post.id) return
 
     try {
-      const response = await fetch(`/api/posts/empathy?id=${post.id}`)
+      const response = await fetch(`/apis/posts/empathy?id=${post.id}`)
       if (response.ok) {
         const data = await response.json()
         setEmpathyState({
