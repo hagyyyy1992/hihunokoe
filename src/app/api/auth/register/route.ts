@@ -25,9 +25,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // 基本的なバリデーション
-    const baseValidation = baseRegisterSchema.parse(body)
-
     // パスワードのバリデーション
     const passwordSchema = createPasswordSchemaWithUserInfo()
     const registerSchema = baseRegisterSchema.extend({
