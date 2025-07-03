@@ -59,7 +59,6 @@
       "Bash(npx next lint:*)"
     ],
     "deny": [
-      "Bash(git push origin main:*)",
       "Bash(git push --force:*)",
       "Bash(git checkout main && git merge:*)",
       "Bash(gh pr merge:*)",
