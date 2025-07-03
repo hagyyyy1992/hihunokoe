@@ -1,18 +1,24 @@
 {
   "functions": {
-    "src/app/api/test/**/*.ts": false,
-    "src/app/api/v2/**/*.ts": false,
-    "src/app/api/posts/test/**/*.ts": false,
-    "src/app/api/comments/**/*.ts": false,
-    "src/app/api/posts/comments/**/*.ts": false,
-    "src/app/api/posts/empathy/**/*.ts": false,
-    "src/app/api/posts/get/**/*.ts": false,
-    "src/app/api/posts/delete/**/*.ts": false,
-    "src/app/api/posts/update/**/*.ts": false,
-    "src/app/api/admin/**/*.ts": false,
-    "src/app/api/auth/resend-verification/**/*.ts": false,
-    "src/app/api/auth/verify-email/**/*.ts": false,
-    "src/app/api/auth/verify-reset-token/**/*.ts": false
+    "src/app/api/**/*.ts": false,
+    "src/app/api/auth/login/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/auth/register/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/auth/me/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/auth/logout/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/posts/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/posts/[id]/route.ts": {
+      "maxDuration": 10
+    }
   },
   "headers": [
     {
