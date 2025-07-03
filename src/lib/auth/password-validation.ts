@@ -57,17 +57,18 @@ export function calculatePasswordStrength(password: string): {
 
   const charTypes = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length
 
+  if (charTypes >= 2) score++
   if (charTypes >= 3) score++
   if (charTypes === 4) score++
 
-  if (charTypes < 3) {
+  if (charTypes < 2) {
     const missing = []
     if (!hasLower) missing.push('小文字')
     if (!hasUpper) missing.push('大文字')
     if (!hasNumber) missing.push('数字')
     if (!hasSpecial) missing.push('記号')
 
-    feedback.push(`${missing.slice(0, 3 - charTypes).join('、')}を含めてください`)
+    feedback.push(`${missing.slice(0, 2 - charTypes).join('、')}を含めてください`)
   }
 
   // よくあるパスワードチェック
@@ -100,7 +101,7 @@ export function validatePassword(
     errors.push('パスワードは128文字以下で入力してください')
   }
 
-  // 文字種チェック（3種類以上）
+  // 文字種チェック（2種類以上）
   const hasLower = /[a-z]/.test(password)
   const hasUpper = /[A-Z]/.test(password)
   const hasNumber = /[0-9]/.test(password)
@@ -108,8 +109,8 @@ export function validatePassword(
 
   const charTypes = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length
 
-  if (charTypes < 3) {
-    errors.push('パスワードは小文字、大文字、数字、記号のうち3種類以上を含めてください')
+  if (charTypes < 2) {
+    errors.push('パスワードは小文字、大文字、数字、記号のうち2種類以上を含めてください')
   }
 
   // よくあるパスワードチェック
@@ -146,8 +147,8 @@ export const passwordSchema = z
     const hasNumber = /[0-9]/.test(password)
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
     const charTypes = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length
-    return charTypes >= 3
-  }, 'パスワードは小文字、大文字、数字、記号のうち3種類以上を含めてください')
+    return charTypes >= 2
+  }, 'パスワードは小文字、大文字、数字、記号のうち2種類以上を含めてください')
   .refine(
     password => !COMMON_PASSWORDS.some(common => password.toLowerCase() === common.toLowerCase()),
     'よくあるパスワードは使用できません'

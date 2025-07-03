@@ -26,18 +26,20 @@ describe('password-validation', () => {
       expect(result.errors).toContain('パスワードは128文字以下で入力してください')
     })
 
-    it('3種類未満の文字種を含むパスワードを拒否する', () => {
-      const result = validatePassword('password123') // 小文字と数字のみ
+    it('2種類未満の文字種を含むパスワードを拒否する', () => {
+      const result = validatePassword('password') // 小文字のみ
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain(
-        'パスワードは小文字、大文字、数字、記号のうち3種類以上を含めてください'
+        'パスワードは小文字、大文字、数字、記号のうち2種類以上を含めてください'
       )
     })
 
-    it('3種類以上の文字種を含むパスワードを受け入れる', () => {
-      const result = validatePassword('SecurePass123') // 大文字、小文字、数字
-      expect(result.isValid).toBe(true)
-      expect(result.errors).toEqual([])
+    it('2種類以上の文字種を含むパスワードを受け入れる', () => {
+      const result = validatePassword('password123') // 小文字と数字
+      expect(result.isValid).toBe(false) // よくあるパスワードなので拒否される
+      const result2 = validatePassword('MySecure99') // 大文字、小文字、数字
+      expect(result2.isValid).toBe(true)
+      expect(result2.errors).toEqual([])
     })
 
     it('よくあるパスワードを拒否する', () => {
@@ -89,9 +91,9 @@ describe('password-validation', () => {
       expect(result2.score).toBeGreaterThanOrEqual(result1.score)
     })
 
-    it('3種類以上の文字種を含むパスワードはスコアが向上する', () => {
-      const result = calculatePasswordStrength('SecurePass123')
-      expect(result.score).toBeGreaterThan(1)
+    it('2種類以上の文字種を含むパスワードはスコアが向上する', () => {
+      const result = calculatePasswordStrength('SecurePass')
+      expect(result.score).toBeGreaterThan(0)
     })
 
     it('4種類の文字種を含むパスワードは最高スコアに近づく', () => {
@@ -106,7 +108,7 @@ describe('password-validation', () => {
     })
 
     it('文字種が不足している場合、改善のフィードバックを返す', () => {
-      const result = calculatePasswordStrength('password123')
+      const result = calculatePasswordStrength('password') // 小文字のみ
       expect(result.feedback.some(f => f.includes('含めてください'))).toBe(true)
     })
   })
@@ -125,8 +127,8 @@ describe('password-validation', () => {
       expect(() => passwordSchema.parse(longPassword)).toThrow()
     })
 
-    it('3種類未満の文字種を含むパスワードを拒否する', () => {
-      expect(() => passwordSchema.parse('password123')).toThrow()
+    it('2種類未満の文字種を含むパスワードを拒否する', () => {
+      expect(() => passwordSchema.parse('password')).toThrow()
     })
 
     it('よくあるパスワードを拒否する', () => {
