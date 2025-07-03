@@ -1,4 +1,4 @@
-import { GetUserUseCase } from '@api/usecases/user/GetUserUseCase'
+import { GetUserInteractor } from '@api/usecases/user/interactor'
 import {
   UserRepository,
   CreateUserData,
@@ -71,12 +71,12 @@ class MockUserRepository implements UserRepository {
 }
 
 describe('GetUserUseCase', () => {
-  let getUserUseCase: GetUserUseCase
+  let getUserUseCase: GetUserInteractor
   let mockUserRepository: MockUserRepository
 
   beforeEach(() => {
     mockUserRepository = new MockUserRepository()
-    getUserUseCase = new GetUserUseCase(mockUserRepository)
+    getUserUseCase = new GetUserInteractor(mockUserRepository)
   })
 
   const mockUser: User = new User(

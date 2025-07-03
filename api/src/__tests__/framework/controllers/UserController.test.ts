@@ -6,13 +6,13 @@ jest.mock('@/lib/auth/auth', () => ({
 }))
 
 import { UserController } from '@api/framework/controllers/UserController'
-import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
+import { IGetUserInputPort } from '@api/usecases/user/input-port'
 import { User } from '@api/domain/entities/User'
 import * as auth from '@/lib/auth/auth'
 
 const mockVerifyToken = auth.verifyToken as jest.MockedFunction<typeof auth.verifyToken>
 
-class MockGetUserInputPort implements GetUserInputPort {
+class MockGetUserInputPort implements IGetUserInputPort {
   private mockExecute = jest.fn()
 
   async execute(input: { userId: string }): Promise<{ user: User }> {

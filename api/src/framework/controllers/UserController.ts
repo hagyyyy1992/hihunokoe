@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
+import { IGetUserInputPort } from '@api/usecases/user/input-port'
 import { User } from '@api/domain/entities/User'
 import { TokenService } from '@api/domain/services/TokenService'
 import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
@@ -13,12 +13,12 @@ interface AuthUser {
 }
 
 export class UserController {
-  private getUserInputPort: GetUserInputPort
+  private getUserInputPort: IGetUserInputPort
   private tokenService: TokenService
   private authSessionRepository: AuthSessionRepository
 
   constructor(
-    getUserInputPort: GetUserInputPort,
+    getUserInputPort: IGetUserInputPort,
     tokenService: TokenService,
     authSessionRepository: AuthSessionRepository
   ) {
