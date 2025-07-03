@@ -99,7 +99,8 @@ describe('LoginPage', () => {
     expect(forgotPasswordLink).toHaveTextContent('パスワードをお忘れですか？')
   })
 
-  it('デモ用ログイン情報が表示される', () => {
+  // デモ情報は削除されたためスキップ
+  it.skip('デモ用ログイン情報が表示される', () => {
     render(<LoginPage />)
 
     expectElementToBeVisible(screen.getByText('デモ用ログイン情報 (メール認証済み):'))
@@ -397,7 +398,8 @@ describe('LoginPage', () => {
       )
     })
 
-    it('デモ情報に適切なスタイルが適用されている', () => {
+    // デモ情報は削除されたためスキップ
+    it.skip('デモ情報に適切なスタイルが適用されている', () => {
       render(<LoginPage />)
 
       const demoInfo = screen.getByText('デモ用ログイン情報 (メール認証済み):').closest('div')

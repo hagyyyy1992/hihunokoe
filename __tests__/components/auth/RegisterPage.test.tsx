@@ -235,7 +235,7 @@ describe('RegisterPage', () => {
       fireEvent.submit(screen.getByTestId('register-form'))
 
       await waitFor(() => {
-        expect(screen.getByTestId('error-message')).toHaveTextContent('ユーザー登録に失敗しました')
+        expect(screen.getByTestId('error-message')).toHaveTextContent('サーバーへの接続に失敗しました。しばらく待ってから再度お試しください。')
       })
     })
   })
