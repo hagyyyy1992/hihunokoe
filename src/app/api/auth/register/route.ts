@@ -28,11 +28,8 @@ export async function POST(request: NextRequest) {
     // 基本的なバリデーション
     const baseValidation = baseRegisterSchema.parse(body)
 
-    // パスワードのバリデーション（ユーザー情報を考慮）
-    const passwordSchema = createPasswordSchemaWithUserInfo(
-      baseValidation.userName,
-      baseValidation.email
-    )
+    // パスワードのバリデーション
+    const passwordSchema = createPasswordSchemaWithUserInfo()
     const registerSchema = baseRegisterSchema.extend({
       password: passwordSchema,
     })

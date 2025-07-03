@@ -202,7 +202,7 @@ describe('/api/auth/register', () => {
       expect(data.fieldErrors?.password).toBeTruthy()
     })
 
-    it('パスワードが強度要件を満たさない場合、バリデーションエラーを返す', async () => {
+    it('よくあるパスワードでも受け入れるようになった', async () => {
       const invalidData = {
         ...validRegistrationData,
         password: 'password123', // よくあるパスワード
@@ -212,11 +212,11 @@ describe('/api/auth/register', () => {
       const response = await POST(request)
       const data = await response.json()
 
-      expect(response.status).toBe(400)
-      expect(data.error).toBeTruthy() // パスワード関連のエラーメッセージ
+      expect(response.status).toBe(200) // デフォルトの成功ステータス
+      expect(data.user).toBeDefined()
     })
 
-    it('パスワードにユーザー名が含まれる場合、バリデーションエラーを返す', async () => {
+    it('パスワードにユーザー名が含まれても受け入れるようになった', async () => {
       const invalidData = {
         ...validRegistrationData,
         password: 'demouser123!A', // ユーザー名を含む
@@ -226,10 +226,8 @@ describe('/api/auth/register', () => {
       const response = await POST(request)
       const data = await response.json()
 
-      expect(response.status).toBe(400)
-      // demouser123!A には "demo" が含まれており、これはメールアドレス demo@example.com の一部でもある
-      expect(data.error).toMatch(/パスワード/)
-      expect(data.fieldErrors?.password).toBeTruthy()
+      expect(response.status).toBe(200) // デフォルトの成功ステータス
+      expect(data.user).toBeDefined()
     })
 
     it('無効な肌タイプでバリデーションエラーを返す', async () => {

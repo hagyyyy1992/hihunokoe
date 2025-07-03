@@ -24,14 +24,6 @@ export function PasswordRequirements({
         return [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length >= 2
       })(),
     },
-    {
-      label: 'よくあるパスワードを避ける',
-      met: true, // この検証は入力完了後に行われるため、常にtrueとする
-    },
-    {
-      label: 'ユーザー名やメールアドレスを含まない',
-      met: true, // この検証は入力完了後に行われるため、常にtrueとする
-    },
   ]
 
   // パスワードが入力されていない場合、またはshowAllがtrueの場合は全要件を表示
