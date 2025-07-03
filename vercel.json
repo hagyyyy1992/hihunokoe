@@ -1,24 +1,4 @@
 {
-  "functions": {
-    "src/app/api/auth/login/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/auth/register/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/auth/me/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/auth/logout/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/posts/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/posts/[id]/route.ts": {
-      "maxDuration": 10
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
