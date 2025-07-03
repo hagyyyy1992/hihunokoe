@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/apis/v2/auth/me', {
+      const response = await fetch('/api/v2/auth/me', {
         credentials: 'same-origin',
       })
       if (response.ok) {
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true)
     try {
-      const response = await fetch('/apis/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (registerData: RegisterData) => {
     setLoading(true)
     try {
-      const response = await fetch('/apis/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/apis/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'same-origin',
       })
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (profileData: UpdateProfileData) => {
     setLoading(true)
     try {
-      const response = await fetch('/apis/profile/update', {
+      const response = await fetch('/api/profile/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

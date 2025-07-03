@@ -91,7 +91,7 @@ export default function RegisterPage() {
 
     try {
       // 直接API呼び出しに変更（AuthContextのregisterを使用しない）
-      const response = await fetch('/apis/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

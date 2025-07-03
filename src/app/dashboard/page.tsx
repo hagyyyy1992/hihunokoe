@@ -39,7 +39,7 @@ export default function DashboardPage() {
     const fetchPosts = async () => {
       try {
         setPostsLoading(true)
-        const response = await fetch('/apis/posts?limit=20')
+        const response = await fetch('/api/posts?limit=20')
         if (response.ok) {
           const data = await response.json()
           const allPosts = data.posts || []

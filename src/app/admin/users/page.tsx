@@ -84,7 +84,7 @@ export default function UserManagement() {
         .find(row => row.startsWith('auth-token='))
         ?.split('=')[1]
 
-      const response = await fetch('/apis/admin/users', {
+      const response = await fetch('/api/admin/users', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -142,7 +142,7 @@ export default function UserManagement() {
         .find(row => row.startsWith('auth-token='))
         ?.split('=')[1]
 
-      const response = await fetch('/apis/admin/users/export', {
+      const response = await fetch('/api/admin/users/export', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

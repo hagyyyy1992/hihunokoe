@@ -96,7 +96,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
 
     try {
-      const url = isEditMode ? `/api/posts/update?id=${postId}` : '/apis/posts'
+      const url = isEditMode ? `/api/posts/update?id=${postId}` : '/api/posts'
       const method = isEditMode ? 'PUT' : 'POST'
 
       const response = await fetch(url, {

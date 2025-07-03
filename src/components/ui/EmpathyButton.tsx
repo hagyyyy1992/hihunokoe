@@ -44,7 +44,7 @@ export default function EmpathyButton({
     try {
       if (hasEmpathized) {
         // 共感を削除
-        const response = await fetch(`/apis/posts/empathy?id=${postId}`, {
+        const response = await fetch(`/api/posts/empathy?id=${postId}`, {
           method: 'DELETE',
         })
 
@@ -61,7 +61,7 @@ export default function EmpathyButton({
         setCount(data.totalCount)
       } else {
         // 共感を追加
-        const response = await fetch(`/apis/posts/empathy?id=${postId}`, {
+        const response = await fetch(`/api/posts/empathy?id=${postId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

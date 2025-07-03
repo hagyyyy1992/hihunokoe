@@ -49,7 +49,7 @@ export function useComments({
           limit: pagination.limit.toString(),
         })
 
-        const response = await fetch(`/apis/posts/comments?id=${postId}&${searchParams}`)
+        const response = await fetch(`/api/posts/comments?id=${postId}&${searchParams}`)
         const data = await response.json()
 
         if (!response.ok) {

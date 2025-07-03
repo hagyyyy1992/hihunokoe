@@ -17,7 +17,7 @@ function RegistrationCompleteContent() {
     setMessage('')
 
     try {
-      const response = await fetch('/apis/auth/resend-verification', {
+      const response = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

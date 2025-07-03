@@ -40,7 +40,7 @@ export default function AdminDashboard() {
         .find(row => row.startsWith('auth-token='))
         ?.split('=')[1]
 
-      const response = await fetch('/apis/admin/dashboard/stats', {
+      const response = await fetch('/api/admin/dashboard/stats', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

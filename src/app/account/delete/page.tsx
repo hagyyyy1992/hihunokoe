@@ -57,7 +57,7 @@ export default function DeleteAccountPage() {
     setError('')
 
     try {
-      const response = await fetch('/apis/auth/delete-account', {
+      const response = await fetch('/api/auth/delete-account', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
