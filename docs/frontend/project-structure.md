@@ -32,6 +32,25 @@
 
 ```
 /
+├── api/                            # クリーンアーキテクチャAPI層
+│   └── src/
+│       ├── domain/                 # ドメイン層
+│       │   ├── entities/           # エンティティ
+│       │   ├── value-objects/      # 値オブジェクト
+│       │   ├── repositories/       # リポジトリインターフェース
+│       │   ├── services/           # サービスインターフェース
+│       │   └── exceptions/         # ドメイン例外
+│       ├── usecases/               # ユースケース層
+│       │   ├── auth/               # 認証関連ユースケース
+│       │   └── user/               # ユーザー関連ユースケース
+│       │       ├── interactor.ts   # ユースケース実装
+│       │       ├── input-port.ts   # 入力ポート
+│       │       └── output-port.ts  # 出力ポート
+│       ├── interface-adapters/     # インターフェースアダプター層
+│       │   ├── repositories/       # リポジトリ実装
+│       │   └── services/           # サービス実装
+│       └── framework/              # フレームワーク層
+│           └── controllers/        # コントローラー
 ├── src/
 │   ├── app/                        # Next.js App Router
 │   │   ├── auth/                   # 認証関連ページ
