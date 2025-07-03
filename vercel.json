@@ -8,7 +8,11 @@
     "src/app/api/posts/empathy/**/*.ts": false,
     "src/app/api/posts/get/**/*.ts": false,
     "src/app/api/posts/delete/**/*.ts": false,
-    "src/app/api/posts/update/**/*.ts": false
+    "src/app/api/posts/update/**/*.ts": false,
+    "src/app/api/admin/**/*.ts": false,
+    "src/app/api/auth/resend-verification/**/*.ts": false,
+    "src/app/api/auth/verify-email/**/*.ts": false,
+    "src/app/api/auth/verify-reset-token/**/*.ts": false
   },
   "headers": [
     {
