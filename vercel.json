@@ -1,6 +1,5 @@
 {
   "functions": {
-    "src/app/api/**/*.ts": false,
     "src/app/api/auth/login/route.ts": {
       "maxDuration": 10
     },
