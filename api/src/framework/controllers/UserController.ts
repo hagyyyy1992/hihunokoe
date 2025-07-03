@@ -49,12 +49,15 @@ export class UserController {
         return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
       }
 
-      const session = await this.authSessionRepository.findByToken(token)
-      if (!session || !session.isValid()) {
+      // JWTトークンを検証
+      let payload
+      try {
+        payload = await this.tokenService.verifyToken(token)
+      } catch (error) {
         return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
       }
 
-      const result = await this.getUserInputPort.execute({ userId: session.userId })
+      const result = await this.getUserInputPort.execute({ userId: payload.userId })
 
       const authUser = this.convertUserToAuthUser(result.user)
       return NextResponse.json({ user: authUser })
