@@ -36,6 +36,7 @@
 
 #### バックエンド層
 
+- **Architecture**: Clean Architecture (Domain-Driven Design)
 - **Database**: Supabase PostgreSQL
 - **ORM**: Prisma 6
 - **Authentication**: JWT + bcrypt + メール認証

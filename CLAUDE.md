@@ -163,6 +163,18 @@ npm run db:status   # Check database connection status
 - Testing utilities in `src/app/api/test/` (cleanup, rate limiter reset)
 - API versioning support with `src/app/api/v2/`
 
+### Clean Architecture (API Layer)
+
+- **Directory structure**: `api/src/` follows clean architecture principles
+- **Layers**: Domain → Use Cases → Interface Adapters → Frameworks
+- **Naming conventions**:
+  - Use Cases: `interactor.ts` (implementation), `input-port.ts`, `output-port.ts`
+  - Repositories: `UserRepository` (interface), `UserRepositoryImpl` (implementation)
+  - Services: `PasswordHashService` (interface), `PasswordHashServiceImpl` (implementation)
+- **Dependency rule**: Inner layers don't depend on outer layers
+- **Testing**: Each layer can be tested independently with mocks
+- **Documentation**: See `docs/backend/clean-architecture.md` for detailed guidelines
+
 ## Git Commit Message Conventions
 
 このプロジェクトでは、コミットメッセージの可読性と追跡性を向上させるため、以下の原則に従います。

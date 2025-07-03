@@ -23,6 +23,8 @@ model User {
   emailVerified           Boolean          @default(false) @map("email_verified")
   passwordResetToken      String?          @map("password_reset_token") @db.VarChar(255)
   passwordResetExpiry     DateTime?        @map("password_reset_expiry") @db.Timestamptz(6)
+  failedLoginAttempts     Int              @default(0) @map("failed_login_attempts")
+  lockedUntil             DateTime?        @map("locked_until") @db.Timestamptz(6)
   birthDate               DateTime?        @map("birth_date") @db.Date
   gender                  Gender?          @map("gender")
   allergies               AllergyType[]    @map("allergies")

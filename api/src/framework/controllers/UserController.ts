@@ -1,13 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GetUserInputPort } from '@api/usecases/user/GetUserInputPort'
-import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { IGetUserInputPort } from '@api/usecases/user/input-port'
 import { User } from '@api/domain/entities/User'
+import { TokenService } from '@api/domain/services/TokenService'
+import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+
+interface AuthUser {
+  id: string
+  userName: string
+  email: string
+  emailVerified: boolean
+  role?: string
+}
 
 export class UserController {
-  private getUserInputPort: GetUserInputPort
+  private getUserInputPort: IGetUserInputPort
+  private tokenService: TokenService
+  private authSessionRepository: AuthSessionRepository
 
-  constructor(getUserInputPort: GetUserInputPort) {
+  constructor(
+    getUserInputPort: IGetUserInputPort,
+    tokenService: TokenService,
+    authSessionRepository: AuthSessionRepository
+  ) {
     this.getUserInputPort = getUserInputPort
+    this.tokenService = tokenService
+    this.authSessionRepository = authSessionRepository
   }
 
   /**
@@ -19,25 +36,28 @@ export class UserController {
       userName: domainUser.username, // Convert username to userName
       email: domainUser.email,
       emailVerified: domainUser.emailVerified,
-      // Add other fields as needed when domain entity expands
+      role: domainUser.role,
     }
   }
 
   async getMe(request: NextRequest): Promise<NextResponse> {
     try {
-      const token = request.cookies.get('auth-token')?.value
+      const authHeader = request.headers.get('authorization')
+      const token = authHeader?.replace('Bearer ', '') || request.cookies.get('auth-token')?.value
 
       if (!token) {
         return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
       }
 
-      const decoded = verifyToken(token)
-
-      if (!decoded) {
+      // JWTトークンを検証
+      let payload
+      try {
+        payload = await this.tokenService.verifyToken(token)
+      } catch (error) {
         return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
       }
 
-      const result = await this.getUserInputPort.execute({ userId: decoded.id })
+      const result = await this.getUserInputPort.execute({ userId: payload.userId })
 
       const authUser = this.convertUserToAuthUser(result.user)
       return NextResponse.json({ user: authUser })
