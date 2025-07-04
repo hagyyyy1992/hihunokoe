@@ -69,6 +69,7 @@ export default function RegisterPage() {
     bodyTypeOther: '',
   })
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
 
   const router = useRouter()
@@ -76,14 +77,19 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
     if (formData.password !== formData.confirmPassword) {
       setError('パスワードが一致しません')
+      setFieldErrors({ confirmPassword: 'パスワードが一致しません' })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
 
     if (formData.password.length < 8) {
       setError('パスワードは8文字以上で入力してください')
+      setFieldErrors({ password: 'パスワードは8文字以上で入力してください' })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
 
@@ -119,11 +125,28 @@ export default function RegisterPage() {
         // 登録完了画面にリダイレクト
         router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
       } else {
-        setError(data.error || 'ユーザー登録に失敗しました')
+        // APIからの詳細なエラーメッセージを表示
+        let errorMessage = data.error || 'ユーザー登録に失敗しました'
+
+        // フィールド固有のエラーをセット
+        if (data.fieldErrors) {
+          setFieldErrors(data.fieldErrors)
+        }
+
+        // より詳細なエラーメッセージを構築
+        if (data.message) {
+          errorMessage = data.message
+        }
+
+        setError(errorMessage)
+        // エラー時に画面上部にスクロール
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch (err: unknown) {
       console.error('Registration error:', err)
-      setError('ユーザー登録に失敗しました')
+      setError('サーバーへの接続に失敗しました。しばらく待ってから再度お試しください。')
+      // エラー時に画面上部にスクロール
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
     }
@@ -191,11 +214,16 @@ export default function RegisterPage() {
                   required
                   value={formData.userName}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm ${
+                    fieldErrors.userName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="ユーザー名を入力してください"
                   data-testid="username-input"
                 />
               </div>
+              {fieldErrors.userName && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.userName}</p>
+              )}
               <p className="mt-1 text-xs text-gray-500">3〜50文字で入力してください</p>
             </div>
 
@@ -212,11 +240,16 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm ${
+                    fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="example@example.com"
                   data-testid="email-input"
                 />
               </div>
+              {fieldErrors.email && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -380,6 +413,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 placeholder="パスワードを入力してください"
                 data-testid="password-input"
+                error={fieldErrors.password}
               />
               <PasswordStrengthIndicator
                 password={formData.password}
@@ -400,6 +434,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               placeholder="パスワードを再度入力してください"
               data-testid="confirm-password-input"
+              error={fieldErrors.confirmPassword}
             />
 
             <div>

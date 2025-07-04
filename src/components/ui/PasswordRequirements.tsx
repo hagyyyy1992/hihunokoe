@@ -15,22 +15,14 @@ export function PasswordRequirements({
       met: password.length >= 8 && password.length <= 128,
     },
     {
-      label: '小文字、大文字、数字、記号のうち3種類以上を含む',
+      label: '小文字、大文字、数字、記号のうち2種類以上を含む',
       met: (() => {
         const hasLower = /[a-z]/.test(password)
         const hasUpper = /[A-Z]/.test(password)
         const hasNumber = /[0-9]/.test(password)
         const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
-        return [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length >= 3
+        return [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length >= 2
       })(),
-    },
-    {
-      label: 'よくあるパスワードを避ける',
-      met: true, // この検証は入力完了後に行われるため、常にtrueとする
-    },
-    {
-      label: 'ユーザー名やメールアドレスを含まない',
-      met: true, // この検証は入力完了後に行われるため、常にtrueとする
     },
   ]
 

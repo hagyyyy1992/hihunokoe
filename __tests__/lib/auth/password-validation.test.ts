@@ -26,48 +26,39 @@ describe('password-validation', () => {
       expect(result.errors).toContain('パスワードは128文字以下で入力してください')
     })
 
-    it('3種類未満の文字種を含むパスワードを拒否する', () => {
-      const result = validatePassword('password123') // 小文字と数字のみ
+    it('2種類未満の文字種を含むパスワードを拒否する', () => {
+      const result = validatePassword('password') // 小文字のみ
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain(
-        'パスワードは小文字、大文字、数字、記号のうち3種類以上を含めてください'
+        'パスワードは小文字、大文字、数字、記号のうち2種類以上を含めてください'
       )
     })
 
-    it('3種類以上の文字種を含むパスワードを受け入れる', () => {
-      const result = validatePassword('SecurePass123') // 大文字、小文字、数字
-      expect(result.isValid).toBe(true)
+    it('2種類以上の文字種を含むパスワードを受け入れる', () => {
+      const result = validatePassword('password123') // 小文字と数字
+      expect(result.isValid).toBe(true) // よくあるパスワードチェックが削除されたので受け入れられる
       expect(result.errors).toEqual([])
+      const result2 = validatePassword('MySecure99') // 大文字、小文字、数字
+      expect(result2.isValid).toBe(true)
+      expect(result2.errors).toEqual([])
     })
 
-    it('よくあるパスワードを拒否する', () => {
+    it('よくあるパスワードも受け入れるようになった', () => {
       const result = validatePassword('password123')
-      expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('よくあるパスワードは使用できません')
-    })
-
-    it('よくあるパスワードでない場合は受け入れる', () => {
-      const result = validatePassword('SecurePass123') // よくあるパスワードではない
-      expect(result.isValid).toBe(true)
+      expect(result.isValid).toBe(true) // よくあるパスワードチェックは削除された
       expect(result.errors).toEqual([])
     })
 
-    it('ユーザー名を含むパスワードを拒否する', () => {
-      const result = validatePassword('myusername123', { userName: 'myusername' })
-      expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('パスワードにユーザー名を含めることはできません')
+    it('ユーザー名を含むパスワードも受け入れるようになった', () => {
+      const result = validatePassword('myusername123')
+      expect(result.isValid).toBe(true) // ユーザー名チェックは削除された
+      expect(result.errors).toEqual([])
     })
 
-    it('メールアドレスの一部を含むパスワードを拒否する', () => {
-      const result = validatePassword('testuser123', { email: 'testuser@example.com' })
-      expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('パスワードにメールアドレスの一部を含めることはできません')
-    })
-
-    it('大文字小文字を区別してユーザー名チェックを行う', () => {
-      const result = validatePassword('MyUserName123', { userName: 'myusername' })
-      expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('パスワードにユーザー名を含めることはできません')
+    it('メールアドレスの一部を含むパスワードも受け入れるようになった', () => {
+      const result = validatePassword('testuser123')
+      expect(result.isValid).toBe(true) // メールアドレスチェックは削除された
+      expect(result.errors).toEqual([])
     })
   })
 
@@ -89,9 +80,9 @@ describe('password-validation', () => {
       expect(result2.score).toBeGreaterThanOrEqual(result1.score)
     })
 
-    it('3種類以上の文字種を含むパスワードはスコアが向上する', () => {
-      const result = calculatePasswordStrength('SecurePass123')
-      expect(result.score).toBeGreaterThan(1)
+    it('2種類以上の文字種を含むパスワードはスコアが向上する', () => {
+      const result = calculatePasswordStrength('SecurePass')
+      expect(result.score).toBeGreaterThan(0)
     })
 
     it('4種類の文字種を含むパスワードは最高スコアに近づく', () => {
@@ -99,14 +90,14 @@ describe('password-validation', () => {
       expect(result.score).toBeGreaterThanOrEqual(2)
     })
 
-    it('よくあるパスワードはスコアが下がる', () => {
+    it('よくあるパスワードでもスコアが下がらなくなった', () => {
       const result = calculatePasswordStrength('password123')
-      expect(result.score).toBeLessThan(2)
-      expect(result.feedback).toContain('よくあるパスワードは避けてください')
+      expect(result.score).toBeGreaterThan(0) // よくあるパスワードチェックが削除された
+      expect(result.feedback).not.toContain('よくあるパスワードは避けてください')
     })
 
     it('文字種が不足している場合、改善のフィードバックを返す', () => {
-      const result = calculatePasswordStrength('password123')
+      const result = calculatePasswordStrength('password') // 小文字のみ
       expect(result.feedback.some(f => f.includes('含めてください'))).toBe(true)
     })
   })
@@ -125,38 +116,33 @@ describe('password-validation', () => {
       expect(() => passwordSchema.parse(longPassword)).toThrow()
     })
 
-    it('3種類未満の文字種を含むパスワードを拒否する', () => {
-      expect(() => passwordSchema.parse('password123')).toThrow()
+    it('2種類未満の文字種を含むパスワードを拒否する', () => {
+      expect(() => passwordSchema.parse('password')).toThrow()
     })
 
-    it('よくあるパスワードを拒否する', () => {
-      expect(() => passwordSchema.parse('Password123')).toThrow() // password123のバリエーション
+    it('よくあるパスワードも受け入れるようになった', () => {
+      expect(() => passwordSchema.parse('Password123')).not.toThrow() // よくあるパスワードチェックが削除された
     })
   })
 
   describe('createPasswordSchemaWithUserInfo', () => {
-    it('ユーザー名を含むパスワードを拒否する', () => {
-      const schema = createPasswordSchemaWithUserInfo('testuser')
-      expect(() => schema.parse('testuser123')).toThrow()
+    it('ユーザー名を含むパスワードも受け入れるようになった', () => {
+      const schema = createPasswordSchemaWithUserInfo()
+      expect(() => schema.parse('testuser123')).not.toThrow() // ユーザー名チェックが削除された
     })
 
-    it('メールアドレスの一部を含むパスワードを拒否する', () => {
-      const schema = createPasswordSchemaWithUserInfo(undefined, 'testuser@example.com')
-      expect(() => schema.parse('testuser123')).toThrow()
+    it('メールアドレスの一部を含むパスワードも受け入れるようになった', () => {
+      const schema = createPasswordSchemaWithUserInfo()
+      expect(() => schema.parse('testuser123')).not.toThrow() // メールアドレスチェックが削除された
     })
 
     it('ユーザー名もメールアドレスも含まないパスワードを受け入れる', () => {
-      const schema = createPasswordSchemaWithUserInfo('testuser', 'testuser@example.com')
+      const schema = createPasswordSchemaWithUserInfo()
       expect(() => schema.parse('SecurePass123!')).not.toThrow()
     })
 
-    it('ユーザー名が未定義の場合でも動作する', () => {
-      const schema = createPasswordSchemaWithUserInfo(undefined, 'test@example.com')
-      expect(() => schema.parse('SecurePass123!')).not.toThrow()
-    })
-
-    it('メールアドレスが未定義の場合でも動作する', () => {
-      const schema = createPasswordSchemaWithUserInfo('testuser')
+    it('パラメータなしでも動作する', () => {
+      const schema = createPasswordSchemaWithUserInfo()
       expect(() => schema.parse('SecurePass123!')).not.toThrow()
     })
   })
