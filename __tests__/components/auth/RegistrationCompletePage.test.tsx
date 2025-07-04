@@ -262,7 +262,7 @@ describe('RegistrationCompletePage', () => {
       const resendButton = screen.getByText('確認メールを再送信')
       expect(resendButton).toHaveClass('w-full', 'flex', 'justify-center', 'py-2', 'px-4')
       expect(resendButton).toHaveClass('border', 'border-transparent', 'rounded-md', 'shadow-sm')
-      expect(resendButton).toHaveClass('text-sm', 'font-medium', 'text-white', 'bg-pink-600')
+      expect(resendButton).toHaveClass('text-sm', 'font-medium', 'text-white', 'bg-apple-600')
     })
 
     it('リンクに適切なスタイルが適用されている', () => {
@@ -271,7 +271,7 @@ describe('RegistrationCompletePage', () => {
       const loginLink = screen.getByText('ログインページに戻る')
       const homeLink = screen.getByText('ホームページに戻る')
 
-      expect(loginLink).toHaveClass('block', 'text-sm', 'text-pink-600', 'hover:text-pink-500')
+      expect(loginLink).toHaveClass('block', 'text-sm', 'text-apple-600', 'hover:text-apple-500')
       expect(homeLink).toHaveClass('block', 'text-sm', 'text-gray-600', 'hover:text-gray-500')
     })
   })

@@ -138,9 +138,9 @@ export default function CommentItem({
     <div className={`${isReply ? 'ml-8 mt-3' : ''}`}>
       <div className="flex items-start space-x-3">
         <div
-          className={`${isReply ? 'w-6 h-6' : 'w-8 h-8'} bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0`}
+          className={`${isReply ? 'w-6 h-6' : 'w-8 h-8'} bg-apple-100 rounded-full flex items-center justify-center flex-shrink-0`}
         >
-          <span className={`text-pink-600 font-medium ${isReply ? 'text-xs' : 'text-sm'}`}>
+          <span className={`text-apple-600 font-medium ${isReply ? 'text-xs' : 'text-sm'}`}>
             {comment.user.userName.charAt(0).toUpperCase()}
           </span>
         </div>
@@ -169,7 +169,7 @@ export default function CommentItem({
               <textarea
                 value={editContent}
                 onChange={e => setEditContent(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
                 rows={3}
                 disabled={isSubmitting}
               />
@@ -178,7 +178,7 @@ export default function CommentItem({
                 <button
                   type="submit"
                   disabled={isSubmitting || !editContent.trim()}
-                  className="px-3 py-1 text-sm font-medium text-white bg-pink-600 rounded-md hover:bg-pink-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-1 text-sm font-medium text-white bg-apple-600 rounded-md hover:bg-apple-700 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? '保存中...' : '保存'}
                 </button>
@@ -202,7 +202,7 @@ export default function CommentItem({
                 {canReply && (
                   <button
                     onClick={() => setShowReplyForm(!showReplyForm)}
-                    className="text-xs text-gray-500 hover:text-pink-600 transition-colors"
+                    className="text-xs text-gray-500 hover:text-apple-600 transition-colors"
                   >
                     返信
                   </button>
@@ -210,7 +210,7 @@ export default function CommentItem({
                 {canEdit && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="text-xs text-gray-500 hover:text-pink-600 transition-colors"
+                    className="text-xs text-gray-500 hover:text-apple-600 transition-colors"
                   >
                     編集
                   </button>

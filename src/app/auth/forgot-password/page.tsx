@@ -43,8 +43,8 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-pink-600 font-bold text-lg">H</span>
+          <div className="w-12 h-12 bg-apple-100 rounded-full flex items-center justify-center">
+            <span className="text-apple-600 font-bold text-lg">H</span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/auth/login" className="text-sm text-pink-600 hover:text-pink-500">
+            <Link href="/auth/login" className="text-sm text-apple-600 hover:text-apple-500">
               ログインページに戻る
             </Link>
           </div>

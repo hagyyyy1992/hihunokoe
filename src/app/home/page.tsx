@@ -92,7 +92,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/posts/new"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-apple-600 text-white rounded-md hover:bg-apple-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 投稿作成
@@ -117,7 +117,7 @@ export default function HomePage() {
                   <FileText className="w-5 h-5" />
                   自分の投稿
                 </h3>
-                <Link href="/posts?user=me" className="text-sm text-pink-600 hover:text-pink-700">
+                <Link href="/posts?user=me" className="text-sm text-apple-600 hover:text-apple-700">
                   すべて見る →
                 </Link>
               </div>
@@ -142,7 +142,7 @@ export default function HomePage() {
               ) : (
                 <div className="text-gray-500 text-sm">
                   まだ投稿がありません。
-                  <Link href="/posts/new" className="text-pink-600 hover:text-pink-700 ml-1">
+                  <Link href="/posts/new" className="text-apple-600 hover:text-apple-700 ml-1">
                     最初の投稿を作成
                   </Link>
                 </div>

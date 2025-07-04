@@ -2,32 +2,81 @@
 
 /* Design System Variables */
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #fefffe;
+  --foreground: #2b2b2b;
 
-  /* Primary Colors - Pink Theme */
-  --pink-50: #fdf2f8;
-  --pink-100: #fce7f3;
-  --pink-200: #fbcfe8;
-  --pink-300: #f9a8d4;
-  --pink-400: #f472b6;
-  --pink-500: #ec4899;
-  --pink-600: #db2777;
-  --pink-700: #be185d;
-  --pink-800: #9d174d;
-  --pink-900: #831843;
+  /* Main Color - Apple Green */
+  --apple-50: #f7fef4;
+  --apple-100: #edfce5;
+  --apple-200: #dcf9cc;
+  --apple-300: #c4f4a6;
+  --apple-400: #a8e878;
+  --apple-500: #8ed753;
+  --apple-600: #72be3b;
+  --apple-700: #5a9b30;
+  --apple-800: #487a29;
+  --apple-900: #3d6425;
+
+  /* Accent Color 1 - Apricot */
+  --apricot-50: #fff9f2;
+  --apricot-100: #fff2e1;
+  --apricot-200: #ffe2c0;
+  --apricot-300: #ffcc8f;
+  --apricot-400: #ffaa54;
+  --apricot-500: #ff8b2a;
+  --apricot-600: #f56a0f;
+  --apricot-700: #c74f0b;
+  --apricot-800: #9e3f11;
+  --apricot-900: #7f3512;
+
+  /* Accent Color 2 - Dusty Lavender */
+  --lavender-50: #f9f7fb;
+  --lavender-100: #f2eef6;
+  --lavender-200: #e7e0ed;
+  --lavender-300: #d4c6de;
+  --lavender-400: #bca3c8;
+  --lavender-500: #a380b0;
+  --lavender-600: #8b6395;
+  --lavender-700: #744e7b;
+  --lavender-800: #614266;
+  --lavender-900: #523855;
+
+  /* Accent Color 3 - Rose Beige */
+  --rose-beige-50: #fbf8f6;
+  --rose-beige-100: #f7f0eb;
+  --rose-beige-200: #edddd4;
+  --rose-beige-300: #dfc2b2;
+  --rose-beige-400: #cda08a;
+  --rose-beige-500: #bb8169;
+  --rose-beige-600: #a5654f;
+  --rose-beige-700: #8a5041;
+  --rose-beige-800: #724339;
+  --rose-beige-900: #5f3931;
+
+  /* Text Color - Charcoal Gray */
+  --charcoal: #2b2b2b;
+  --charcoal-light: #4a4a4a;
+  --charcoal-lighter: #6b6b6b;
+
+  /* Common Aliases for Easy Access */
+  --primary: var(--apple-500);
+  --primary-hover: var(--apple-600);
+  --primary-active: var(--apple-700);
+  --accent-1: var(--apricot-500);
+  --accent-2: var(--lavender-500);
+  --accent-3: var(--rose-beige-500);
 
   /* Mood Tag Colors */
-  --mood-disappointed: #f3f4f6;
-  --mood-disappointed-text: #374151;
-  --mood-okay: #fef3c7;
-  --mood-okay-text: #92400e;
-  --mood-good: #dcfce7;
-  --mood-good-text: #166534;
-  --mood-love: #fce7f3;
-  --mood-love-text: #be185d;
-  --mood-perfect: #f3e8ff;
-  --mood-perfect-text: #7c3aed;
+  --mood-disappointed: var(--rose-beige-100);
+  --mood-disappointed-text: var(--rose-beige-700);
+  --mood-okay: var(--apricot-100);
+  --mood-okay-text: var(--apricot-700);
+  --mood-good: var(--apple-100);
+  --mood-good-text: var(--apple-700);
+  --mood-love: var(--lavender-100);
+  --mood-love-text: var(--lavender-700);
+  --mood-perfect: var(--apple-200);
+  --mood-perfect-text: var(--apple-800);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -46,17 +95,65 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Extended Pink Palette */
-  --color-pink-50: var(--pink-50);
-  --color-pink-100: var(--pink-100);
-  --color-pink-200: var(--pink-200);
-  --color-pink-300: var(--pink-300);
-  --color-pink-400: var(--pink-400);
-  --color-pink-500: var(--pink-500);
-  --color-pink-600: var(--pink-600);
-  --color-pink-700: var(--pink-700);
-  --color-pink-800: var(--pink-800);
-  --color-pink-900: var(--pink-900);
+  /* Extended Color Palettes */
+  /* Apple Green */
+  --color-apple-50: var(--apple-50);
+  --color-apple-100: var(--apple-100);
+  --color-apple-200: var(--apple-200);
+  --color-apple-300: var(--apple-300);
+  --color-apple-400: var(--apple-400);
+  --color-apple-500: var(--apple-500);
+  --color-apple-600: var(--apple-600);
+  --color-apple-700: var(--apple-700);
+  --color-apple-800: var(--apple-800);
+  --color-apple-900: var(--apple-900);
+
+  /* Apricot */
+  --color-apricot-50: var(--apricot-50);
+  --color-apricot-100: var(--apricot-100);
+  --color-apricot-200: var(--apricot-200);
+  --color-apricot-300: var(--apricot-300);
+  --color-apricot-400: var(--apricot-400);
+  --color-apricot-500: var(--apricot-500);
+  --color-apricot-600: var(--apricot-600);
+  --color-apricot-700: var(--apricot-700);
+  --color-apricot-800: var(--apricot-800);
+  --color-apricot-900: var(--apricot-900);
+
+  /* Dusty Lavender */
+  --color-lavender-50: var(--lavender-50);
+  --color-lavender-100: var(--lavender-100);
+  --color-lavender-200: var(--lavender-200);
+  --color-lavender-300: var(--lavender-300);
+  --color-lavender-400: var(--lavender-400);
+  --color-lavender-500: var(--lavender-500);
+  --color-lavender-600: var(--lavender-600);
+  --color-lavender-700: var(--lavender-700);
+  --color-lavender-800: var(--lavender-800);
+  --color-lavender-900: var(--lavender-900);
+
+  /* Rose Beige */
+  --color-rose-beige-50: var(--rose-beige-50);
+  --color-rose-beige-100: var(--rose-beige-100);
+  --color-rose-beige-200: var(--rose-beige-200);
+  --color-rose-beige-300: var(--rose-beige-300);
+  --color-rose-beige-400: var(--rose-beige-400);
+  --color-rose-beige-500: var(--rose-beige-500);
+  --color-rose-beige-600: var(--rose-beige-600);
+  --color-rose-beige-700: var(--rose-beige-700);
+  --color-rose-beige-800: var(--rose-beige-800);
+  --color-rose-beige-900: var(--rose-beige-900);
+
+  /* Charcoal Gray */
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-light: var(--charcoal-light);
+  --color-charcoal-lighter: var(--charcoal-lighter);
+
+  /* Common Aliases */
+  --color-primary: var(--primary);
+  --color-accent-1: var(--accent-1);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
 }
 
 /* Force light mode - disable dark mode */
@@ -71,21 +168,21 @@
 
 /* Force light mode for all cases */
 :root {
-  --background: #f9fafb !important;
-  --foreground: #111827 !important;
+  --background: #fefffe !important;
+  --foreground: var(--charcoal) !important;
 }
 
 /* Firefox-specific fix to prevent unwanted dark mode */
 @-moz-document url-prefix() {
   :root {
-    --background: #f9fafb !important;
-    --foreground: #111827 !important;
+    --background: #fefffe !important;
+    --foreground: var(--charcoal) !important;
   }
 }
 
 /* Base Styles */
 html {
-  background: #f9fafb !important;
+  background: #fefffe !important;
   color-scheme: light !important;
 }
 
@@ -121,14 +218,14 @@ body {
 :focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--pink-500),
-    0 0 0 4px rgba(219, 39, 119, 0.1);
+    0 0 0 2px var(--primary),
+    0 0 0 4px rgba(142, 215, 83, 0.2);
 }
 
 /* Text selection */
 ::selection {
-  background-color: var(--pink-100);
-  color: var(--pink-900);
+  background-color: var(--apple-100);
+  color: var(--apple-900);
 }
 
 /* Firefox-specific focus and selection fixes */
@@ -136,13 +233,13 @@ body {
   :focus-visible {
     outline: none !important;
     box-shadow:
-      0 0 0 2px var(--pink-500),
-      0 0 0 4px rgba(219, 39, 119, 0.1) !important;
+      0 0 0 2px var(--primary),
+      0 0 0 4px rgba(142, 215, 83, 0.2) !important;
   }
 
   ::-moz-selection {
-    background-color: var(--pink-100);
-    color: var(--pink-900);
+    background-color: var(--apple-100);
+    color: var(--apple-900);
   }
 }
 
@@ -172,16 +269,16 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--pink-600);
+  background-color: var(--primary);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--pink-700);
+  background-color: var(--primary-hover);
 }
 
 .btn-primary:active {
-  background-color: var(--pink-800);
+  background-color: var(--primary-active);
 }
 
 .btn-secondary {
@@ -195,12 +292,12 @@ body {
 
 .btn-outline {
   background-color: transparent;
-  color: var(--pink-600);
-  border: 1px solid var(--pink-600);
+  color: var(--primary);
+  border: 1px solid var(--primary);
 }
 
 .btn-outline:hover:not(:disabled) {
-  background-color: var(--pink-50);
+  background-color: var(--apple-50);
 }
 
 .btn-ghost {
@@ -236,7 +333,7 @@ textarea {
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #111827 !important;
+  color: var(--charcoal) !important;
   background-color: white;
   transition:
     border-color 0.2s ease,
@@ -247,7 +344,7 @@ textarea {
 .input::placeholder,
 input::placeholder,
 textarea::placeholder {
-  color: #6b7280 !important;
+  color: var(--charcoal-lighter) !important;
 }
 
 .input:focus,
@@ -255,9 +352,9 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--pink-500);
-  box-shadow: 0 0 0 1px var(--pink-500);
-  color: #111827 !important;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+  color: var(--charcoal) !important;
 }
 
 /* Firefox-specific input field fixes */
@@ -270,7 +367,7 @@ textarea:focus {
   input[type='search'],
   select,
   textarea {
-    color: #111827 !important;
+    color: var(--charcoal) !important;
     background-color: white !important;
     -moz-appearance: none;
   }
@@ -286,7 +383,7 @@ textarea:focus {
   input:focus,
   select:focus,
   textarea:focus {
-    color: #111827 !important;
+    color: var(--charcoal) !important;
     background-color: white !important;
   }
 }
@@ -326,8 +423,8 @@ textarea:focus {
 }
 
 .badge-pink {
-  background-color: var(--pink-100);
-  color: var(--pink-800);
+  background-color: var(--lavender-100);
+  color: var(--lavender-800);
 }
 
 .badge-blue {
@@ -348,6 +445,22 @@ textarea:focus {
 .badge-red {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+/* Additional accent color badges */
+.badge-apricot {
+  background-color: var(--apricot-100);
+  color: var(--apricot-800);
+}
+
+.badge-lavender {
+  background-color: var(--lavender-100);
+  color: var(--lavender-800);
+}
+
+.badge-rose-beige {
+  background-color: var(--rose-beige-100);
+  color: var(--rose-beige-800);
 }
 
 /* Mood Tag Styles */
@@ -402,7 +515,7 @@ textarea:focus {
 .loading-spinner {
   animation: spin 1s linear infinite;
   border: 2px solid #e5e7eb;
-  border-top: 2px solid var(--pink-600);
+  border-top: 2px solid var(--primary);
   border-radius: 50%;
 }
 
@@ -423,7 +536,7 @@ label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
+  color: var(--charcoal);
   margin-bottom: 0.25rem;
 }
 
@@ -480,19 +593,19 @@ label {
 
 /* Utility Classes */
 .text-primary {
-  color: var(--pink-600);
+  color: var(--primary);
 }
 
 .text-secondary {
-  color: #6b7280;
+  color: var(--charcoal-light);
 }
 
 .text-muted {
-  color: #9ca3af;
+  color: var(--charcoal-lighter);
 }
 
 .bg-primary {
-  background-color: var(--pink-600);
+  background-color: var(--primary);
 }
 
 .bg-secondary {
@@ -507,7 +620,7 @@ label {
 
 /* Gradient Backgrounds */
 .bg-gradient-pink {
-  background: linear-gradient(135deg, var(--pink-500) 0%, var(--pink-600) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
 }
 
 .bg-gradient-subtle {

@@ -195,7 +195,7 @@ describe('PostCard Component', () => {
       { mood: 'disappointed', label: 'ちょっと残念', color: 'bg-gray-100 text-gray-700' },
       { mood: 'okay', label: 'まあまあ', color: 'bg-yellow-100 text-yellow-700' },
       { mood: 'good', label: '良かった', color: 'bg-green-100 text-green-700' },
-      { mood: 'love', label: 'また使いたい', color: 'bg-pink-100 text-pink-700' },
+      { mood: 'love', label: 'また使いたい', color: 'bg-apple-100 text-apple-700' },
       { mood: 'perfect', label: '完璧', color: 'bg-purple-100 text-purple-700' },
     ]
 

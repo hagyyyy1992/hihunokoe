@@ -71,7 +71,7 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
       {/* 初回読み込み中 */}
       {isLoading && comments.length === 0 && (
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-apple-600"></div>
           <span className="ml-2 text-gray-600">コメントを読み込み中...</span>
         </div>
       )}
@@ -96,11 +96,11 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
           <button
             onClick={handleLoadMore}
             disabled={isLoading}
-            className="px-6 py-2 text-sm font-medium text-pink-600 bg-pink-50 border border-pink-200 rounded-md hover:bg-pink-100 transition-colors disabled:opacity-50"
+            className="px-6 py-2 text-sm font-medium text-apple-600 bg-apple-50 border border-apple-200 rounded-md hover:bg-apple-100 transition-colors disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-apple-600 border-t-transparent rounded-full animate-spin"></div>
                 <span>読み込み中...</span>
               </div>
             ) : (

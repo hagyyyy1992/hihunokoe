@@ -29,7 +29,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/posts"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   体験を見る
                 </Link>
@@ -38,7 +38,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/posts/new"
-                    className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                    className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                   >
                     体験を投稿
                   </Link>
@@ -54,7 +54,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/guidelines"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   投稿ガイドライン
                 </Link>
@@ -62,7 +62,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/help"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   ヘルプ
                 </Link>
@@ -70,7 +70,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   お問い合わせ
                 </Link>
@@ -78,7 +78,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   プライバシーポリシー
                 </Link>
@@ -86,7 +86,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
+                  className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   利用規約
                 </Link>

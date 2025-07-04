@@ -98,13 +98,16 @@ function RegistrationCompleteContent() {
             <button
               onClick={handleResendEmail}
               disabled={isResending || !email}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-apple-600 hover:bg-apple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-apple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isResending ? '送信中...' : '確認メールを再送信'}
             </button>
 
             <div className="text-center space-y-2">
-              <Link href="/auth/login" className="block text-sm text-pink-600 hover:text-pink-500">
+              <Link
+                href="/auth/login"
+                className="block text-sm text-apple-600 hover:text-apple-500"
+              >
                 ログインページに戻る
               </Link>
               <Link href="/" className="block text-sm text-gray-600 hover:text-gray-500">
@@ -130,7 +133,7 @@ export default function RegistrationCompletePage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-apple-600 mx-auto mb-4"></div>
             <p className="text-gray-600">読み込み中...</p>
           </div>
         </div>

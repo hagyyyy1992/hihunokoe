@@ -122,7 +122,7 @@ const moodTagColors: Record<string, string> = {
   disappointed: 'bg-gray-100 text-gray-700',
   okay: 'bg-yellow-100 text-yellow-700',
   good: 'bg-green-100 text-green-700',
-  love: 'bg-pink-100 text-pink-700',
+  love: 'bg-apple-100 text-apple-700',
   perfect: 'bg-purple-100 text-purple-700',
 }
 
@@ -224,7 +224,7 @@ export default function PostDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">読み込み中...</p>
         </div>
       </div>
@@ -251,8 +251,8 @@ export default function PostDetailPage() {
           <header className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                  <span className="text-pink-600 font-medium text-sm">
+                <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
+                  <span className="text-apple-600 font-medium text-sm">
                     {post.user.userName.charAt(0).toUpperCase()}
                   </span>
                 </div>

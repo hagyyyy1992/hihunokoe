@@ -13,7 +13,7 @@ export default function NotFound() {
         <div className="space-y-4 mb-8">
           <Link
             href="/"
-            className="inline-block bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition-colors mr-4"
+            className="inline-block bg-apple-600 text-white px-6 py-3 rounded-lg hover:bg-apple-700 transition-colors mr-4"
           >
             ホームに戻る
           </Link>
@@ -30,13 +30,13 @@ export default function NotFound() {
             お探しのページが見つからない場合は、以下のページもご確認ください：
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link href="/help" className="text-pink-600 hover:text-pink-700 underline">
+            <Link href="/help" className="text-apple-600 hover:text-apple-700 underline">
               ヘルプ
             </Link>
-            <Link href="/contact" className="text-pink-600 hover:text-pink-700 underline">
+            <Link href="/contact" className="text-apple-600 hover:text-apple-700 underline">
               お問い合わせ
             </Link>
-            <Link href="/guidelines" className="text-pink-600 hover:text-pink-700 underline">
+            <Link href="/guidelines" className="text-apple-600 hover:text-apple-700 underline">
               ガイドライン
             </Link>
           </div>

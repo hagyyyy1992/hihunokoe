@@ -147,8 +147,8 @@ export default function EmpathyButton({
     ${currentSize.button}
     ${
       hasEmpathized
-        ? 'text-white bg-pink-600 hover:bg-pink-700 focus:ring-pink-500'
-        : 'text-pink-600 bg-pink-50 hover:bg-pink-100 focus:ring-pink-500 border border-pink-200'
+        ? 'text-white bg-apple-600 hover:bg-apple-700 focus:ring-apple-500'
+        : 'text-apple-600 bg-apple-50 hover:bg-apple-100 focus:ring-apple-500 border border-apple-200'
     }
     focus:outline-none focus:ring-2 focus:ring-offset-2
     ${isLoading ? 'cursor-wait' : 'cursor-pointer'}

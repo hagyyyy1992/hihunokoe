@@ -105,7 +105,7 @@ export default function PostsPage() {
           </div>
           <Link
             href="/posts/new"
-            className="bg-pink-600 text-white hover:bg-pink-700 px-6 py-3 rounded-full text-sm font-medium transition-colors"
+            className="bg-apple-600 text-white hover:bg-apple-700 px-6 py-3 rounded-full text-sm font-medium transition-colors"
           >
             体験を投稿する
           </Link>
@@ -120,7 +120,7 @@ export default function PostsPage() {
               <select
                 value={filters.skinType}
                 onChange={e => handleFilterChange('skinType', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
                 <option value="normal">普通肌</option>
@@ -136,7 +136,7 @@ export default function PostsPage() {
               <select
                 value={filters.category}
                 onChange={e => handleFilterChange('category', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
                 <option value="toner">化粧水</option>
@@ -159,7 +159,7 @@ export default function PostsPage() {
               <select
                 value={filters.moodTag}
                 onChange={e => handleFilterChange('moodTag', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
                 <option value="disappointed">ちょっと残念</option>
@@ -177,7 +177,7 @@ export default function PostsPage() {
                 value={filters.search}
                 onChange={e => handleFilterChange('search', e.target.value)}
                 placeholder="コスメ名や体験談で検索"
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function PostsPage() {
         {/* ローディング表示 */}
         {loading && (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-600"></div>
           </div>
         )}
 
@@ -225,7 +225,7 @@ export default function PostsPage() {
                         onClick={() => handlePageChange(page)}
                         className={`px-3 py-2 text-sm font-medium rounded-md ${
                           page === pagination.page
-                            ? 'bg-pink-600 text-white'
+                            ? 'bg-apple-600 text-white'
                             : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -265,7 +265,7 @@ export default function PostsPage() {
                 <div className="mt-6">
                   <Link
                     href="/posts/new"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700"
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-apple-600 hover:bg-apple-700"
                   >
                     最初の投稿をする
                   </Link>

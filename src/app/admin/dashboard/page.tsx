@@ -113,7 +113,7 @@ export default function AdminDashboard() {
       title: '総共感数',
       value: stats.totalEmpathies.toLocaleString(),
       icon: Heart,
-      color: 'text-pink-600',
+      color: 'text-apple-600',
     },
   ]
 

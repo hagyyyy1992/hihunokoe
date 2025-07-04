@@ -53,12 +53,12 @@ describe('NotFound', () => {
     const homeLink = screen.getByRole('link', { name: 'ホームに戻る' })
     expect(homeLink).toHaveClass(
       'inline-block',
-      'bg-pink-600',
+      'bg-apple-600',
       'text-white',
       'px-6',
       'py-3',
       'rounded-lg',
-      'hover:bg-pink-700',
+      'hover:bg-apple-700',
       'transition-colors'
     )
   })

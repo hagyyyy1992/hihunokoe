@@ -101,6 +101,6 @@ describe('Home', () => {
     const { container } = render(<Home />)
 
     const mainDiv = container.querySelector('div')
-    expect(mainDiv).toHaveClass('bg-gradient-to-b', 'from-pink-50', 'to-white')
+    expect(mainDiv).toHaveClass('bg-gradient-to-b', 'from-apple-50', 'to-white')
   })
 })

@@ -3,13 +3,13 @@ import { SERVICE_NAME } from '@/lib/constants'
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-b from-pink-50 to-white">
+    <div className="bg-gradient-to-b from-apple-50 to-white">
       {/* ヒーローセクション */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
             化粧品の
-            <span className="text-pink-600">リアルな体験</span>
+            <span className="text-apple-600">リアルな体験</span>
             を共有しよう
           </h1>
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
@@ -18,13 +18,13 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/posts"
-              className="bg-pink-600 text-white hover:bg-pink-700 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
+              className="bg-apple-600 text-white hover:bg-apple-700 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
             >
               体験談を見る
             </Link>
             <Link
               href="/posts/new"
-              className="border border-pink-600 text-pink-600 hover:bg-pink-50 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
+              className="border border-apple-600 text-apple-600 hover:bg-apple-50 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
             >
               体験を投稿する
             </Link>
@@ -40,9 +40,9 @@ export default function Home() {
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
-                  className="w-8 h-8 text-pink-600"
+                  className="w-8 h-8 text-apple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -61,9 +61,9 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
-                  className="w-8 h-8 text-pink-600"
+                  className="w-8 h-8 text-apple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -82,9 +82,9 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
-                  className="w-8 h-8 text-pink-600"
+                  className="w-8 h-8 text-apple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -107,7 +107,7 @@ export default function Home() {
       </section>
 
       {/* CTA セクション */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-pink-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-apple-50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
             あなたの体験が、誰かの参考になる
@@ -117,7 +117,7 @@ export default function Home() {
           </p>
           <Link
             href="/auth/register"
-            className="bg-pink-600 text-white hover:bg-pink-700 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
+            className="bg-apple-600 text-white hover:bg-apple-700 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center"
           >
             今すぐ始める
           </Link>

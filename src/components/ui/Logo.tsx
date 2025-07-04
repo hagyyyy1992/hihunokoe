@@ -16,8 +16,8 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
 
   return (
     <div className="flex items-center space-x-2">
-      <div className={`${container} bg-pink-100 rounded-full flex items-center justify-center`}>
-        <span className={`text-pink-600 font-bold ${text}`}>H</span>
+      <div className={`${container} bg-apple-100 rounded-full flex items-center justify-center`}>
+        <span className={`text-apple-600 font-bold ${text}`}>H</span>
       </div>
       {showText && (
         <span className={`${brandText} font-semibold text-gray-900`}>{SERVICE_NAME}</span>
