@@ -2,14 +2,14 @@ export const testUsers = {
   validUser: {
     username: 'testuser_e2e',
     email: 'testuser@example.com',
-    password: 'TestPassword123!',
+    password: 'TestPassword123',
     skinType: 'normal',
   },
 
   admin: {
     username: 'admin_e2e',
     email: 'admin@example.com',
-    password: 'AdminPassword123!',
+    password: 'AdminPassword123',
     skinType: 'combination',
   },
 }
@@ -41,7 +41,7 @@ export const generateRandomUser = () => {
   return {
     username: `user_${uniqueId}`,
     email: `user${uniqueId}@example.com`,
-    password: 'TestPassword123!',
+    password: 'TestPassword123',
     skinType: 'normal',
   }
 }
