@@ -166,7 +166,7 @@ test.describe('ログイン', () => {
   test('ログアウト機能が正常に動作する', async ({ page }) => {
     // 「正常なログインができる」テストで既に作成されたユーザーを使用
     const existingUser = generateRandomUser()
-    
+
     // まず登録を試みる（既に存在する場合はエラーになるが無視）
     try {
       await page.goto('/auth/register')
@@ -180,18 +180,21 @@ test.describe('ログイン', () => {
     } catch (error) {
       // 登録エラーは無視（既に存在するユーザーの可能性）
     }
-    
+
     // ログインページから開始
     await page.goto('/auth/login')
     await page.fill('[data-testid="email-input"]', existingUser.email)
     await page.fill('[data-testid="password-input"]', existingUser.password)
     await page.click('[data-testid="login-button"]')
-    
+
     // ログイン成功を待つ
     await page.waitForLoadState('networkidle')
-    
+
     // ログイン状態を確認（エラーメッセージが表示されていないことを確認）
-    const hasError = await page.locator('[data-testid="error-message"]').isVisible().catch(() => false)
+    const hasError = await page
+      .locator('[data-testid="error-message"]')
+      .isVisible()
+      .catch(() => false)
     if (hasError) {
       throw new Error('Login failed - user might not exist')
     }
