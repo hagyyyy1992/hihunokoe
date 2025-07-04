@@ -337,7 +337,7 @@ test.describe('アカウント削除機能', () => {
     await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
   })
 
-  test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
+  test('アカウント削除後に同じユーザー名で再登録できない', async ({ page }) => {
     // アカウント削除を実行
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)
@@ -352,7 +352,7 @@ test.describe('アカウント削除機能', () => {
     // 新規登録ページに移動
     await page.goto('/auth/register')
 
-    // 同じユーザー名で新しいアカウントを登録
+    // 同じユーザー名で新しいアカウントを登録しようとする
     await page.getByTestId('username-input').fill(testUser.userName)
     await page.getByTestId('email-input').fill('new_' + testUser.email)
     await page.getByTestId('password-input').fill(testUser.password)
@@ -361,14 +361,16 @@ test.describe('アカウント削除機能', () => {
     // 登録ボタンをクリック
     await page.getByTestId('register-button').click()
 
-    // 登録完了ページに移動することを確認
-    await expect(page).toHaveURL(/\/auth\/registration-complete/)
+    // エラーメッセージが表示されることを確認
+    await expect(page.getByTestId('error-message')).toBeVisible()
+    // 「このユーザー名は使用できません」または「ユーザー名またはメールアドレスが既に使用されています」のいずれか
+    const errorText = await page.getByTestId('error-message').textContent()
+    expect(
+      errorText?.includes('このユーザー名は使用できません') ||
+        errorText?.includes('ユーザー名またはメールアドレスが既に使用されています')
+    ).toBeTruthy()
 
-    // 再登録が成功したことを確認（登録完了ページの要素をチェック）
-    await expect(page.getByTestId('success-message')).toBeVisible()
-    await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
-
-    // 追加のクリーンアップ（新しいメールアドレスも削除）
-    await cleanupTestUser('new_' + testUser.email)
+    // 登録ページに留まることを確認
+    await expect(page).toHaveURL(/\/auth\/register/)
   })
 })

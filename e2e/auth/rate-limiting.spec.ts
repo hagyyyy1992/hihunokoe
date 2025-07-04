@@ -15,8 +15,6 @@ test.describe('レート制限', () => {
       const response = await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
       if (!response.ok()) {
         console.log('Rate limiter reset failed with status:', response.status())
-      } else {
-        console.log('Rate limiter reset successful')
       }
     } catch (error) {
       console.log('Rate limiter reset failed (continuing anyway):', error)

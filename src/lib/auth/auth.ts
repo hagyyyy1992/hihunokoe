@@ -98,7 +98,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
   // アクティブなユーザー（論理削除されていない）の重複チェック
   const existingActiveUser = await prisma!.user.findFirst({
     where: {
-      OR: [{ email: data.email }],
+      OR: [{ email: data.email }, { userName: data.userName }],
       isActive: true,
       deletedAt: null,
     },
@@ -108,10 +108,23 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     throw new Error('ユーザー名またはメールアドレスが既に使用されています')
   }
 
-  // 論理削除されたユーザーが存在するかチェック
+  // 論理削除されたユーザー名が存在するかチェック
+  const deletedUserWithSameName = await prisma!.user.findFirst({
+    where: {
+      userName: data.userName,
+      isActive: false,
+      deletedAt: { not: null },
+    },
+  })
+
+  if (deletedUserWithSameName) {
+    throw new Error('このユーザー名は使用できません')
+  }
+
+  // 論理削除されたユーザーが存在するかチェック（メールアドレスのみで検索）
   const deletedUser = await prisma!.user.findFirst({
     where: {
-      OR: [{ email: data.email }],
+      email: data.email,
       isActive: false,
       deletedAt: { not: null },
     },

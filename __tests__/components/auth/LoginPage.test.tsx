@@ -196,7 +196,7 @@ describe('LoginPage', () => {
 
       await delay(100)
 
-      expect(mockRouter.push).toHaveBeenCalledWith('/dashboard')
+      expect(mockRouter.push).toHaveBeenCalledWith('/')
     })
 
     it('ログインエラー時にエラーメッセージが表示される', async () => {

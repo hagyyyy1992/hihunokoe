@@ -182,6 +182,7 @@ export class AuthHelper {
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {
+    console.log(`[AuthHelper] Attempting login with email: ${email}`)
     await this.page.goto('/auth/login')
 
     // Clear any existing values first to avoid form validation issues
@@ -201,18 +202,53 @@ export class AuthHelper {
     const loginButton = this.page.locator('[data-testid="login-button"]')
     await expect(loginButton).toBeEnabled({ timeout: 5000 })
 
+    console.log('[AuthHelper] Clicking login button')
     await loginButton.click()
 
     if (expectSuccess) {
       // Wait for login to complete and redirect to dashboard
       try {
-        await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 15000 })
+        console.log('[AuthHelper] Waiting for redirect to home')
+        // まずホームページへのナビゲーションが開始されるのを待つ
+        await this.page.waitForLoadState('networkidle')
+
+        // 現在のURLを確認
+        const currentUrl = this.page.url()
+        console.log('[AuthHelper] Current URL after networkidle:', currentUrl)
+
+        // ホームページへのリダイレクトを確認
+        const isHomePage =
+          currentUrl.endsWith('/') ||
+          currentUrl.endsWith('localhost:3000') ||
+          currentUrl.endsWith('/home')
+        if (!isHomePage) {
+          // もしまだログインページにいる場合は、少し待ってから再確認
+          await this.page.waitForTimeout(2000)
+          const finalUrl = this.page.url()
+          console.log('[AuthHelper] Final URL after additional wait:', finalUrl)
+
+          const isFinalHomePage =
+            finalUrl.endsWith('/') ||
+            finalUrl.endsWith('localhost:3000') ||
+            finalUrl.endsWith('/home')
+          if (!isFinalHomePage) {
+            throw new Error(`Expected to redirect to home but stayed at: ${finalUrl}`)
+          }
+        }
+
+        console.log('[AuthHelper] Login successful - redirected to home')
       } catch (error) {
         try {
-          // Check if we're already on dashboard (sometimes URL matching can be flaky)
+          // Check if we're already on home (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
-          if (currentUrl.includes('/dashboard')) {
-            console.log('Login successful - URL contains dashboard:', currentUrl)
+          console.log('[AuthHelper] Current URL after login attempt:', currentUrl)
+
+          if (
+            currentUrl.endsWith('/') ||
+            currentUrl.endsWith('localhost:3000') ||
+            currentUrl.endsWith('/home')
+          ) {
+            console.log('Login successful - URL is home:', currentUrl)
             return
           }
 
@@ -221,19 +257,35 @@ export class AuthHelper {
           const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
           if (hasError) {
             const errorText = await errorElement.textContent()
+            console.log('[AuthHelper] Login error message:', errorText)
             throw new Error(`Login failed with error: ${errorText}`)
           }
 
-          console.log('Login failed - expected dashboard but got: ', currentUrl)
+          // Check if we're still on login page
+          if (currentUrl.includes('/auth/login')) {
+            console.log('[AuthHelper] Still on login page - checking for any console errors')
+            // Log any console errors
+            this.page.on('console', msg => {
+              if (msg.type() === 'error') {
+                console.log('[AuthHelper] Console error:', msg.text())
+              }
+            })
+          }
+
+          console.log('Login failed - expected home but got: ', currentUrl)
 
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
-          if (finalUrl.includes('/dashboard')) {
-            console.log('Login successful after wait - URL contains dashboard:', finalUrl)
+          if (
+            finalUrl.endsWith('/') ||
+            finalUrl.endsWith('localhost:3000') ||
+            finalUrl.endsWith('/home')
+          ) {
+            console.log('Login successful after wait - URL is home:', finalUrl)
             return
           }
-          throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
+          throw new Error(`Login failed - expected home but got: ${finalUrl} (after waiting)`)
         } catch (pageError) {
           // If page is closed or inaccessible, throw original error
           console.log('Page is no longer accessible during error handling:', pageError)

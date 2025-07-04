@@ -7,7 +7,8 @@ export class TokenServiceImpl implements TokenService {
   private readonly jwtSecret: string
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key'
+    // auth.tsと同じ環境変数を使用
+    this.jwtSecret = process.env.NEXTAUTH_SECRET || 'your-secret-key'
   }
 
   async generateToken(payload: AuthTokenPayload): Promise<string> {
@@ -33,13 +34,20 @@ export class TokenServiceImpl implements TokenService {
         decoded.userId = decoded.id
       }
 
+      // 必須フィールドの確認
+      if (!decoded.userId && !decoded.id) {
+        throw new Error('Token missing user ID')
+      }
+
       // AuthTokenPayload形式に変換
       return {
         userId: decoded.userId || decoded.id,
         email: decoded.email,
         role: decoded.role || 'USER',
+        userName: decoded.userName, // userNameも含める（オプショナル）
       }
     } catch (error) {
+      console.error('Token verification error:', error)
       throw new Error('Invalid token')
     }
   }
