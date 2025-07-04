@@ -51,10 +51,10 @@ export default function Home() {
     }
   }, [])
 
-  const scrollToFeatures = () => {
-    const featuresSection = document.getElementById('features')
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth' })
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -99,7 +99,7 @@ export default function Home() {
 
           {/* スクロールダウンインジケーター */}
           <button
-            onClick={scrollToFeatures}
+            onClick={() => scrollToSection('features')}
             className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-500 ${
               scrollY > 50 ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
@@ -207,6 +207,28 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* スクロールインジケーター */}
+          <button
+            onClick={() => scrollToSection('how-to-use')}
+            className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
+              visibleSections.has('features') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="次のセクションへ"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </section>
 
         {/* 使い方セクション */}
@@ -247,6 +269,28 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* スクロールインジケーター */}
+          <button
+            onClick={() => scrollToSection('testimonials')}
+            className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
+              visibleSections.has('how-to-use') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="次のセクションへ"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </section>
 
         {/* ユーザーの声セクション */}
@@ -302,6 +346,28 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* スクロールインジケーター */}
+          <button
+            onClick={() => scrollToSection('statistics')}
+            className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
+              visibleSections.has('testimonials') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="次のセクションへ"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </section>
 
         {/* 統計セクション */}
@@ -331,6 +397,28 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* スクロールインジケーター */}
+          <button
+            onClick={() => scrollToSection('faq')}
+            className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
+              visibleSections.has('statistics') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="次のセクションへ"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </section>
 
         {/* FAQセクション */}
@@ -376,6 +464,28 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* スクロールインジケーター */}
+          <button
+            onClick={() => scrollToSection('cta')}
+            className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
+              visibleSections.has('faq') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="次のセクションへ"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </section>
 
         {/* CTA セクション */}
@@ -396,6 +506,29 @@ export default function Home() {
               今すぐ始める
             </Link>
           </div>
+          {/* トップへ戻るボタン */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className={`w-full flex flex-col items-center justify-center py-8 transition-opacity duration-500 ${
+              visibleSections.has('cta') ? 'opacity-100' : 'opacity-0'
+            }`}
+            aria-label="トップへ戻る"
+          >
+            <svg
+              className="w-6 h-6 text-gray-400 animate-bounce rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+            <p className="text-sm text-gray-500 mt-2">トップへ戻る</p>
+          </button>
         </section>
       </div>
 

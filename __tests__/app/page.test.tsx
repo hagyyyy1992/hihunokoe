@@ -108,8 +108,8 @@ describe('Home', () => {
 
     // 特徴セクションのみのSVGアイコンを取得（スクロールインジケーターを除外）
     const featuresSection = container.querySelector('#features')
-    const svgElements = featuresSection?.querySelectorAll('svg') || []
-    expect(svgElements).toHaveLength(3)
+    const featureCards = featuresSection?.querySelectorAll('.w-16.h-16 svg') || []
+    expect(featureCards).toHaveLength(3)
   })
 
   it('applies correct gradient background', () => {
