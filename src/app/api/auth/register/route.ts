@@ -25,14 +25,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // 基本的なバリデーション
-    const baseValidation = baseRegisterSchema.parse(body)
-
-    // パスワードのバリデーション（ユーザー情報を考慮）
-    const passwordSchema = createPasswordSchemaWithUserInfo(
-      baseValidation.userName,
-      baseValidation.email
-    )
+    // パスワードのバリデーション
+    const passwordSchema = createPasswordSchemaWithUserInfo()
     const registerSchema = baseRegisterSchema.extend({
       password: passwordSchema,
     })
@@ -124,10 +118,40 @@ export async function POST(request: NextRequest) {
       error.name === 'ZodError' &&
       'errors' in error
     ) {
+      const zodError = error as z.ZodError
+      const fieldErrors: Record<string, string> = {}
+      let generalError = '入力内容に誤りがあります'
+
+      zodError.errors.forEach(err => {
+        const field = err.path[0] as string
+
+        // フィールド別のエラーメッセージ
+        if (field === 'userName') {
+          fieldErrors[field] = 'ユーザー名は3文字以上100文字以内で入力してください'
+        } else if (field === 'email') {
+          fieldErrors[field] = '有効なメールアドレスを入力してください'
+        } else if (field === 'password') {
+          // パスワードのエラーメッセージをそのまま使用
+          fieldErrors[field] = err.message
+        } else {
+          fieldErrors[field] = err.message
+        }
+      })
+
+      // 最も重要なエラーメッセージを選択
+      if (fieldErrors.password) {
+        generalError = fieldErrors.password
+      } else if (fieldErrors.email) {
+        generalError = fieldErrors.email
+      } else if (fieldErrors.userName) {
+        generalError = fieldErrors.userName
+      }
+
       return NextResponse.json(
         {
-          error: '入力内容に誤りがあります',
-          details: (error as unknown as { errors: unknown }).errors,
+          error: generalError,
+          fieldErrors,
+          details: zodError.errors,
         },
         { status: 400 }
       )
