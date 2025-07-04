@@ -50,7 +50,7 @@ jobs:
         run: npm ci
 
       - name: Run build test
-        run: npm run build
+        run: npm run build:ci
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
