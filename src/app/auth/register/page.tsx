@@ -119,7 +119,10 @@ export default function RegisterPage() {
         // 登録完了画面にリダイレクト
         router.push(`/auth/registration-complete?email=${encodeURIComponent(formData.email)}`)
       } else {
-        setError(data.error || 'ユーザー登録に失敗しました')
+        // Ensure we only set string errors, not objects
+        const errorMessage =
+          typeof data.error === 'string' ? data.error : 'ユーザー登録に失敗しました'
+        setError(errorMessage)
       }
     } catch (err: unknown) {
       console.error('Registration error:', err)

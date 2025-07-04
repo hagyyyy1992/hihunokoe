@@ -76,7 +76,10 @@ export function calculatePasswordStrength(password: string): {
     feedback.push('よくあるパスワードは避けてください')
   }
 
-  return { score, feedback }
+  // Ensure score is within valid range (0-4)
+  const clampedScore = Math.max(0, Math.min(4, score))
+
+  return { score: clampedScore, feedback }
 }
 
 // パスワードバリデーション関数

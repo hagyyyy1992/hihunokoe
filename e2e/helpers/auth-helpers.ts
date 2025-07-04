@@ -100,6 +100,13 @@ export class AuthHelper {
   ) {
     await this.page.goto('/auth/register')
 
+    // Check for runtime errors
+    const runtimeError = await this.page.locator('text=Runtime Error').isVisible().catch(() => false)
+    if (runtimeError) {
+      const errorMessage = await this.page.locator('text=Error:').first().textContent().catch(() => '')
+      throw new Error(`Runtime error on registration page: ${errorMessage}`)
+    }
+
     // Wait for form to be fully loaded
     await this.page.waitForSelector('[data-testid="register-form"]', { timeout: 10000 })
 

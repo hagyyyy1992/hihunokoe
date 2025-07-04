@@ -14,6 +14,9 @@ export function PasswordStrengthIndicator({
   userName,
   email,
 }: PasswordStrengthIndicatorProps) {
+  // Early return if password is empty
+  if (!password) return null
+
   const { score, feedback } = calculatePasswordStrength(password)
 
   // 強度レベルの設定
@@ -25,7 +28,9 @@ export function PasswordStrengthIndicator({
     { label: 'とても強い', color: 'bg-green-600', textColor: 'text-green-700' },
   ]
 
-  const currentLevel = strengthLevels[score]
+  // Ensure score is within valid range (0-4)
+  const clampedScore = Math.max(0, Math.min(4, Math.floor(score)))
+  const currentLevel = strengthLevels[clampedScore] || strengthLevels[0]
 
   // ユーザー情報との類似性チェック
   const additionalFeedback: string[] = []
@@ -41,8 +46,6 @@ export function PasswordStrengthIndicator({
 
   const allFeedback = [...feedback, ...additionalFeedback]
 
-  if (!password) return null
-
   return (
     <div className="mt-2">
       {/* 強度バー */}
@@ -51,7 +54,7 @@ export function PasswordStrengthIndicator({
           <div
             key={level}
             className={`h-1 flex-1 rounded-full transition-colors ${
-              level <= score ? currentLevel.color : 'bg-gray-200'
+              level <= clampedScore ? currentLevel.color : 'bg-gray-200'
             }`}
           />
         ))}

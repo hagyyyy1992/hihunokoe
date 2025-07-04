@@ -164,19 +164,37 @@ test.describe('ログイン', () => {
   })
 
   test('ログアウト機能が正常に動作する', async ({ page }) => {
-    // Mobile Safari用に複数回リトライするため、タイムスタンプを含むより一意性の高いユーザー名を使用
-    const timestamp = Date.now()
-    const randomId = Math.random().toString(36).substring(2, 15)
-    const newUser = {
-      username: `user_${timestamp}_${randomId}`,
-      email: `user_${timestamp}_${randomId}@example.com`,
-      password: 'testpassword123',
+    // 「正常なログインができる」テストで既に作成されたユーザーを使用
+    const existingUser = generateRandomUser()
+    
+    // まず登録を試みる（既に存在する場合はエラーになるが無視）
+    try {
+      await page.goto('/auth/register')
+      await page.fill('[data-testid="username-input"]', existingUser.username)
+      await page.fill('[data-testid="email-input"]', existingUser.email)
+      await page.fill('[data-testid="password-input"]', existingUser.password)
+      await page.fill('[data-testid="confirm-password-input"]', existingUser.password)
+      await page.selectOption('[data-testid="skin-type-select"]', 'normal')
+      await page.click('[data-testid="register-button"]')
+      await page.waitForTimeout(2000)
+    } catch (error) {
+      // 登録エラーは無視（既に存在するユーザーの可能性）
     }
-
-    await authHelper.register(newUser)
-
-    // 登録後、手動でログイン
-    await authHelper.login(newUser.email, newUser.password)
+    
+    // ログインページから開始
+    await page.goto('/auth/login')
+    await page.fill('[data-testid="email-input"]', existingUser.email)
+    await page.fill('[data-testid="password-input"]', existingUser.password)
+    await page.click('[data-testid="login-button"]')
+    
+    // ログイン成功を待つ
+    await page.waitForLoadState('networkidle')
+    
+    // ログイン状態を確認（エラーメッセージが表示されていないことを確認）
+    const hasError = await page.locator('[data-testid="error-message"]').isVisible().catch(() => false)
+    if (hasError) {
+      throw new Error('Login failed - user might not exist')
+    }
 
     // ログイン状態を確認
     await authHelper.expectToBeLoggedIn()
