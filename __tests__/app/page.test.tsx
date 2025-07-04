@@ -3,6 +3,7 @@
  */
 import { render, screen } from '@testing-library/react'
 import Home from '@/app/page'
+import { SERVICE_NAME } from '@/lib/constants'
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
@@ -50,7 +51,7 @@ describe('Home', () => {
   it('renders the features section', () => {
     render(<Home />)
 
-    expect(screen.getByText('Usakaの特徴')).toBeInTheDocument()
+    expect(screen.getByText(`${SERVICE_NAME}の特徴`)).toBeInTheDocument()
     expect(screen.getByText('体験重視の投稿')).toBeInTheDocument()
     expect(screen.getByText('安心して投稿')).toBeInTheDocument()
     expect(screen.getByText('肌質別検索')).toBeInTheDocument()

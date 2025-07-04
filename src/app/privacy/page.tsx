@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'プライバシーポリシー - Usaka',
-  description: 'Usakaのプライバシーポリシー',
+  title: `プライバシーポリシー - ${SERVICE_NAME}`,
+  description: `${SERVICE_NAME}のプライバシーポリシー`,
 }
 
 export default function Privacy() {
@@ -19,7 +20,8 @@ export default function Privacy() {
       <div className="prose prose-lg max-w-none">
         <section className="mb-8">
           <p className="text-gray-600 mb-4">
-            Usaka（以下「当サービス」）は、ユーザーの個人情報の保護を重要視し、個人情報の保護に関する法律、その他関係法令等を遵守し、適切に取り扱います。
+            {SERVICE_NAME}
+            （以下「当サービス」）は、ユーザーの個人情報の保護を重要視し、個人情報の保護に関する法律、その他関係法令等を遵守し、適切に取り扱います。
           </p>
           <p className="text-gray-600 mb-4 text-sm">最終更新日: 2024年1月1日（仮の日付）</p>
         </section>

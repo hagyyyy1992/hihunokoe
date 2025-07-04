@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
+import Logo from '@/components/ui/Logo'
 
 export default function Footer() {
   const { user } = useAuth()
@@ -11,11 +13,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* ロゴとサービス説明 */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                <span className="text-pink-600 font-bold text-sm">U</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Usaka</span>
+            <div className="mb-4">
+              <Logo size="sm" />
             </div>
             <p className="text-gray-600 text-sm leading-relaxed max-w-md">
               化粧品の本当の使い心地を、体験談で共有するコミュニティ。
@@ -97,7 +96,9 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200">
-          <p className="text-center text-sm text-gray-500">© 2025 Usaka. All rights reserved.</p>
+          <p className="text-center text-sm text-gray-500">
+            © 2025 {SERVICE_NAME}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

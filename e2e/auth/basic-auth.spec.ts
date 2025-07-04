@@ -5,7 +5,7 @@ test.describe('基本的な認証フロー', () => {
     await page.goto('/auth/register')
 
     // ページタイトルを確認
-    await expect(page).toHaveTitle(/Usaka|会員登録/)
+    await expect(page).toHaveTitle(/ひふのこえ|会員登録/)
 
     // フォーム要素が表示されることを確認
     await expect(page.locator('[data-testid="register-form"]')).toBeVisible()
@@ -20,7 +20,7 @@ test.describe('基本的な認証フロー', () => {
     await page.goto('/auth/login')
 
     // ページタイトルを確認
-    await expect(page).toHaveTitle(/Usaka|ログイン/)
+    await expect(page).toHaveTitle(/ひふのこえ|ログイン/)
 
     // フォーム要素が表示されることを確認
     await expect(page.locator('[data-testid="login-form"]')).toBeVisible()

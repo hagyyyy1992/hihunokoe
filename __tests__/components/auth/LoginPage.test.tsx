@@ -73,10 +73,10 @@ describe('LoginPage', () => {
     expectElementToBeVisible(screen.getByTestId('login-button'))
   })
 
-  it('Usakaロゴが表示される', () => {
+  it('ロゴが表示される', () => {
     render(<LoginPage />)
 
-    const logo = screen.getByText('U')
+    const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
     expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-pink-100', 'rounded-full')
   })
@@ -97,20 +97,6 @@ describe('LoginPage', () => {
     expectElementToBeVisible(forgotPasswordLink)
     expect(forgotPasswordLink).toHaveAttribute('href', '/auth/forgot-password')
     expect(forgotPasswordLink).toHaveTextContent('パスワードをお忘れですか？')
-  })
-
-  // デモ情報は削除されたためスキップ
-  it.skip('デモ用ログイン情報が表示される', () => {
-    render(<LoginPage />)
-
-    expectElementToBeVisible(screen.getByText('デモ用ログイン情報 (メール認証済み):'))
-    // Use getByText with a function matcher to handle the line break
-    expect(
-      screen.getByText((content, element) => content.includes('メール: demo@example.com'))
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText((content, element) => content.includes('パスワード: demo123'))
-    ).toBeInTheDocument()
   })
 
   it('Remember meチェックボックスが表示される', () => {
@@ -196,7 +182,7 @@ describe('LoginPage', () => {
 
       await delay(100)
 
-      expect(mockRouter.push).toHaveBeenCalledWith('/')
+      expect(mockRouter.push).toHaveBeenCalledWith('/home')
     })
 
     it('ログインエラー時にエラーメッセージが表示される', async () => {
@@ -395,21 +381,6 @@ describe('LoginPage', () => {
         'shadow',
         'sm:rounded-lg',
         'sm:px-10'
-      )
-    })
-
-    // デモ情報は削除されたためスキップ
-    it.skip('デモ情報に適切なスタイルが適用されている', () => {
-      render(<LoginPage />)
-
-      const demoInfo = screen.getByText('デモ用ログイン情報 (メール認証済み):').closest('div')
-      expect(demoInfo).toHaveClass(
-        'mt-4',
-        'p-3',
-        'bg-blue-50',
-        'border',
-        'border-blue-200',
-        'rounded-md'
       )
     })
   })

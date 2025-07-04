@@ -7,8 +7,7 @@ export class TokenServiceImpl implements TokenService {
   private readonly jwtSecret: string
 
   constructor() {
-    // auth.tsと同じ環境変数を使用
-    this.jwtSecret = process.env.NEXTAUTH_SECRET || 'your-secret-key'
+    this.jwtSecret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
   }
 
   async generateToken(payload: AuthTokenPayload): Promise<string> {

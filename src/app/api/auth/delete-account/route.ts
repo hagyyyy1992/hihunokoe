@@ -6,6 +6,7 @@ import {
   generateAccountDeletionEmailHtml,
   generateAccountDeletionEmailText,
 } from '@/lib/email/email'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function DELETE(request: NextRequest) {
     try {
       await sendEmail({
         to: user.email,
-        subject: 'Usaka アカウント削除完了のお知らせ',
+        subject: `${SERVICE_NAME} アカウント削除完了のお知らせ`,
         html: generateAccountDeletionEmailHtml(user.userName),
         text: generateAccountDeletionEmailText(user.userName),
       })

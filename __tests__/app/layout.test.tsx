@@ -3,6 +3,7 @@
  */
 import { render, screen } from '@testing-library/react'
 import RootLayout, { metadata } from '@/app/layout'
+import { SERVICE_FULL_TITLE } from '@/lib/constants'
 
 // Mock the components and fonts
 jest.mock('@/components/layout/Header', () => {
@@ -69,7 +70,7 @@ describe('RootLayout', () => {
   })
 
   it('has correct metadata', () => {
-    expect(metadata.title).toBe('Usaka - 化粧品体験共有コミュニティ')
+    expect(metadata.title).toBe(SERVICE_FULL_TITLE)
     expect(metadata.description).toBe(
       '化粧品の本当の使い心地を、体験談で共有するコミュニティ。成分や評価ではなく、リアルな体験で「自分に合うかも」を見つけよう。'
     )

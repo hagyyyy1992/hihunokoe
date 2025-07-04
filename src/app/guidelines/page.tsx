@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'ガイドライン - Usaka',
-  description: 'Usakaコミュニティのガイドライン',
+  title: `ガイドライン - ${SERVICE_NAME}`,
+  description: `${SERVICE_NAME}コミュニティのガイドライン`,
 }
 
 export default function Guidelines() {
@@ -20,7 +21,8 @@ export default function Guidelines() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">基本理念</h2>
           <p className="text-gray-600 mb-4">
-            Usakaは化粧品の体験を安心して共有できるコミュニティです。すべてのユーザーが快適に利用できるよう、以下のガイドラインを設けています。
+            {SERVICE_NAME}
+            は化粧品の体験を安心して共有できるコミュニティです。すべてのユーザーが快適に利用できるよう、以下のガイドラインを設けています。
           </p>
         </section>
 

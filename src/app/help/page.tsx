@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'ヘルプ - Usaka',
-  description: 'Usakaの使い方とよくある質問',
+  title: `ヘルプ - ${SERVICE_NAME}`,
+  description: `${SERVICE_NAME}の使い方とよくある質問`,
 }
 
 export default function Help() {

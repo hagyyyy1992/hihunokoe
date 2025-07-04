@@ -37,7 +37,7 @@ export default function LoginPage() {
 
         if (response.ok) {
           await refreshAuth()
-          router.push('/')
+          router.push('/home')
         } else {
           setError(data.error || 'ログインに失敗しました')
 
@@ -95,7 +95,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-pink-600 font-bold text-lg">U</span>
+            <span className="text-pink-600 font-bold text-lg">H</span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">ログイン</h2>

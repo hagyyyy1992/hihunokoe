@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export default function Home() {
   return (
@@ -34,7 +35,9 @@ export default function Home() {
       {/* 特徴セクション */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">Usakaの特徴</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+            {SERVICE_NAME}の特徴
+          </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'お問い合わせ - Usaka',
-  description: 'Usakaへのお問い合わせ',
+  title: `お問い合わせ - ${SERVICE_NAME}`,
+  description: `${SERVICE_NAME}へのお問い合わせ`,
 }
 
 export default function Contact() {
@@ -19,7 +20,8 @@ export default function Contact() {
       <div className="prose prose-lg max-w-none">
         <section className="mb-8">
           <p className="text-gray-600 mb-6">
-            Usakaに関するご質問、ご要望、不具合報告などがございましたら、以下のフォームからお気軽にお問い合わせください。
+            {SERVICE_NAME}
+            に関するご質問、ご要望、不具合報告などがございましたら、以下のフォームからお気軽にお問い合わせください。
           </p>
         </section>
 
@@ -102,7 +104,7 @@ export default function Contact() {
                 <p className="text-sm text-gray-600">
                   ※ 現在フォームは実装中です。お急ぎの場合は直接メールでお問い合わせください。
                   <br />
-                  📧 contact@usaka.example.com（仮のアドレス）
+                  📧 contact@hihunokoe.example.com（仮のアドレス）
                 </p>
               </div>
 

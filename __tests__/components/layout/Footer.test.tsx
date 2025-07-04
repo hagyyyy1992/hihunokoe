@@ -4,6 +4,7 @@
 import { render, screen } from '@testing-library/react'
 import Footer from '@/components/layout/Footer'
 import { AuthProvider } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
@@ -28,11 +29,11 @@ describe('Footer', () => {
     expect(footer).toBeInTheDocument()
   })
 
-  it('renders the Usaka logo and brand name', () => {
+  it('renders the logo and brand name', () => {
     renderWithAuth(<Footer />)
 
-    expect(screen.getByText('U')).toBeInTheDocument()
-    expect(screen.getByText('Usaka')).toBeInTheDocument()
+    expect(screen.getByText('H')).toBeInTheDocument()
+    expect(screen.getByText(SERVICE_NAME)).toBeInTheDocument()
   })
 
   it('renders the service description', () => {
@@ -84,7 +85,7 @@ describe('Footer', () => {
   it('renders the copyright notice', () => {
     renderWithAuth(<Footer />)
 
-    expect(screen.getByText('© 2025 Usaka. All rights reserved.')).toBeInTheDocument()
+    expect(screen.getByText(`© 2025 ${SERVICE_NAME}. All rights reserved.`)).toBeInTheDocument()
   })
 
   it('applies correct CSS classes for layout', () => {

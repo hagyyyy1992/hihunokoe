@@ -5,6 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { usePathname } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -49,18 +50,17 @@ describe('Header', () => {
     expect(header).toBeInTheDocument()
   })
 
-  it('renders the Usaka logo and brand name', () => {
+  it('renders the logo and brand name', () => {
     render(<Header />)
 
-    expect(screen.getByText('U')).toBeInTheDocument()
-    expect(screen.getByText('Usaka')).toBeInTheDocument()
+    expect(screen.getByText('H')).toBeInTheDocument()
+    expect(screen.getByText(SERVICE_NAME)).toBeInTheDocument()
   })
 
   it('renders navigation links when user is not authenticated', () => {
     render(<Header />)
 
-    expect(screen.getByRole('link', { name: 'ホーム' })).toHaveAttribute('href', '/')
-    expect(screen.getByRole('link', { name: '体験を見る' })).toHaveAttribute('href', '/posts')
+    // When not authenticated, only login and register links are shown
     expect(screen.getByRole('link', { name: 'ログイン' })).toHaveAttribute('href', '/auth/login')
     expect(screen.getByRole('link', { name: '会員登録' })).toHaveAttribute('href', '/auth/register')
   })
@@ -84,16 +84,31 @@ describe('Header', () => {
 
     render(<Header />)
 
-    expect(screen.getByRole('link', { name: 'ダッシュボード' })).toHaveAttribute(
-      'href',
-      '/dashboard'
-    )
+    // When authenticated, shows home, posts, and new post links
+    expect(screen.getByRole('link', { name: 'ホーム' })).toHaveAttribute('href', '/home')
+    expect(screen.getByRole('link', { name: '体験を見る' })).toHaveAttribute('href', '/posts')
     expect(screen.getByRole('link', { name: '体験を投稿' })).toHaveAttribute('href', '/posts/new')
     expect(screen.getByText('testuserさん')).toBeInTheDocument()
   })
 
   it('applies active styles to current page link', () => {
     mockUsePathname.mockReturnValue('/posts')
+
+    const mockUser = {
+      id: 'user-123',
+      userName: 'testuser',
+      email: 'test@example.com',
+    }
+
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      loading: false,
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      refreshAuth: jest.fn(),
+      updateProfile: jest.fn(),
+    })
 
     render(<Header />)
 
@@ -129,6 +144,22 @@ describe('Header', () => {
   it('handles posts subdirectory active state correctly', () => {
     mockUsePathname.mockReturnValue('/posts/123')
 
+    const mockUser = {
+      id: 'user-123',
+      userName: 'testuser',
+      email: 'test@example.com',
+    }
+
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      loading: false,
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      refreshAuth: jest.fn(),
+      updateProfile: jest.fn(),
+    })
+
     render(<Header />)
 
     const postsLink = screen.getByRole('link', { name: '体験を見る' })
@@ -137,6 +168,22 @@ describe('Header', () => {
 
   it('does not apply active state to posts when on posts/new', () => {
     mockUsePathname.mockReturnValue('/posts/new')
+
+    const mockUser = {
+      id: 'user-123',
+      userName: 'testuser',
+      email: 'test@example.com',
+    }
+
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      loading: false,
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      refreshAuth: jest.fn(),
+      updateProfile: jest.fn(),
+    })
 
     render(<Header />)
 
@@ -224,6 +271,22 @@ describe('Header', () => {
 
   it('returns default class when currentPath is empty', () => {
     mockUsePathname.mockReturnValue('')
+
+    const mockUser = {
+      id: 'user-123',
+      userName: 'testuser',
+      email: 'test@example.com',
+    }
+
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      loading: false,
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      refreshAuth: jest.fn(),
+      updateProfile: jest.fn(),
+    })
 
     render(<Header />)
 

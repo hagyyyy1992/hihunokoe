@@ -206,49 +206,15 @@ export class AuthHelper {
     await loginButton.click()
 
     if (expectSuccess) {
-      // Wait for login to complete and redirect to dashboard
+      // Wait for login to complete and redirect to home
       try {
-        console.log('[AuthHelper] Waiting for redirect to home')
-        // まずホームページへのナビゲーションが開始されるのを待つ
-        await this.page.waitForLoadState('networkidle')
-
-        // 現在のURLを確認
-        const currentUrl = this.page.url()
-        console.log('[AuthHelper] Current URL after networkidle:', currentUrl)
-
-        // ホームページへのリダイレクトを確認
-        const isHomePage =
-          currentUrl.endsWith('/') ||
-          currentUrl.endsWith('localhost:3000') ||
-          currentUrl.endsWith('/home')
-        if (!isHomePage) {
-          // もしまだログインページにいる場合は、少し待ってから再確認
-          await this.page.waitForTimeout(2000)
-          const finalUrl = this.page.url()
-          console.log('[AuthHelper] Final URL after additional wait:', finalUrl)
-
-          const isFinalHomePage =
-            finalUrl.endsWith('/') ||
-            finalUrl.endsWith('localhost:3000') ||
-            finalUrl.endsWith('/home')
-          if (!isFinalHomePage) {
-            throw new Error(`Expected to redirect to home but stayed at: ${finalUrl}`)
-          }
-        }
-
-        console.log('[AuthHelper] Login successful - redirected to home')
+        await expect(this.page).toHaveURL(/\/home/, { timeout: 15000 })
       } catch (error) {
         try {
           // Check if we're already on home (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
-          console.log('[AuthHelper] Current URL after login attempt:', currentUrl)
-
-          if (
-            currentUrl.endsWith('/') ||
-            currentUrl.endsWith('localhost:3000') ||
-            currentUrl.endsWith('/home')
-          ) {
-            console.log('Login successful - URL is home:', currentUrl)
+          if (currentUrl.includes('/home')) {
+            console.log('Login successful - URL contains home:', currentUrl)
             return
           }
 
@@ -261,28 +227,13 @@ export class AuthHelper {
             throw new Error(`Login failed with error: ${errorText}`)
           }
 
-          // Check if we're still on login page
-          if (currentUrl.includes('/auth/login')) {
-            console.log('[AuthHelper] Still on login page - checking for any console errors')
-            // Log any console errors
-            this.page.on('console', msg => {
-              if (msg.type() === 'error') {
-                console.log('[AuthHelper] Console error:', msg.text())
-              }
-            })
-          }
-
           console.log('Login failed - expected home but got: ', currentUrl)
 
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
-          if (
-            finalUrl.endsWith('/') ||
-            finalUrl.endsWith('localhost:3000') ||
-            finalUrl.endsWith('/home')
-          ) {
-            console.log('Login successful after wait - URL is home:', finalUrl)
+          if (finalUrl.includes('/home')) {
+            console.log('Login successful after wait - URL contains home:', finalUrl)
             return
           }
           throw new Error(`Login failed - expected home but got: ${finalUrl} (after waiting)`)

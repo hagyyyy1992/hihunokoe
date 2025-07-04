@@ -6,10 +6,10 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import EmpathyButton from '@/components/ui/EmpathyButton'
+// import EmpathyButton from '@/components/ui/EmpathyButton'
 import { EmpathyType } from '@/types'
-import CommentList from '@/components/comments/CommentList'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+// import CommentList from '@/components/comments/CommentList'
+// import { AuthGuard } from '@/components/auth/AuthGuard'
 
 interface Post {
   id: string
@@ -142,6 +142,7 @@ export default function PostDetailPage() {
     totalCount: 0,
     isLoading: false,
   })
+  console.log('empathyState', empathyState)
 
   const fetchPost = useCallback(async () => {
     try {
@@ -414,7 +415,7 @@ export default function PostDetailPage() {
               </div>
             )}
 
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
+            {/* <div className="flex items-center space-x-6 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -443,9 +444,9 @@ export default function PostDetailPage() {
                 </svg>
                 <span>{post.viewCount} 閲覧</span>
               </div>
-            </div>
+            </div> */}
 
-            <AuthGuard
+            {/* <AuthGuard
               fallback={
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -476,12 +477,12 @@ export default function PostDetailPage() {
                 initializing={empathyState.isLoading}
                 size="md"
               />
-            </AuthGuard>
+            </AuthGuard> */}
           </div>
         </article>
 
         {/* コメントセクション */}
-        <AuthGuard
+        {/* <AuthGuard
           fallback={
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
@@ -495,7 +496,7 @@ export default function PostDetailPage() {
           }
         >
           <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
-        </AuthGuard>
+        </AuthGuard> */}
       </div>
     </div>
   )

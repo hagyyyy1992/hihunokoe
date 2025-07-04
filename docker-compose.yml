@@ -3,9 +3,9 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: usaka_postgres
+    container_name: hihunokoe_postgres
     environment:
-      POSTGRES_DB: usaka_dev
+      POSTGRES_DB: hihunokoe_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
@@ -17,7 +17,7 @@ services:
 
   adminer:
     image: adminer
-    container_name: usaka_adminer
+    container_name: hihunokoe_adminer
     ports:
       - '8080:8080'
     depends_on:
@@ -26,7 +26,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: usaka_mailhog
+    container_name: hihunokoe_mailhog
     ports:
       - '1025:1025' # SMTP port
       - '8025:8025' # Web UI port

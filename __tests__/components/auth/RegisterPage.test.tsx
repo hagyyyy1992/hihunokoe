@@ -55,7 +55,7 @@ describe('RegisterPage', () => {
       expectElementToBeVisible(screen.getByTestId('register-button'))
 
       // ロゴとリンクの確認
-      const logo = screen.getByText('U')
+      const logo = screen.getByText('H')
       expectElementToBeVisible(logo)
       expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-pink-100', 'rounded-full')
 

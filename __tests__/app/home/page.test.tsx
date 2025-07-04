@@ -3,7 +3,7 @@
  */
 import { render, screen, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
-import DashboardPage from '@/app/dashboard/page'
+import HomePage from '@/app/home/page'
 import { useAuth } from '@/lib/auth/AuthContext'
 
 // Mock dependencies
@@ -38,7 +38,7 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 // Mock fetch
 global.fetch = jest.fn()
 
-describe('DashboardPage', () => {
+describe('HomePage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseRouter.mockReturnValue({
@@ -63,7 +63,7 @@ describe('DashboardPage', () => {
       updateProfile: jest.fn(),
     })
 
-    render(<DashboardPage />)
+    render(<HomePage />)
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/auth/login')
@@ -81,12 +81,12 @@ describe('DashboardPage', () => {
       updateProfile: jest.fn(),
     })
 
-    render(<DashboardPage />)
+    render(<HomePage />)
 
     expect(mockPush).not.toHaveBeenCalled()
   })
 
-  it('renders dashboard when user is authenticated', async () => {
+  it('renders home page when user is authenticated', async () => {
     const mockUser = {
       id: 'user-123',
       userName: 'testuser',
@@ -109,7 +109,7 @@ describe('DashboardPage', () => {
     }
     ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
-    render(<DashboardPage />)
+    render(<HomePage />)
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/posts?limit=20')
@@ -136,7 +136,7 @@ describe('DashboardPage', () => {
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    render(<DashboardPage />)
+    render(<HomePage />)
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalled()
@@ -189,7 +189,7 @@ describe('DashboardPage', () => {
     }
     ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
-    render(<DashboardPage />)
+    render(<HomePage />)
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/posts?limit=20')

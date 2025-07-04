@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -113,28 +114,25 @@ export default function Header() {
           {/* ロゴ */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-              <span className="text-pink-600 font-bold text-sm">U</span>
+              <span className="text-pink-600 font-bold text-sm">H</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">Usaka</span>
+            <span className="text-xl font-semibold text-gray-900">{SERVICE_NAME}</span>
           </Link>
 
           {/* デスクトップナビゲーション */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className={getNavLinkClass('/')}>
-              ホーム
-            </Link>
             {user && (
-              <Link href="/dashboard" className={getNavLinkClass('/dashboard')}>
-                ダッシュボード
-              </Link>
-            )}
-            <Link href="/posts" className={getNavLinkClass('/posts')}>
-              体験を見る
-            </Link>
-            {user && (
-              <Link href="/posts/new" className={getPostNewLinkClass()}>
-                体験を投稿
-              </Link>
+              <>
+                <Link href="/home" className={getNavLinkClass('/home')}>
+                  ホーム
+                </Link>
+                <Link href="/posts" className={getNavLinkClass('/posts')}>
+                  体験を見る
+                </Link>
+                <Link href="/posts/new" className={getPostNewLinkClass()}>
+                  体験を投稿
+                </Link>
+              </>
             )}
           </nav>
 
@@ -206,20 +204,21 @@ export default function Header() {
               onClick={e => e.stopPropagation()}
             >
               <div className="px-2 pt-2 pb-3 space-y-1 max-h-screen overflow-y-auto">
-                <Link
-                  href="/"
-                  className={getMobileNavLinkClass('/')}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ホーム
-                </Link>
-                {user && (
+                {user ? (
                   <Link
-                    href="/dashboard"
-                    className={getMobileNavLinkClass('/dashboard')}
+                    href="/home"
+                    className={getMobileNavLinkClass('/home')}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    ダッシュボード
+                    ホーム
+                  </Link>
+                ) : (
+                  <Link
+                    href="/"
+                    className={getMobileNavLinkClass('/')}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    ホーム
                   </Link>
                 )}
                 <Link

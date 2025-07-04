@@ -98,13 +98,13 @@ test.describe('アカウント削除機能', () => {
   })
 
   test('ログインユーザーがアカウント削除ページにアクセスできる', async ({ page }) => {
-    // まず認証状態を確認するためにダッシュボードにアクセス
-    console.log('Verifying authentication by checking dashboard access')
-    await page.goto('/dashboard')
+    // まず認証状態を確認するためにホームにアクセス
+    console.log('Verifying authentication by checking home access')
+    await page.goto('/home')
 
-    // ダッシュボードにアクセスできることを確認
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
-    console.log('Dashboard access confirmed, now accessing delete page')
+    // ホームにアクセスできることを確認
+    await expect(page).toHaveURL(/\/home/, { timeout: 10000 })
+    console.log('Home access confirmed, now accessing delete page')
 
     // WebKitで発生するナビゲーション割り込みを処理
     try {

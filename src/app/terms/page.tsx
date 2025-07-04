@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: '利用規約 - Usaka',
-  description: 'Usakaの利用規約',
+  title: `利用規約 - ${SERVICE_NAME}`,
+  description: `${SERVICE_NAME}の利用規約`,
 }
 
 export default function Terms() {
@@ -19,7 +20,8 @@ export default function Terms() {
       <div className="prose prose-lg max-w-none">
         <section className="mb-8">
           <p className="text-gray-600 mb-4">
-            この利用規約（以下「本規約」）は、Usaka（以下「当サービス」）の利用条件を定めるものです。ユーザーは、当サービスを利用することで、本規約に同意したものとみなされます。
+            この利用規約（以下「本規約」）は、{SERVICE_NAME}
+            （以下「当サービス」）の利用条件を定めるものです。ユーザーは、当サービスを利用することで、本規約に同意したものとみなされます。
           </p>
           <p className="text-gray-600 mb-4 text-sm">最終更新日: 2024年1月1日（仮の日付）</p>
         </section>

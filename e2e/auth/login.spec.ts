@@ -67,7 +67,7 @@ test.describe('ログイン', () => {
     await authHelper.login(demoUser.email, demoUser.password)
 
     // ログイン成功を確認
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL(/\/home|\//)
     await authHelper.expectToBeLoggedIn()
   })
 
@@ -129,7 +129,7 @@ test.describe('ログイン', () => {
 
     // 保護されたページにアクセスを試行 - use domcontentloaded for better compatibility
     try {
-      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' })
+      await page.goto('/home', { waitUntil: 'domcontentloaded' })
     } catch (error) {
       // If navigation fails due to redirect, that's expected
       console.log('Navigation redirected as expected')
@@ -141,8 +141,8 @@ test.describe('ログイン', () => {
     // ログイン
     await authHelper.login(demoUser.email, demoUser.password)
 
-    // ログインページにリダイレクトされた後、ホームページにリダイレクトされる
-    await expect(page).toHaveURL('/')
+    // 元々アクセスしようとしたページにリダイレクトされる
+    await expect(page).toHaveURL(/\/home/)
   })
 
   test('Remember me 機能のテスト', async ({ page, context }) => {

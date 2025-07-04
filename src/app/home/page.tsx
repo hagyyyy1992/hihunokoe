@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { User, FileText, Plus } from 'lucide-react'
+import { SERVICE_NAME } from '@/lib/constants'
 
 interface Post {
   id: string
@@ -22,7 +23,7 @@ interface Post {
   }
 }
 
-export default function DashboardPage() {
+export default function HomePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [userPosts, setUserPosts] = useState<Post[]>([])
@@ -80,7 +81,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">ダッシュボード</h1>
+            <h1 className="text-3xl font-bold text-gray-900">ホーム</h1>
             <div className="flex gap-3">
               <Link
                 href="/profile"
@@ -103,7 +104,9 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
               {user.userName}さん、こんにちは！
             </h2>
-            <p className="text-gray-600">Usakaコスメティクス体験シェアサービスへようこそ。</p>
+            <p className="text-gray-600">
+              {SERVICE_NAME}コスメティクス体験シェアサービスへようこそ。
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
