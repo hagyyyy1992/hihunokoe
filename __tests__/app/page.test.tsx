@@ -16,13 +16,26 @@ jest.mock('next/link', () => {
   }
 })
 
+// Mock IntersectionObserver
+global.IntersectionObserver = jest.fn().mockImplementation((callback, options) => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+  takeRecords: jest.fn(),
+  root: null,
+  rootMargin: '',
+  thresholds: []
+}))
+
 describe('Home', () => {
   it('renders the main heading', () => {
     render(<Home />)
 
-    expect(screen.getByText(/化粧品の/)).toBeInTheDocument()
-    expect(screen.getByText('リアルな体験')).toBeInTheDocument()
-    expect(screen.getByText(/を共有しよう/)).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toBeInTheDocument()
+    expect(heading.textContent).toContain('化粧品の')
+    expect(heading.textContent).toContain('リアルな体験')
+    expect(heading.textContent).toContain('を共有しよう')
   })
 
   it('renders the hero section description', () => {

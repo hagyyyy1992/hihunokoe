@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { SERVICE_NAME } from '@/lib/constants'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +24,31 @@ export default function Home() {
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Intersection Observer for section animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id))
+          }
+        })
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    )
+
+    // Observe all sections
+    const sections = document.querySelectorAll('section[id]')
+    sections.forEach((section) => observer.observe(section))
+
+    return () => {
+      sections.forEach((section) => observer.unobserve(section))
+    }
   }, [])
 
   const scrollToFeatures = () => {
@@ -102,13 +128,17 @@ export default function Home() {
         </section>
 
         {/* 特徴セクション */}
-        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <section id="features" className={`py-20 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-1000 ${
+          visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
               {SERVICE_NAME}の特徴
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center transform transition-all duration-500 hover:scale-105">
+              <div className={`text-center transform transition-all duration-500 hover:scale-105 ${
+                visibleSections.has('features') ? 'animate-fade-in-up' : 'opacity-0'
+              }`} style={{ animationDelay: '200ms' }}>
                 <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg
                     className="w-8 h-8 text-apple-600"
@@ -129,7 +159,9 @@ export default function Home() {
                   成分表や点数評価ではなく、実際の使用感や肌の変化に焦点を当てた体験談を共有
                 </p>
               </div>
-              <div className="text-center transform transition-all duration-500 hover:scale-105">
+              <div className={`text-center transform transition-all duration-500 hover:scale-105 ${
+                visibleSections.has('features') ? 'animate-fade-in-up' : 'opacity-0'
+              }`} style={{ animationDelay: '400ms' }}>
                 <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg
                     className="w-8 h-8 text-apple-600"
@@ -150,7 +182,9 @@ export default function Home() {
                   「合わなかった」体験も大切な情報として受け入れる、優しいコミュニティ環境
                 </p>
               </div>
-              <div className="text-center transform transition-all duration-500 hover:scale-105">
+              <div className={`text-center transform transition-all duration-500 hover:scale-105 ${
+                visibleSections.has('features') ? 'animate-fade-in-up' : 'opacity-0'
+              }`} style={{ animationDelay: '600ms' }}>
                 <div className="w-16 h-16 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg
                     className="w-8 h-8 text-apple-600"
@@ -175,8 +209,179 @@ export default function Home() {
           </div>
         </section>
 
+        {/* 使い方セクション */}
+        <section id="how-to-use" className={`py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 transition-all duration-1000 ${
+          visibleSections.has('how-to-use') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+              かんたん3ステップで始める
+            </h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-apple-600">
+                  1
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">会員登録</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  メールアドレスで簡単に登録。肌質や体質の情報を設定して、あなたに合った体験談を見つけやすく
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-apple-600">
+                  2
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">体験談を探す</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  肌質、季節、年代などで絞り込んで、自分に近い人の体験談を効率的に見つけられます
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-apple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-apple-600">
+                  3
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">体験を共有</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  使ってみた化粧品の感想を投稿。あなたの体験が誰かの参考になります
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ユーザーの声セクション */}
+        <section id="testimonials" className={`py-20 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-1000 ${
+          visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+              ユーザーの声
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-apple-50 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-apple-200 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-medium text-apple-700">M</span>
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-medium text-gray-900">みさきさん</p>
+                    <p className="text-sm text-gray-500">乾燥肌・30代</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  「成分だけじゃなく、実際の使用感がわかるのが本当に助かります。同じ乾燥肌の方の体験談を参考に、やっと自分に合う化粧水を見つけられました！」
+                </p>
+              </div>
+              <div className="bg-apple-50 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-apple-200 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-medium text-apple-700">Y</span>
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-medium text-gray-900">ゆりこさん</p>
+                    <p className="text-sm text-gray-500">敏感肌・20代</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  「敏感肌で化粧品選びにいつも苦労していました。合わなかった体験談も参考になるので、失敗が減りました」
+                </p>
+              </div>
+              <div className="bg-apple-50 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-apple-200 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-medium text-apple-700">R</span>
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-medium text-gray-900">りなさん</p>
+                    <p className="text-sm text-gray-500">混合肌・40代</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  「季節や体調による変化まで書いてくれる人が多くて、とても参考になります。コミュニティの温かさを感じます」
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 統計セクション */}
+        <section id="statistics" className={`py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 transition-all duration-1000 ${
+          visibleSections.has('statistics') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+              数字で見る{SERVICE_NAME}
+            </h2>
+            <div className="grid md:grid-cols-4 gap-8 text-center">
+              <div>
+                <p className="text-4xl font-bold text-apple-600 mb-2">10,000+</p>
+                <p className="text-gray-600">登録ユーザー数</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-apple-600 mb-2">25,000+</p>
+                <p className="text-gray-600">投稿された体験談</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-apple-600 mb-2">5,000+</p>
+                <p className="text-gray-600">レビューされた商品</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-apple-600 mb-2">95%</p>
+                <p className="text-gray-600">満足度</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQセクション */}
+        <section id="faq" className={`py-20 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-1000 ${
+          visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+              よくある質問
+            </h2>
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  無料で利用できますか？
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  はい、{SERVICE_NAME}は完全無料でご利用いただけます。会員登録から投稿、閲覧まですべて無料です。
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  どんな化粧品の体験談が投稿できますか？
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  スキンケア、メイクアップ、ボディケアなど、あらゆる化粧品・美容製品の体験談を投稿できます。良かった体験も、合わなかった体験も、どちらも大切な情報として歓迎しています。
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  個人情報は安全ですか？
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  はい、お客様の個人情報は厳重に管理しています。メールアドレスは他のユーザーには公開されず、肌質などのプロフィール情報も任意で設定できます。
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  企業の宣伝や広告はありますか？
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {SERVICE_NAME}は純粋にユーザーの体験談を共有する場です。企業による宣伝投稿は禁止しており、発見次第削除しています。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA セクション */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-apple-50">
+        <section id="cta" className={`py-20 px-4 sm:px-6 lg:px-8 bg-apple-50 transition-all duration-1000 ${
+          visibleSections.has('cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">
               あなたの体験が、誰かの参考になる
@@ -206,6 +411,17 @@ export default function Home() {
           }
         }
 
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
         @keyframes scroll-down {
           0% {
             top: 4px;
@@ -222,6 +438,11 @@ export default function Home() {
 
         .animate-fade-in {
           animation: fade-in 0.8s ease-out forwards;
+          opacity: 0;
+        }
+
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
           opacity: 0;
         }
 
