@@ -217,10 +217,7 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                    {formData.userName || formData.userName}
-                  </h2>
-                  <p className="text-gray-600 text-lg">@{formData.userName}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{formData.userName}</h2>
                   {formData.skinType && (
                     <div className="mt-2">
                       <Badge variant="pink" className="text-sm">
@@ -244,15 +241,6 @@ export default function ProfilePage() {
                         <p className="font-medium text-gray-900">{formData.userName}</p>
                       </div>
                     </div>
-                    {formData.userName && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">表示名</span>
-                          <p className="font-medium text-gray-900">{formData.userName}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 

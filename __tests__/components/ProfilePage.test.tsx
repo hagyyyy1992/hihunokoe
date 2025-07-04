@@ -238,9 +238,6 @@ describe('ProfilePage Component', () => {
     // 編集モードが終了していることを確認
     expect(screen.queryByTestId('username-input')).not.toBeInTheDocument()
 
-    // 元のユーザー名が表示されていることを確認
-    expect(screen.getByText(`@${mockUser.userName}`)).toBeInTheDocument()
-
     // updateProfileが呼ばれていないことを確認
     expect(mockUpdateProfile).not.toHaveBeenCalled()
   })
