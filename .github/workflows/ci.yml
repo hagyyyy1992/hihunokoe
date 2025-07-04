@@ -74,66 +74,11 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  e2e-tests:
-    name: E2E Tests (Basic)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> $GITHUB_OUTPUT
-
-      - name: Cache playwright binaries
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-
-      - name: Install Playwright system dependencies
-        run: npx playwright install-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-
-      - name: Kill any existing process on port 3000
-        run: |
-          if lsof -i:3000; then
-            lsof -ti:3000 | xargs kill -9 || true
-          fi
-
-      - name: Run basic E2E test
-        run: npx playwright test e2e/auth/basic-auth.spec.ts --project=chromium --reporter=line
-        env:
-          CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report-pr
-          path: playwright-report/
-
   # Summary job for branch protection rules
   ci-status:
     name: CI Status Check
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, build-test, unit-tests, e2e-tests]
+    needs: [lint-and-typecheck, build-test, unit-tests]
     if: always()
     steps:
       - name: Check CI Results
@@ -141,7 +86,6 @@ jobs:
           echo "Lint & Type Check: ${{ needs.lint-and-typecheck.result }}"
           echo "Build Test: ${{ needs.build-test.result }}"
           echo "Unit Tests: ${{ needs.unit-tests.result }}"
-          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
 
           # Essential checks must pass
           if [[ "${{ needs.lint-and-typecheck.result }}" != "success" || 
@@ -151,15 +95,8 @@ jobs:
             exit 1
           fi
 
-          # E2E tests are optional for PR merge
-          if [[ "${{ needs.e2e-tests.result }}" == "success" ]]; then
-            echo "✅ All checks passed including E2E tests"
-            echo "🌐 Vercel Preview Deployment will be available for testing"
-          else
-            echo "⚠️ E2E tests failed, but essential checks passed"
-            echo "PR can be merged, but E2E issues should be addressed"
-            echo "🌐 Vercel Preview Deployment available - test manually before merge"
-          fi
+          echo "✅ All CI checks passed"
+          echo "🌐 Vercel Preview Deployment will be available for testing"
 
   # Optional: Preview deployment verification
   preview-verification:

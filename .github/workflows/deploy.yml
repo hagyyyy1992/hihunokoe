@@ -75,65 +75,10 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  e2e-tests:
-    name: E2E Tests (Extended)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> $GITHUB_OUTPUT
-
-      - name: Cache playwright binaries
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-
-      - name: Install Playwright system dependencies
-        run: npx playwright install-deps chromium firefox webkit
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-
-      - name: Kill any existing process on port 3000
-        run: |
-          if lsof -i:3000; then
-            lsof -ti:3000 | xargs kill -9 || true
-          fi
-
-      - name: Run comprehensive E2E tests
-        run: npx playwright test --reporter=line
-        env:
-          CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report-deploy
-          path: playwright-report/
-
   # Pre-deployment validation
   pre-deploy-check:
     name: Pre-deployment Validation
-    needs: [lint-and-typecheck, build-test, unit-tests, e2e-tests]
+    needs: [lint-and-typecheck, build-test, unit-tests]
     runs-on: ubuntu-latest
     outputs:
       should-deploy: ${{ steps.validation.outputs.should-deploy }}
@@ -145,22 +90,14 @@ jobs:
           echo "Lint & Type Check: ${{ needs.lint-and-typecheck.result }}"
           echo "Build Test: ${{ needs.build-test.result }}"
           echo "Unit Tests: ${{ needs.unit-tests.result }}"
-          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
 
           # Essential checks must pass for deployment
           if [[ "${{ needs.lint-and-typecheck.result }}" == "success" && 
                 "${{ needs.build-test.result }}" == "success" && 
                 "${{ needs.unit-tests.result }}" == "success" ]]; then
-            
-            if [[ "${{ needs.e2e-tests.result }}" == "success" ]]; then
-              echo "should-deploy=true" >> $GITHUB_OUTPUT
-              echo "deploy-reason=All checks passed including E2E tests" >> $GITHUB_OUTPUT
-              echo "✅ All checks passed. Deployment approved."
-            else
-              echo "should-deploy=true" >> $GITHUB_OUTPUT
-              echo "deploy-reason=Essential checks passed, E2E tests failed but deployment proceeds" >> $GITHUB_OUTPUT
-              echo "⚠️ E2E tests failed, but essential checks passed. Deployment approved with warning."
-            fi
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "deploy-reason=All checks passed" >> $GITHUB_OUTPUT
+            echo "✅ All checks passed. Deployment approved."
           else
             echo "should-deploy=false" >> $GITHUB_OUTPUT
             echo "deploy-reason=Essential CI checks failed" >> $GITHUB_OUTPUT

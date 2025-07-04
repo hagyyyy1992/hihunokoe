@@ -24,7 +24,7 @@ global.IntersectionObserver = jest.fn().mockImplementation((callback, options) =
   takeRecords: jest.fn(),
   root: null,
   rootMargin: '',
-  thresholds: []
+  thresholds: [],
 }))
 
 describe('Home', () => {
