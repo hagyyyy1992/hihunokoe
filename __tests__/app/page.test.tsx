@@ -93,14 +93,17 @@ describe('Home', () => {
   it('has correct number of SVG icons in features section', () => {
     const { container } = render(<Home />)
 
-    const svgElements = container.querySelectorAll('svg')
+    // 特徴セクションのみのSVGアイコンを取得（スクロールインジケーターを除外）
+    const featuresSection = container.querySelector('#features')
+    const svgElements = featuresSection?.querySelectorAll('svg') || []
     expect(svgElements).toHaveLength(3)
   })
 
   it('applies correct gradient background', () => {
     const { container } = render(<Home />)
 
-    const mainDiv = container.querySelector('div')
-    expect(mainDiv).toHaveClass('bg-gradient-to-b', 'from-apple-50', 'to-white')
+    // bg-gradient-to-bクラスを持つdivを探す
+    const gradientDiv = container.querySelector('.bg-gradient-to-b')
+    expect(gradientDiv).toHaveClass('bg-gradient-to-b', 'from-apple-50', 'to-white')
   })
 })
