@@ -192,13 +192,13 @@ export class AuthHelper {
     if (expectSuccess) {
       // Wait for login to complete and redirect to dashboard
       try {
-        await expect(this.page).toHaveURL(/\/dashboard/, { timeout: 15000 })
+        await expect(this.page).toHaveURL(/\/home/, { timeout: 15000 })
       } catch (error) {
         try {
           // Check if we're already on dashboard (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
-          if (currentUrl.includes('/dashboard')) {
-            console.log('Login successful - URL contains dashboard:', currentUrl)
+          if (currentUrl.includes('/home')) {
+            console.log('Login successful - URL contains home:', currentUrl)
             return
           }
 
@@ -210,16 +210,16 @@ export class AuthHelper {
             throw new Error(`Login failed with error: ${errorText}`)
           }
 
-          console.log('Login failed - expected dashboard but got: ', currentUrl)
+          console.log('Login failed - expected home but got: ', currentUrl)
 
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
-          if (finalUrl.includes('/dashboard')) {
-            console.log('Login successful after wait - URL contains dashboard:', finalUrl)
+          if (finalUrl.includes('/home')) {
+            console.log('Login successful after wait - URL contains home:', finalUrl)
             return
           }
-          throw new Error(`Login failed - expected dashboard but got: ${finalUrl} (after waiting)`)
+          throw new Error(`Login failed - expected home but got: ${finalUrl} (after waiting)`)
         } catch (pageError) {
           // If page is closed or inaccessible, throw original error
           console.log('Page is no longer accessible during error handling:', pageError)

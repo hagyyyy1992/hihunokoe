@@ -120,21 +120,18 @@ export default function Header() {
 
           {/* デスクトップナビゲーション */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className={getNavLinkClass('/')}>
-              ホーム
-            </Link>
             {user && (
-              <Link href="/dashboard" className={getNavLinkClass('/dashboard')}>
-                ダッシュボード
-              </Link>
-            )}
-            <Link href="/posts" className={getNavLinkClass('/posts')}>
-              体験を見る
-            </Link>
-            {user && (
-              <Link href="/posts/new" className={getPostNewLinkClass()}>
-                体験を投稿
-              </Link>
+              <>
+                <Link href="/home" className={getNavLinkClass('/home')}>
+                  ホーム
+                </Link>
+                <Link href="/posts" className={getNavLinkClass('/posts')}>
+                  体験を見る
+                </Link>
+                <Link href="/posts/new" className={getPostNewLinkClass()}>
+                  体験を投稿
+                </Link>
+              </>
             )}
           </nav>
 
@@ -206,20 +203,21 @@ export default function Header() {
               onClick={e => e.stopPropagation()}
             >
               <div className="px-2 pt-2 pb-3 space-y-1 max-h-screen overflow-y-auto">
-                <Link
-                  href="/"
-                  className={getMobileNavLinkClass('/')}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ホーム
-                </Link>
-                {user && (
+                {user ? (
                   <Link
-                    href="/dashboard"
-                    className={getMobileNavLinkClass('/dashboard')}
+                    href="/home"
+                    className={getMobileNavLinkClass('/home')}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    ダッシュボード
+                    ホーム
+                  </Link>
+                ) : (
+                  <Link
+                    href="/"
+                    className={getMobileNavLinkClass('/')}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    ホーム
                   </Link>
                 )}
                 <Link
