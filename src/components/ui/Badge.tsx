@@ -5,6 +5,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?:
     | 'gray'
     | 'pink'
+    | 'lavender'
     | 'blue'
     | 'green'
     | 'yellow'
@@ -28,6 +29,7 @@ const Badge: React.FC<BadgeProps> = ({
   const variantClasses = {
     gray: 'badge-gray',
     pink: 'badge-pink',
+    lavender: 'badge-pink',
     blue: 'badge-blue',
     green: 'badge-green',
     yellow: 'badge-yellow',

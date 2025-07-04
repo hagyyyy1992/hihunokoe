@@ -182,13 +182,15 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             <React.Fragment key={step}>
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step <= currentStep ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-500'
+                  step <= currentStep ? 'bg-apple-600 text-white' : 'bg-gray-200 text-gray-500'
                 }`}
               >
                 {step}
               </div>
               {index < 3 && (
-                <div className={`w-16 h-1 ${step < currentStep ? 'bg-pink-600' : 'bg-gray-200'}`} />
+                <div
+                  className={`w-16 h-1 ${step < currentStep ? 'bg-apple-600' : 'bg-gray-200'}`}
+                />
               )}
             </React.Fragment>
           ))}

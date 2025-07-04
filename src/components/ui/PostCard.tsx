@@ -67,7 +67,7 @@ const moodTagColors: Record<string, string> = {
   disappointed: 'bg-gray-100 text-gray-700',
   okay: 'bg-yellow-100 text-yellow-700',
   good: 'bg-green-100 text-green-700',
-  love: 'bg-pink-100 text-pink-700',
+  love: 'bg-apple-100 text-apple-700',
   perfect: 'bg-purple-100 text-purple-700',
 }
 
@@ -116,7 +116,7 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex-1">
           <Link
             href={`/posts/${post.id}`}
-            className="text-lg font-semibold text-gray-900 hover:text-pink-600 transition-colors"
+            className="text-lg font-semibold text-gray-900 hover:text-apple-600 transition-colors"
           >
             {post.title}
           </Link>

@@ -210,9 +210,9 @@ export default function ProfilePage() {
             </form>
           ) : (
             <div className="space-y-6">
-              <div className="flex items-center space-x-6 p-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-lg border border-pink-200">
-                <div className="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center border-4 border-white shadow-lg">
-                  <span className="text-pink-600 text-2xl font-bold">
+              <div className="flex items-center space-x-6 p-6 bg-gradient-to-r from-apple-50 to-apple-100 rounded-lg border border-apple-200">
+                <div className="w-24 h-24 rounded-full bg-apple-100 flex items-center justify-center border-4 border-white shadow-lg">
+                  <span className="text-apple-600 text-2xl font-bold">
                     {(formData.userName || '').charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">{formData.userName}</h2>
                   {formData.skinType && (
                     <div className="mt-2">
-                      <Badge variant="pink" className="text-sm">
+                      <Badge variant="lavender" className="text-sm">
                         {getSkinTypeLabel(formData.skinType)}
                       </Badge>
                     </div>
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-apple-500 rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">ユーザー名</span>
                         <p className="font-medium text-gray-900">{formData.userName}</p>

@@ -98,7 +98,7 @@ export default function Terms() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">第8条（プライバシー）</h2>
           <p className="text-gray-600 mb-4">
             個人情報の取り扱いについては、
-            <a href="/privacy" className="text-pink-600 hover:text-pink-700 underline">
+            <a href="/privacy" className="text-apple-600 hover:text-apple-700 underline">
               プライバシーポリシー
             </a>
             をご確認ください。
@@ -125,7 +125,7 @@ export default function Terms() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">お問い合わせ</h2>
           <p className="text-gray-600 mb-4">
             本規約に関するお問い合わせは、
-            <a href="/contact" className="text-pink-600 hover:text-pink-700 underline">
+            <a href="/contact" className="text-apple-600 hover:text-apple-700 underline">
               お問い合わせページ
             </a>
             からご連絡ください。

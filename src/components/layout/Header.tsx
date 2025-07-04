@@ -30,81 +30,81 @@ export default function Header() {
 
   const getNavLinkClass = (href: string) => {
     if (!currentPath) {
-      return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+      return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
     }
     const isActive =
       currentPath === href ||
       (href === '/posts' && currentPath.startsWith('/posts') && currentPath !== '/posts/new')
     if (isActive) {
-      return 'bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
+      return 'bg-apple-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
     }
-    return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+    return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
   }
 
   const getPostNewLinkClass = () => {
     if (!currentPath) {
-      return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+      return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === '/posts/new'
     if (isActive) {
-      return 'bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
+      return 'bg-apple-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
     }
-    return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+    return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
   }
 
   const getAuthLinkClass = (href: string, isButton = false) => {
     if (!currentPath) {
       if (isButton) {
-        return 'border border-pink-600 text-pink-600 hover:bg-pink-50 px-4 py-2 rounded-full text-sm font-medium transition-colors'
+        return 'border border-apple-600 text-apple-600 hover:bg-apple-50 px-4 py-2 rounded-full text-sm font-medium transition-colors'
       }
-      return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+      return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === href
     if (isActive) {
       if (isButton) {
-        return 'bg-pink-600 text-white border border-pink-600 px-4 py-2 rounded-full text-sm font-medium transition-colors'
+        return 'bg-apple-600 text-white border border-apple-600 px-4 py-2 rounded-full text-sm font-medium transition-colors'
       }
-      return 'bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
+      return 'bg-apple-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors'
     }
     if (isButton) {
-      return 'border border-pink-600 text-pink-600 hover:bg-pink-50 px-4 py-2 rounded-full text-sm font-medium transition-colors'
+      return 'border border-apple-600 text-apple-600 hover:bg-apple-50 px-4 py-2 rounded-full text-sm font-medium transition-colors'
     }
-    return 'text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors'
+    return 'text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors'
   }
 
   const getMobileNavLinkClass = (href: string) => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive =
       currentPath === href ||
       (href === '/posts' && currentPath.startsWith('/posts') && currentPath !== '/posts/new')
     if (isActive) {
-      return 'block px-3 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   const getMobilePostNewLinkClass = () => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === '/posts/new'
     if (isActive) {
-      return 'block px-3 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   const getMobileAuthLinkClass = (href: string) => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === href
     if (isActive) {
-      return 'block px-3 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   return (
@@ -113,8 +113,8 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* ロゴ */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-              <span className="text-pink-600 font-bold text-sm">H</span>
+            <div className="w-8 h-8 bg-apple-100 rounded-full flex items-center justify-center">
+              <span className="text-apple-600 font-bold text-sm">H</span>
             </div>
             <span className="text-xl font-semibold text-gray-900">{SERVICE_NAME}</span>
           </Link>
@@ -147,13 +147,13 @@ export default function Header() {
                 </span>
                 <Link
                   href="/profile"
-                  className="text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors"
+                  className="text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors"
                 >
                   プロフィール
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-gray-700 hover:text-pink-600 px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
+                  className="text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
                   data-testid="logout-button"
                 >
                   ログアウト
@@ -178,7 +178,7 @@ export default function Header() {
           {/* モバイルメニューボタン */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-pink-600 hover:bg-gray-100 transition-colors relative z-[60]"
+            className="md:hidden p-2 rounded-md text-gray-700 hover:text-apple-600 hover:bg-gray-100 transition-colors relative z-[60]"
             data-testid="mobile-menu-button"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@ export default function Header() {
                     </div>
                     <Link
                       href="/profile"
-                      className="block px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors"
+                      className="block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       プロフィール
@@ -255,7 +255,7 @@ export default function Header() {
                         logout()
                         setIsMenuOpen(false)
                       }}
-                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-pink-600 text-sm font-medium transition-colors cursor-pointer"
+                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors cursor-pointer"
                       data-testid="logout-button"
                     >
                       ログアウト

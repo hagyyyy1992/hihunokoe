@@ -37,7 +37,7 @@ export default function Contact() {
                   id="name"
                   name="name"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
                 />
               </div>
 
@@ -50,7 +50,7 @@ export default function Contact() {
                   id="email"
                   name="email"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
                 />
               </div>
 
@@ -62,7 +62,7 @@ export default function Contact() {
                   id="category"
                   name="category"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
                 >
                   <option value="">選択してください</option>
                   <option value="bug">不具合報告</option>
@@ -82,7 +82,7 @@ export default function Contact() {
                   id="subject"
                   name="subject"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
                 />
               </div>
 
@@ -95,7 +95,7 @@ export default function Contact() {
                   name="message"
                   rows={6}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
                   placeholder="お問い合わせ内容を詳細にご記入ください"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function Contact() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">よくある質問</h2>
           <p className="text-gray-600 mb-4">
             お問い合わせの前に、
-            <a href="/help" className="text-pink-600 hover:text-pink-700 underline">
+            <a href="/help" className="text-apple-600 hover:text-apple-700 underline">
               ヘルプページ
             </a>
             もご確認ください。多くの質問への回答が掲載されています。

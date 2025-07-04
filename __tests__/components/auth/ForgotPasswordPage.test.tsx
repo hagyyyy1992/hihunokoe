@@ -55,7 +55,7 @@ describe('ForgotPasswordPage', () => {
 
     const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
-    expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-pink-100', 'rounded-full')
+    expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-apple-100', 'rounded-full')
   })
 
   it('ログインページへのリンクが表示される', () => {

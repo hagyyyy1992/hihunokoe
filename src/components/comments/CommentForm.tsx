@@ -112,7 +112,7 @@ export default function CommentForm({
           value={formData.content}
           onChange={handleContentChange}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 border rounded-md shadow-sm resize-none focus:outline-none focus:ring-pink-500 focus:border-pink-500 ${
+          className={`w-full px-3 py-2 border rounded-md shadow-sm resize-none focus:outline-none focus:ring-apple-500 focus:border-apple-500 ${
             error ? 'border-red-300' : 'border-gray-300'
           } ${isReply ? 'text-sm' : ''}`}
           rows={isReply ? 2 : 3}
@@ -146,7 +146,7 @@ export default function CommentForm({
             type="submit"
             disabled={isLoading || isSubmitting || !formData.content.trim()}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors disabled:opacity-50 ${
-              isReply ? 'bg-gray-600 hover:bg-gray-700' : 'bg-pink-600 hover:bg-pink-700'
+              isReply ? 'bg-gray-600 hover:bg-gray-700' : 'bg-apple-600 hover:bg-apple-700'
             }`}
           >
             {isLoading || isSubmitting ? (

@@ -103,17 +103,17 @@ describe('Footer', () => {
 
     const links = screen.getAllByRole('link')
     links.forEach(link => {
-      expect(link).toHaveClass('hover:text-pink-600')
+      expect(link).toHaveClass('hover:text-apple-600')
     })
   })
 
   it('renders logo with correct styling', () => {
     const { container } = renderWithAuth(<Footer />)
 
-    const logoContainer = container.querySelector('.w-8.h-8.bg-pink-100.rounded-full')
+    const logoContainer = container.querySelector('.w-8.h-8.bg-apple-100.rounded-full')
     expect(logoContainer).toBeInTheDocument()
 
-    const logoText = container.querySelector('.text-pink-600.font-bold.text-sm')
+    const logoText = container.querySelector('.text-apple-600.font-bold.text-sm')
     expect(logoText).toBeInTheDocument()
   })
 })

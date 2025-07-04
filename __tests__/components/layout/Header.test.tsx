@@ -113,7 +113,7 @@ describe('Header', () => {
     render(<Header />)
 
     const postsLink = screen.getByRole('link', { name: '体験を見る' })
-    expect(postsLink).toHaveClass('bg-pink-600', 'text-white', 'rounded-full')
+    expect(postsLink).toHaveClass('bg-apple-600', 'text-white', 'rounded-full')
   })
 
   it('applies active styles to posts/new page', () => {
@@ -138,7 +138,7 @@ describe('Header', () => {
     render(<Header />)
 
     const newPostLink = screen.getByRole('link', { name: '体験を投稿' })
-    expect(newPostLink).toHaveClass('bg-pink-600', 'text-white', 'rounded-full')
+    expect(newPostLink).toHaveClass('bg-apple-600', 'text-white', 'rounded-full')
   })
 
   it('handles posts subdirectory active state correctly', () => {
@@ -163,7 +163,7 @@ describe('Header', () => {
     render(<Header />)
 
     const postsLink = screen.getByRole('link', { name: '体験を見る' })
-    expect(postsLink).toHaveClass('bg-pink-600', 'text-white', 'rounded-full')
+    expect(postsLink).toHaveClass('bg-apple-600', 'text-white', 'rounded-full')
   })
 
   it('does not apply active state to posts when on posts/new', () => {
@@ -188,7 +188,7 @@ describe('Header', () => {
     render(<Header />)
 
     const postsLink = screen.getByRole('link', { name: '体験を見る' })
-    expect(postsLink).not.toHaveClass('bg-pink-600', 'text-white', 'rounded-full')
+    expect(postsLink).not.toHaveClass('bg-apple-600', 'text-white', 'rounded-full')
   })
 
   it('toggles mobile menu', () => {
@@ -291,6 +291,6 @@ describe('Header', () => {
     render(<Header />)
 
     const homeLink = screen.getByRole('link', { name: 'ホーム' })
-    expect(homeLink).toHaveClass('text-gray-700', 'hover:text-pink-600')
+    expect(homeLink).toHaveClass('text-gray-700', 'hover:text-apple-600')
   })
 })

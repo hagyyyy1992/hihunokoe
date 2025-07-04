@@ -42,7 +42,7 @@ describe('EmpathyButton Component', () => {
     const button = screen.getByTestId('empathy-button')
     expectElementToBeVisible(button)
     expect(button).toHaveTextContent('共感する (5)')
-    expect(button).toHaveClass('text-pink-600', 'bg-pink-50')
+    expect(button).toHaveClass('text-apple-600', 'bg-apple-50')
   })
 
   it('共感済み状態をレンダリングする', () => {
@@ -51,7 +51,7 @@ describe('EmpathyButton Component', () => {
     const button = screen.getByTestId('empathy-button')
     expectElementToBeVisible(button)
     expect(button).toHaveTextContent('共感済み (6)')
-    expect(button).toHaveClass('text-white', 'bg-pink-600')
+    expect(button).toHaveClass('text-white', 'bg-apple-600')
   })
 
   it('スモールサイズでカウントのみ表示する', () => {

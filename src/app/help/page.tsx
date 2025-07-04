@@ -22,7 +22,7 @@ export default function Help() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">よくある質問</h2>
 
           <div className="space-y-6">
-            <div className="border-l-4 border-pink-500 pl-4">
+            <div className="border-l-4 border-apple-500 pl-4">
               <h3 className="text-lg font-medium text-gray-800 mb-2">
                 Q. 投稿はどのように作成しますか？
               </h3>
@@ -32,7 +32,7 @@ export default function Help() {
               </p>
             </div>
 
-            <div className="border-l-4 border-pink-500 pl-4">
+            <div className="border-l-4 border-apple-500 pl-4">
               <h3 className="text-lg font-medium text-gray-800 mb-2">
                 Q. プロフィール情報は公開されますか？
               </h3>
@@ -42,7 +42,7 @@ export default function Help() {
               </p>
             </div>
 
-            <div className="border-l-4 border-pink-500 pl-4">
+            <div className="border-l-4 border-apple-500 pl-4">
               <h3 className="text-lg font-medium text-gray-800 mb-2">
                 Q. 不適切な投稿を見つけた場合はどうすればいいですか？
               </h3>
@@ -51,7 +51,7 @@ export default function Help() {
               </p>
             </div>
 
-            <div className="border-l-4 border-pink-500 pl-4">
+            <div className="border-l-4 border-apple-500 pl-4">
               <h3 className="text-lg font-medium text-gray-800 mb-2">
                 Q. アカウントを削除したい場合は？
               </h3>
@@ -86,7 +86,7 @@ export default function Help() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">お困りの場合</h2>
           <p className="text-gray-600 mb-4">
             上記で解決しない問題がございましたら、
-            <a href="/contact" className="text-pink-600 hover:text-pink-700 underline">
+            <a href="/contact" className="text-apple-600 hover:text-apple-700 underline">
               お問い合わせページ
             </a>
             からご連絡ください。

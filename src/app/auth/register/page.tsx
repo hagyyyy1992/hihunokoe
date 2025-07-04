@@ -177,14 +177,14 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-pink-600 font-bold text-lg">H</span>
+          <div className="w-12 h-12 bg-apple-100 rounded-full flex items-center justify-center">
+            <span className="text-apple-600 font-bold text-lg">H</span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">会員登録</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           既にアカウントをお持ちの方は{' '}
-          <Link href="/auth/login" className="font-medium text-pink-600 hover:text-pink-500">
+          <Link href="/auth/login" className="font-medium text-apple-600 hover:text-apple-500">
             ログイン
           </Link>
         </p>
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                   required
                   value={formData.userName}
                   onChange={handleChange}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm ${
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm ${
                     fieldErrors.userName ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="ユーザー名を入力してください"
@@ -240,7 +240,7 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm ${
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm ${
                     fieldErrors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="example@example.com"
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                   type="date"
                   value={formData.birthDate}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                   data-testid="birth-date-input"
                 />
               </div>
@@ -279,7 +279,7 @@ export default function RegisterPage() {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                   data-testid="gender-select"
                 >
                   {GENDER_OPTIONS.map(option => (
@@ -301,7 +301,7 @@ export default function RegisterPage() {
                   name="skinType"
                   value={formData.skinType}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                   data-testid="skin-type-select"
                 >
                   {SKIN_TYPE_OPTIONS.map(option => (
@@ -318,7 +318,7 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.skinTypeOther}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                     placeholder="その他の肌質を入力してください"
                     data-testid="skin-type-other-input"
                   />
@@ -337,7 +337,7 @@ export default function RegisterPage() {
                   multiple
                   value={formData.allergies}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                   size={5}
                   data-testid="allergies-select"
                 >
@@ -358,7 +358,7 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.allergiesOther}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                     placeholder="その他のアレルギーを入力してください"
                     data-testid="allergies-other-input"
                   />
@@ -376,7 +376,7 @@ export default function RegisterPage() {
                   name="bodyType"
                   value={formData.bodyType}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                   data-testid="body-type-select"
                 >
                   {BODY_TYPE_OPTIONS.map(option => (
@@ -393,7 +393,7 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.bodyTypeOther}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                     placeholder="その他の体質を入力してください"
                     data-testid="body-type-other-input"
                   />
@@ -441,7 +441,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-apple-600 hover:bg-apple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-apple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 data-testid="register-button"
               >
                 {loading ? '登録中...' : '会員登録'}

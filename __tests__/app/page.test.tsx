@@ -16,13 +16,26 @@ jest.mock('next/link', () => {
   }
 })
 
+// Mock IntersectionObserver
+global.IntersectionObserver = jest.fn().mockImplementation((callback, options) => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+  takeRecords: jest.fn(),
+  root: null,
+  rootMargin: '',
+  thresholds: [],
+}))
+
 describe('Home', () => {
   it('renders the main heading', () => {
     render(<Home />)
 
-    expect(screen.getByText(/化粧品の/)).toBeInTheDocument()
-    expect(screen.getByText('リアルな体験')).toBeInTheDocument()
-    expect(screen.getByText(/を共有しよう/)).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toBeInTheDocument()
+    expect(heading.textContent).toContain('化粧品の')
+    expect(heading.textContent).toContain('リアルな体験')
+    expect(heading.textContent).toContain('を共有しよう')
   })
 
   it('renders the hero section description', () => {
@@ -93,14 +106,17 @@ describe('Home', () => {
   it('has correct number of SVG icons in features section', () => {
     const { container } = render(<Home />)
 
-    const svgElements = container.querySelectorAll('svg')
-    expect(svgElements).toHaveLength(3)
+    // 特徴セクションのみのSVGアイコンを取得（スクロールインジケーターを除外）
+    const featuresSection = container.querySelector('#features')
+    const featureCards = featuresSection?.querySelectorAll('.w-16.h-16 svg') || []
+    expect(featureCards).toHaveLength(3)
   })
 
   it('applies correct gradient background', () => {
     const { container } = render(<Home />)
 
-    const mainDiv = container.querySelector('div')
-    expect(mainDiv).toHaveClass('bg-gradient-to-b', 'from-pink-50', 'to-white')
+    // bg-gradient-to-bクラスを持つdivを探す
+    const gradientDiv = container.querySelector('.bg-gradient-to-b')
+    expect(gradientDiv).toHaveClass('bg-gradient-to-b', 'from-apple-50', 'to-white')
   })
 })
