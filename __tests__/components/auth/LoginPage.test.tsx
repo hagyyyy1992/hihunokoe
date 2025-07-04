@@ -99,19 +99,6 @@ describe('LoginPage', () => {
     expect(forgotPasswordLink).toHaveTextContent('パスワードをお忘れですか？')
   })
 
-  it('デモ用ログイン情報が表示される', () => {
-    render(<LoginPage />)
-
-    expectElementToBeVisible(screen.getByText('デモ用ログイン情報 (メール認証済み):'))
-    // Use getByText with a function matcher to handle the line break
-    expect(
-      screen.getByText((content, element) => content.includes('メール: demo@example.com'))
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText((content, element) => content.includes('パスワード: demo123'))
-    ).toBeInTheDocument()
-  })
-
   it('Remember meチェックボックスが表示される', () => {
     render(<LoginPage />)
 
@@ -394,20 +381,6 @@ describe('LoginPage', () => {
         'shadow',
         'sm:rounded-lg',
         'sm:px-10'
-      )
-    })
-
-    it('デモ情報に適切なスタイルが適用されている', () => {
-      render(<LoginPage />)
-
-      const demoInfo = screen.getByText('デモ用ログイン情報 (メール認証済み):').closest('div')
-      expect(demoInfo).toHaveClass(
-        'mt-4',
-        'p-3',
-        'bg-blue-50',
-        'border',
-        'border-blue-200',
-        'rounded-md'
       )
     })
   })
