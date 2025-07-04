@@ -48,18 +48,12 @@ jobs:
         run: npm ci
 
       - name: Run build test
-        run: |
-          # Set dummy values for Prisma schema validation if secrets are not available
-          export DATABASE_URL="${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}"
-          export DIRECT_URL="${{ secrets.DIRECT_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}"
-          # Generate Prisma client only, skip migration
-          npx prisma generate
-          # Build Next.js without database migration
-          npx next build
+        run: npm run build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          DIRECT_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
 
   unit-tests:
     name: Unit Tests
