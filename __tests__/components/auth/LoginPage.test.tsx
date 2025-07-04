@@ -73,10 +73,10 @@ describe('LoginPage', () => {
     expectElementToBeVisible(screen.getByTestId('login-button'))
   })
 
-  it('Usakaロゴが表示される', () => {
+  it('ロゴが表示される', () => {
     render(<LoginPage />)
 
-    const logo = screen.getByText('U')
+    const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
     expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-pink-100', 'rounded-full')
   })

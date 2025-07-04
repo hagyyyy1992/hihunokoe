@@ -5,6 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { usePathname } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -49,11 +50,11 @@ describe('Header', () => {
     expect(header).toBeInTheDocument()
   })
 
-  it('renders the Usaka logo and brand name', () => {
+  it('renders the logo and brand name', () => {
     render(<Header />)
 
-    expect(screen.getByText('U')).toBeInTheDocument()
-    expect(screen.getByText('Usaka')).toBeInTheDocument()
+    expect(screen.getByText('H')).toBeInTheDocument()
+    expect(screen.getByText(SERVICE_NAME)).toBeInTheDocument()
   })
 
   it('renders navigation links when user is not authenticated', () => {

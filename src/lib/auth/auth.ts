@@ -4,7 +4,7 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
 import { SkinType, Gender, AllergyType, BodyType, UserRole } from '@prisma/client'
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key'
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
 
 export interface AuthUser {
   id: string

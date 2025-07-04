@@ -18,7 +18,7 @@ npx playwright install
 npm run db:setup
 
 # テスト用データベースの作成（オプション）
-createdb usaka_e2e
+createdb hihunokoe_e2e
 ```
 
 ### 3. 環境変数の設定

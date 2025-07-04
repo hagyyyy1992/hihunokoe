@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { User, FileText, Plus } from 'lucide-react'
+import { SERVICE_NAME } from '@/lib/constants'
 
 interface Post {
   id: string
@@ -103,7 +104,9 @@ export default function HomePage() {
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
               {user.userName}さん、こんにちは！
             </h2>
-            <p className="text-gray-600">Usakaコスメティクス体験シェアサービスへようこそ。</p>
+            <p className="text-gray-600">
+              {SERVICE_NAME}コスメティクス体験シェアサービスへようこそ。
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

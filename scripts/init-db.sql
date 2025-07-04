@@ -8,4 +8,4 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- (The database is already created by POSTGRES_DB environment variable)
 
 -- Grant necessary permissions
-GRANT ALL PRIVILEGES ON DATABASE usaka_dev TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE hihunokoe_dev TO postgres;

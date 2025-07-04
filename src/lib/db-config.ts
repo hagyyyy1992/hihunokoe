@@ -33,7 +33,9 @@ export const DB_CONFIG = {
       case 'supabase':
         return process.env.DATABASE_URL || ''
       case 'local':
-        return process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/usaka_dev'
+        return (
+          process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/hihunokoe_dev'
+        )
       default:
         return ''
     }

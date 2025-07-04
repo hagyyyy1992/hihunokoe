@@ -178,7 +178,7 @@ export default function RegisterPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-pink-600 font-bold text-lg">U</span>
+            <span className="text-pink-600 font-bold text-lg">H</span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">会員登録</h2>

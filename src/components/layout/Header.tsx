@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { SERVICE_NAME } from '@/lib/constants'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -113,9 +114,9 @@ export default function Header() {
           {/* ロゴ */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-              <span className="text-pink-600 font-bold text-sm">U</span>
+              <span className="text-pink-600 font-bold text-sm">H</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">Usaka</span>
+            <span className="text-xl font-semibold text-gray-900">{SERVICE_NAME}</span>
           </Link>
 
           {/* デスクトップナビゲーション */}

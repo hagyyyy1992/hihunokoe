@@ -50,10 +50,10 @@ describe('ForgotPasswordPage', () => {
     expectElementToBeVisible(screen.getByTestId('reset-password-button'))
   })
 
-  it('Usakaロゴが表示される', () => {
+  it('ロゴが表示される', () => {
     render(<ForgotPasswordPage />)
 
-    const logo = screen.getByText('U')
+    const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
     expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-pink-100', 'rounded-full')
   })
