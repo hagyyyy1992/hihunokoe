@@ -14,6 +14,10 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     userName: '',
     skinType: '',
+    birthDate: '',
+    gender: '',
+    allergies: [] as string[],
+    allergiesOther: '',
   })
   const [formErrors, setFormErrors] = useState({
     userName: '',
@@ -31,6 +35,10 @@ export default function ProfilePage() {
       setFormData({
         userName: user.userName || '',
         skinType: user.skinType || '',
+        birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '',
+        gender: user.gender || '',
+        allergies: user.allergies || [],
+        allergiesOther: user.allergiesOther || '',
       })
     }
   }, [user, loading, router])
@@ -115,6 +123,33 @@ export default function ProfilePage() {
     return option ? option.label : ''
   }
 
+  const getGenderLabel = (value: string) => {
+    const genderOptions = {
+      male: '男性',
+      female: '女性',
+      non_binary: 'ノンバイナリー',
+      prefer_not_to_say: '回答しない',
+      other: 'その他',
+    }
+    return genderOptions[value as keyof typeof genderOptions] || ''
+  }
+
+  const getAllergyLabel = (value: string) => {
+    const allergyOptions = {
+      fragrance: '香料',
+      alcohol: 'アルコール',
+      paraben: 'パラベン',
+      sulfate: '硫酸塩',
+      silicone: 'シリコン',
+      mineral_oil: 'ミネラルオイル',
+      formaldehyde: 'ホルムアルデヒド',
+      latex: 'ラテックス',
+      nickel: 'ニッケル',
+      other: 'その他',
+    }
+    return allergyOptions[value as keyof typeof allergyOptions] || value
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -195,6 +230,12 @@ export default function ProfilePage() {
                       setFormData({
                         userName: user.userName || '',
                         skinType: user.skinType || '',
+                        birthDate: user.birthDate
+                          ? new Date(user.birthDate).toISOString().split('T')[0]
+                          : '',
+                        gender: user.gender || '',
+                        allergies: user.allergies || [],
+                        allergiesOther: user.allergiesOther || '',
                       })
                       setFormErrors({
                         userName: '',
@@ -263,6 +304,40 @@ export default function ProfilePage() {
                           <span className="text-sm text-gray-600">肌タイプ</span>
                           <p className="font-medium text-gray-900">
                             {getSkinTypeLabel(formData.skinType)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {formData.birthDate && (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                        <div>
+                          <span className="text-sm text-gray-600">生年月日</span>
+                          <p className="font-medium text-gray-900">
+                            {new Date(formData.birthDate).toLocaleDateString('ja-JP')}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {formData.gender && (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                        <div>
+                          <span className="text-sm text-gray-600">性別</span>
+                          <p className="font-medium text-gray-900">
+                            {getGenderLabel(formData.gender)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {formData.allergies.length > 0 && (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                        <div>
+                          <span className="text-sm text-gray-600">アレルギー</span>
+                          <p className="font-medium text-gray-900">
+                            {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
+                            {formData.allergiesOther && `、${formData.allergiesOther}`}
                           </p>
                         </div>
                       </div>
