@@ -49,14 +49,14 @@ test.describe('アカウント削除機能', () => {
   test.beforeEach(async ({ page }) => {
     // 各テストで新しいユーザーを作成
     testUser = await createTestUser()
-    
+
     // テストデータをクリーンアップ
     try {
-      await cleanupTestUser(page, testUser.email)
+      await cleanupTestUser(testUser.email)
     } catch (error) {
       // クリーンアップエラーは無視（ユーザーが存在しない場合など）
     }
-    
+
     // ユーザーを登録してログイン済みの状態にする
     try {
       await registerAndLoginTestUser(page, testUser)
@@ -245,16 +245,20 @@ test.describe('アカウント削除機能', () => {
       // トップページにいる場合、ログインリンクが表示されるか確認
       // 削除直後でまだ状態が反映されていない可能性があるため、少し待機
       await page.waitForTimeout(1000)
-      
+
       try {
         // ログインリンクまたはログインボタンを探す
-        const loginLink = page.getByTestId('login-link').or(page.getByRole('link', { name: /ログイン/ }))
+        const loginLink = page
+          .getByTestId('login-link')
+          .or(page.getByRole('link', { name: /ログイン/ }))
         await expect(loginLink).toBeVisible({ timeout: 5000 })
       } catch (error) {
         // ログインリンクが見つからない場合、ページをリロードして再確認
         await page.reload()
         await page.waitForTimeout(1000)
-        const loginLink = page.getByTestId('login-link').or(page.getByRole('link', { name: /ログイン/ }))
+        const loginLink = page
+          .getByTestId('login-link')
+          .or(page.getByRole('link', { name: /ログイン/ }))
         await expect(loginLink).toBeVisible()
       }
     }
