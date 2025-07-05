@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useMutation } from '@apollo/client'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
+import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 
 interface PostFormData {
   title: string
@@ -30,6 +32,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const [error, setError] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  const [createPost] = useMutation(CREATE_POST)
+  const [updatePost] = useMutation(UPDATE_POST)
+  const [deletePost] = useMutation(DELETE_POST)
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -84,8 +90,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     setError('')
     setLoading(true)
 
-    const requestData = {
-      ...formData,
+    const input = {
+      title: formData.title,
+      content: formData.content,
+      cosmeticName: formData.cosmeticName,
       cosmeticCategory: formData.cosmeticCategory || undefined,
       skinType: formData.skinType || undefined,
       moodTag: formData.moodTag || undefined,
@@ -96,29 +104,19 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
 
     try {
-      const url = isEditMode ? `/api/posts/update?id=${postId}` : '/api/posts'
-      const method = isEditMode ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || (isEditMode ? '投稿の更新に失敗しました' : '投稿の作成に失敗しました')
-        )
+      if (isEditMode && postId) {
+        await updatePost({
+          variables: { id: postId, input },
+        })
+        router.push(`/posts/${postId}`)
+      } else {
+        const result = await createPost({
+          variables: { input },
+        })
+        router.push(`/posts/${result.data.createPost.id}`)
       }
-
-      const redirectId = isEditMode ? postId : data.post.id
-      router.push(`/posts/${redirectId}`)
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : '投稿の作成に失敗しました'
+      const errorMessage = err instanceof Error ? err.message : '投稿の処理に失敗しました'
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -155,16 +153,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     setError('')
 
     try {
-      const response = await fetch(`/api/posts/delete?id=${postId}`, {
-        method: 'DELETE',
+      await deletePost({
+        variables: { id: postId },
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || '投稿の削除に失敗しました')
-      }
-
       router.push('/posts')
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'

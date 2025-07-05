@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
+import { useQuery } from '@apollo/client'
 import PostCard from '@/components/ui/PostCard'
+import { GET_POSTS } from '@/graphql/queries/post'
 
 interface Post {
   id: string
@@ -12,85 +14,75 @@ interface Post {
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
-  publishedAt: string
-  empathyCount: number
   viewCount: number
+  empathyCount: number
+  createdAt: string
   user: {
     id: string
-    userName: string
-    skinType?: string
-  }
-  _count: {
-    empathies: number
-    comments: number
+    displayName: string
+    profileImageUrl?: string
   }
 }
 
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  pages: number
+interface PostEdge {
+  node: Post
+  cursor: string
+}
+
+interface PageInfo {
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+  startCursor?: string
+  endCursor?: string
+}
+
+interface PostsData {
+  posts: {
+    edges: PostEdge[]
+    pageInfo: PageInfo
+    totalCount: number
+  }
 }
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [pagination, setPagination] = useState<Pagination | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-
-  // フィルター状態
   const [filters, setFilters] = useState({
     skinType: '',
-    category: '',
+    cosmeticCategory: '',
     moodTag: '',
     search: '',
-    page: 1,
   })
 
-  const fetchPosts = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      if (filters.skinType) params.append('skinType', filters.skinType)
-      if (filters.category) params.append('category', filters.category)
-      if (filters.moodTag) params.append('moodTag', filters.moodTag)
-      if (filters.search) params.append('search', filters.search)
-      params.append('page', filters.page.toString())
-      params.append('limit', '10')
-
-      const response = await fetch(`/api/posts?${params}`)
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || '投稿の取得に失敗しました')
-      }
-
-      setPosts(data.posts)
-      setPagination(data.pagination)
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
-      setError(errorMessage)
-    } finally {
-      setLoading(false)
-    }
-  }, [filters])
-
-  useEffect(() => {
-    fetchPosts()
-  }, [filters, fetchPosts])
+  const { data, loading, error, fetchMore } = useQuery<PostsData>(GET_POSTS, {
+    variables: {
+      first: 10,
+      filter: {
+        ...(filters.skinType && { skinType: filters.skinType }),
+        ...(filters.cosmeticCategory && { cosmeticCategory: filters.cosmeticCategory }),
+        ...(filters.moodTag && { moodTag: filters.moodTag }),
+        ...(filters.search && { search: filters.search }),
+      },
+      orderBy: 'CREATED_AT_DESC',
+    },
+  })
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      page: 1, // フィルター変更時はページを1に戻す
     }))
   }
 
-  const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }))
+  const handleLoadMore = () => {
+    if (data?.posts.pageInfo.hasNextPage) {
+      fetchMore({
+        variables: {
+          after: data.posts.pageInfo.endCursor,
+        },
+      })
+    }
   }
+
+  const posts = data?.posts.edges.map(edge => edge.node) || []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,8 +126,8 @@ export default function PostsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">カテゴリ</label>
               <select
-                value={filters.category}
-                onChange={e => handleFilterChange('category', e.target.value)}
+                value={filters.cosmeticCategory}
+                onChange={e => handleFilterChange('cosmeticCategory', e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
@@ -186,7 +178,7 @@ export default function PostsPage() {
         {/* エラー表示 */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-            {error}
+            投稿の取得に失敗しました: {error.message}
           </div>
         )}
 
@@ -204,41 +196,32 @@ export default function PostsPage() {
               <>
                 <div className="grid gap-6 mb-8">
                   {posts.map(post => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard
+                      key={post.id}
+                      post={{
+                        ...post,
+                        publishedAt: post.createdAt,
+                        user: {
+                          ...post.user,
+                          userName: post.user.displayName,
+                        },
+                        _count: {
+                          empathies: post.empathyCount,
+                          comments: 0,
+                        },
+                      }}
+                    />
                   ))}
                 </div>
 
-                {/* ページネーション */}
-                {pagination && pagination.pages > 1 && (
-                  <div className="flex justify-center items-center space-x-2">
+                {/* もっと見るボタン */}
+                {data?.posts.pageInfo.hasNextPage && (
+                  <div className="flex justify-center">
                     <button
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      disabled={pagination.page === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={handleLoadMore}
+                      className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                     >
-                      前へ
-                    </button>
-
-                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md ${
-                          page === pagination.page
-                            ? 'bg-apple-600 text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-
-                    <button
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      disabled={pagination.page === pagination.pages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      次へ
+                      もっと見る
                     </button>
                   </div>
                 )}

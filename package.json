@@ -35,6 +35,10 @@
     "db:clean": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/hihunokoe_dev\" prisma migrate reset --force"
   },
   "dependencies": {
+    "@apollo/client": "^3.13.8",
+    "@apollo/experimental-nextjs-app-support": "^0.12.2",
+    "@apollo/server": "^4.12.2",
+    "@as-integrations/next": "^3.2.0",
     "@prisma/client": "^6.11.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
@@ -44,6 +48,8 @@
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.523.0",
     "next": "15.3.4",
