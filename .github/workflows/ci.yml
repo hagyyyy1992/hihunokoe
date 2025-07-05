@@ -25,6 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Generate GraphQL types
+        run: npm run codegen
+
       - name: Run linting
         run: npm run lint
 
@@ -72,6 +78,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Generate GraphQL types
+        run: npm run codegen
 
       - name: Run unit tests
         run: npm test
