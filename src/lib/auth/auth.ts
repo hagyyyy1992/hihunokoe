@@ -322,6 +322,8 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
 }
 
 export async function deleteUserAccount(id: string): Promise<boolean> {
+  console.log('[AUTH] deleteUserAccount called with id:', id)
+
   if (!isDatabaseAvailable() || !isValidUUID(id)) {
     // モックモードでは削除をサポートしない
     throw new Error('アカウント削除はモックモードではサポートされていません')
@@ -337,18 +339,22 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       },
     })
 
+    console.log('[AUTH] User found:', user ? 'yes' : 'no')
+
     if (!user) {
       throw new Error('ユーザーが見つかりません')
     }
 
     // 論理削除を実行（deletedAtに現在時刻を設定）
-    await prisma!.user.update({
+    const result = await prisma!.user.update({
       where: { id },
       data: {
         deletedAt: new Date(),
         isActive: false,
       },
     })
+
+    console.log('[AUTH] User deletion result:', result)
 
     return true
   } catch (error) {
