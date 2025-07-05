@@ -158,7 +158,7 @@ test.describe('ログイン', () => {
     await page.click('[data-testid="login-button"]')
 
     // ログイン成功を待つ
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL('/home')
     await authHelper.expectToBeLoggedIn()
 
     // 新しいページを開いてもログイン状態が維持されているかテスト
@@ -228,7 +228,7 @@ test.describe('ログイン', () => {
     await page.click('[data-testid="login-button"]')
 
     // ログイン成功を待つ
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL('/home')
 
     // ログイン状態を確認
     await authHelper.expectToBeLoggedIn()

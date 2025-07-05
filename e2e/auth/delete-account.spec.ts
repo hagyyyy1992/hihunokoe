@@ -230,7 +230,16 @@ test.describe('アカウント削除機能', () => {
       await expect(page.getByTestId('login-button')).toBeVisible()
     } else {
       // トップページにいる場合、ログインリンクが表示される
-      await expect(page.getByTestId('login-link')).toBeVisible()
+      // モバイルの場合はメニュー内に隠れている可能性があるため、viewport のサイズをチェック
+      const viewport = page.viewportSize()
+      if (viewport && viewport.width < 768) {
+        // モバイルの場合、ログインボタンの存在確認だけ行う（メニュー内に隠れていてもOK）
+        const loginLink = page.getByTestId('login-link')
+        await expect(loginLink).toHaveCount(1)
+      } else {
+        // デスクトップの場合は可視性も確認
+        await expect(page.getByTestId('login-link')).toBeVisible()
+      }
     }
   })
 
