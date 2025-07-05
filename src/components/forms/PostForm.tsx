@@ -351,9 +351,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
                 data-testid="post-content-textarea"
               />
-              <p className="form-hint">
-                使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど...
-              </p>
             </div>
           </div>
         )}
@@ -674,6 +671,27 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                     <option value="normal">普通</option>
                     <option value="comfortable">快適</option>
                     <option value="very_comfortable">とても快適</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">効果の持続時間</label>
+                  <select
+                    value={formData.experienceDetails.afterUse?.duration || ''}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'afterUse',
+                        e.target.value || undefined,
+                        'duration'
+                      )
+                    }
+                    className="select"
+                  >
+                    <option value="">選択してください</option>
+                    <option value="short">短い（1-2時間）</option>
+                    <option value="moderate">普通（3-6時間）</option>
+                    <option value="long">長い（半日以上）</option>
                   </select>
                 </div>
               </div>
