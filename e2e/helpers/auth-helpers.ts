@@ -61,10 +61,10 @@ export async function cleanupTestUser(email: string) {
     })
 
     if (!response.ok) {
-      console.log(`Failed to cleanup test user ${email}: ${response.status}`)
+      console.error(`Failed to cleanup test user ${email}: ${response.status}`)
     }
   } catch (error) {
-    console.log(`Error cleaning up test user ${email}:`, error)
+    console.error(`Error cleaning up test user ${email}:`, error)
   }
 }
 
@@ -183,7 +183,6 @@ export class AuthHelper {
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {
-    console.log(`[AuthHelper] Attempting login with email: ${email}`)
     await this.page.goto('/auth/login')
 
     // Clear any existing values first to avoid form validation issues
@@ -203,7 +202,6 @@ export class AuthHelper {
     const loginButton = this.page.locator('[data-testid="login-button"]')
     await expect(loginButton).toBeEnabled({ timeout: 5000 })
 
-    console.log('[AuthHelper] Clicking login button')
     await loginButton.click()
 
     if (expectSuccess) {
@@ -215,7 +213,6 @@ export class AuthHelper {
           // Check if we're already on home (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
           if (currentUrl.includes('/home')) {
-            console.log('Login successful - URL contains home:', currentUrl)
             return
           }
 
@@ -224,23 +221,18 @@ export class AuthHelper {
           const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
           if (hasError) {
             const errorText = await errorElement.textContent()
-            console.log('[AuthHelper] Login error message:', errorText)
             throw new Error(`Login failed with error: ${errorText}`)
           }
-
-          console.log('Login failed - expected home but got: ', currentUrl)
 
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
           if (finalUrl.includes('/home')) {
-            console.log('Login successful after wait - URL contains home:', finalUrl)
             return
           }
           throw new Error(`Login failed - expected home but got: ${finalUrl} (after waiting)`)
         } catch (pageError) {
           // If page is closed or inaccessible, throw original error
-          console.log('Page is no longer accessible during error handling:', pageError)
           throw error
         }
       }
@@ -255,8 +247,6 @@ export class AuthHelper {
     try {
       const loginLink = this.page.locator('[data-testid="login-link"]')
       await expect(loginLink).toBeVisible({ timeout: 2000 })
-      // User is already logged out, nothing to do
-      console.log('User was already logged out or logout failed: Already logged out')
       return
     } catch {
       // User is logged in, proceed with logout
@@ -284,9 +274,6 @@ export class AuthHelper {
         const logoutButtonCount = await logoutButtons.count()
         if (logoutButtonCount === 0) {
           // User is already logged out, nothing to do
-          console.log(
-            'User was already logged out or logout failed: No logout button found in mobile menu'
-          )
           return
         }
 
@@ -299,19 +286,8 @@ export class AuthHelper {
           // If that fails, try our evaluate approach
           const clicked = await this.page.evaluate(() => {
             const buttons = document.querySelectorAll('[data-testid="logout-button"]')
-            console.log('Found logout buttons:', buttons.length)
 
             for (const btn of buttons) {
-              const rect = btn.getBoundingClientRect()
-              const styles = window.getComputedStyle(btn)
-              console.log('Button:', {
-                text: btn.textContent,
-                rect: { width: rect.width, height: rect.height },
-                display: styles.display,
-                visibility: styles.visibility,
-                offsetParent: (btn as HTMLElement).offsetParent !== null,
-              })
-
               // Try to click any logout button
               if (btn.textContent?.includes('ログアウト')) {
                 ;(btn as HTMLElement).click()
@@ -321,12 +297,7 @@ export class AuthHelper {
             return false
           })
 
-          if (!clicked) {
-            console.log(
-              'User was already logged out or logout failed: No logout button found or clickable'
-            )
-            return
-          }
+          if (!clicked) return
         }
 
         // Wait for logout to complete and UI to update
@@ -351,12 +322,7 @@ export class AuthHelper {
           await this.page.waitForTimeout(500)
         }
 
-        if (!logoutCompleted) {
-          console.log(
-            'User was already logged out or logout failed: Logout did not complete - logout button still visible after clicking'
-          )
-          return
-        }
+        if (!logoutCompleted) return
       } else {
         // Desktop view
         // Click desktop logout button
@@ -368,12 +334,12 @@ export class AuthHelper {
           // Wait for logout to complete
           await this.page.waitForTimeout(2000)
         } catch (error) {
-          console.log('User was already logged out or logout failed:', error)
+          console.error('User was already logged out or logout failed:', error)
           return
         }
       }
     } catch (error) {
-      console.log('User was already logged out or logout failed:', error)
+      console.error('User was already logged out or logout failed:', error)
       return
     }
   }
@@ -447,9 +413,6 @@ export class AuthHelper {
         if (hasLogoutButton) {
           throw new Error('Logout may not have completed - logout button still visible')
         }
-
-        // If no logout button visible, assume logout worked even if login link not visible
-        console.log('Logout completed - no logout button visible, assuming login link will appear')
       }
     } else {
       // Desktop view - target the login link in desktop nav
