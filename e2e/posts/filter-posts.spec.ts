@@ -1,43 +1,43 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { registerAndLoginTestUser } from '@e2e/helpers/auth-helpers'
 import { PostHelper } from '@e2e/helpers/post-helpers'
 import { generateRandomUser, testPosts } from '@e2e/helpers/test-data'
 
 test.describe('投稿検索・フィルタリング', () => {
-  let authHelper: AuthHelper
   let postHelper: PostHelper
 
   test.beforeEach(async ({ page }) => {
-    authHelper = new AuthHelper(page)
     postHelper = new PostHelper(page)
 
-    // テスト用ユーザーでログイン
+    // テスト用ユーザーで登録してログイン
     const user = generateRandomUser()
-    await authHelper.register(user)
+    await registerAndLoginTestUser(page, {
+      email: user.email,
+      password: user.password,
+      userName: user.username,
+      skinType: user.skinType,
+    })
 
     // テスト用の投稿を複数作成
     await postHelper.createPost({
       title: 'スキンケアルーティン',
       content: '朝のスキンケアについて',
-      category: 'SKINCARE',
-      mood: 'happy',
-      tags: ['朝', 'ルーティン', 'スキンケア'],
+      cosmeticName: 'モーニングクリーム',
+      cosmeticCategory: 'cream',
     })
 
     await postHelper.createPost({
       title: 'メイクアップチュートリアル',
       content: '初心者向けメイクアップ',
-      category: 'MAKEUP',
-      mood: 'excited',
-      tags: ['初心者', 'チュートリアル', 'メイク'],
+      cosmeticName: 'ナチュラルファンデーション',
+      cosmeticCategory: 'foundation',
     })
 
     await postHelper.createPost({
       title: '香水レビュー',
       content: '新しい香水の使用感',
-      category: 'FRAGRANCE',
-      mood: 'relaxed',
-      tags: ['香水', 'レビュー'],
+      cosmeticName: 'フローラルフレグランス',
+      cosmeticCategory: 'other',
     })
   })
 

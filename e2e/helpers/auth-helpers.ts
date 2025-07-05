@@ -50,8 +50,9 @@ export async function createTestUser() {
 
 export async function cleanupTestUser(email: string) {
   // テストユーザーのクリーンアップ
+  const port = process.env.PORT || '3000'
   try {
-    const response = await fetch('http://localhost:3000/api/test/cleanup-user', {
+    const response = await fetch(`http://localhost:${port}/api/test/cleanup-user`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -18,17 +18,15 @@ export const testPosts = {
   samplePost: {
     title: 'E2Eテスト投稿',
     content: 'これはPlaywrightのE2Eテストで作成された投稿です。',
-    category: 'SKINCARE',
-    mood: 'happy',
-    tags: ['test', 'e2e', 'playwright'],
+    cosmeticName: 'テストクリーム',
+    cosmeticCategory: 'cream',
   },
 
   longPost: {
     title: '長文投稿のテスト',
     content: 'この投稿は長い内容のテストです。'.repeat(10),
-    category: 'MAKEUP',
-    mood: 'excited',
-    tags: ['longform', 'test'],
+    cosmeticName: 'テストファンデーション',
+    cosmeticCategory: 'foundation',
   },
 }
 
