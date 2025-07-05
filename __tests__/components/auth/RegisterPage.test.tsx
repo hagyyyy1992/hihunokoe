@@ -96,7 +96,6 @@ describe('RegisterPage', () => {
       expect(screen.getByTestId('gender-select')).toBeInTheDocument()
       expect(screen.getByTestId('skin-type-select')).toBeInTheDocument()
       expect(screen.getByTestId('allergies-select')).toBeInTheDocument()
-      expect(screen.getByTestId('body-type-select')).toBeInTheDocument()
     })
 
     it('select optionsが正しく表示される', () => {
@@ -113,10 +112,6 @@ describe('RegisterPage', () => {
       // アレルギーオプション
       expect(screen.getByText('香料')).toBeInTheDocument()
       expect(screen.getByText('アルコール')).toBeInTheDocument()
-
-      // 体質オプション
-      expect(screen.getByText('アトピー性皮膚炎')).toBeInTheDocument()
-      expect(screen.getByText('ニキビ肌')).toBeInTheDocument()
     })
   })
 
@@ -157,8 +152,6 @@ describe('RegisterPage', () => {
           skinTypeOther: undefined,
           allergies: undefined,
           allergiesOther: undefined,
-          bodyType: undefined,
-          bodyTypeOther: undefined,
         }),
       })
     })

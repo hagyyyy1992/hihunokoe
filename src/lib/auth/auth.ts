@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
-import { SkinType, Gender, AllergyType, BodyType, UserRole } from '@prisma/client'
+import { SkinType, Gender, AllergyType, UserRole } from '@prisma/client'
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
 
@@ -17,8 +17,6 @@ export interface AuthUser {
   skinTypeOther?: string | null
   allergies?: AllergyType[]
   allergiesOther?: string | null
-  bodyType?: BodyType | null
-  bodyTypeOther?: string | null
   emailVerified?: boolean
 }
 
@@ -37,8 +35,6 @@ export interface RegisterData {
   skinTypeOther?: string
   allergies?: AllergyType[]
   allergiesOther?: string
-  bodyType?: BodyType
-  bodyTypeOther?: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -136,8 +132,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
           skinTypeOther: data.skinTypeOther,
           allergies: data.allergies || [],
           allergiesOther: data.allergiesOther,
-          bodyType: data.bodyType,
-          bodyTypeOther: data.bodyTypeOther,
           isActive: true,
           deletedAt: null,
           emailVerified:
@@ -162,8 +156,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
           skinTypeOther: data.skinTypeOther,
           allergies: data.allergies || [],
           allergiesOther: data.allergiesOther,
-          bodyType: data.bodyType,
-          bodyTypeOther: data.bodyTypeOther,
           emailVerified:
             process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
         },
@@ -181,8 +173,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       skinTypeOther: user.skinTypeOther,
       allergies: user.allergies,
       allergiesOther: user.allergiesOther,
-      bodyType: user.bodyType,
-      bodyTypeOther: user.bodyTypeOther,
       emailVerified: user.emailVerified,
     }
   } catch (error: unknown) {
@@ -226,8 +216,6 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
             skinTypeOther: user.skinTypeOther,
             allergies: user.allergies,
             allergiesOther: user.allergiesOther,
-            bodyType: user.bodyType,
-            bodyTypeOther: user.bodyTypeOther,
             emailVerified: user.emailVerified,
           }
         }
@@ -295,8 +283,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
           skinTypeOther: user.skinTypeOther,
           allergies: user.allergies,
           allergiesOther: user.allergiesOther,
-          bodyType: user.bodyType,
-          bodyTypeOther: user.bodyTypeOther,
           emailVerified: user.emailVerified,
         }
       }
