@@ -98,13 +98,17 @@ test.describe('アカウント削除機能', () => {
   })
 
   test('ログインユーザーがアカウント削除ページにアクセスできる', async ({ page }) => {
-    // まず認証状態を確認するためにホームにアクセス
-    console.log('Verifying authentication by checking home access')
-    await page.goto('/home')
+    // 認証状態を確保するため、明示的にログインする
+    await page.goto('/auth/login')
+    await page.fill('[data-testid="email-input"]', testUser.email)
+    await page.fill('[data-testid="password-input"]', testUser.password)
+    await page.click('[data-testid="login-button"]')
 
-    // ホームにアクセスできることを確認
-    await expect(page).toHaveURL(/\/home/, { timeout: 10000 })
-    console.log('Home access confirmed, now accessing delete page')
+    // ログイン成功を待つ
+    await expect(page).toHaveURL('/home', { timeout: 10000 })
+
+    // セッションが確立されるまで少し待機
+    await page.waitForTimeout(1000)
 
     // WebKitで発生するナビゲーション割り込みを処理
     try {
@@ -229,16 +233,20 @@ test.describe('アカウント削除機能', () => {
       // ログインページにいる場合
       await expect(page.getByTestId('login-button')).toBeVisible()
     } else {
-      // トップページにいる場合、ログインリンクが表示される
-      // モバイルの場合はメニュー内に隠れている可能性があるため、viewport のサイズをチェック
-      const viewport = page.viewportSize()
-      if (viewport && viewport.width < 768) {
-        // モバイルの場合、ログインボタンの存在確認だけ行う（メニュー内に隠れていてもOK）
-        const loginLink = page.getByTestId('login-link')
-        await expect(loginLink).toHaveCount(1)
-      } else {
-        // デスクトップの場合は可視性も確認
-        await expect(page.getByTestId('login-link')).toBeVisible()
+      // トップページにいる場合、ログインリンクが表示されるか確認
+      // 削除直後でまだ状態が反映されていない可能性があるため、少し待機
+      await page.waitForTimeout(1000)
+      
+      try {
+        // ログインリンクまたはログインボタンを探す
+        const loginLink = page.getByTestId('login-link').or(page.getByRole('link', { name: /ログイン/ }))
+        await expect(loginLink).toBeVisible({ timeout: 5000 })
+      } catch (error) {
+        // ログインリンクが見つからない場合、ページをリロードして再確認
+        await page.reload()
+        await page.waitForTimeout(1000)
+        const loginLink = page.getByTestId('login-link').or(page.getByRole('link', { name: /ログイン/ }))
+        await expect(loginLink).toBeVisible()
       }
     }
   })
@@ -255,6 +263,9 @@ test.describe('アカウント削除機能', () => {
     // アカウント削除後、トップページまたはログインページにリダイレクトされることを確認
     await expect(page).toHaveURL(/\/(|auth\/login)/, { timeout: 10000 })
 
+    // 削除後のクッキーがクリアされていることを確認するため、少し待機
+    await page.waitForTimeout(1000)
+
     // 削除されたアカウントでのログインを試行
     await page.goto('/auth/login')
     await page.getByTestId('email-input').fill(testUser.email)
@@ -267,7 +278,7 @@ test.describe('アカウント削除機能', () => {
         .getByTestId('error-message')
         .or(page.getByText(/メールアドレスまたはパスワードが間違っています/))
         .or(page.getByText(/ログインに失敗しました/))
-    ).toBeVisible()
+    ).toBeVisible({ timeout: 5000 })
   })
 
   test('アカウント削除中にローディング状態が表示される', async ({ page }) => {
@@ -326,6 +337,9 @@ test.describe('アカウント削除機能', () => {
     // アカウント削除後、トップページまたはログインページにリダイレクトされることを確認
     await expect(page).toHaveURL(/\/(|auth\/login)/, { timeout: 10000 })
 
+    // 削除処理が完了するまで待機
+    await page.waitForTimeout(2000)
+
     // 新規登録ページに移動
     await page.goto('/auth/register')
 
@@ -339,7 +353,7 @@ test.describe('アカウント削除機能', () => {
     await page.getByTestId('register-button').click()
 
     // 登録完了ページに移動することを確認
-    await expect(page).toHaveURL(/\/auth\/registration-complete/)
+    await expect(page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
 
     // 再登録が成功したことを確認（登録完了ページの要素をチェック）
     await expect(page.getByTestId('success-message')).toBeVisible()

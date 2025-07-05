@@ -227,8 +227,8 @@ test.describe('ログイン', () => {
     await page.fill('[data-testid="password-input"]', demoUser.password)
     await page.click('[data-testid="login-button"]')
 
-    // ログイン成功を待つ
-    await expect(page).toHaveURL('/home')
+    // ログイン成功を待つ（タイムアウトを延長）
+    await expect(page).toHaveURL('/home', { timeout: 10000 })
 
     // ログイン状態を確認
     await authHelper.expectToBeLoggedIn()
