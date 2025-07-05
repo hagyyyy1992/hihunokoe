@@ -110,6 +110,10 @@ describe('/api/profile/update', () => {
         data: {
           userName: 'newusername',
           skinType: 'dry',
+          birthDate: null,
+          gender: null,
+          allergies: [],
+          allergiesOther: null,
           updatedAt: expect.any(Date),
         },
       })

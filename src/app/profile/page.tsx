@@ -213,6 +213,94 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="birthDate" className="form-label">
+                    生年月日
+                  </label>
+                  <input
+                    id="birthDate"
+                    name="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={handleInputChange}
+                    className="input"
+                    data-testid="birth-date-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="gender" className="form-label">
+                    性別
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="input"
+                    data-testid="gender-select"
+                  >
+                    <option value="">選択してください</option>
+                    <option value="male">男性</option>
+                    <option value="female">女性</option>
+                    <option value="non_binary">ノンバイナリー</option>
+                    <option value="prefer_not_to_say">回答しない</option>
+                    <option value="other">その他</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="allergies" className="form-label">
+                    アレルギー（複数選択可）
+                  </label>
+                  <select
+                    id="allergies"
+                    name="allergies"
+                    multiple
+                    value={formData.allergies}
+                    onChange={e => {
+                      const selectedOptions = Array.from(
+                        e.target.selectedOptions,
+                        option => option.value
+                      )
+                      setFormData(prev => ({
+                        ...prev,
+                        allergies: selectedOptions,
+                      }))
+                    }}
+                    className="input"
+                    size={5}
+                    data-testid="allergies-select"
+                  >
+                    <option value="fragrance">香料</option>
+                    <option value="alcohol">アルコール</option>
+                    <option value="paraben">パラベン</option>
+                    <option value="sulfate">硫酸塩</option>
+                    <option value="silicone">シリコン</option>
+                    <option value="mineral_oil">ミネラルオイル</option>
+                    <option value="formaldehyde">ホルムアルデヒド</option>
+                    <option value="latex">ラテックス</option>
+                    <option value="nickel">ニッケル</option>
+                    <option value="other">その他</option>
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Ctrl/Cmdキーを押しながらクリックで複数選択
+                  </p>
+                  {formData.allergies.includes('other') && (
+                    <div className="mt-2">
+                      <input
+                        name="allergiesOther"
+                        type="text"
+                        value={formData.allergiesOther}
+                        onChange={handleInputChange}
+                        className="input"
+                        placeholder="その他のアレルギーを入力してください"
+                        data-testid="allergies-other-input"
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex space-x-4 pt-4">
                   <Button
                     type="submit"
