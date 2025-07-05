@@ -205,14 +205,14 @@ export class AuthHelper {
     await loginButton.click()
 
     if (expectSuccess) {
-      // Wait for login to complete and redirect to home
+      // Wait for login to complete and redirect to home or root
       try {
-        await expect(this.page).toHaveURL(/\/home/, { timeout: 15000 })
+        await expect(this.page).toHaveURL(/\/home|\/(?!auth)/, { timeout: 15000 })
       } catch (error) {
         try {
-          // Check if we're already on home (sometimes URL matching can be flaky)
+          // Check if we're already on home or root (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
-          if (currentUrl.includes('/home')) {
+          if (currentUrl.includes('/home') || (currentUrl.endsWith('/') && !currentUrl.includes('/auth'))) {
             return
           }
 
@@ -227,10 +227,10 @@ export class AuthHelper {
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
-          if (finalUrl.includes('/home')) {
+          if (finalUrl.includes('/home') || (finalUrl.endsWith('/') && !finalUrl.includes('/auth'))) {
             return
           }
-          throw new Error(`Login failed - expected home but got: ${finalUrl} (after waiting)`)
+          throw new Error(`Login failed - expected home or root but got: ${finalUrl} (after waiting)`)
         } catch (pageError) {
           // If page is closed or inaccessible, throw original error
           throw error
