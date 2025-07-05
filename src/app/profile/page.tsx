@@ -297,51 +297,45 @@ export default function ProfilePage() {
                         <p className="font-medium text-gray-900">{user.email}</p>
                       </div>
                     </div>
-                    {formData.skinType && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">肌タイプ</span>
-                          <p className="font-medium text-gray-900">
-                            {getSkinTypeLabel(formData.skinType)}
-                          </p>
-                        </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">肌タイプ</span>
+                        <p className="font-medium text-gray-900">
+                          {getSkinTypeLabel(formData.skinType)}
+                        </p>
                       </div>
-                    )}
-                    {formData.birthDate && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">生年月日</span>
-                          <p className="font-medium text-gray-900">
-                            {new Date(formData.birthDate).toLocaleDateString('ja-JP')}
-                          </p>
-                        </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">生年月日</span>
+                        <p className="font-medium text-gray-900">
+                          {formData.birthDate
+                            ? new Date(formData.birthDate).toLocaleDateString('ja-JP')
+                            : ''}
+                        </p>
                       </div>
-                    )}
-                    {formData.gender && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">性別</span>
-                          <p className="font-medium text-gray-900">
-                            {getGenderLabel(formData.gender)}
-                          </p>
-                        </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">性別</span>
+                        <p className="font-medium text-gray-900">
+                          {getGenderLabel(formData.gender)}
+                        </p>
                       </div>
-                    )}
-                    {formData.allergies.length > 0 && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">アレルギー</span>
-                          <p className="font-medium text-gray-900">
-                            {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
-                            {formData.allergiesOther && `、${formData.allergiesOther}`}
-                          </p>
-                        </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">アレルギー</span>
+                        <p className="font-medium text-gray-900">
+                          {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
+                          {formData.allergiesOther && `、${formData.allergiesOther}`}
+                        </p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
