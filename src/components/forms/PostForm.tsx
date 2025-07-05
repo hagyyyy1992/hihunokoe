@@ -673,6 +673,27 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                     <option value="very_comfortable">とても快適</option>
                   </select>
                 </div>
+
+                <div className="form-group">
+                  <label className="form-label">効果の持続時間</label>
+                  <select
+                    value={formData.experienceDetails.afterUse?.duration || ''}
+                    onChange={e =>
+                      handleNestedChange(
+                        'experienceDetails',
+                        'afterUse',
+                        e.target.value || undefined,
+                        'duration'
+                      )
+                    }
+                    className="select"
+                  >
+                    <option value="">選択してください</option>
+                    <option value="short">短い（1-2時間）</option>
+                    <option value="moderate">普通（3-6時間）</option>
+                    <option value="long">長い（半日以上）</option>
+                  </select>
+                </div>
               </div>
             </div>
 

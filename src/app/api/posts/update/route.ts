@@ -38,25 +38,27 @@ const postSchema = z.object({
     .object({
       fragrance: z
         .object({
-          type: z.enum(['none', 'floral', 'citrus', 'herbal', 'chemical', 'other']),
-          intensity: z.enum(['weak', 'moderate', 'strong']),
+          type: z.enum(['none', 'floral', 'citrus', 'herbal', 'chemical', 'other']).optional(),
+          intensity: z.enum(['weak', 'moderate', 'strong']).optional(),
           description: z.string().optional(),
         })
         .optional(),
       texture: z
         .object({
-          type: z.enum(['watery', 'gel', 'cream', 'oil', 'powder', 'other']),
-          spreadability: z.enum(['easy', 'moderate', 'difficult']),
-          absorption: z.enum(['fast', 'moderate', 'slow']),
+          type: z.enum(['watery', 'gel', 'cream', 'oil', 'powder', 'other']).optional(),
+          spreadability: z.enum(['easy', 'moderate', 'difficult']).optional(),
+          absorption: z.enum(['fast', 'moderate', 'slow']).optional(),
           description: z.string().optional(),
         })
         .optional(),
       afterUse: z
         .object({
-          moisture: z.enum(['very_dry', 'dry', 'normal', 'moist', 'very_moist']),
-          texture: z.enum(['rough', 'normal', 'smooth', 'very_smooth']),
-          comfort: z.enum(['uncomfortable', 'normal', 'comfortable', 'very_comfortable']),
-          duration: z.enum(['short', 'moderate', 'long']),
+          moisture: z.enum(['very_dry', 'dry', 'normal', 'moist', 'very_moist']).optional(),
+          texture: z.enum(['rough', 'normal', 'smooth', 'very_smooth']).optional(),
+          comfort: z
+            .enum(['uncomfortable', 'normal', 'comfortable', 'very_comfortable'])
+            .optional(),
+          duration: z.enum(['short', 'moderate', 'long']).optional(),
           description: z.string().optional(),
         })
         .optional(),
