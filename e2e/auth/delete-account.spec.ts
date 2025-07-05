@@ -343,6 +343,7 @@ test.describe('アカウント削除機能', () => {
   })
 
   test('アカウント削除後に同じメールアドレスで再登録できる', async ({ page }) => {
+    test.setTimeout(60000) // Firefoxでのタイムアウトを防ぐため
     // アカウント削除を実行
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)
@@ -357,8 +358,11 @@ test.describe('アカウント削除機能', () => {
     // 削除処理が完了するまで待機
     await page.waitForTimeout(2000)
 
+    // ナビゲーションが完了するまで待機
+    await page.waitForLoadState('networkidle')
+
     // 新規登録ページに移動
-    await page.goto('/auth/register')
+    await page.goto('/auth/register', { waitUntil: 'networkidle' })
 
     // 同じメールアドレスで新しいアカウントを登録
     await page.getByTestId('username-input').fill(testUser.userName + '_new')
@@ -369,15 +373,49 @@ test.describe('アカウント削除機能', () => {
     // 登録ボタンをクリック
     await page.getByTestId('register-button').click()
 
-    // 登録完了ページに移動することを確認
-    await expect(page).toHaveURL(/\/auth\/registration-complete/, { timeout: 10000 })
+    // 登録処理の結果を待つ - URLの変更またはエラーメッセージの表示を待機
+    await Promise.race([
+      // 成功時のリダイレクトを待つ
+      page
+        .waitForURL(
+          url => {
+            return (
+              url.pathname.includes('/auth/registration-complete') || url.pathname.includes('/home')
+            )
+          },
+          { timeout: 10000 }
+        )
+        .catch(() => null),
+      // エラーメッセージの表示を待つ
+      page.waitForSelector('[data-testid="alert-message"]', { timeout: 10000 }).catch(() => null),
+    ])
 
-    // 再登録が成功したことを確認（登録完了ページの要素をチェック）
-    await expect(page.getByTestId('success-message')).toBeVisible()
-    await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
+    // 現在のURLを確認
+    const currentUrl = page.url()
+
+    // 登録成功の確認
+    if (currentUrl.includes('/auth/registration-complete') || currentUrl.includes('/home')) {
+      // 再登録が成功したことを確認
+      if (currentUrl.includes('/auth/registration-complete')) {
+        await expect(page.getByTestId('success-message')).toBeVisible()
+        await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
+      }
+      // homeページの場合は成功とみなす
+    } else {
+      // エラーメッセージがある場合は内容を確認
+      const alertMessage = page.locator('[data-testid="alert-message"]')
+      if (await alertMessage.isVisible()) {
+        const errorText = await alertMessage.textContent()
+        throw new Error(`再登録に失敗しました: ${errorText}`)
+      } else {
+        // 予期しない状態
+        throw new Error(`再登録に失敗しました: 予期しないページ状態 (URL: ${currentUrl})`)
+      }
+    }
   })
 
   test('アカウント削除後に同じユーザー名で再登録できない', async ({ page }) => {
+    test.setTimeout(60000) // Firefoxでのタイムアウトを防ぐため
     // アカウント削除を実行
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)

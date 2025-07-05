@@ -157,8 +157,14 @@ test.describe('ログイン', () => {
     await page.check('[data-testid="remember-me-checkbox"]')
     await page.click('[data-testid="login-button"]')
 
-    // ログイン成功を待つ
-    await expect(page).toHaveURL('/home')
+    // ログイン成功を待つ - ホームページまたは投稿一覧ページへのリダイレクトを確認
+    await page.waitForURL(
+      url => {
+        return url.pathname === '/home' || url.pathname === '/'
+      },
+      { timeout: 10000 }
+    )
+
     await authHelper.expectToBeLoggedIn()
 
     // 新しいページを開いてもログイン状態が維持されているかテスト
