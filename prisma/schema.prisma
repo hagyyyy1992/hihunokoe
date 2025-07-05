@@ -29,8 +29,6 @@ model User {
   gender                  Gender?          @map("gender")
   allergies               AllergyType[]    @map("allergies")
   allergiesOther          String?          @map("allergies_other")
-  bodyType                BodyType?        @map("body_type")
-  bodyTypeOther           String?          @map("body_type_other") @db.VarChar(100)
   skinTypeOther           String?          @map("skin_type_other") @db.VarChar(100)
   skinType                SkinType?        @map("skin_type")
   comments                Comment[]
@@ -144,19 +142,6 @@ enum AllergyType {
   other        @map("other")
 
   @@map("allergy_types")
-}
-
-enum BodyType {
-  atopic         @map("atopic")
-  sensitive_skin @map("sensitive_skin")
-  acne_prone     @map("acne_prone")
-  mature_skin    @map("mature_skin")
-  pigmentation   @map("pigmentation")
-  rosacea        @map("rosacea")
-  eczema         @map("eczema")
-  other          @map("other")
-
-  @@map("body_types")
 }
 
 enum UserRole {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { registerUser } from '@/lib/auth/auth'
 import { sendVerificationEmail } from '@/lib/auth/email-verification'
 import { z } from 'zod'
-import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+import { SkinType, Gender, AllergyType } from '@prisma/client'
 import { createPasswordSchemaWithUserInfo } from '@/lib/auth/password-validation'
 
 const baseRegisterSchema = z.object({
@@ -17,8 +17,6 @@ const baseRegisterSchema = z.object({
   skinTypeOther: z.string().max(100).optional(),
   allergies: z.array(z.nativeEnum(AllergyType)).optional(),
   allergiesOther: z.string().optional(),
-  bodyType: z.nativeEnum(BodyType).optional(),
-  bodyTypeOther: z.string().max(100).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -80,8 +78,6 @@ export async function POST(request: NextRequest) {
         skinTypeOther: user.skinTypeOther,
         allergies: user.allergies,
         allergiesOther: user.allergiesOther,
-        bodyType: user.bodyType,
-        bodyTypeOther: user.bodyTypeOther,
         emailVerified: user.emailVerified,
       },
       message: 'ユーザー登録が完了しました。確認メールをご確認ください。',

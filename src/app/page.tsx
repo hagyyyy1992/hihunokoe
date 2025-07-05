@@ -265,7 +265,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">会員登録</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  メールアドレスで簡単に登録。肌質や体質の情報を設定して、あなたに合った体験談を見つけやすく
+                  メールアドレスで簡単に登録。肌質の情報を設定して、あなたに合った体験談を見つけやすく
                 </p>
               </div>
               <div className="text-center">

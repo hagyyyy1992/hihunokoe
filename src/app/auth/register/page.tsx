@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { SkinType, Gender, AllergyType, BodyType } from '@prisma/client'
+import { SkinType, Gender, AllergyType } from '@prisma/client'
 import { Input } from '@/components/ui/Input'
 import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
 import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
@@ -41,18 +41,6 @@ const ALLERGY_OPTIONS = [
   { value: 'other', label: 'その他' },
 ] as const
 
-const BODY_TYPE_OPTIONS = [
-  { value: '', label: '選択してください' },
-  { value: 'atopic', label: 'アトピー性皮膚炎' },
-  { value: 'sensitive_skin', label: '敏感肌' },
-  { value: 'acne_prone', label: 'ニキビ肌' },
-  { value: 'mature_skin', label: '年齢肌' },
-  { value: 'pigmentation', label: '色素沈着' },
-  { value: 'rosacea', label: '酒さ' },
-  { value: 'eczema', label: '湿疹' },
-  { value: 'other', label: 'その他' },
-] as const
-
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     userName: '',
@@ -65,8 +53,6 @@ export default function RegisterPage() {
     skinTypeOther: '',
     allergies: [] as AllergyType[],
     allergiesOther: '',
-    bodyType: '' as BodyType | '',
-    bodyTypeOther: '',
   })
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -112,8 +98,6 @@ export default function RegisterPage() {
           skinTypeOther: formData.skinTypeOther || undefined,
           allergies: formData.allergies.length > 0 ? formData.allergies : undefined,
           allergiesOther: formData.allergiesOther || undefined,
-          bodyType: formData.bodyType || undefined,
-          bodyTypeOther: formData.bodyTypeOther || undefined,
         }),
       })
 
@@ -361,41 +345,6 @@ export default function RegisterPage() {
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
                     placeholder="その他のアレルギーを入力してください"
                     data-testid="allergies-other-input"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="bodyType" className="block text-sm font-medium text-gray-700">
-                体質
-              </label>
-              <div className="mt-1">
-                <select
-                  id="bodyType"
-                  name="bodyType"
-                  value={formData.bodyType}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
-                  data-testid="body-type-select"
-                >
-                  {BODY_TYPE_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {formData.bodyType === 'other' && (
-                <div className="mt-2">
-                  <input
-                    name="bodyTypeOther"
-                    type="text"
-                    value={formData.bodyTypeOther}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-apple-500 focus:border-apple-500 sm:text-sm"
-                    placeholder="その他の体質を入力してください"
-                    data-testid="body-type-other-input"
                   />
                 </div>
               )}

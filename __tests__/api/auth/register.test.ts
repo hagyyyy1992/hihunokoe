@@ -13,7 +13,7 @@ import { POST } from '@/app/api/auth/register/route'
 import * as authModule from '@/lib/auth/auth'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
 import { SkinType } from '@/types'
-import { Gender, AllergyType, BodyType } from '@prisma/client'
+import { Gender, AllergyType } from '@prisma/client'
 
 const mockRegisterUser = authModule.registerUser as jest.MockedFunction<
   typeof authModule.registerUser
@@ -48,7 +48,6 @@ describe('/api/auth/register', () => {
     gender: 'male' as const,
     skinType: 'normal' as const,
     allergies: ['fragrance'] as const,
-    bodyType: 'atopic' as const,
   }
 
   describe('POST', () => {
@@ -63,8 +62,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: null,
         allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
         emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
@@ -85,8 +82,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: mockUser.skinTypeOther,
         allergies: mockUser.allergies,
         allergiesOther: mockUser.allergiesOther,
-        bodyType: mockUser.bodyType,
-        bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
       expect(data.message).toBe('ユーザー登録が完了しました。確認メールをご確認ください。')
@@ -110,8 +105,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: undefined,
         allergies: undefined,
         allergiesOther: undefined,
-        bodyType: undefined,
-        bodyTypeOther: undefined,
         emailVerified: false,
       }
       mockRegisterUser.mockResolvedValue(mockUser)
@@ -132,8 +125,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: mockUser.skinTypeOther,
         allergies: mockUser.allergies,
         allergiesOther: mockUser.allergiesOther,
-        bodyType: mockUser.bodyType,
-        bodyTypeOther: mockUser.bodyTypeOther,
         emailVerified: mockUser.emailVerified,
       })
     })
@@ -330,8 +321,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: null,
         allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
         emailVerified: false,
       }
 
@@ -372,8 +361,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: null,
         allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
         emailVerified: false,
       }
 
@@ -414,8 +401,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: null,
         allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
         emailVerified: false,
       }
 
@@ -456,8 +441,6 @@ describe('/api/auth/register', () => {
         skinTypeOther: null,
         allergies: ['fragrance' as AllergyType],
         allergiesOther: null,
-        bodyType: 'atopic' as BodyType,
-        bodyTypeOther: null,
         emailVerified: false,
       }
 

@@ -27,6 +27,7 @@ services:
   mailhog:
     image: mailhog/mailhog:latest
     container_name: hihunokoe_mailhog
+    platform: linux/amd64
     ports:
       - '1025:1025' # SMTP port
       - '8025:8025' # Web UI port
