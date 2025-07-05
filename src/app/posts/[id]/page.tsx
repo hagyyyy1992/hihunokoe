@@ -114,6 +114,38 @@ const moodTagColors: Record<string, string> = {
   perfect: 'bg-purple-100 text-purple-700',
 }
 
+const seasonLabels: Record<string, string> = {
+  spring: '春',
+  summer: '夏',
+  autumn: '秋',
+  winter: '冬',
+}
+
+const timeOfDayLabels: Record<string, string> = {
+  morning: '朝',
+  evening: '夜',
+  both: '朝・夜両方',
+}
+
+const menstrualCycleLabels: Record<string, string> = {
+  before: '生理前',
+  during: '生理中',
+  after: '生理後',
+  none: '関係なし',
+}
+
+const skinConditionLabels: Record<string, string> = {
+  good: '調子が良い',
+  unstable: '不安定',
+  problematic: 'トラブル中',
+}
+
+const durationLabels: Record<string, string> = {
+  short: '短い（1-2時間）',
+  moderate: '普通（3-6時間）',
+  long: '長い（半日以上）',
+}
+
 export default function PostDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
@@ -249,20 +281,35 @@ export default function PostDetailPage() {
                     {post.usageSituation.season && (
                       <div>
                         <span className="text-gray-500">季節:</span>
-                        <span className="ml-2 text-gray-900">{post.usageSituation.season}</span>
+                        <span className="ml-2 text-gray-900">
+                          {seasonLabels[post.usageSituation.season] || post.usageSituation.season}
+                        </span>
                       </div>
                     )}
                     {post.usageSituation.timeOfDay && (
                       <div>
                         <span className="text-gray-500">時間帯:</span>
-                        <span className="ml-2 text-gray-900">{post.usageSituation.timeOfDay}</span>
+                        <span className="ml-2 text-gray-900">
+                          {timeOfDayLabels[post.usageSituation.timeOfDay] ||
+                            post.usageSituation.timeOfDay}
+                        </span>
                       </div>
                     )}
                     {post.usageSituation.skinCondition && (
                       <div>
                         <span className="text-gray-500">肌状態:</span>
                         <span className="ml-2 text-gray-900">
-                          {post.usageSituation.skinCondition}
+                          {skinConditionLabels[post.usageSituation.skinCondition] ||
+                            post.usageSituation.skinCondition}
+                        </span>
+                      </div>
+                    )}
+                    {post.usageSituation.menstrualCycle && (
+                      <div>
+                        <span className="text-gray-500">生理周期:</span>
+                        <span className="ml-2 text-gray-900">
+                          {menstrualCycleLabels[post.usageSituation.menstrualCycle] ||
+                            post.usageSituation.menstrualCycle}
                         </span>
                       </div>
                     )}
@@ -302,6 +349,8 @@ export default function PostDetailPage() {
                           うるおい感 {post.experienceDetails.afterUse.moisture}
                           {post.experienceDetails.afterUse.comfort &&
                             ` / ${post.experienceDetails.afterUse.comfort}`}
+                          {post.experienceDetails.afterUse.duration &&
+                            ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
                         </span>
                       </div>
                     )}
