@@ -11,8 +11,8 @@ const server = new ApolloServer<GraphQLContext>({
   resolvers,
 })
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server as ApolloServer<object>, {
-  context: async (req: NextRequest): Promise<GraphQLContext> => {
+const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(server, {
+  context: async (req): Promise<GraphQLContext> => {
     const authHeader = req.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -30,4 +30,10 @@ const handler = startServerAndCreateNextHandler<NextRequest>(server as ApolloSer
   },
 })
 
-export { handler as GET, handler as POST }
+export async function GET(request: NextRequest) {
+  return handler(request)
+}
+
+export async function POST(request: NextRequest) {
+  return handler(request)
+}
