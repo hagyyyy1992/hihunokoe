@@ -32,7 +32,9 @@
     "db:status": "node scripts/check-db-status.js",
     "db:seed": "node scripts/seed.js",
     "db:nuke": "docker compose down && docker volume rm hihunokoe_postgres_data || true && docker compose up -d postgres && sleep 5 && npm run db:migrate",
-    "db:clean": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/hihunokoe_dev\" prisma migrate reset --force"
+    "db:clean": "DATABASE_URL=\"postgresql://postgres:password@localhost:5432/hihunokoe_dev\" prisma migrate reset --force",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
@@ -62,6 +64,11 @@
   "devDependencies": {
     "@edge-runtime/jest-environment": "^4.0.0",
     "@eslint/eslintrc": "^3",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.3",
+    "@graphql-codegen/typescript-resolvers": "^4.5.1",
     "@playwright/test": "^1.53.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",

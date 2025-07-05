@@ -4,14 +4,15 @@ import { NextRequest } from 'next/server'
 import { typeDefs } from '@/graphql/schema'
 import { resolvers } from '@/graphql/resolvers'
 import { verifyToken } from '@/lib/auth/auth'
+import type { GraphQLContext } from '@/graphql/context'
 
-const server = new ApolloServer({
+const server = new ApolloServer<GraphQLContext>({
   typeDefs,
   resolvers,
 })
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-  context: async req => {
+const handler = startServerAndCreateNextHandler<NextRequest>(server as ApolloServer<object>, {
+  context: async (req: NextRequest): Promise<GraphQLContext> => {
     const authHeader = req.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

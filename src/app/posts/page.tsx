@@ -2,47 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useQuery } from '@apollo/client'
 import PostCard from '@/components/ui/PostCard'
-import { GET_POSTS } from '@/graphql/queries/post'
-
-interface Post {
-  id: string
-  title: string
-  content: string
-  cosmeticName: string
-  cosmeticCategory?: string
-  skinType?: string
-  moodTag?: string
-  viewCount: number
-  empathyCount: number
-  createdAt: string
-  user: {
-    id: string
-    displayName: string
-    profileImageUrl?: string
-  }
-}
-
-interface PostEdge {
-  node: Post
-  cursor: string
-}
-
-interface PageInfo {
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-  startCursor?: string
-  endCursor?: string
-}
-
-interface PostsData {
-  posts: {
-    edges: PostEdge[]
-    pageInfo: PageInfo
-    totalCount: number
-  }
-}
+import { useGetPostsQuery } from '@/generated/graphql'
 
 export default function PostsPage() {
   const [filters, setFilters] = useState({
@@ -52,7 +13,7 @@ export default function PostsPage() {
     search: '',
   })
 
-  const { data, loading, error, fetchMore } = useQuery<PostsData>(GET_POSTS, {
+  const { data, loading, error, fetchMore } = useGetPostsQuery({
     variables: {
       first: 10,
       filter: {
@@ -61,7 +22,7 @@ export default function PostsPage() {
         ...(filters.moodTag && { moodTag: filters.moodTag }),
         ...(filters.search && { search: filters.search }),
       },
-      orderBy: 'CREATED_AT_DESC',
+      orderBy: 'CREATED_AT_DESC' as const,
     },
   })
 
@@ -199,8 +160,16 @@ export default function PostsPage() {
                     <PostCard
                       key={post.id}
                       post={{
-                        ...post,
-                        publishedAt: post.createdAt,
+                        id: post.id,
+                        title: post.title,
+                        content: post.content,
+                        cosmeticName: post.cosmeticName,
+                        cosmeticCategory: post.cosmeticCategory || undefined,
+                        skinType: post.skinType || undefined,
+                        moodTag: post.moodTag || undefined,
+                        viewCount: post.viewCount,
+                        empathyCount: post.empathyCount,
+                        publishedAt: new Date(post.createdAt).toISOString(),
                         user: {
                           ...post.user,
                           userName: post.user.displayName,

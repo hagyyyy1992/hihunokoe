@@ -1,13 +1,9 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import { GraphQLContext, ResolverParent } from '@/graphql/types'
+import type { MutationResolvers, CommentResolvers } from '@/generated/graphql'
 
 export const commentResolvers = {
   Mutation: {
-    async addComment(
-      _: unknown,
-      { postId, content }: { postId: string; content: string },
-      context: GraphQLContext
-    ) {
+    async addComment(_, { postId, content }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -31,11 +27,7 @@ export const commentResolvers = {
       return comment
     },
 
-    async updateComment(
-      _: unknown,
-      { id, content }: { id: string; content: string },
-      context: GraphQLContext
-    ) {
+    async updateComment(_, { id, content }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -68,7 +60,7 @@ export const commentResolvers = {
       return comment
     },
 
-    async deleteComment(_: unknown, { id }: { id: string }, context: GraphQLContext) {
+    async deleteComment(_, { id }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -95,10 +87,24 @@ export const commentResolvers = {
 
       return true
     },
-  },
+  } satisfies Partial<MutationResolvers>,
 
   Comment: {
-    post: (parent: ResolverParent) => parent.post,
-    user: (parent: ResolverParent) => parent.user,
-  },
+    post: async parent => {
+      if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
+      const post = await prisma.post.findUnique({
+        where: { id: parent.postId },
+      })
+      if (!post) throw new Error('Post not found')
+      return post
+    },
+    user: async parent => {
+      if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
+      const user = await prisma.user.findUnique({
+        where: { id: parent.userId },
+      })
+      if (!user) throw new Error('User not found')
+      return user
+    },
+  } satisfies CommentResolvers,
 }

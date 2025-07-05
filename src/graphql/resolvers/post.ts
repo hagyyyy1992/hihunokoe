@@ -1,10 +1,10 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
-import { GraphQLContext, PostInput, PostArgs, ResolverParent } from '@/graphql/types'
+import type { QueryResolvers, MutationResolvers, PostResolvers } from '@/generated/graphql'
 
 export const postResolvers = {
   Query: {
-    async post(_: unknown, { id }: { id: string }) {
+    async post(_, { id }) {
       if (!isDatabaseAvailable() || !prisma) {
         return null
       }
@@ -23,7 +23,7 @@ export const postResolvers = {
       })
     },
 
-    async posts(_: unknown, { first, after, filter, orderBy }: PostArgs) {
+    async posts(_, { first, after, filter, orderBy }) {
       const where: Prisma.PostWhereInput = {
         status: 'published',
       }
@@ -116,10 +116,10 @@ export const postResolvers = {
         totalCount,
       }
     },
-  },
+  } satisfies QueryResolvers,
 
   Mutation: {
-    async createPost(_: unknown, { input }: { input: PostInput }, context: GraphQLContext) {
+    async createPost(_, { input }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -130,7 +130,14 @@ export const postResolvers = {
 
       const post = await prisma.post.create({
         data: {
-          ...input,
+          title: input.title,
+          content: input.content,
+          cosmeticName: input.cosmeticName,
+          cosmeticCategory: input.cosmeticCategory || null,
+          skinType: input.skinType || null,
+          moodTag: input.moodTag || null,
+          usageSituation: input.usageSituation || undefined,
+          experienceDetails: input.experienceDetails || undefined,
           userId: context.userId,
           publishedAt: new Date(),
         },
@@ -148,11 +155,7 @@ export const postResolvers = {
       return post
     },
 
-    async updatePost(
-      _: unknown,
-      { id, input }: { id: string; input: PostInput },
-      context: GraphQLContext
-    ) {
+    async updatePost(_, { id, input }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -173,9 +176,23 @@ export const postResolvers = {
         throw new Error('Forbidden')
       }
 
+      const updateData: Prisma.PostUpdateInput = {}
+      if (input.title !== undefined && input.title !== null) updateData.title = input.title
+      if (input.content !== undefined && input.content !== null) updateData.content = input.content
+      if (input.cosmeticName !== undefined && input.cosmeticName !== null)
+        updateData.cosmeticName = input.cosmeticName
+      if (input.cosmeticCategory !== undefined) updateData.cosmeticCategory = input.cosmeticCategory
+      if (input.skinType !== undefined) updateData.skinType = input.skinType
+      if (input.moodTag !== undefined) updateData.moodTag = input.moodTag
+      if (input.usageSituation !== undefined && input.usageSituation !== null)
+        updateData.usageSituation = input.usageSituation
+      if (input.experienceDetails !== undefined && input.experienceDetails !== null)
+        updateData.experienceDetails = input.experienceDetails
+      if (input.status !== undefined && input.status !== null) updateData.status = input.status
+
       const post = await prisma.post.update({
         where: { id },
-        data: input,
+        data: updateData,
         include: {
           user: true,
           comments: {
@@ -190,7 +207,7 @@ export const postResolvers = {
       return post
     },
 
-    async deletePost(_: unknown, { id }: { id: string }, context: GraphQLContext) {
+    async deletePost(_, { id }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -217,11 +234,31 @@ export const postResolvers = {
 
       return true
     },
-  },
+  } satisfies MutationResolvers,
 
   Post: {
-    user: (parent: ResolverParent) => parent.user,
-    comments: (parent: ResolverParent) => parent.comments || [],
-    empathies: (parent: ResolverParent) => parent.empathies || [],
-  },
+    user: async parent => {
+      if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
+      const user = await prisma.user.findUnique({
+        where: { id: parent.userId },
+      })
+      if (!user) throw new Error('User not found')
+      return user
+    },
+    comments: async parent => {
+      if (!isDatabaseAvailable() || !prisma) return []
+      return await prisma.comment.findMany({
+        where: { postId: parent.id },
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
+      })
+    },
+    empathies: async parent => {
+      if (!isDatabaseAvailable() || !prisma) return []
+      return await prisma.empathy.findMany({
+        where: { postId: parent.id },
+        include: { user: true },
+      })
+    },
+  } satisfies PostResolvers,
 }

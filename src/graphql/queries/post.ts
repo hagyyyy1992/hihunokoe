@@ -117,7 +117,7 @@ export const ADD_EMPATHY = gql`
   mutation AddEmpathy($postId: ID!, $type: String!) {
     addEmpathy(postId: $postId, type: $type) {
       id
-      type
+      empathyType
     }
   }
 `

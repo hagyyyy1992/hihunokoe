@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMutation } from '@apollo/client'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
-import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
+import {
+  useCreatePostMutation,
+  useUpdatePostMutation,
+  useDeletePostMutation,
+} from '@/generated/graphql'
 
 interface PostFormData {
   title: string
@@ -33,9 +36,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const [currentStep, setCurrentStep] = useState(1)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const [createPost] = useMutation(CREATE_POST)
-  const [updatePost] = useMutation(UPDATE_POST)
-  const [deletePost] = useMutation(DELETE_POST)
+  const [createPost] = useCreatePostMutation()
+  const [updatePost] = useUpdatePostMutation()
+  const [deletePost] = useDeletePostMutation()
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -113,7 +116,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         const result = await createPost({
           variables: { input },
         })
-        router.push(`/posts/${result.data.createPost.id}`)
+        if (result.data?.createPost) {
+          router.push(`/posts/${result.data.createPost.id}`)
+        }
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の処理に失敗しました'

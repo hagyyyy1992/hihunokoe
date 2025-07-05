@@ -36,6 +36,8 @@ Hihunokoeは、化粧品の本当の使い心地を体験談で共有するコ�
 - **ホスティング**: Vercel
 - **バリデーション**: Zod
 - **日付処理**: date-fns
+- **GraphQL**: Apollo Server + Apollo Client
+- **型生成**: GraphQL Code Generator
 
 ## 現在の実装状況 (MVP フェーズ1)
 

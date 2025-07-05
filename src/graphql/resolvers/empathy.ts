@@ -1,13 +1,9 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import { GraphQLContext, ResolverParent } from '@/graphql/types'
+import type { MutationResolvers, EmpathyResolvers } from '@/generated/graphql'
 
 export const empathyResolvers = {
   Mutation: {
-    async addEmpathy(
-      _: unknown,
-      { postId, type }: { postId: string; type: string },
-      context: GraphQLContext
-    ) {
+    async addEmpathy(_, { postId, type }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -47,7 +43,7 @@ export const empathyResolvers = {
       return empathy
     },
 
-    async removeEmpathy(_: unknown, { postId }: { postId: string }, context: GraphQLContext) {
+    async removeEmpathy(_, { postId }, context) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -78,10 +74,24 @@ export const empathyResolvers = {
 
       return true
     },
-  },
+  } satisfies Partial<MutationResolvers>,
 
   Empathy: {
-    post: (parent: ResolverParent) => parent.post,
-    user: (parent: ResolverParent) => parent.user,
-  },
+    post: async parent => {
+      if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
+      const post = await prisma.post.findUnique({
+        where: { id: parent.postId },
+      })
+      if (!post) throw new Error('Post not found')
+      return post
+    },
+    user: async parent => {
+      if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
+      const user = await prisma.user.findUnique({
+        where: { id: parent.userId },
+      })
+      if (!user) throw new Error('User not found')
+      return user
+    },
+  } satisfies EmpathyResolvers,
 }
