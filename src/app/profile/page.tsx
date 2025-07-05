@@ -14,6 +14,10 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     userName: '',
     skinType: '',
+    birthDate: '',
+    gender: '',
+    allergies: [] as string[],
+    allergiesOther: '',
   })
   const [formErrors, setFormErrors] = useState({
     userName: '',
@@ -31,6 +35,10 @@ export default function ProfilePage() {
       setFormData({
         userName: user.userName || '',
         skinType: user.skinType || '',
+        birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '',
+        gender: user.gender || '',
+        allergies: user.allergies || [],
+        allergiesOther: user.allergiesOther || '',
       })
     }
   }, [user, loading, router])
@@ -115,6 +123,33 @@ export default function ProfilePage() {
     return option ? option.label : ''
   }
 
+  const getGenderLabel = (value: string) => {
+    const genderOptions = {
+      male: '男性',
+      female: '女性',
+      non_binary: 'ノンバイナリー',
+      prefer_not_to_say: '回答しない',
+      other: 'その他',
+    }
+    return genderOptions[value as keyof typeof genderOptions] || ''
+  }
+
+  const getAllergyLabel = (value: string) => {
+    const allergyOptions = {
+      fragrance: '香料',
+      alcohol: 'アルコール',
+      paraben: 'パラベン',
+      sulfate: '硫酸塩',
+      silicone: 'シリコン',
+      mineral_oil: 'ミネラルオイル',
+      formaldehyde: 'ホルムアルデヒド',
+      latex: 'ラテックス',
+      nickel: 'ニッケル',
+      other: 'その他',
+    }
+    return allergyOptions[value as keyof typeof allergyOptions] || value
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -178,6 +213,94 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="birthDate" className="form-label">
+                    生年月日
+                  </label>
+                  <input
+                    id="birthDate"
+                    name="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={handleInputChange}
+                    className="input"
+                    data-testid="birth-date-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="gender" className="form-label">
+                    性別
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="input"
+                    data-testid="gender-select"
+                  >
+                    <option value="">選択してください</option>
+                    <option value="male">男性</option>
+                    <option value="female">女性</option>
+                    <option value="non_binary">ノンバイナリー</option>
+                    <option value="prefer_not_to_say">回答しない</option>
+                    <option value="other">その他</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="allergies" className="form-label">
+                    アレルギー（複数選択可）
+                  </label>
+                  <select
+                    id="allergies"
+                    name="allergies"
+                    multiple
+                    value={formData.allergies}
+                    onChange={e => {
+                      const selectedOptions = Array.from(
+                        e.target.selectedOptions,
+                        option => option.value
+                      )
+                      setFormData(prev => ({
+                        ...prev,
+                        allergies: selectedOptions,
+                      }))
+                    }}
+                    className="input"
+                    size={5}
+                    data-testid="allergies-select"
+                  >
+                    <option value="fragrance">香料</option>
+                    <option value="alcohol">アルコール</option>
+                    <option value="paraben">パラベン</option>
+                    <option value="sulfate">硫酸塩</option>
+                    <option value="silicone">シリコン</option>
+                    <option value="mineral_oil">ミネラルオイル</option>
+                    <option value="formaldehyde">ホルムアルデヒド</option>
+                    <option value="latex">ラテックス</option>
+                    <option value="nickel">ニッケル</option>
+                    <option value="other">その他</option>
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Ctrl/Cmdキーを押しながらクリックで複数選択
+                  </p>
+                  {formData.allergies.includes('other') && (
+                    <div className="mt-2">
+                      <input
+                        name="allergiesOther"
+                        type="text"
+                        value={formData.allergiesOther}
+                        onChange={handleInputChange}
+                        className="input"
+                        placeholder="その他のアレルギーを入力してください"
+                        data-testid="allergies-other-input"
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex space-x-4 pt-4">
                   <Button
                     type="submit"
@@ -195,6 +318,12 @@ export default function ProfilePage() {
                       setFormData({
                         userName: user.userName || '',
                         skinType: user.skinType || '',
+                        birthDate: user.birthDate
+                          ? new Date(user.birthDate).toISOString().split('T')[0]
+                          : '',
+                        gender: user.gender || '',
+                        allergies: user.allergies || [],
+                        allergiesOther: user.allergiesOther || '',
                       })
                       setFormErrors({
                         userName: '',
@@ -256,17 +385,45 @@ export default function ProfilePage() {
                         <p className="font-medium text-gray-900">{user.email}</p>
                       </div>
                     </div>
-                    {formData.skinType && (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                        <div>
-                          <span className="text-sm text-gray-600">肌タイプ</span>
-                          <p className="font-medium text-gray-900">
-                            {getSkinTypeLabel(formData.skinType)}
-                          </p>
-                        </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">肌タイプ</span>
+                        <p className="font-medium text-gray-900">
+                          {getSkinTypeLabel(formData.skinType)}
+                        </p>
                       </div>
-                    )}
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">生年月日</span>
+                        <p className="font-medium text-gray-900">
+                          {formData.birthDate
+                            ? new Date(formData.birthDate).toLocaleDateString('ja-JP')
+                            : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">性別</span>
+                        <p className="font-medium text-gray-900">
+                          {getGenderLabel(formData.gender)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                      <div>
+                        <span className="text-sm text-gray-600">アレルギー</span>
+                        <p className="font-medium text-gray-900">
+                          {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
+                          {formData.allergiesOther && `、${formData.allergiesOther}`}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

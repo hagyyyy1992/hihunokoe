@@ -3,12 +3,16 @@ import { z } from 'zod'
 import { verifyToken, getUserById } from '@/lib/auth/auth'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
-import { SkinType } from '@prisma/client'
+import { SkinType, Gender, AllergyType } from '@prisma/client'
 
 // プロフィール更新のバリデーションスキーマ
 const updateProfileSchema = z.object({
   userName: z.string().min(3).max(50),
   skinType: z.string().max(50).optional().nullable(),
+  birthDate: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  allergies: z.array(z.string()).optional().nullable(),
+  allergiesOther: z.string().optional().nullable(),
   profileImageUrl: z
     .string()
     .optional()
@@ -59,6 +63,10 @@ export async function PUT(request: NextRequest) {
               ...user,
               userName: validatedData.userName,
               skinType: validatedData.skinType || undefined,
+              birthDate: validatedData.birthDate || undefined,
+              gender: validatedData.gender || undefined,
+              allergies: validatedData.allergies || undefined,
+              allergiesOther: validatedData.allergiesOther || undefined,
               profileImageUrl: validatedData.profileImageUrl || undefined,
             },
           })
@@ -75,6 +83,10 @@ export async function PUT(request: NextRequest) {
         data: {
           userName: validatedData.userName,
           skinType: validatedData.skinType ? (validatedData.skinType as SkinType) : null,
+          birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : null,
+          gender: validatedData.gender ? (validatedData.gender as Gender) : null,
+          allergies: validatedData.allergies ? (validatedData.allergies as AllergyType[]) : [],
+          allergiesOther: validatedData.allergiesOther || null,
           updatedAt: new Date(),
         },
       })
@@ -85,7 +97,13 @@ export async function PUT(request: NextRequest) {
           id: updatedUser.id,
           userName: updatedUser.userName,
           email: updatedUser.email,
-          skinType: updatedUser.skinType || undefined,
+          role: updatedUser.role,
+          birthDate: updatedUser.birthDate,
+          gender: updatedUser.gender,
+          skinType: updatedUser.skinType,
+          skinTypeOther: updatedUser.skinTypeOther,
+          allergies: updatedUser.allergies,
+          allergiesOther: updatedUser.allergiesOther,
           emailVerified: updatedUser.emailVerified,
         },
       })

@@ -23,6 +23,10 @@ interface RegisterData {
 interface UpdateProfileData {
   userName: string
   skinType?: string | null
+  birthDate?: string | null
+  gender?: string | null
+  allergies?: string[] | null
+  allergiesOther?: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -37,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/v2/auth/me', {
+      const response = await fetch('/api/auth/me', {
         credentials: 'same-origin',
       })
       if (response.ok) {

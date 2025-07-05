@@ -163,6 +163,10 @@ describe('ProfilePage Component', () => {
     expect(mockUpdateProfile).toHaveBeenCalledWith({
       userName: 'newusername',
       skinType: mockUser.skinType,
+      birthDate: '',
+      gender: '',
+      allergies: [],
+      allergiesOther: '',
     })
 
     // 成功メッセージが表示されることを確認
