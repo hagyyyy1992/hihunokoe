@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { DELETE } from '@/app/api/auth/delete-account/route'
-import { deleteUserAccount, verifyToken } from '@/lib/auth/auth'
+import { deleteUserAccount, verifyToken, loginUser } from '@/lib/auth/auth'
 import { cookies } from 'next/headers'
 
 // モック
@@ -11,6 +11,7 @@ jest.mock('next/headers', () => ({
 
 const mockDeleteUserAccount = deleteUserAccount as jest.MockedFunction<typeof deleteUserAccount>
 const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
+const mockLoginUser = loginUser as jest.MockedFunction<typeof loginUser>
 const mockCookies = cookies as jest.MockedFunction<typeof cookies>
 
 describe('/api/auth/delete-account', () => {
@@ -76,6 +77,31 @@ describe('/api/auth/delete-account', () => {
       expect(data.error).toBe('パスワードの確認が必要です')
     })
 
+    it('パスワードが正しくない場合は401エラーを返す', async () => {
+      const mockUser = {
+        id: 'user-1',
+        userName: 'testuser',
+        email: 'test@example.com',
+      }
+
+      mockCookies.mockReturnValue({
+        get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+      } as any)
+      mockVerifyToken.mockReturnValue(mockUser)
+      mockLoginUser.mockResolvedValue(null)
+
+      const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
+        method: 'DELETE',
+        body: JSON.stringify({ password: 'wrong-password' }),
+      })
+
+      const response = await DELETE(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(401)
+      expect(data.error).toBe('パスワードが正しくありません')
+    })
+
     it('正常なリクエストでアカウント削除が成功する', async () => {
       const mockUser = {
         id: 'user-1',
@@ -87,6 +113,7 @@ describe('/api/auth/delete-account', () => {
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)
+      mockLoginUser.mockResolvedValue(mockUser as any)
       mockDeleteUserAccount.mockResolvedValue(true)
 
       const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
@@ -118,6 +145,7 @@ describe('/api/auth/delete-account', () => {
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)
+      mockLoginUser.mockResolvedValue(mockUser as any)
       mockDeleteUserAccount.mockRejectedValue(new Error('ユーザーが見つかりません'))
 
       const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
@@ -143,6 +171,7 @@ describe('/api/auth/delete-account', () => {
         get: jest.fn().mockReturnValue({ value: 'valid-token' }),
       } as any)
       mockVerifyToken.mockReturnValue(mockUser)
+      mockLoginUser.mockResolvedValue(mockUser as any)
       mockDeleteUserAccount.mockRejectedValue('Unknown error')
 
       const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { verifyToken, deleteUserAccount } from '@/lib/auth/auth'
+import { verifyToken, deleteUserAccount, loginUser } from '@/lib/auth/auth'
 import {
   sendEmail,
   generateAccountDeletionEmailHtml,
@@ -33,6 +33,12 @@ export async function DELETE(request: NextRequest) {
     const { password } = requestBody
     if (!password) {
       return NextResponse.json({ error: 'パスワードの確認が必要です' }, { status: 400 })
+    }
+
+    // パスワードを検証
+    const authenticatedUser = await loginUser({ email: user.email, password })
+    if (!authenticatedUser) {
+      return NextResponse.json({ error: 'パスワードが正しくありません' }, { status: 401 })
     }
 
     // アカウント削除を実行
