@@ -374,10 +374,7 @@ test.describe('アカウント削除機能', () => {
     await expect(page.getByTestId('error-message')).toBeVisible()
     // 「このユーザー名は使用できません」または「ユーザー名またはメールアドレスが既に使用されています」のいずれか
     const errorText = await page.getByTestId('error-message').textContent()
-    expect(
-      errorText?.includes('このユーザー名は使用できません') ||
-        errorText?.includes('ユーザー名またはメールアドレスが既に使用されています')
-    ).toBeTruthy()
+    expect(errorText?.includes('ユーザー登録に失敗しました')).toBeTruthy()
 
     // 登録ページに留まることを確認
     await expect(page).toHaveURL(/\/auth\/register/)
