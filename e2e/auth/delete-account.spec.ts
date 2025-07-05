@@ -47,7 +47,16 @@ test.describe('アカウント削除機能', () => {
   }
 
   test.beforeEach(async ({ page }) => {
+    // 各テストで新しいユーザーを作成
     testUser = await createTestUser()
+    
+    // テストデータをクリーンアップ
+    try {
+      await cleanupTestUser(page, testUser.email)
+    } catch (error) {
+      // クリーンアップエラーは無視（ユーザーが存在しない場合など）
+    }
+    
     // ユーザーを登録してログイン済みの状態にする
     try {
       await registerAndLoginTestUser(page, testUser)
@@ -263,7 +272,11 @@ test.describe('アカウント削除機能', () => {
     // アカウント削除後、トップページまたはログインページにリダイレクトされることを確認
     await expect(page).toHaveURL(/\/(|auth\/login)/, { timeout: 10000 })
 
-    // 削除後のクッキーがクリアされていることを確認するため、少し待機
+    // 削除処理が完了するまで待機
+    await page.waitForTimeout(3000)
+
+    // ページをリロードしてセッションを完全にクリア
+    await page.reload()
     await page.waitForTimeout(1000)
 
     // 削除されたアカウントでのログインを試行

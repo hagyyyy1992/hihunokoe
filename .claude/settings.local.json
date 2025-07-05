@@ -57,7 +57,8 @@
       "Bash(docker stop:*)",
       "Bash(npx prettier:*)",
       "Bash(npx next lint:*)",
-      "Bash(PORT=3001 npm run test:e2e -- --project=chromium --reporter=list)"
+      "Bash(PORT=3001 npm run test:e2e -- --project=chromium --reporter=list)",
+      "Bash(PORT=3001 npm run test:e2e -- e2e/auth/delete-account.spec.ts --grep \"アカウント削除後に同じアカウントでログインできないことを確認\" --project=chromium)"
     ],
     "deny": [
       "Bash(git push --force:*)",
@@ -72,7 +73,14 @@
   "project_context": {
     "name": "Usaka",
     "description": "Cosmetics experience sharing service",
-    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS", "Vercel"],
+    "tech_stack": [
+      "Next.js",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Vercel"
+    ],
     "key_commands": {
       "dev": "npm run dev:setup",
       "test": "npm test",
