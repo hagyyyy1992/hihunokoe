@@ -35,6 +35,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const [error, setError] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [canSubmit, setCanSubmit] = useState(false)
 
   const [createPost] = useCreatePostMutation()
   const [updatePost] = useUpdatePostMutation()
@@ -58,6 +59,21 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
   }, [initialData])
 
+  // ステップ変更を監視
+  useEffect(() => {
+    if (currentStep === 4) {
+      // ステップ4に到達時、全てのアクティブな要素をログ
+      setTimeout(() => {
+        // ステップ4に到達してから一定時間後にのみ送信を許可
+        setTimeout(() => {
+          setCanSubmit(true)
+        }, 500)
+      }, 100)
+    } else {
+      setCanSubmit(false)
+    }
+  }, [currentStep])
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -66,6 +82,18 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       ...prev,
       [name]: value,
     }))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Enterキーでのフォーム送信を防ぐ（テキストエリアと投稿ボタン以外）
+    if (e.key === 'Enter' && e.target instanceof HTMLElement) {
+      const isTextarea = e.target.tagName === 'TEXTAREA'
+      const isSubmitButton = e.target.getAttribute('data-testid') === 'publish-button'
+
+      if (!isTextarea && !isSubmitButton) {
+        e.preventDefault()
+      }
+    }
   }
 
   const handleNestedChange = (
@@ -90,6 +118,25 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // ステップ4以外では投稿を許可しない
+    if (currentStep !== 4) {
+      console.warn('Submit attempted on step', currentStep, '- blocking')
+      return
+    }
+
+    // 送信が許可されていない場合はブロック
+    if (!canSubmit) {
+      console.warn('Submit attempted before canSubmit is true - blocking')
+      return
+    }
+
+    // 明示的な投稿ボタンクリック以外は許可しない
+    const submitter = (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement
+    if (!submitter || submitter.getAttribute('data-testid') !== 'publish-button') {
+      console.warn('Submit attempted without publish button - blocking')
+      return
+    }
+
     setError('')
     setLoading(true)
 
@@ -129,7 +176,28 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1)
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1)
+      // ステップ変更後、フォーカスをリセットして意図しないサブミットを防ぐ
+      setTimeout(() => {
+        // 投稿ボタンへのフォーカスを防ぐ
+        const publishButton = document.querySelector(
+          '[data-testid="publish-button"]'
+        ) as HTMLElement
+        if (publishButton && document.activeElement === publishButton) {
+          publishButton.blur()
+        }
+
+        // ステップ4の場合は、最初のselect要素にフォーカスを移動
+        if (currentStep + 1 === 4) {
+          const firstSelect = document.querySelector('#moodTag') as HTMLSelectElement
+          if (firstSelect) {
+            // フォーカスを移動するが、selectしない
+            firstSelect.focus({ preventScroll: true })
+          }
+        }
+      }, 100)
+    }
   }
 
   const prevStep = () => {
@@ -199,7 +267,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={e => {
+          handleSubmit(e)
+        }}
+        onKeyDown={handleKeyDown}
+        className="space-y-6"
+      >
         {error && <div className="alert alert-error">{error}</div>}
 
         {/* ステップ1: 基本情報 */}
@@ -515,7 +589,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ステップ4: 感想とまとめ */}
         {currentStep === 4 && (
-          <div className="space-y-6">
+          <div
+            className="space-y-6"
+            onKeyDown={e => {
+              // ステップ4内でEnterキーによるサブミットを完全に防ぐ
+              if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'BUTTON') {
+                e.preventDefault()
+                e.stopPropagation()
+              }
+            }}
+          >
             <h3 className="text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
             <p className="text-sm text-gray-600">使用後の肌状態や総合的な感想を教えてください。</p>
 
@@ -601,7 +684,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 id="moodTag"
                 name="moodTag"
                 value={formData.moodTag}
-                onChange={handleInputChange}
+                onChange={e => {
+                  console.log('moodTag select changed:', e.target.value)
+                  handleInputChange(e)
+                }}
+                onFocus={() => {
+                  console.log('moodTag select focused')
+                }}
                 className="select"
               >
                 <option value="">選択してください</option>
@@ -679,7 +768,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             <Button
               type="submit"
               variant="primary"
-              disabled={loading || !isStepValid(1)}
+              disabled={loading || !isStepValid(1) || !canSubmit}
               loading={loading}
               data-testid="publish-button"
             >
