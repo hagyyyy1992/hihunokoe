@@ -3,7 +3,11 @@ import { GraphQLContext } from '@/graphql/context'
 
 export const empathyResolvers = {
   Mutation: {
-    async addEmpathy(_: any, { postId, type }: { postId: string; type: string }, context: GraphQLContext) {
+    async addEmpathy(
+      _: unknown,
+      { postId, type }: { postId: string; type: string },
+      context: GraphQLContext
+    ) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -45,7 +49,7 @@ export const empathyResolvers = {
       return empathy
     },
 
-    async removeEmpathy(_: any, { postId }: { postId: string }, context: GraphQLContext) {
+    async removeEmpathy(_: unknown, { postId }: { postId: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -80,7 +84,7 @@ export const empathyResolvers = {
   },
 
   Empathy: {
-    post: async (parent: any) => {
+    post: async (parent: { postId: string }) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const post = await prisma.post.findUnique({
         where: { id: parent.postId },
@@ -88,7 +92,7 @@ export const empathyResolvers = {
       if (!post) throw new Error('Post not found')
       return post
     },
-    user: async (parent: any) => {
+    user: async (parent: { userId: string }) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const user = await prisma.user.findUnique({
         where: { id: parent.userId },

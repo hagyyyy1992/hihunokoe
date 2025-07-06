@@ -3,7 +3,7 @@ import { GraphQLContext } from '@/graphql/context'
 
 export const userResolvers = {
   Query: {
-    async user(_: any, { id }: { id: string }) {
+    async user(_: unknown, { id }: { id: string }) {
       if (!isDatabaseAvailable() || !prisma) {
         throw new Error('Database unavailable')
       }
@@ -19,7 +19,7 @@ export const userResolvers = {
       return user
     },
 
-    async currentUser(_: any, __: any, context: GraphQLContext) {
+    async currentUser(_: unknown, __: unknown, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -41,7 +41,7 @@ export const userResolvers = {
   },
 
   User: {
-    posts: async (parent: any) => {
+    posts: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.post.findMany({
         where: { userId: parent.id },
@@ -49,7 +49,7 @@ export const userResolvers = {
       })
     },
 
-    empathies: async (parent: any) => {
+    empathies: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.empathy.findMany({
         where: { userId: parent.id },
@@ -57,7 +57,7 @@ export const userResolvers = {
       })
     },
 
-    comments: async (parent: any) => {
+    comments: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.comment.findMany({
         where: { userId: parent.id },

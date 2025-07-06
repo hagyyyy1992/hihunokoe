@@ -6,6 +6,48 @@ import PostCard from '@/components/ui/PostCard'
 import { useQuery } from '@apollo/client'
 import { GET_POSTS } from '@/graphql/queries/post'
 
+interface PostNode {
+  id: string
+  title: string
+  content: string
+  cosmeticName: string
+  cosmeticCategory?: string
+  skinType?: string
+  moodTag?: string
+  viewCount: number
+  empathyCount: number
+  createdAt: string
+  user: {
+    id: string
+    displayName: string
+    profileImageUrl?: string
+  }
+  empathies: Array<{
+    id: string
+    empathyType: string
+    user: {
+      id: string
+    }
+  }>
+  _count: {
+    comments: number
+  }
+}
+
+interface PostData {
+  posts: {
+    edges: Array<{
+      cursor: string
+      node: PostNode
+    }>
+    pageInfo: {
+      hasNextPage: boolean
+      endCursor?: string
+    }
+    totalCount: number
+  }
+}
+
 export default function PostsPage() {
   const [filters, setFilters] = useState({
     skinType: '',
@@ -14,7 +56,7 @@ export default function PostsPage() {
     search: '',
   })
 
-  const { data, loading, error, fetchMore } = useQuery(GET_POSTS, {
+  const { data, loading, error, fetchMore } = useQuery<PostData>(GET_POSTS, {
     variables: {
       first: 10,
       filter: {
@@ -44,7 +86,7 @@ export default function PostsPage() {
     }
   }
 
-  const posts = data?.posts.edges.map((edge: any) => edge.node) || []
+  const posts = data?.posts.edges.map(edge => edge.node) || []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -157,7 +199,7 @@ export default function PostsPage() {
             {posts.length > 0 ? (
               <>
                 <div className="grid gap-6 mb-8">
-                  {posts.map((post: any) => (
+                  {posts.map(post => (
                     <PostCard
                       key={post.id}
                       post={{

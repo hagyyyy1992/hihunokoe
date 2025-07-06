@@ -1,12 +1,13 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import { mockPosts } from '@/lib/mock-data'
+import { MOCK_POSTS } from '@/lib/mock-data'
 import { GraphQLContext } from '@/graphql/context'
+import { Prisma } from '@prisma/client'
 
 export const postResolvers = {
   Query: {
-    async post(_: any, { id }: { id: string }) {
+    async post(_: unknown, { id }: { id: string }) {
       if (!isDatabaseAvailable() || !prisma) {
-        const post = mockPosts.find(p => p.id === id)
+        const post = MOCK_POSTS.find((p: { id: string }) => p.id === id)
         if (!post) throw new Error('Post not found')
         return post
       }
@@ -23,17 +24,37 @@ export const postResolvers = {
       return post
     },
 
-    async posts(_: any, { first, after, filter, orderBy }: { first?: number; after?: string; filter?: any; orderBy?: string }) {
+    async posts(
+      _: unknown,
+      {
+        first,
+        after,
+        filter,
+        orderBy,
+      }: {
+        first?: number
+        after?: string
+        filter?: {
+          skinType?: string
+          cosmeticCategory?: string
+          moodTag?: string
+          search?: string
+        }
+        orderBy?: string
+      }
+    ) {
       if (!isDatabaseAvailable() || !prisma) {
         // Return mock data when database is unavailable
-        let filteredPosts = [...mockPosts]
+        let filteredPosts = [...MOCK_POSTS]
 
         if (filter) {
           if (filter.skinType) {
             filteredPosts = filteredPosts.filter(p => p.skinType === filter.skinType)
           }
           if (filter.cosmeticCategory) {
-            filteredPosts = filteredPosts.filter(p => p.cosmeticCategory === filter.cosmeticCategory)
+            filteredPosts = filteredPosts.filter(
+              p => p.cosmeticCategory === filter.cosmeticCategory
+            )
           }
           if (filter.moodTag) {
             filteredPosts = filteredPosts.filter(p => p.moodTag === filter.moodTag)
@@ -51,7 +72,9 @@ export const postResolvers = {
 
         // Sort
         if (orderBy === 'CREATED_AT_DESC') {
-          filteredPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          filteredPosts.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
         } else if (orderBy === 'EMPATHY_DESC') {
           filteredPosts.sort((a, b) => b.empathyCount - a.empathyCount)
         }
@@ -75,7 +98,7 @@ export const postResolvers = {
       }
 
       // Build where clause
-      const where: any = {}
+      const where: Record<string, unknown> = {}
 
       if (filter) {
         if (filter.skinType) where.skinType = filter.skinType
@@ -121,7 +144,24 @@ export const postResolvers = {
   },
 
   Mutation: {
-    async createPost(_: any, { input }: { input: any }, context: GraphQLContext) {
+    async createPost(
+      _: unknown,
+      {
+        input,
+      }: {
+        input: {
+          title: string
+          content: string
+          cosmeticName: string
+          cosmeticCategory?: string
+          skinType?: string
+          moodTag?: string
+          usageSituation?: unknown
+          experienceDetails?: unknown
+        }
+      },
+      context: GraphQLContext
+    ) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -134,8 +174,8 @@ export const postResolvers = {
         data: {
           ...input,
           userId: context.userId,
-          usageSituation: input.usageSituation || {},
-          experienceDetails: input.experienceDetails || {},
+          usageSituation: input.usageSituation || Prisma.JsonNull,
+          experienceDetails: input.experienceDetails || Prisma.JsonNull,
         },
         include: {
           user: true,
@@ -147,7 +187,26 @@ export const postResolvers = {
       return post
     },
 
-    async updatePost(_: any, { id, input }: { id: string; input: any }, context: GraphQLContext) {
+    async updatePost(
+      _: unknown,
+      {
+        id,
+        input,
+      }: {
+        id: string
+        input: {
+          title?: string
+          content?: string
+          cosmeticName?: string
+          cosmeticCategory?: string
+          skinType?: string
+          moodTag?: string
+          usageSituation?: unknown
+          experienceDetails?: unknown
+        }
+      },
+      context: GraphQLContext
+    ) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -172,8 +231,8 @@ export const postResolvers = {
         where: { id },
         data: {
           ...input,
-          usageSituation: input.usageSituation || existingPost.usageSituation,
-          experienceDetails: input.experienceDetails || existingPost.experienceDetails,
+          usageSituation: input.usageSituation !== undefined ? (input.usageSituation || Prisma.JsonNull) : existingPost.usageSituation,
+          experienceDetails: input.experienceDetails !== undefined ? (input.experienceDetails || Prisma.JsonNull) : existingPost.experienceDetails,
         },
         include: {
           user: true,
@@ -185,7 +244,7 @@ export const postResolvers = {
       return post
     },
 
-    async deletePost(_: any, { id }: { id: string }, context: GraphQLContext) {
+    async deletePost(_: unknown, { id }: { id: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -215,7 +274,7 @@ export const postResolvers = {
   },
 
   Post: {
-    user: async (parent: any) => {
+    user: async (parent: { userId: string }) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const user = await prisma.user.findUnique({
         where: { id: parent.userId },
@@ -224,7 +283,7 @@ export const postResolvers = {
       return user
     },
 
-    empathies: async (parent: any) => {
+    empathies: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.empathy.findMany({
         where: { postId: parent.id },
@@ -232,7 +291,7 @@ export const postResolvers = {
       })
     },
 
-    comments: async (parent: any) => {
+    comments: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.comment.findMany({
         where: { postId: parent.id },

@@ -3,7 +3,11 @@ import { GraphQLContext } from '@/graphql/context'
 
 export const commentResolvers = {
   Mutation: {
-    async addComment(_: any, { postId, content }: { postId: string; content: string }, context: GraphQLContext) {
+    async addComment(
+      _: unknown,
+      { postId, content }: { postId: string; content: string },
+      context: GraphQLContext
+    ) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -27,7 +31,11 @@ export const commentResolvers = {
       return comment
     },
 
-    async updateComment(_: any, { id, content }: { id: string; content: string }, context: GraphQLContext) {
+    async updateComment(
+      _: unknown,
+      { id, content }: { id: string; content: string },
+      context: GraphQLContext
+    ) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -60,7 +68,7 @@ export const commentResolvers = {
       return comment
     },
 
-    async deleteComment(_: any, { id }: { id: string }, context: GraphQLContext) {
+    async deleteComment(_: unknown, { id }: { id: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -90,7 +98,7 @@ export const commentResolvers = {
   },
 
   Comment: {
-    post: async (parent: any) => {
+    post: async (parent: { postId: string }) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const post = await prisma.post.findUnique({
         where: { id: parent.postId },
@@ -98,7 +106,7 @@ export const commentResolvers = {
       if (!post) throw new Error('Post not found')
       return post
     },
-    user: async (parent: any) => {
+    user: async (parent: { userId: string }) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const user = await prisma.user.findUnique({
         where: { id: parent.userId },
