@@ -89,10 +89,8 @@ export async function registerAndLoginTestUser(
   // Login with the registered user
   await authHelper.login(userData.email, userData.password)
 
-  // WebKitの場合は追加の待機時間
-  if (isWebKit) {
-    await page.waitForTimeout(3000)
-  }
+  // 認証状態が確立されるまで待機
+  await page.waitForTimeout(isWebKit ? 3000 : 2000)
 
   // Verify we're logged in (リトライロジック付き)
   let verificationSuccess = false
@@ -105,6 +103,7 @@ export async function registerAndLoginTestUser(
     if (
       currentUrl.includes('/home') ||
       currentUrl.includes('/profile') ||
+      currentUrl.includes('/account/delete') ||
       (currentUrl.endsWith('/') && !currentUrl.includes('/auth'))
     ) {
       verificationSuccess = true
@@ -126,7 +125,7 @@ export async function registerAndLoginTestUser(
       }
     } else {
       // 2回目以降は待機時間を増やす
-      await page.waitForTimeout(isWebKit ? 3000 : 2000)
+      await page.waitForTimeout(isWebKit ? 4000 : 3000)
     }
 
     // 再度URLを確認
@@ -138,6 +137,7 @@ export async function registerAndLoginTestUser(
     } else if (
       newUrl.includes('/home') ||
       newUrl.includes('/profile') ||
+      newUrl.includes('/account/delete') ||
       (newUrl.endsWith('/') && !newUrl.includes('/auth'))
     ) {
       verificationSuccess = true

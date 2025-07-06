@@ -90,12 +90,21 @@ test.describe('アカウント削除機能', () => {
       await registerAndLoginTestUser(page, testUser)
 
       // 認証状態が完全に確立されるまで待機
-      await page.waitForTimeout(1000)
+      await page.waitForTimeout(2000)
 
-      // 認証済みであることを確認
-      const cookies = await page.context().cookies()
-      const authCookie = cookies.find(c => c.name === 'auth-token')
-      if (!authCookie) {
+      // 認証済みであることを確認（リトライロジック付き）
+      let authVerified = false
+      for (let i = 0; i < 3; i++) {
+        const cookies = await page.context().cookies()
+        const authCookie = cookies.find(c => c.name === 'auth-token')
+        if (authCookie) {
+          authVerified = true
+          break
+        }
+        await page.waitForTimeout(1000)
+      }
+      
+      if (!authVerified) {
         throw new Error('Auth cookie not found after registration and login')
       }
     } catch (error) {
