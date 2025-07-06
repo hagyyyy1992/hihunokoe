@@ -227,23 +227,28 @@ export const postResolvers = {
         throw new Error('Forbidden')
       }
 
+      // Prepare update data
+      const updateData: any = {}
+      
+      // Copy non-JSON fields
+      if (input.title !== undefined) updateData.title = input.title
+      if (input.content !== undefined) updateData.content = input.content
+      if (input.cosmeticName !== undefined) updateData.cosmeticName = input.cosmeticName
+      if (input.cosmeticCategory !== undefined) updateData.cosmeticCategory = input.cosmeticCategory
+      if (input.skinType !== undefined) updateData.skinType = input.skinType
+      if (input.moodTag !== undefined) updateData.moodTag = input.moodTag
+      
+      // Handle JSON fields
+      if (input.usageSituation !== undefined) {
+        updateData.usageSituation = input.usageSituation || Prisma.JsonNull
+      }
+      if (input.experienceDetails !== undefined) {
+        updateData.experienceDetails = input.experienceDetails || Prisma.JsonNull
+      }
+
       const post = await prisma.post.update({
         where: { id },
-        data: {
-          ...input,
-          usageSituation:
-            input.usageSituation !== undefined
-              ? input.usageSituation
-                ? (input.usageSituation as Prisma.InputJsonValue)
-                : Prisma.JsonNull
-              : existingPost.usageSituation,
-          experienceDetails:
-            input.experienceDetails !== undefined
-              ? input.experienceDetails
-                ? (input.experienceDetails as Prisma.InputJsonValue)
-                : Prisma.JsonNull
-              : existingPost.experienceDetails,
-        },
+        data: updateData,
         include: {
           user: true,
           empathies: { include: { user: true } },
