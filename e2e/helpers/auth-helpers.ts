@@ -211,6 +211,15 @@ export class AuthHelper {
       await this.page.selectOption('[data-testid="skin-type-select"]', userData.skinType)
     }
 
+    // Wait for button to be enabled before clicking
+    await this.page.waitForFunction(
+      () => {
+        const button = document.querySelector('[data-testid="register-button"]') as HTMLButtonElement
+        return button && !button.disabled
+      },
+      { timeout: 10000 }
+    )
+
     // Submit the form
     await this.page.click('[data-testid="register-button"]')
 
@@ -238,6 +247,13 @@ export class AuthHelper {
         const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
         if (hasError) {
           const errorText = await errorElement.textContent()
+          
+          // より詳細なエラー情報をログ出力
+          console.log(`Registration error details:`)
+          console.log(`- Error text: ${errorText}`)
+          console.log(`- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`)
+          console.log(`- Current URL: ${currentUrl}`)
+          
           throw new Error(`Registration failed with error: ${errorText}`)
         }
 
@@ -253,8 +269,21 @@ export class AuthHelper {
 
         if (hasError) {
           const errorText = await errorElement.textContent()
+          
+          // より詳細なエラー情報をログ出力
+          console.log(`Registration error details (catch block):`)
+          console.log(`- Error text: ${errorText}`)
+          console.log(`- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`)
+          console.log(`- Current URL: ${currentUrl}`)
+          
           throw new Error(`Registration failed with error: ${errorText}`)
         }
+
+        // デバッグ情報を追加
+        console.log(`Registration timeout details:`)
+        console.log(`- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`)
+        console.log(`- Current URL: ${currentUrl}`)
+        console.log(`- Original error: ${error instanceof Error ? error.message : String(error)}`)
 
         throw new Error(
           `Registration timeout or failed - expected registration-complete page but got: ${currentUrl}. Original error: ${error instanceof Error ? error.message : String(error)}`
