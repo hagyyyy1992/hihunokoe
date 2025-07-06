@@ -9,7 +9,7 @@ async function fixMigrations() {
   console.log('🔧 Fixing Supabase migration history...')
 
   const DATABASE_URL = process.env.DATABASE_URL
-  
+
   if (!DATABASE_URL || !DATABASE_URL.includes('supabase')) {
     console.log('⚠️  This script should only be run for Supabase databases')
     console.log('    Current DATABASE_URL:', DATABASE_URL ? 'Set but not Supabase' : 'Not set')
@@ -22,11 +22,13 @@ async function fixMigrations() {
     try {
       execSync('npx prisma migrate status', { stdio: 'inherit' })
     } catch (e) {
-      console.log('⚠️  Migration status check failed (this is expected if migrations are out of sync)')
+      console.log(
+        '⚠️  Migration status check failed (this is expected if migrations are out of sync)'
+      )
     }
 
     console.log('\n🔍 Checking if tables already exist in the database...')
-    
+
     // Create a SQL script to manually mark the migration as applied
     const markMigrationSQL = `
 -- Check if _prisma_migrations table exists
@@ -88,12 +90,12 @@ END $$;
     const fs = require('fs')
     const path = require('path')
     const tmpFile = path.join(__dirname, 'fix-migration.sql')
-    
+
     fs.writeFileSync(tmpFile, markMigrationSQL)
-    
+
     console.log('\n📝 Executing migration fix SQL...')
     console.log('   This will mark the initial migration as already applied')
-    
+
     // Execute the SQL using prisma db execute
     try {
       execSync(`npx prisma db execute --file ${tmpFile}`, { stdio: 'inherit' })
@@ -117,7 +119,6 @@ END $$;
       console.log('⚠️  Migration deployment failed. You may need to manually resolve conflicts.')
       console.log('   Check the Supabase dashboard to verify table structure.')
     }
-
   } catch (error) {
     console.error('❌ Error fixing migrations:', error.message)
     process.exit(1)
