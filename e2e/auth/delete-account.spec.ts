@@ -398,7 +398,7 @@ test.describe('アカウント削除機能', () => {
       await loginUser(page, testUser.email, testUser.password)
       await page.waitForTimeout(2000)
     }
-    
+
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)
 
@@ -514,7 +514,7 @@ test.describe('アカウント削除機能', () => {
 
   test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
     test.setTimeout(60000) // Firefoxでのタイムアウトを防ぐため
-    
+
     // 認証状態を再確認
     const cookies = await page.context().cookies()
     const authCookie = cookies.find(c => c.name === 'auth-token')
@@ -523,7 +523,7 @@ test.describe('アカウント削除機能', () => {
       await loginUser(page, testUser.email, testUser.password)
       await page.waitForTimeout(2000)
     }
-    
+
     // アカウント削除を実行
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)

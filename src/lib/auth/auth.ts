@@ -109,13 +109,13 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     where: {
       OR: [
         { email: data.email },
-        { 
+        {
           userName: data.userName,
           // _deleted_ を含まない元のユーザー名でマッチするものを探す
-          NOT: { userName: { contains: '_deleted_' } }
+          NOT: { userName: { contains: '_deleted_' } },
         },
         // _deleted_ を含むユーザー名の場合、プレフィックスでマッチ
-        { userName: { startsWith: `${data.userName}_deleted_` } }
+        { userName: { startsWith: `${data.userName}_deleted_` } },
       ],
       isActive: false,
       deletedAt: { not: null },
@@ -360,7 +360,7 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     // ユーザー名を変更して、同じユーザー名での再登録を可能にする
     const deletedAt = new Date()
     const deletedTimestamp = deletedAt.getTime()
-    
+
     try {
       await prisma!.user.update({
         where: { id },
@@ -373,7 +373,10 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       })
     } catch (updateError) {
       // ユーザーが既に削除されている場合は成功とみなす
-      if (updateError instanceof Prisma.PrismaClientKnownRequestError && updateError.code === 'P2025') {
+      if (
+        updateError instanceof Prisma.PrismaClientKnownRequestError &&
+        updateError.code === 'P2025'
+      ) {
         console.log(`User ${id} already deleted or not found, treating as success`)
         return true
       }
