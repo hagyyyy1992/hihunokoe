@@ -2,8 +2,13 @@ import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: './src/graphql/schema.ts',
-  documents: ['src/**/*.tsx', 'src/**/*.ts', '!src/generated/**/*'],
+  schema: './src/graphql/schemas/schema.graphql',
+  documents: [
+    'src/graphql/schemas/*.graphql',
+    'src/**/*.tsx',
+    'src/**/*.ts',
+    '!src/generated/**/*',
+  ],
   generates: {
     'src/generated/graphql.ts': {
       plugins: [
@@ -34,6 +39,16 @@ const config: CodegenConfig = {
           inputValue: false,
           object: false,
           defaultValue: false,
+        },
+      },
+    },
+    'src/generated/': {
+      preset: 'client',
+      documents: ['src/graphql/schemas/*.graphql'],
+      config: {
+        scalars: {
+          DateTime: 'Date',
+          JSON: 'Record<string, any>',
         },
       },
     },
