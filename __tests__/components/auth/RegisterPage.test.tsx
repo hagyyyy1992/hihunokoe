@@ -146,7 +146,7 @@ describe('RegisterPage', () => {
           userName: 'testuser',
           email: 'test@example.com',
           password: 'password123',
-          birthDate: undefined,
+          birthDate: '2000-01-01',
           gender: undefined,
           skinType: undefined,
           skinTypeOther: undefined,
