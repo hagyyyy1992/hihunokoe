@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS } from '@/lib/mock-data'
-import { SkinType, Gender, AllergyType, UserRole } from '@prisma/client'
+import { SkinType, Gender, AllergyType, UserRole, Prisma } from '@prisma/client'
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
 
@@ -104,10 +104,19 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     throw new Error('ユーザー名またはメールアドレスが既に使用されています')
   }
 
-  // 論理削除されたユーザーが存在するかチェック（メールアドレスのみで検索）
+  // 論理削除されたユーザーが存在するかチェック（メールアドレスまたはユーザー名で検索）
   const deletedUser = await prisma!.user.findFirst({
     where: {
-      email: data.email,
+      OR: [
+        { email: data.email },
+        { 
+          userName: data.userName,
+          // _deleted_ を含まない元のユーザー名でマッチするものを探す
+          NOT: { userName: { contains: '_deleted_' } }
+        },
+        // _deleted_ を含むユーザー名の場合、プレフィックスでマッチ
+        { userName: { startsWith: `${data.userName}_deleted_` } }
+      ],
       isActive: false,
       deletedAt: { not: null },
     },
@@ -351,15 +360,25 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     // ユーザー名を変更して、同じユーザー名での再登録を可能にする
     const deletedAt = new Date()
     const deletedTimestamp = deletedAt.getTime()
-    await prisma!.user.update({
-      where: { id },
-      data: {
-        deletedAt: deletedAt,
-        isActive: false,
-        // ユーザー名に削除タイムスタンプを付加してユニーク制約を回避
-        userName: `${user.userName}_deleted_${deletedTimestamp}`,
-      },
-    })
+    
+    try {
+      await prisma!.user.update({
+        where: { id },
+        data: {
+          deletedAt: deletedAt,
+          isActive: false,
+          // ユーザー名に削除タイムスタンプを付加してユニーク制約を回避
+          userName: `${user.userName}_deleted_${deletedTimestamp}`,
+        },
+      })
+    } catch (updateError) {
+      // ユーザーが既に削除されている場合は成功とみなす
+      if (updateError instanceof Prisma.PrismaClientKnownRequestError && updateError.code === 'P2025') {
+        console.log(`User ${id} already deleted or not found, treating as success`)
+        return true
+      }
+      throw updateError
+    }
 
     return true
   } catch (error) {

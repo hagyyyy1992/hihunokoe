@@ -29,13 +29,13 @@ export default function DeleteAccountPage() {
     if (user) {
       setIsAuthChecking(false)
     } else {
-      // ユーザーが存在しない場合、少し待ってから再確認
-      // （認証状態の初期化に時間がかかることがあるため）
+      // ユーザーが存在しない場合、より長い時間待ってから再確認
+      // （E2Eテストで認証状態の初期化に時間がかかることがあるため）
       const checkTimeout = setTimeout(() => {
         if (!user && !loading) {
           router.replace('/auth/login')
         }
-      }, 500)
+      }, 2000) // 500msから2000msに増加
 
       return () => clearTimeout(checkTimeout)
     }

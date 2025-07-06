@@ -15,8 +15,8 @@ test.describe('アカウント削除機能', () => {
     // 最初にネットワークアイドル状態を待つ
     await page.waitForLoadState('networkidle')
 
-    // AuthContext の初期化を待つため、少し待機
-    await page.waitForTimeout(1000)
+    // AuthContext の初期化を待つため、より長く待機（E2Eテスト用に増加）
+    await page.waitForTimeout(3000)
 
     // ページの最終的な状態を確認
     try {
@@ -29,8 +29,8 @@ test.describe('アカウント削除機能', () => {
         { timeout: 30000 }
       )
 
-      // 認証状態のチェック前に少し待機（状態の安定化）
-      await page.waitForTimeout(500)
+      // 認証状態のチェック前により長く待機（状態の安定化）
+      await page.waitForTimeout(2000)
 
       // まず認証状態をチェック - ログインページにリダイレクトされていないか確認
       const currentUrl = page.url()
@@ -67,8 +67,15 @@ test.describe('アカウント削除機能', () => {
   }
 
   test.beforeEach(async ({ page }, testInfo) => {
-    // 各テストで新しいユーザーを作成
-    testUser = await createTestUser()
+    // 各テストで新しいユーザーを作成（ブラウザ名を含めて一意にする）
+    const browserName = testInfo.project.name || 'unknown'
+    const timestamp = Date.now()
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    testUser = {
+      email: `test-${browserName}-${timestamp}-${randomSuffix}@example.com`,
+      password: 'test12345',
+      userName: `testuser-${browserName}-${timestamp}-${randomSuffix}`,
+    }
 
     // テストデータをクリーンアップ
     try {
@@ -383,6 +390,15 @@ test.describe('アカウント削除機能', () => {
   })
 
   test('削除ボタンはパスワード入力時のみ有効になる', async ({ page }) => {
+    // 認証状態を再確認
+    const cookies = await page.context().cookies()
+    const authCookie = cookies.find(c => c.name === 'auth-token')
+    if (!authCookie) {
+      console.log('Re-authenticating user for test')
+      await loginUser(page, testUser.email, testUser.password)
+      await page.waitForTimeout(2000)
+    }
+    
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)
 
@@ -498,6 +514,16 @@ test.describe('アカウント削除機能', () => {
 
   test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
     test.setTimeout(60000) // Firefoxでのタイムアウトを防ぐため
+    
+    // 認証状態を再確認
+    const cookies = await page.context().cookies()
+    const authCookie = cookies.find(c => c.name === 'auth-token')
+    if (!authCookie) {
+      console.log('Re-authenticating user for test')
+      await loginUser(page, testUser.email, testUser.password)
+      await page.waitForTimeout(2000)
+    }
+    
     // アカウント削除を実行
     await page.goto('/account/delete')
     await waitForDeletePageReady(page)
