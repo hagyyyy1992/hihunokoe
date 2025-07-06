@@ -231,9 +231,6 @@ export function generateAccountDeletionEmailHtml(userName: string): string {
           </ul>
         </div>
         
-        <p>今後、このメールアドレスでの新規登録が可能です。<br>
-        また、何かご不明な点がございましたら、サポートまでお問い合わせください。</p>
-        
         <p>これまで${SERVICE_NAME}をご利用いただき、ありがとうございました。</p>
         
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
