@@ -37,13 +37,11 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   }
 
   // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
-  let toEmail = to
-  toEmail = 'k69276780@gmail.com'
   if (isDevelopment) {
     try {
       await mailhogTransporter.sendMail({
         from: fromEmail,
-        to: toEmail,
+        to,
         subject,
         html,
         text,
@@ -58,7 +56,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     try {
       const result = await resend!.emails.send({
         from: fromEmail,
-        to: toEmail,
+        to,
         subject,
         html,
         text,
@@ -70,7 +68,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
         error,
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
-        to: toEmail,
+        to,
         subject,
         fromEmail,
       })
