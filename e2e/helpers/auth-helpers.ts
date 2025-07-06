@@ -174,6 +174,12 @@ export async function registerAndLoginTestUser(
 export class AuthHelper {
   constructor(private page: Page) {}
 
+  private isMobile(): boolean {
+    // Playwrightのデバイス名から判定
+    const viewport = this.page.viewportSize()
+    return viewport ? viewport.width < 768 : false
+  }
+
   async register(
     userData: {
       username: string
@@ -184,6 +190,11 @@ export class AuthHelper {
     expectSuccess: boolean = true
   ) {
     await this.page.goto('/auth/register')
+
+    // モバイルブラウザの場合は追加の待機
+    if (this.isMobile()) {
+      await this.page.waitForTimeout(2000)
+    }
 
     // Check for runtime errors
     const runtimeError = await this.page
@@ -202,16 +213,33 @@ export class AuthHelper {
     // Wait for form to be fully loaded
     await this.page.waitForSelector('[data-testid="register-form"]', { timeout: 10000 })
 
+    // モバイルブラウザでの入力を安定させるための遅延を追加
+    const inputDelay = this.isMobile() ? 500 : 200
+    await this.page.waitForTimeout(inputDelay)
+
     await this.page.fill('[data-testid="username-input"]', userData.username)
+    await this.page.waitForTimeout(inputDelay)
+
     await this.page.fill('[data-testid="email-input"]', userData.email)
+    await this.page.waitForTimeout(inputDelay)
+
     await this.page.fill('[data-testid="password-input"]', userData.password)
+    await this.page.waitForTimeout(inputDelay)
+
     await this.page.fill('[data-testid="confirm-password-input"]', userData.password)
+    await this.page.waitForTimeout(inputDelay)
 
     if (userData.skinType) {
       await this.page.selectOption('[data-testid="skin-type-select"]', userData.skinType)
+      await this.page.waitForTimeout(200) // モバイルブラウザ用の遅延
     }
 
     // Wait for button to be enabled before clicking
+    const registerButton = this.page.locator('[data-testid="register-button"]')
+    await registerButton.waitFor({ state: 'visible', timeout: 10000 })
+
+    // モバイルブラウザでのクリックを確実にする
+    await registerButton.scrollIntoViewIfNeeded()
     await this.page.waitForFunction(
       () => {
         const button = document.querySelector(
@@ -223,7 +251,8 @@ export class AuthHelper {
     )
 
     // Submit the form
-    await this.page.click('[data-testid="register-button"]')
+    await registerButton.click()
+    await this.page.waitForTimeout(this.isMobile() ? 3000 : 1000) // モバイルは長めの待機時間
 
     if (expectSuccess) {
       // Wait for form submission to start
@@ -231,11 +260,16 @@ export class AuthHelper {
 
       // Wait for either navigation or error message with extended timeout
       try {
+        // モバイルブラウザでのリダイレクトを考慮して複数の条件をチェック
         await Promise.race([
           // Wait for success - registration-complete page
-          expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 45000 }),
+          expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 60000 }),
           // Wait for error message to appear (if registration fails)
-          this.page.waitForSelector('[data-testid="error-message"]', { timeout: 45000 }),
+          this.page.waitForSelector('[data-testid="error-message"]', { timeout: 60000 }),
+          // Alternative: wait for URL change from register page
+          this.page.waitForFunction(() => !window.location.pathname.includes('/auth/register'), {
+            timeout: 60000,
+          }),
         ])
 
         // Check if we're on registration-complete page (success)

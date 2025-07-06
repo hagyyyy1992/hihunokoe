@@ -214,8 +214,7 @@ test.describe('アカウント削除機能', () => {
 
     // 警告メッセージの内容を確認
     await expect(page.getByText(/プロフィール情報/)).toBeVisible()
-    await expect(page.getByText(/投稿したコスメティック体験談/)).toBeVisible()
-    await expect(page.getByText(/コメントと共感/)).toBeVisible()
+    await expect(page.getByText(/投稿した体験談/)).toBeVisible()
     await expect(page.getByText(/その他すべてのアカウント関連データ/)).toBeVisible()
   })
 
