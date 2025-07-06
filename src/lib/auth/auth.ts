@@ -124,7 +124,7 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
       const userStillExists = await prisma!.user.findUnique({
         where: { id: deletedUser.id },
       })
-      
+
       if (!userStillExists) {
         // ユーザーが存在しない場合は新規作成にフォールバック
         user = await prisma!.user.create({
@@ -353,12 +353,12 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
 
     console.log('[AUTH] User found:', user ? 'yes' : 'no')
     if (user) {
-      console.log('[AUTH] User details:', { 
-        id: user.id, 
-        email: user.email, 
+      console.log('[AUTH] User details:', {
+        id: user.id,
+        email: user.email,
         userName: user.userName,
         isActive: user.isActive,
-        deletedAt: user.deletedAt
+        deletedAt: user.deletedAt,
       })
     }
 
@@ -371,7 +371,7 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         console.log('[AUTH] User exists but not active:', {
           id: anyUser.id,
           isActive: anyUser.isActive,
-          deletedAt: anyUser.deletedAt
+          deletedAt: anyUser.deletedAt,
         })
       }
       throw new Error('ユーザーが見つかりません')
@@ -395,7 +395,7 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       id: result.id,
       deletedAt: result.deletedAt,
       isActive: result.isActive,
-      userName: result.userName
+      userName: result.userName,
     })
 
     return true

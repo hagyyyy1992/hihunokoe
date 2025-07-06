@@ -38,19 +38,19 @@ test.describe('アカウント削除機能', () => {
         // 認証が失われている場合、デバッグ情報を出力
         console.log('Authentication lost. Current URL:', currentUrl)
         console.log('User agent:', await page.evaluate(() => navigator.userAgent))
-        
+
         // クッキーの状態も確認
         const cookies = await page.context().cookies()
         const authCookie = cookies.find(c => c.name === 'auth-token')
         console.log('Auth cookie present:', !!authCookie)
-        
+
         throw new Error('User was redirected to login page - authentication required')
       }
 
       // アカウント削除ページの要素が表示されるまで待機（より長いタイムアウト）
-      await page.waitForSelector('[data-testid="continue-delete-button"]', { 
+      await page.waitForSelector('[data-testid="continue-delete-button"]', {
         timeout: 30000,
-        state: 'visible' 
+        state: 'visible',
       })
     } catch (error) {
       // エラーの場合、現在のページ状態を確認
@@ -81,10 +81,10 @@ test.describe('アカウント削除機能', () => {
     // ユーザーを登録してログイン済みの状態にする
     try {
       await registerAndLoginTestUser(page, testUser)
-      
+
       // 認証状態が完全に確立されるまで待機
       await page.waitForTimeout(1000)
-      
+
       // 認証済みであることを確認
       const cookies = await page.context().cookies()
       const authCookie = cookies.find(c => c.name === 'auth-token')
@@ -107,7 +107,7 @@ test.describe('アカウント削除機能', () => {
     // 新しいブラウザコンテキスト（ログインしていない状態）でテスト
     const newContext = await browser.newContext()
     const newPage = await newContext.newPage()
-    
+
     // アカウント削除ページにアクセス
     await newPage.goto('/account/delete', { waitUntil: 'networkidle' })
 
@@ -435,14 +435,14 @@ test.describe('アカウント削除機能', () => {
       // エラーメッセージがある場合は内容を確認
       const alertMessage = page.locator('[data-testid="alert-message"]')
       const errorMessage = page.locator('[data-testid="error-message"]')
-      
+
       let errorText = ''
       if (await alertMessage.isVisible()) {
-        errorText = await alertMessage.textContent() || ''
+        errorText = (await alertMessage.textContent()) || ''
       } else if (await errorMessage.isVisible()) {
-        errorText = await errorMessage.textContent() || ''
+        errorText = (await errorMessage.textContent()) || ''
       }
-      
+
       if (errorText) {
         console.error('再登録エラー:', errorText)
         throw new Error(`再登録に失敗しました: ${errorText}`)
@@ -520,14 +520,14 @@ test.describe('アカウント削除機能', () => {
       // エラーメッセージがある場合は内容を確認
       const alertMessage = page.locator('[data-testid="alert-message"]')
       const errorMessage = page.locator('[data-testid="error-message"]')
-      
+
       let errorText = ''
       if (await alertMessage.isVisible()) {
-        errorText = await alertMessage.textContent() || ''
+        errorText = (await alertMessage.textContent()) || ''
       } else if (await errorMessage.isVisible()) {
-        errorText = await errorMessage.textContent() || ''
+        errorText = (await errorMessage.textContent()) || ''
       }
-      
+
       if (errorText) {
         console.error('再登録エラー:', errorText)
         throw new Error(`再登録に失敗しました: ${errorText}`)

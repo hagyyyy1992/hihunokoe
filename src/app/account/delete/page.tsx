@@ -36,7 +36,7 @@ export default function DeleteAccountPage() {
           router.replace('/auth/login')
         }
       }, 500)
-      
+
       return () => clearTimeout(checkTimeout)
     }
   }, [user, loading, router])

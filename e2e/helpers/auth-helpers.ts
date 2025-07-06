@@ -105,7 +105,7 @@ export async function registerAndLoginTestUser(
       throw new Error('Authentication verification failed - redirected back to login')
     }
   }
-  
+
   // 追加の認証確認：クッキーの存在を確認
   const cookies = await page.context().cookies()
   const authCookie = cookies.find(c => c.name === 'auth-token')
@@ -113,7 +113,7 @@ export async function registerAndLoginTestUser(
     console.error('Auth cookie not found after login')
     throw new Error('Authentication cookie not set after login')
   }
-  
+
   // 認証状態が安定するまで少し待機
   await page.waitForTimeout(1000)
 }
