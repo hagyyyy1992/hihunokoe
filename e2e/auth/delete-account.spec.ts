@@ -103,7 +103,7 @@ test.describe('アカウント削除機能', () => {
         }
         await page.waitForTimeout(1000)
       }
-      
+
       if (!authVerified) {
         throw new Error('Auth cookie not found after registration and login')
       }
