@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run codegen && next dev --turbopack",
-    "build": "prisma generate && prisma migrate deploy && next build",
-    "build:ci": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && npm run codegen && next build",
+    "build:ci": "prisma generate && npm run codegen && next build",
     "start": "next start",
     "test": "jest",
     "test:watch": "jest --watch",
