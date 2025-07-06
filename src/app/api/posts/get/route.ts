@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS } from '@/lib/mock-data'
+import { verifyToken } from '@/lib/auth/auth'
 
 // GET: 投稿の取得 (query parameter使用)
 export async function GET(request: NextRequest) {
@@ -8,6 +9,14 @@ export async function GET(request: NextRequest) {
     // クエリパラメータからIDを取得
     const url = new URL(request.url)
     const postId = url.searchParams.get('id')
+
+    // 認証チェック（オプショナル）
+    let isAuthenticated = false
+    const token = request.cookies.get('auth-token')?.value
+    if (token) {
+      const user = verifyToken(token)
+      isAuthenticated = !!user
+    }
 
     if (!postId) {
       return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
@@ -28,9 +37,17 @@ export async function GET(request: NextRequest) {
       }
 
       // 閲覧数を増加（モックなので実際には増加しない）
-      const postWithIncrementedViews = {
+      let postWithIncrementedViews = {
         ...post,
         viewCount: post.viewCount + 1,
+      }
+
+      // 非認証ユーザーの場合、詳細情報を除外
+      if (!isAuthenticated) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { usageSituation, experienceDetails, ...postWithoutDetails } =
+          postWithIncrementedViews
+        return NextResponse.json({ post: postWithoutDetails })
       }
 
       return NextResponse.json({ post: postWithIncrementedViews })
@@ -47,51 +64,6 @@ export async function GET(request: NextRequest) {
             id: true,
             userName: true,
             skinType: true,
-          },
-        },
-        empathies: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                userName: true,
-              },
-            },
-          },
-        },
-        comments: {
-          where: {
-            isActive: true,
-            parentCommentId: null, // トップレベルコメントのみ
-          },
-          include: {
-            user: {
-              select: {
-                id: true,
-                userName: true,
-                skinType: true,
-              },
-            },
-            replies: {
-              where: {
-                isActive: true,
-              },
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    userName: true,
-                    skinType: true,
-                  },
-                },
-              },
-              orderBy: {
-                createdAt: 'asc',
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'desc',
           },
         },
         _count: {
@@ -117,7 +89,18 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ post })
+    // empathiesとcommentsを除外してレスポンスを返す
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    const { empathies, comments, ...postWithoutSensitiveData } = post as any
+
+    // 非認証ユーザーの場合、詳細情報を除外
+    if (!isAuthenticated) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { usageSituation, experienceDetails, ...postWithoutDetails } = postWithoutSensitiveData
+      return NextResponse.json({ post: postWithoutDetails })
+    }
+
+    return NextResponse.json({ post: postWithoutSensitiveData })
   } catch (error) {
     console.error('Post fetch error:', error)
     return NextResponse.json({ error: '投稿の取得に失敗しました' }, { status: 500 })

@@ -63,34 +63,6 @@ interface Post {
     userName: string
     skinType?: string
   }
-  empathies: Array<{
-    id: string
-    empathyType: string
-    user: {
-      id: string
-      userName: string
-    }
-  }>
-  comments: Array<{
-    id: string
-    content: string
-    createdAt: string
-    user: {
-      id: string
-      userName: string
-      skinType?: string
-    }
-    replies: Array<{
-      id: string
-      content: string
-      createdAt: string
-      user: {
-        id: string
-        userName: string
-        skinType?: string
-      }
-    }>
-  }>
   _count: {
     empathies: number
     comments: number
@@ -174,6 +146,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [empathyState, setEmpathyState] = useState<{
     hasEmpathized: boolean
     empathyType?: EmpathyType
@@ -184,7 +157,6 @@ export default function PostDetailPage() {
     totalCount: 0,
     isLoading: false,
   })
-  console.log('empathyState', empathyState)
 
   const fetchPost = useCallback(async () => {
     try {
@@ -347,101 +319,125 @@ export default function PostDetailPage() {
           </div>
 
           {/* 詳細情報 */}
-          {(post.usageSituation || post.experienceDetails) && (
+          {/* 非ログイン時は詳細情報自体が存在しないことを表示 */}
+          {!user && (
+            <div className="border-t pt-6 mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
+              <div className="bg-gray-50 rounded-lg p-6 text-center">
+                <p className="text-gray-700 mb-4">
+                  詳細情報を見るには
+                  <br />
+                  ログインが必要です
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-block px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  ログイン
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* ログイン時のみ詳細情報を表示 */}
+          {user && (post.usageSituation || post.experienceDetails) && (
             <div className="border-t pt-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
 
-              {/* 使用状況 */}
-              {post.usageSituation && Object.keys(post.usageSituation).length > 0 && (
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                    {post.usageSituation.season && (
-                      <div>
-                        <span className="text-gray-500">季節:</span>
-                        <span className="ml-2 text-gray-900">
-                          {seasonLabels[post.usageSituation.season] || post.usageSituation.season}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.timeOfDay && (
-                      <div>
-                        <span className="text-gray-500">時間帯:</span>
-                        <span className="ml-2 text-gray-900">
-                          {timeOfDayLabels[post.usageSituation.timeOfDay] ||
-                            post.usageSituation.timeOfDay}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.skinCondition && (
-                      <div>
-                        <span className="text-gray-500">肌状態:</span>
-                        <span className="ml-2 text-gray-900">
-                          {skinConditionLabels[post.usageSituation.skinCondition] ||
-                            post.usageSituation.skinCondition}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.menstrualCycle && (
-                      <div>
-                        <span className="text-gray-500">生理周期:</span>
-                        <span className="ml-2 text-gray-900">
-                          {menstrualCycleLabels[post.usageSituation.menstrualCycle] ||
-                            post.usageSituation.menstrualCycle}
-                        </span>
-                      </div>
-                    )}
+              {/* ログイン時の通常表示 */}
+              <>
+                {/* 使用状況 */}
+                {post.usageSituation && Object.keys(post.usageSituation).length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      {post.usageSituation.season && (
+                        <div>
+                          <span className="text-gray-500">季節:</span>
+                          <span className="ml-2 text-gray-900">
+                            {seasonLabels[post.usageSituation.season] || post.usageSituation.season}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.timeOfDay && (
+                        <div>
+                          <span className="text-gray-500">時間帯:</span>
+                          <span className="ml-2 text-gray-900">
+                            {timeOfDayLabels[post.usageSituation.timeOfDay] ||
+                              post.usageSituation.timeOfDay}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.skinCondition && (
+                        <div>
+                          <span className="text-gray-500">肌状態:</span>
+                          <span className="ml-2 text-gray-900">
+                            {skinConditionLabels[post.usageSituation.skinCondition] ||
+                              post.usageSituation.skinCondition}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.menstrualCycle && (
+                        <div>
+                          <span className="text-gray-500">生理周期:</span>
+                          <span className="ml-2 text-gray-900">
+                            {menstrualCycleLabels[post.usageSituation.menstrualCycle] ||
+                              post.usageSituation.menstrualCycle}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* 体験詳細 */}
-              {post.experienceDetails && Object.keys(post.experienceDetails).length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
-                  <div className="space-y-4 text-sm">
-                    {post.experienceDetails.fragrance && (
-                      <div>
-                        <span className="text-gray-500">香り:</span>
-                        <span className="ml-2 text-gray-900">
-                          {fragranceTypeLabels[post.experienceDetails.fragrance.type || ''] ||
-                            post.experienceDetails.fragrance.type}
-                          {post.experienceDetails.fragrance.intensity &&
-                            ` (${fragranceIntensityLabels[post.experienceDetails.fragrance.intensity] || post.experienceDetails.fragrance.intensity})`}
-                        </span>
-                      </div>
-                    )}
-                    {post.experienceDetails.texture && (
-                      <div>
-                        <span className="text-gray-500">テクスチャ:</span>
-                        <span className="ml-2 text-gray-900">
-                          {textureTypeLabels[post.experienceDetails.texture.type || ''] ||
-                            post.experienceDetails.texture.type}
-                          {post.experienceDetails.texture.spreadability &&
-                            ` / ${spreadabilityLabels[post.experienceDetails.texture.spreadability] || post.experienceDetails.texture.spreadability}`}
-                          {post.experienceDetails.texture.absorption &&
-                            ` / 浸透: ${absorptionLabels[post.experienceDetails.texture.absorption] || post.experienceDetails.texture.absorption}`}
-                        </span>
-                      </div>
-                    )}
-                    {post.experienceDetails.afterUse && (
-                      <div>
-                        <span className="text-gray-500">使用後:</span>
-                        <span className="ml-2 text-gray-900">
-                          {post.experienceDetails.afterUse.moisture &&
-                            `うるおい感: ${moistureLabels[post.experienceDetails.afterUse.moisture] || post.experienceDetails.afterUse.moisture}`}
-                          {post.experienceDetails.afterUse.texture &&
-                            ` / 手触り: ${textureAfterUseLabels[post.experienceDetails.afterUse.texture] || post.experienceDetails.afterUse.texture}`}
-                          {post.experienceDetails.afterUse.comfort &&
-                            ` / ${comfortLabels[post.experienceDetails.afterUse.comfort] || post.experienceDetails.afterUse.comfort}`}
-                          {post.experienceDetails.afterUse.duration &&
-                            ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
-                        </span>
-                      </div>
-                    )}
+                {/* 体験詳細 */}
+                {post.experienceDetails && Object.keys(post.experienceDetails).length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
+                    <div className="space-y-4 text-sm">
+                      {post.experienceDetails.fragrance && (
+                        <div>
+                          <span className="text-gray-500">香り:</span>
+                          <span className="ml-2 text-gray-900">
+                            {fragranceTypeLabels[post.experienceDetails.fragrance.type || ''] ||
+                              post.experienceDetails.fragrance.type}
+                            {post.experienceDetails.fragrance.intensity &&
+                              ` (${fragranceIntensityLabels[post.experienceDetails.fragrance.intensity] || post.experienceDetails.fragrance.intensity})`}
+                          </span>
+                        </div>
+                      )}
+                      {post.experienceDetails.texture && (
+                        <div>
+                          <span className="text-gray-500">テクスチャ:</span>
+                          <span className="ml-2 text-gray-900">
+                            {textureTypeLabels[post.experienceDetails.texture.type || ''] ||
+                              post.experienceDetails.texture.type}
+                            {post.experienceDetails.texture.spreadability &&
+                              ` / ${spreadabilityLabels[post.experienceDetails.texture.spreadability] || post.experienceDetails.texture.spreadability}`}
+                            {post.experienceDetails.texture.absorption &&
+                              ` / 浸透: ${absorptionLabels[post.experienceDetails.texture.absorption] || post.experienceDetails.texture.absorption}`}
+                          </span>
+                        </div>
+                      )}
+                      {post.experienceDetails.afterUse && (
+                        <div>
+                          <span className="text-gray-500">使用後:</span>
+                          <span className="ml-2 text-gray-900">
+                            {post.experienceDetails.afterUse.moisture &&
+                              `うるおい感: ${moistureLabels[post.experienceDetails.afterUse.moisture] || post.experienceDetails.afterUse.moisture}`}
+                            {post.experienceDetails.afterUse.texture &&
+                              ` / 手触り: ${textureAfterUseLabels[post.experienceDetails.afterUse.texture] || post.experienceDetails.afterUse.texture}`}
+                            {post.experienceDetails.afterUse.comfort &&
+                              ` / ${comfortLabels[post.experienceDetails.afterUse.comfort] || post.experienceDetails.afterUse.comfort}`}
+                            {post.experienceDetails.afterUse.duration &&
+                              ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </>
             </div>
           )}
 
