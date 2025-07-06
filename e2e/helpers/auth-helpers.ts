@@ -97,7 +97,7 @@ export async function registerAndLoginTestUser(
   // Verify we're logged in (リトライロジック付き)
   let verificationSuccess = false
   let retryCount = 0
-  const maxRetries = 3
+  const maxRetries = 5 // リトライ回数を増やす
 
   while (!verificationSuccess && retryCount < maxRetries) {
     const currentUrl = page.url()
@@ -154,8 +154,8 @@ export async function registerAndLoginTestUser(
 
     if (!authCookie) {
       retryCount++
-      console.log(`Auth cookie not found, attempt ${retryCount}/3`)
-      await page.waitForTimeout(isWebKit ? 2000 : 1000)
+      console.log(`Auth cookie not found, attempt ${retryCount}/5`)
+      await page.waitForTimeout(isWebKit ? 3000 : 2000) // 待機時間も少し増やす
     }
   }
 

@@ -104,8 +104,20 @@ test.describe('アカウント削除機能', () => {
     }
   })
 
-  test.afterEach(async () => {
-    await cleanupTestUser(testUser.email)
+  test.afterEach(async ({ page }) => {
+    // テスト後のクリーンアップを強化
+    try {
+      // セッションクッキーを削除
+      await page.context().clearCookies()
+
+      // テストユーザーをクリーンアップ
+      await cleanupTestUser(testUser.email)
+
+      // 少し待機してデータベースの状態を安定させる
+      await page.waitForTimeout(500)
+    } catch (error) {
+      console.error('Cleanup error:', error)
+    }
   })
 
   test('ログインしていないユーザーはアカウント削除ページにアクセスできない', async ({
