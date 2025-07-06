@@ -24,8 +24,6 @@ const GENDER_OPTIONS = [
   { value: '', label: '選択してください' },
   { value: 'male', label: '男性' },
   { value: 'female', label: '女性' },
-  { value: 'non_binary', label: 'ノンバイナリー' },
-  { value: 'prefer_not_to_say', label: '回答しない' },
   { value: 'other', label: 'その他' },
 ] as const
 

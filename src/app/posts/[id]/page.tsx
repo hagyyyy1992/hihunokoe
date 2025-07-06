@@ -9,6 +9,16 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_POST, ADD_EMPATHY, REMOVE_EMPATHY } from '@/graphql/queries/post'
 import { EmpathyType } from '@/types'
+import {
+  fragranceTypeLabels,
+  fragranceIntensityLabels,
+  textureTypeLabels,
+  spreadabilityLabels,
+  absorptionLabels,
+  moistureLabels,
+  textureAfterUseLabels,
+  comfortLabels,
+} from '@/lib/constants'
 
 interface PostData {
   post: {
@@ -326,9 +336,10 @@ export default function PostDetailPage() {
                       <div>
                         <span className="text-gray-500">香り:</span>
                         <span className="ml-2 text-gray-900">
-                          {post.experienceDetails.fragrance.type}
+                          {fragranceTypeLabels[post.experienceDetails.fragrance.type || ''] ||
+                            post.experienceDetails.fragrance.type}
                           {post.experienceDetails.fragrance.intensity &&
-                            ` (${post.experienceDetails.fragrance.intensity})`}
+                            ` (${fragranceIntensityLabels[post.experienceDetails.fragrance.intensity] || post.experienceDetails.fragrance.intensity})`}
                         </span>
                       </div>
                     )}
@@ -336,9 +347,12 @@ export default function PostDetailPage() {
                       <div>
                         <span className="text-gray-500">テクスチャ:</span>
                         <span className="ml-2 text-gray-900">
-                          {post.experienceDetails.texture.type}
+                          {textureTypeLabels[post.experienceDetails.texture.type || ''] ||
+                            post.experienceDetails.texture.type}
                           {post.experienceDetails.texture.spreadability &&
-                            ` / ${post.experienceDetails.texture.spreadability}`}
+                            ` / ${spreadabilityLabels[post.experienceDetails.texture.spreadability] || post.experienceDetails.texture.spreadability}`}
+                          {post.experienceDetails.texture.absorption &&
+                            ` / 浸透: ${absorptionLabels[post.experienceDetails.texture.absorption] || post.experienceDetails.texture.absorption}`}
                         </span>
                       </div>
                     )}
@@ -346,9 +360,12 @@ export default function PostDetailPage() {
                       <div>
                         <span className="text-gray-500">使用後:</span>
                         <span className="ml-2 text-gray-900">
-                          うるおい感 {post.experienceDetails.afterUse.moisture}
+                          {post.experienceDetails.afterUse.moisture &&
+                            `うるおい感: ${moistureLabels[post.experienceDetails.afterUse.moisture] || post.experienceDetails.afterUse.moisture}`}
+                          {post.experienceDetails.afterUse.texture &&
+                            ` / 手触り: ${textureAfterUseLabels[post.experienceDetails.afterUse.texture] || post.experienceDetails.afterUse.texture}`}
                           {post.experienceDetails.afterUse.comfort &&
-                            ` / ${post.experienceDetails.afterUse.comfort}`}
+                            ` / ${comfortLabels[post.experienceDetails.afterUse.comfort] || post.experienceDetails.afterUse.comfort}`}
                           {post.experienceDetails.afterUse.duration &&
                             ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
                         </span>
