@@ -91,7 +91,7 @@ npm run dev
 ```bash
 # 本番環境のみ設定
 RESEND_API_KEY="your_resend_api_key"
-FROM_EMAIL="noreply@yourdomain.com"  # オプション（デフォルト値あり）
+FROM_EMAIL="noreply@hihunokoe.com"  # オプション（デフォルト値あり）
 NEXT_PUBLIC_BASE_URL="https://yourdomain.com"  # オプション（メール認証リンク用）
 ```
 
