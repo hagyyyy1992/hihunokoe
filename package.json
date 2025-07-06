@@ -40,6 +40,7 @@
     "@apollo/client": "^3.13.8",
     "@apollo/experimental-nextjs-app-support": "^0.12.2",
     "@apollo/server": "^4.12.2",
+    "@apollo/server-plugin-landing-page-graphql-playground": "^4.0.1",
     "@as-integrations/next": "^3.2.0",
     "@prisma/client": "^6.11.0",
     "@supabase/auth-ui-react": "^0.4.7",
