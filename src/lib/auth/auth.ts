@@ -10,7 +10,7 @@ export interface AuthUser {
   id: string
   userName: string
   email: string
-  role?: UserRole
+  role?: UserRole | null
   birthDate?: Date | null
   gender?: Gender | null
   skinType?: SkinType | null
@@ -355,7 +355,7 @@ export async function logAdminAction(
   try {
     await prisma!.adminLog.create({
       data: {
-        userId,
+        adminUserId: userId,
         action,
         target,
         details: details ? JSON.parse(JSON.stringify(details)) : null,
