@@ -59,7 +59,12 @@ export async function POST(request: NextRequest) {
             stack: emailError instanceof Error ? emailError.stack : undefined,
             userId: user.id,
             email: user.email,
+            fromEmail: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+            hasResendKey: !!process.env.RESEND_API_KEY,
+            nodeEnv: process.env.NODE_ENV,
+            vercelEnv: process.env.VERCEL_ENV,
           })
+          // エラーが発生してもユーザーには成功メッセージを返す（セキュリティのため）
         }
       }
     } else {
