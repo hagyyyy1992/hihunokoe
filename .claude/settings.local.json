@@ -56,9 +56,7 @@
       "Bash(docker rm:*)",
       "Bash(docker stop:*)",
       "Bash(npx prettier:*)",
-      "Bash(npx next lint:*)",
-      "Bash(PORT=3001 npm run test:e2e -- --project=chromium --reporter=list)",
-      "Bash(PORT=3001 npm run test:e2e -- e2e/auth/delete-account.spec.ts --grep \"アカウント削除後に同じアカウントでログインできないことを確認\" --project=chromium)"
+      "Bash(npx next lint:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
