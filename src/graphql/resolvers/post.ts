@@ -228,8 +228,8 @@ export const postResolvers = {
       }
 
       // Prepare update data
-      const updateData: any = {}
-      
+      const updateData: Record<string, unknown> = {}
+
       // Copy non-JSON fields
       if (input.title !== undefined) updateData.title = input.title
       if (input.content !== undefined) updateData.content = input.content
@@ -237,7 +237,7 @@ export const postResolvers = {
       if (input.cosmeticCategory !== undefined) updateData.cosmeticCategory = input.cosmeticCategory
       if (input.skinType !== undefined) updateData.skinType = input.skinType
       if (input.moodTag !== undefined) updateData.moodTag = input.moodTag
-      
+
       // Handle JSON fields
       if (input.usageSituation !== undefined) {
         updateData.usageSituation = input.usageSituation || Prisma.JsonNull
