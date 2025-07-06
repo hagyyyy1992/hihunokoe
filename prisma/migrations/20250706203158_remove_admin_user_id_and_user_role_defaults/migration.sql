@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "admin_users" ALTER COLUMN "id" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "users" ALTER COLUMN "role" DROP NOT NULL,
+ALTER COLUMN "role" DROP DEFAULT;
