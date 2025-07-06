@@ -64,7 +64,7 @@ Value: feedback-smtp.us-east-1.amazonses.com
 RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 # 送信元メールアドレス（ドメインと一致させる）
-FROM_EMAIL="noreply@yourdomain.com"
+FROM_EMAIL="noreply@hihunokoe.com"
 ```
 
 **重要**: `FROM_EMAIL`は、Resendで認証したドメインと一致している必要があります。
