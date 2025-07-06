@@ -90,7 +90,7 @@ export default function DeleteAccountPage() {
             アカウント削除
           </CardTitle>
           <CardDescription>
-            この操作は取り消すことができません。アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます。
+            この操作は取り消すことができません。アカウントを削除すると、すべての投稿が永久に削除されます。
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
