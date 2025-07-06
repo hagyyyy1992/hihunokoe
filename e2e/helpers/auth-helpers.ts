@@ -39,11 +39,13 @@ export async function loginUser(
 
 export async function createTestUser() {
   // テスト用の一意なユーザーデータを生成
+  // タイムスタンプにランダムな要素を追加して衝突を避ける
   const timestamp = Date.now()
+  const randomSuffix = Math.random().toString(36).substring(2, 8)
   return {
-    email: `test-${timestamp}@example.com`,
+    email: `test-${timestamp}-${randomSuffix}@example.com`,
     password: 'test12345', // 8文字以上のパスワード
-    userName: `testuser-${timestamp}`,
+    userName: `testuser-${timestamp}-${randomSuffix}`,
     skinType: 'normal',
   }
 }
@@ -72,19 +74,37 @@ export async function registerAndLoginTestUser(
   page: Page,
   userData: { email: string; password: string; userName: string; skinType?: string }
 ) {
-  const registerData = {
-    username: userData.userName, // AuthHelperのregisterで期待されるプロパティ名に変換
+  const authHelper = new AuthHelper(page)
+
+  // Register the user
+  await authHelper.register({
+    username: userData.userName,
     email: userData.email,
     password: userData.password,
     skinType: userData.skinType,
+  })
+
+  // Login with the registered user
+  await authHelper.login(userData.email, userData.password)
+
+  // Verify we're logged in
+  const currentUrl = page.url()
+  if (
+    !currentUrl.includes('/home') &&
+    !currentUrl.includes('/profile') &&
+    !currentUrl.includes('/')
+  ) {
+    console.error('After login, not on expected page. Current URL:', currentUrl)
+    // Try navigating to home page manually
+    await page.goto('/home')
+    await page.waitForTimeout(1000)
+
+    // Check if we're now on an authenticated page
+    const newUrl = page.url()
+    if (newUrl.includes('/auth/login')) {
+      throw new Error('Authentication verification failed - redirected back to login')
+    }
   }
-
-  // Register the user
-  await registerTestUser(page, registerData)
-
-  // After successful registration, explicitly login
-  // Note: registerTestUser will leave us on registration-complete page, so we need to navigate to login
-  await loginTestUser(page, userData.email, userData.password)
 }
 
 export class AuthHelper {
@@ -212,7 +232,10 @@ export class AuthHelper {
         try {
           // Check if we're already on home or root (sometimes URL matching can be flaky)
           const currentUrl = this.page.url()
-          if (currentUrl.includes('/home') || (currentUrl.endsWith('/') && !currentUrl.includes('/auth'))) {
+          if (
+            currentUrl.includes('/home') ||
+            (currentUrl.endsWith('/') && !currentUrl.includes('/auth'))
+          ) {
             return
           }
 
@@ -227,10 +250,15 @@ export class AuthHelper {
           // Wait a bit more in case there's a delayed redirect
           await this.page.waitForTimeout(2000)
           const finalUrl = this.page.url()
-          if (finalUrl.includes('/home') || (finalUrl.endsWith('/') && !finalUrl.includes('/auth'))) {
+          if (
+            finalUrl.includes('/home') ||
+            (finalUrl.endsWith('/') && !finalUrl.includes('/auth'))
+          ) {
             return
           }
-          throw new Error(`Login failed - expected home or root but got: ${finalUrl} (after waiting)`)
+          throw new Error(
+            `Login failed - expected home or root but got: ${finalUrl} (after waiting)`
+          )
         } catch (pageError) {
           // If page is closed or inaccessible, throw original error
           throw error

@@ -104,19 +104,6 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     throw new Error('ユーザー名またはメールアドレスが既に使用されています')
   }
 
-  // 論理削除されたユーザー名が存在するかチェック
-  const deletedUserWithSameName = await prisma!.user.findFirst({
-    where: {
-      userName: data.userName,
-      isActive: false,
-      deletedAt: { not: null },
-    },
-  })
-
-  if (deletedUserWithSameName) {
-    throw new Error('このユーザー名は使用できません')
-  }
-
   // 論理削除されたユーザーが存在するかチェック（メールアドレスのみで検索）
   const deletedUser = await prisma!.user.findFirst({
     where: {
@@ -346,11 +333,16 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     }
 
     // 論理削除を実行（deletedAtに現在時刻を設定）
+    // ユーザー名を変更して、同じユーザー名での再登録を可能にする
+    const deletedAt = new Date()
+    const deletedTimestamp = deletedAt.getTime()
     const result = await prisma!.user.update({
       where: { id },
       data: {
-        deletedAt: new Date(),
+        deletedAt: deletedAt,
         isActive: false,
+        // ユーザー名に削除タイムスタンプを付加してユニーク制約を回避
+        userName: `${user.userName}_deleted_${deletedTimestamp}`,
       },
     })
 

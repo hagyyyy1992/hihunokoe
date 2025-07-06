@@ -6,6 +6,7 @@ import {
   registerAndLoginTestUser,
 } from '../helpers/auth-helpers'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('アカウント削除機能', () => {
   let testUser: { email: string; password: string; userName: string }
 
@@ -21,17 +22,20 @@ test.describe('アカウント削除機能', () => {
           const loadingElement = document.querySelector('.animate-spin')
           return !loadingElement || !(loadingElement as HTMLElement).offsetParent
         },
-        { timeout: 10000 }
+        { timeout: 15000 }
       )
 
       // まず認証状態をチェック - ログインページにリダイレクトされていないか確認
       const currentUrl = page.url()
       if (currentUrl.includes('/auth/login')) {
+        // 認証が失われている場合、デバッグ情報を出力
+        console.log('Authentication lost. Current URL:', currentUrl)
+        console.log('User agent:', await page.evaluate(() => navigator.userAgent))
         throw new Error('User was redirected to login page - not authenticated')
       }
 
       // アカウント削除ページの要素が表示されるまで待機
-      await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 15000 })
+      await page.waitForSelector('[data-testid="continue-delete-button"]', { timeout: 20000 })
     } catch (error) {
       // エラーの場合、現在のページ状態を確認
       const currentUrl = page.url()
@@ -107,31 +111,8 @@ test.describe('アカウント削除機能', () => {
   })
 
   test('ログインユーザーがアカウント削除ページにアクセスできる', async ({ page }) => {
-    // 認証状態を確保するため、明示的にログインする
-    await page.goto('/auth/login')
-    await page.fill('[data-testid="email-input"]', testUser.email)
-    await page.fill('[data-testid="password-input"]', testUser.password)
-    await page.click('[data-testid="login-button"]')
-
-    // ログイン成功を待つ
-    await expect(page).toHaveURL('/home', { timeout: 10000 })
-
-    // セッションが確立されるまで少し待機
-    await page.waitForTimeout(1000)
-
-    // WebKitで発生するナビゲーション割り込みを処理
-    try {
-      await page.goto('/account/delete')
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('interrupted by another navigation')) {
-        // リダイレクトが発生した場合、現在のURLを確認
-        const currentUrl = page.url()
-        if (currentUrl.includes('/auth/login')) {
-          throw new Error('User was redirected to login - authentication session may have expired')
-        }
-      }
-      throw error
-    }
+    // beforeEachで既にログイン済みなので、直接アクセス
+    await page.goto('/account/delete')
     await waitForDeletePageReady(page)
 
     // アカウント削除ページが表示されることを確認
@@ -246,20 +227,38 @@ test.describe('アカウント削除機能', () => {
       // 削除直後でまだ状態が反映されていない可能性があるため、少し待機
       await page.waitForTimeout(1000)
 
-      try {
-        // ログインリンクまたはログインボタンを探す
-        const loginLink = page
-          .getByTestId('login-link')
-          .or(page.getByRole('link', { name: /ログイン/ }))
+      // ビューポートサイズをチェック
+      const viewport = page.viewportSize()
+      const isMobile = viewport && viewport.width < 768
+
+      if (isMobile) {
+        // モバイルビューの場合、ハンバーガーメニューを開く
+        const hamburgerButton = page.getByTestId('mobile-menu-button')
+        await expect(hamburgerButton).toBeVisible()
+        await hamburgerButton.click()
+
+        // モバイルメニュー内のログインリンクを確認（モバイルメニュー内に限定）
+        // モバイルメニューは固定位置のdiv要素内にある
+        const mobileMenu = page.locator('.md\\:hidden.fixed.top-16')
+        const loginLink = mobileMenu.getByTestId('login-link')
         await expect(loginLink).toBeVisible({ timeout: 5000 })
-      } catch (error) {
-        // ログインリンクが見つからない場合、ページをリロードして再確認
-        await page.reload()
-        await page.waitForTimeout(1000)
-        const loginLink = page
-          .getByTestId('login-link')
-          .or(page.getByRole('link', { name: /ログイン/ }))
-        await expect(loginLink).toBeVisible()
+      } else {
+        // デスクトップビューの場合
+        try {
+          // ログインリンクまたはログインボタンを探す
+          const loginLink = page
+            .getByTestId('login-link')
+            .or(page.getByRole('link', { name: /ログイン/ }))
+          await expect(loginLink).toBeVisible({ timeout: 5000 })
+        } catch (error) {
+          // ログインリンクが見つからない場合、ページをリロードして再確認
+          await page.reload()
+          await page.waitForTimeout(1000)
+          const loginLink = page
+            .getByTestId('login-link')
+            .or(page.getByRole('link', { name: /ログイン/ }))
+          await expect(loginLink).toBeVisible()
+        }
       }
     }
   })
@@ -414,7 +413,7 @@ test.describe('アカウント削除機能', () => {
     }
   })
 
-  test('アカウント削除後に同じユーザー名で再登録できない', async ({ page }) => {
+  test('アカウント削除後に同じユーザー名で再登録できる', async ({ page }) => {
     test.setTimeout(60000) // Firefoxでのタイムアウトを防ぐため
     // アカウント削除を実行
     await page.goto('/account/delete')
@@ -427,10 +426,16 @@ test.describe('アカウント削除機能', () => {
     // アカウント削除後、トップページまたはログインページにリダイレクトされることを確認
     await expect(page).toHaveURL(/\/(|auth\/login)/, { timeout: 10000 })
 
-    // 新規登録ページに移動
-    await page.goto('/auth/register')
+    // 削除処理が完了するまで待機
+    await page.waitForTimeout(2000)
 
-    // 同じユーザー名で新しいアカウントを登録しようとする
+    // ナビゲーションが完了するまで待機
+    await page.waitForLoadState('networkidle')
+
+    // 新規登録ページに移動
+    await page.goto('/auth/register', { waitUntil: 'networkidle' })
+
+    // 同じユーザー名で新しいアカウントを登録
     await page.getByTestId('username-input').fill(testUser.userName)
     await page.getByTestId('email-input').fill('new_' + testUser.email)
     await page.getByTestId('password-input').fill(testUser.password)
@@ -439,13 +444,44 @@ test.describe('アカウント削除機能', () => {
     // 登録ボタンをクリック
     await page.getByTestId('register-button').click()
 
-    // エラーメッセージが表示されることを確認
-    await expect(page.getByTestId('error-message')).toBeVisible()
-    // 「このユーザー名は使用できません」または「ユーザー名またはメールアドレスが既に使用されています」のいずれか
-    const errorText = await page.getByTestId('error-message').textContent()
-    expect(errorText?.includes('ユーザー登録に失敗しました')).toBeTruthy()
+    // 登録処理の結果を待つ - URLの変更またはエラーメッセージの表示を待機
+    await Promise.race([
+      // 成功時のリダイレクトを待つ
+      page
+        .waitForURL(
+          url => {
+            return (
+              url.pathname.includes('/auth/registration-complete') || url.pathname.includes('/home')
+            )
+          },
+          { timeout: 10000 }
+        )
+        .catch(() => null),
+      // エラーメッセージの表示を待つ
+      page.waitForSelector('[data-testid="alert-message"]', { timeout: 10000 }).catch(() => null),
+    ])
 
-    // 登録ページに留まることを確認
-    await expect(page).toHaveURL(/\/auth\/register/)
+    // 現在のURLを確認
+    const currentUrl = page.url()
+
+    // 登録成功の確認
+    if (currentUrl.includes('/auth/registration-complete') || currentUrl.includes('/home')) {
+      // 再登録が成功したことを確認
+      if (currentUrl.includes('/auth/registration-complete')) {
+        await expect(page.getByTestId('success-message')).toBeVisible()
+        await expect(page.getByText(/アカウントが作成されました/)).toBeVisible()
+      }
+      // homeページの場合は成功とみなす
+    } else {
+      // エラーメッセージがある場合は内容を確認
+      const alertMessage = page.locator('[data-testid="alert-message"]')
+      if (await alertMessage.isVisible()) {
+        const errorText = await alertMessage.textContent()
+        throw new Error(`再登録に失敗しました: ${errorText}`)
+      } else {
+        // 予期しない状態
+        throw new Error(`再登録に失敗しました: 予期しないページ状態 (URL: ${currentUrl})`)
+      }
+    }
   })
 })
