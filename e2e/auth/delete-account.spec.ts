@@ -66,7 +66,7 @@ test.describe('アカウント削除機能', () => {
     }
   }
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
     // 各テストで新しいユーザーを作成
     testUser = await createTestUser()
 
@@ -76,6 +76,11 @@ test.describe('アカウント削除機能', () => {
     } catch (error) {
       // クリーンアップエラーは無視（ユーザーが存在しない場合など）
       console.log('Cleanup error (ignored):', error)
+    }
+
+    // ログインしていない状態をテストする場合はスキップ
+    if (testInfo.title.includes('ログインしていないユーザーはアカウント削除ページにアクセスできない')) {
+      return
     }
 
     // ユーザーを登録してログイン済みの状態にする
@@ -108,21 +113,36 @@ test.describe('アカウント削除機能', () => {
     const newContext = await browser.newContext()
     const newPage = await newContext.newPage()
 
-    // アカウント削除ページにアクセス
-    await newPage.goto('/account/delete', { waitUntil: 'networkidle' })
+    // アカウント削除ページにアクセス（タイムアウトを長めに設定）
+    try {
+      await newPage.goto('/account/delete', { waitUntil: 'load', timeout: 15000 })
+    } catch (error) {
+      // ネットワークエラーの場合でも、リダイレクトされていれば成功とみなす
+      const currentUrl = newPage.url()
+      if (!currentUrl.includes('/auth/login')) {
+        throw error
+      }
+    }
 
     // AuthContextの初期化とリダイレクトを待つ
-    await newPage.waitForTimeout(2000)
+    await newPage.waitForTimeout(3000)
 
     // 現在のURLを確認
     const currentUrl = newPage.url()
     console.log('Unauthenticated access - Current URL:', currentUrl)
 
     // ログインページにリダイレクトされることを確認
-    // 直接的なリダイレクトまたはクライアントサイドのリダイレクトの両方に対応
     if (!currentUrl.includes('/auth/login')) {
       // クライアントサイドのリダイレクトを待つ
-      await newPage.waitForURL('**/auth/login', { timeout: 10000 })
+      try {
+        await newPage.waitForURL('**/auth/login', { timeout: 10000 })
+      } catch (error) {
+        // URLが変わらない場合は、現在のURLを再確認
+        const finalUrl = newPage.url()
+        if (!finalUrl.includes('/auth/login')) {
+          throw new Error(`Expected redirect to login page, but got: ${finalUrl}`)
+        }
+      }
     }
 
     // 最終的にログインページにいることを確認
