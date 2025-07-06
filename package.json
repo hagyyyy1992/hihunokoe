@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "node scripts/build-production.js",
-    "build:strict": "prisma generate && prisma migrate deploy && next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "build:ci": "prisma generate && next build",
     "start": "next start",
     "test": "jest",
