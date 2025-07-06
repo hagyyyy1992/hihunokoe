@@ -231,8 +231,18 @@ export const postResolvers = {
         where: { id },
         data: {
           ...input,
-          usageSituation: input.usageSituation !== undefined ? (input.usageSituation || Prisma.JsonNull) : existingPost.usageSituation,
-          experienceDetails: input.experienceDetails !== undefined ? (input.experienceDetails || Prisma.JsonNull) : existingPost.experienceDetails,
+          usageSituation:
+            input.usageSituation !== undefined
+              ? input.usageSituation
+                ? (input.usageSituation as Prisma.InputJsonValue)
+                : Prisma.JsonNull
+              : existingPost.usageSituation,
+          experienceDetails:
+            input.experienceDetails !== undefined
+              ? input.experienceDetails
+                ? (input.experienceDetails as Prisma.InputJsonValue)
+                : Prisma.JsonNull
+              : existingPost.experienceDetails,
         },
         include: {
           user: true,
