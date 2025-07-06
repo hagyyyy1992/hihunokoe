@@ -25,10 +25,12 @@ if (process.env.DATABASE_URL) {
     console.log('✅ Migrations deployed successfully!')
   } catch (error) {
     console.error('⚠️  Migration deployment failed:', error.message)
-    
+
     // Check if it's the specific "relation already exists" error
-    if (error.message.includes('relation "users" already exists') || 
-        error.message.includes('20250622144403_init')) {
+    if (
+      error.message.includes('relation "users" already exists') ||
+      error.message.includes('20250622144403_init')
+    ) {
       console.error('')
       console.error('📌 Known issue: Initial migration conflict detected')
       console.error('   The database already has tables but migration history is incomplete.')
@@ -52,7 +54,7 @@ if (process.env.DATABASE_URL) {
       console.error('  2. Check the _prisma_migrations table')
       console.error('  3. Mark failed migrations as rolled back or resolve them manually')
     }
-    
+
     console.error('')
     console.error('🔄 Continuing with build despite migration failure...')
   }
