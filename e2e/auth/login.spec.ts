@@ -73,19 +73,21 @@ test.describe('ログイン', () => {
     let loginSuccess = false
     let retryCount = 0
     const maxRetries = 3
-    
+
     while (!loginSuccess && retryCount < maxRetries) {
       const currentUrl = page.url()
       if (!currentUrl.includes('/auth/login')) {
         loginSuccess = true
         break
       }
-      
+
       retryCount++
-      console.log(`Login verification attempt ${retryCount}/${maxRetries}. Current URL: ${currentUrl}`)
+      console.log(
+        `Login verification attempt ${retryCount}/${maxRetries}. Current URL: ${currentUrl}`
+      )
       await page.waitForTimeout(2000)
     }
-    
+
     await expect(page).toHaveURL(/\/home|\//)
     await authHelper.expectToBeLoggedIn()
   })
