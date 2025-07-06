@@ -120,11 +120,9 @@ enum SkinType {
 }
 
 enum Gender {
-  male              @map("male")
-  female            @map("female")
-  non_binary        @map("non_binary")
-  prefer_not_to_say @map("prefer_not_to_say")
-  other             @map("other")
+  male   @map("male")
+  female @map("female")
+  other  @map("other")
 
   @@map("genders")
 }

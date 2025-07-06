@@ -207,29 +207,22 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
 }
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser | null> {
-  console.log('[AUTH] loginUser called with email:', credentials.email)
-
   // データベースが利用可能な場合は、データベースユーザーを優先
   const dbAvailable = isDatabaseAvailable()
-  console.log('[AUTH] Database available:', dbAvailable)
 
   if (dbAvailable) {
-    console.log('[AUTH] Attempting database lookup for:', credentials.email)
     try {
       const user = await prisma!.user.findUnique({
         where: {
           email: credentials.email,
         },
       })
-      console.log('[AUTH] Database user found:', !!user)
 
       if (user && user.isActive && !user.deletedAt) {
-        console.log('[AUTH] User is active, verifying password...')
         const isPasswordValid = await verifyPassword(credentials.password, user.passwordHash)
-        console.log('[AUTH] Password valid:', isPasswordValid)
 
+        // パスワードが有効な場合はユーザー情報を返す
         if (isPasswordValid) {
-          console.log('[AUTH] Returning database user with role:', user.role)
           return {
             id: user.id,
             userName: user.userName,
@@ -252,18 +245,9 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   }
 
   // データベースが利用できない場合、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
-  console.log('[AUTH] Checking mock users...')
   const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
-  console.log('[AUTH] Mock user found:', !!mockUser)
-
-  if (mockUser) {
-    console.log('[AUTH] Mock user active:', mockUser.isActive)
-    console.log('[AUTH] Mock user role:', mockUser.role)
-    console.log('[AUTH] Password check (demo123):', credentials.password === 'demo123')
-  }
 
   if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
-    console.log('[AUTH] Returning mock user with role:', mockUser.role)
     return {
       id: mockUser.id,
       userName: mockUser.userName,
@@ -274,7 +258,6 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
     }
   }
 
-  console.log('[AUTH] No user found, returning null')
   return null
 }
 
@@ -334,8 +317,6 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
 }
 
 export async function deleteUserAccount(id: string): Promise<boolean> {
-  console.log('[AUTH] deleteUserAccount called with id:', id)
-
   if (!isDatabaseAvailable() || !isValidUUID(id)) {
     // モックモードでは削除をサポートしない
     throw new Error('アカウント削除はモックモードではサポートされていません')
@@ -350,17 +331,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         deletedAt: null,
       },
     })
-
-    console.log('[AUTH] User found:', user ? 'yes' : 'no')
-    if (user) {
-      console.log('[AUTH] User details:', {
-        id: user.id,
-        email: user.email,
-        userName: user.userName,
-        isActive: user.isActive,
-        deletedAt: user.deletedAt,
-      })
-    }
 
     if (!user) {
       // ユーザーが見つからない場合、すべてのユーザーの状態を確認（デバッグ用）
@@ -381,7 +351,7 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     // ユーザー名を変更して、同じユーザー名での再登録を可能にする
     const deletedAt = new Date()
     const deletedTimestamp = deletedAt.getTime()
-    const result = await prisma!.user.update({
+    await prisma!.user.update({
       where: { id },
       data: {
         deletedAt: deletedAt,
@@ -389,13 +359,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         // ユーザー名に削除タイムスタンプを付加してユニーク制約を回避
         userName: `${user.userName}_deleted_${deletedTimestamp}`,
       },
-    })
-
-    console.log('[AUTH] User deletion result:', {
-      id: result.id,
-      deletedAt: result.deletedAt,
-      isActive: result.isActive,
-      userName: result.userName,
     })
 
     return true
@@ -410,14 +373,7 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
 }
 
 export function isAdmin(user: AuthUser | null): boolean {
-  console.log('[AUTH] isAdmin check - user:', user ? 'exists' : 'null')
-  if (user) {
-    console.log('[AUTH] isAdmin check - user role:', user.role)
-    console.log('[AUTH] isAdmin check - UserRole.ADMIN:', UserRole.ADMIN)
-    console.log('[AUTH] isAdmin check - UserRole.SUPER_ADMIN:', UserRole.SUPER_ADMIN)
-  }
   const result = user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
-  console.log('[AUTH] isAdmin result:', result)
   return result
 }
 
