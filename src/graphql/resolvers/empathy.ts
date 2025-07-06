@@ -1,9 +1,9 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import type { MutationResolvers, EmpathyResolvers } from '@/generated/graphql'
+import { GraphQLContext } from '@/graphql/context'
 
 export const empathyResolvers = {
   Mutation: {
-    async addEmpathy(_, { postId, type }, context) {
+    async addEmpathy(_: any, { postId, type }: { postId: string; type: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -12,6 +12,7 @@ export const empathyResolvers = {
         throw new Error('Database unavailable')
       }
 
+      // Check if empathy already exists
       const existingEmpathy = await prisma.empathy.findFirst({
         where: {
           postId,
@@ -20,7 +21,7 @@ export const empathyResolvers = {
       })
 
       if (existingEmpathy) {
-        throw new Error('Already added empathy')
+        throw new Error('Already empathized')
       }
 
       const empathy = await prisma.empathy.create({
@@ -35,6 +36,7 @@ export const empathyResolvers = {
         },
       })
 
+      // Update empathy count
       await prisma.post.update({
         where: { id: postId },
         data: { empathyCount: { increment: 1 } },
@@ -43,7 +45,7 @@ export const empathyResolvers = {
       return empathy
     },
 
-    async removeEmpathy(_, { postId }, context) {
+    async removeEmpathy(_: any, { postId }: { postId: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -67,6 +69,7 @@ export const empathyResolvers = {
         where: { id: empathy.id },
       })
 
+      // Update empathy count
       await prisma.post.update({
         where: { id: postId },
         data: { empathyCount: { decrement: 1 } },
@@ -74,10 +77,10 @@ export const empathyResolvers = {
 
       return true
     },
-  } satisfies Partial<MutationResolvers>,
+  },
 
   Empathy: {
-    post: async parent => {
+    post: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const post = await prisma.post.findUnique({
         where: { id: parent.postId },
@@ -85,7 +88,7 @@ export const empathyResolvers = {
       if (!post) throw new Error('Post not found')
       return post
     },
-    user: async parent => {
+    user: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const user = await prisma.user.findUnique({
         where: { id: parent.userId },
@@ -93,5 +96,5 @@ export const empathyResolvers = {
       if (!user) throw new Error('User not found')
       return user
     },
-  } satisfies EmpathyResolvers,
+  },
 }

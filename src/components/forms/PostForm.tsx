@@ -6,11 +6,8 @@ import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
-import {
-  useCreatePostMutation,
-  useUpdatePostMutation,
-  useDeletePostMutation,
-} from '@/generated/graphql'
+import { useMutation } from '@apollo/client'
+import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 
 interface PostFormData {
   title: string
@@ -37,9 +34,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [canSubmit, setCanSubmit] = useState(false)
 
-  const [createPost] = useCreatePostMutation()
-  const [updatePost] = useUpdatePostMutation()
-  const [deletePost] = useDeletePostMutation()
+  const [createPost] = useMutation(CREATE_POST)
+  const [updatePost] = useMutation(UPDATE_POST)
+  const [deletePost] = useMutation(DELETE_POST)
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',

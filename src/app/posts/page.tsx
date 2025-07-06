@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
-import { useGetPostsQuery } from '@/generated/graphql'
+import { useQuery } from '@apollo/client'
+import { GET_POSTS } from '@/graphql/queries/post'
 
 export default function PostsPage() {
   const [filters, setFilters] = useState({
@@ -13,7 +14,7 @@ export default function PostsPage() {
     search: '',
   })
 
-  const { data, loading, error, fetchMore } = useGetPostsQuery({
+  const { data, loading, error, fetchMore } = useQuery(GET_POSTS, {
     variables: {
       first: 10,
       filter: {
@@ -43,7 +44,7 @@ export default function PostsPage() {
     }
   }
 
-  const posts = data?.posts.edges.map(edge => edge.node) || []
+  const posts = data?.posts.edges.map((edge: any) => edge.node) || []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -156,7 +157,7 @@ export default function PostsPage() {
             {posts.length > 0 ? (
               <>
                 <div className="grid gap-6 mb-8">
-                  {posts.map(post => (
+                  {posts.map((post: any) => (
                     <PostCard
                       key={post.id}
                       post={{

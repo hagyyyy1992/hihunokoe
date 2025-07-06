@@ -1,82 +1,68 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import type { QueryResolvers, UserResolvers } from '@/generated/graphql'
+import { GraphQLContext } from '@/graphql/context'
 
 export const userResolvers = {
   Query: {
-    async user(_, { id }) {
+    async user(_: any, { id }: { id: string }) {
       if (!isDatabaseAvailable() || !prisma) {
-        return null
+        throw new Error('Database unavailable')
       }
-      return await prisma.user.findUnique({
+
+      const user = await prisma.user.findUnique({
         where: { id },
-        include: {
-          posts: {
-            where: { status: 'published' },
-            orderBy: { createdAt: 'desc' },
-          },
-          empathies: {
-            include: { post: true },
-            orderBy: { createdAt: 'desc' },
-          },
-          comments: {
-            include: { post: true },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
       })
+
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      return user
     },
 
-    async currentUser(_, __, context) {
+    async currentUser(_: any, __: any, context: GraphQLContext) {
       if (!context.userId) {
-        return null
+        throw new Error('Unauthorized')
       }
 
       if (!isDatabaseAvailable() || !prisma) {
-        return null
+        throw new Error('Database unavailable')
       }
 
-      return await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: context.userId },
-        include: {
-          posts: {
-            orderBy: { createdAt: 'desc' },
-          },
-          empathies: {
-            include: { post: true },
-            orderBy: { createdAt: 'desc' },
-          },
-          comments: {
-            include: { post: true },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
       })
+
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      return user
     },
-  } satisfies Partial<QueryResolvers>,
+  },
 
   User: {
-    posts: async parent => {
+    posts: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) return []
-      return await prisma.post.findMany({
+      return prisma.post.findMany({
         where: { userId: parent.id },
         orderBy: { createdAt: 'desc' },
       })
     },
-    empathies: async parent => {
+
+    empathies: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) return []
-      return await prisma.empathy.findMany({
-        where: { userId: parent.id },
-        include: { post: true },
-        orderBy: { createdAt: 'desc' },
-      })
-    },
-    comments: async parent => {
-      if (!isDatabaseAvailable() || !prisma) return []
-      return await prisma.comment.findMany({
+      return prisma.empathy.findMany({
         where: { userId: parent.id },
         include: { post: true },
-        orderBy: { createdAt: 'desc' },
       })
     },
-  } satisfies UserResolvers,
+
+    comments: async (parent: any) => {
+      if (!isDatabaseAvailable() || !prisma) return []
+      return prisma.comment.findMany({
+        where: { userId: parent.id },
+        include: { post: true },
+      })
+    },
+  },
 }

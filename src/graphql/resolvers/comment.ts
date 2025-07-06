@@ -1,9 +1,9 @@
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
-import type { MutationResolvers, CommentResolvers } from '@/generated/graphql'
+import { GraphQLContext } from '@/graphql/context'
 
 export const commentResolvers = {
   Mutation: {
-    async addComment(_, { postId, content }, context) {
+    async addComment(_: any, { postId, content }: { postId: string; content: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -27,7 +27,7 @@ export const commentResolvers = {
       return comment
     },
 
-    async updateComment(_, { id, content }, context) {
+    async updateComment(_: any, { id, content }: { id: string; content: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -60,7 +60,7 @@ export const commentResolvers = {
       return comment
     },
 
-    async deleteComment(_, { id }, context) {
+    async deleteComment(_: any, { id }: { id: string }, context: GraphQLContext) {
       if (!context.userId) {
         throw new Error('Unauthorized')
       }
@@ -87,10 +87,10 @@ export const commentResolvers = {
 
       return true
     },
-  } satisfies Partial<MutationResolvers>,
+  },
 
   Comment: {
-    post: async parent => {
+    post: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const post = await prisma.post.findUnique({
         where: { id: parent.postId },
@@ -98,7 +98,7 @@ export const commentResolvers = {
       if (!post) throw new Error('Post not found')
       return post
     },
-    user: async parent => {
+    user: async (parent: any) => {
       if (!isDatabaseAvailable() || !prisma) throw new Error('Database unavailable')
       const user = await prisma.user.findUnique({
         where: { id: parent.userId },
@@ -106,5 +106,5 @@ export const commentResolvers = {
       if (!user) throw new Error('User not found')
       return user
     },
-  } satisfies CommentResolvers,
+  },
 }

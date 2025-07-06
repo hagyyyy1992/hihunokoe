@@ -157,7 +157,8 @@ const durationLabels: Record<string, string> = {
 }
 
 export default function PostDetailPage() {
-  const { id } = useParams()
+  const params = useParams()
+  const id = params.id as string
   const { user } = useAuth()
   const [empathyLoading, setEmpathyLoading] = useState(false)
 

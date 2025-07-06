@@ -3,7 +3,6 @@ import { userResolvers } from './user'
 import { empathyResolvers } from './empathy'
 import { commentResolvers } from './comment'
 import { GraphQLScalarType, Kind } from 'graphql'
-import type { Resolvers } from '@/generated/graphql'
 
 const dateTimeScalar = new GraphQLScalarType({
   name: 'DateTime',
@@ -49,7 +48,7 @@ const jsonScalar = new GraphQLScalarType({
   },
 })
 
-export const resolvers: Resolvers = {
+export const resolvers = {
   DateTime: dateTimeScalar,
   JSON: jsonScalar,
   Query: {
