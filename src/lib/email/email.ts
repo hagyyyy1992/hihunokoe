@@ -22,7 +22,7 @@ export interface EmailOptions {
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   const isDevelopment = process.env.NODE_ENV === 'development'
-  const fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com'
+  const fromEmail = process.env.FROM_EMAIL || 'noreply@hihunokoe.com'
   // 本番環境でRESEND_API_KEYが未設定の場合
   if (!isDevelopment && !resend) {
     console.error('RESEND_API_KEY is not set in production environment', {
