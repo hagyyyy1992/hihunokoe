@@ -5,6 +5,7 @@
 ## 概要
 
 本アプリケーションは以下のメール送信に対応しています：
+
 - メールアドレス確認
 - パスワードリセット
 - アカウント削除通知
@@ -73,14 +74,17 @@ FROM_EMAIL="noreply@yourdomain.com"
 ### メールが送信されない場合
 
 1. **APIキーの確認**
+
    - Resendダッシュボードで正しいAPIキーを使用しているか確認
    - 本番用のAPIキーを使用しているか確認（テスト用キーでは送信されません）
 
 2. **ドメイン認証の確認**
+
    - Resendダッシュボード > Domains でドメインのステータスが「Verified」になっているか確認
    - DNSレコードが正しく設定されているか確認（伝播に最大48時間かかる場合があります）
 
 3. **FROM_EMAILの確認**
+
    - 環境変数`FROM_EMAIL`が認証済みドメインのメールアドレスになっているか確認
    - デフォルトの`noreply@yourdomain.com`のままになっていないか確認
 
@@ -91,17 +95,19 @@ FROM_EMAIL="noreply@yourdomain.com"
 ### デバッグ方法
 
 1. **ローカルでのテスト**
+
    ```bash
    # MailHogを起動
    npm run mailhog:start
-   
+
    # 開発サーバーを起動
    npm run dev
-   
+
    # http://localhost:8025 でメールを確認
    ```
 
 2. **本番環境でのログ確認**
+
    - `/src/lib/email/email.ts`にデバッグログを追加済み
    - Vercelのログで以下の情報を確認：
      - `Email configuration`: 送信設定の詳細
@@ -114,10 +120,12 @@ FROM_EMAIL="noreply@yourdomain.com"
 ## セキュリティに関する注意事項
 
 1. **APIキーの管理**
+
    - APIキーは絶対にコードにハードコーディングしない
    - 環境変数として管理し、`.env`ファイルはGitにコミットしない
 
 2. **送信元アドレス**
+
    - なりすまし防止のため、認証済みドメインのみ使用可能
    - 複数のドメインを使用する場合は、それぞれ認証が必要
 
@@ -144,6 +152,7 @@ curl -X POST https://your-app.vercel.app/api/test/email \
 ```
 
 成功時のレスポンス：
+
 ```json
 {
   "success": true,
