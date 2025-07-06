@@ -360,7 +360,7 @@ export default function ProfilePage() {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-apple-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">ユーザー名</span>
                         <p className="font-medium text-gray-900">{formData.userName}</p>
@@ -375,14 +375,14 @@ export default function ProfilePage() {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">メールアドレス</span>
                         <p className="font-medium text-gray-900">{user.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">肌タイプ</span>
                         <p className="font-medium text-gray-900">
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">生年月日</span>
                         <p className="font-medium text-gray-900">
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">性別</span>
                         <p className="font-medium text-gray-900">
@@ -411,7 +411,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
                       <div>
                         <span className="text-sm text-gray-600">アレルギー</span>
                         <p className="font-medium text-gray-900">

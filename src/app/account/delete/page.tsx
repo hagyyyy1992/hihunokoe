@@ -90,7 +90,7 @@ export default function DeleteAccountPage() {
             アカウント削除
           </CardTitle>
           <CardDescription>
-            この操作は取り消すことができません。アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます。
+            この操作は取り消すことができません。アカウントを削除すると、すべての投稿が永久に削除されます。
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -102,8 +102,7 @@ export default function DeleteAccountPage() {
                   <strong>警告:</strong> アカウントを削除すると以下のデータが永久に削除されます:
                   <ul className="mt-2 ml-4 list-disc space-y-1">
                     <li>プロフィール情報</li>
-                    <li>投稿したコスメティック体験談</li>
-                    <li>コメントと共感</li>
+                    <li>投稿した体験談</li>
                     <li>その他すべてのアカウント関連データ</li>
                   </ul>
                 </AlertDescription>
