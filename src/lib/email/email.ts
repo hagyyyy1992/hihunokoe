@@ -37,17 +37,6 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     )
   }
 
-  // FROM_EMAILが正しく設定されているか確認
-  console.log('Email configuration:', {
-    fromEmail,
-    to,
-    subject,
-    isDevelopment,
-    hasResend: !!resend,
-    nodeEnv: process.env.NODE_ENV,
-    vercelEnv: process.env.VERCEL_ENV,
-  })
-
   // 開発環境では常にMailHogを使用（RESEND_API_KEYが設定されていても）
   if (isDevelopment) {
     try {
