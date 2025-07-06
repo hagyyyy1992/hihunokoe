@@ -127,8 +127,6 @@ export default function ProfilePage() {
     const genderOptions = {
       male: '男性',
       female: '女性',
-      non_binary: 'ノンバイナリー',
-      prefer_not_to_say: '回答しない',
       other: 'その他',
     }
     return genderOptions[value as keyof typeof genderOptions] || ''
@@ -243,8 +241,6 @@ export default function ProfilePage() {
                     <option value="">選択してください</option>
                     <option value="male">男性</option>
                     <option value="female">女性</option>
-                    <option value="non_binary">ノンバイナリー</option>
-                    <option value="prefer_not_to_say">回答しない</option>
                     <option value="other">その他</option>
                   </select>
                 </div>
