@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       }
 
       // 閲覧数を増加（モックなので実際には増加しない）
-      let postWithIncrementedViews = {
+      const postWithIncrementedViews = {
         ...post,
         viewCount: post.viewCount + 1,
       }
