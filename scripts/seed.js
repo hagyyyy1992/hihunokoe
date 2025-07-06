@@ -25,7 +25,7 @@ async function main() {
 
   console.log('✅ Demo user created:', demoUser.email)
 
-  // 管理者ユーザーの作成
+  // 管理者ユーザーの作成（互換性のため一旦Userテーブルにも作成）
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
     update: {
@@ -42,6 +42,24 @@ async function main() {
   })
 
   console.log('✅ Admin user created:', adminUser.email)
+
+  // AdminUserテーブルにも管理者を作成
+  const superAdmin = await prisma.adminUser.upsert({
+    where: { email: 'admin@example.com' },
+    update: {
+      role: 'SUPER_ADMIN',
+      isActive: true,
+    },
+    create: {
+      adminName: 'admin',
+      email: 'admin@example.com',
+      passwordHash: hashedPassword,
+      role: 'SUPER_ADMIN',
+      isActive: true,
+    },
+  })
+
+  console.log('✅ Super admin created in AdminUser table:', superAdmin.email)
 
   // デモ投稿の作成
   const demoPosts = [

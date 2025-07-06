@@ -25,15 +25,34 @@ if (process.env.DATABASE_URL) {
     console.log('✅ Migrations deployed successfully!')
   } catch (error) {
     console.error('⚠️  Migration deployment failed:', error.message)
-    console.error('💡 This might be due to:')
-    console.error('  1. Failed previous migration that needs manual resolution')
-    console.error('  2. Database connection issues')
-    console.error('  3. Permission problems')
-    console.error('')
-    console.error('📝 To resolve this issue:')
-    console.error('  1. Connect to your Supabase database')
-    console.error('  2. Check the _prisma_migrations table')
-    console.error('  3. Mark failed migrations as rolled back or resolve them manually')
+    
+    // Check if it's the specific "relation already exists" error
+    if (error.message.includes('relation "users" already exists') || 
+        error.message.includes('20250622144403_init')) {
+      console.error('')
+      console.error('📌 Known issue: Initial migration conflict detected')
+      console.error('   The database already has tables but migration history is incomplete.')
+      console.error('')
+      console.error('🔧 To fix this issue locally:')
+      console.error('   1. Run: node scripts/fix-supabase-migrations.js')
+      console.error('   2. Or manually mark the migration as applied in Supabase')
+      console.error('')
+      console.error('📝 For production:')
+      console.error('   - The app will work normally despite this warning')
+      console.error('   - Tables already exist and are functional')
+      console.error('   - This is a migration history issue only')
+    } else {
+      console.error('💡 This might be due to:')
+      console.error('  1. Failed previous migration that needs manual resolution')
+      console.error('  2. Database connection issues')
+      console.error('  3. Permission problems')
+      console.error('')
+      console.error('📝 To resolve this issue:')
+      console.error('  1. Connect to your Supabase database')
+      console.error('  2. Check the _prisma_migrations table')
+      console.error('  3. Mark failed migrations as rolled back or resolve them manually')
+    }
+    
     console.error('')
     console.error('🔄 Continuing with build despite migration failure...')
   }

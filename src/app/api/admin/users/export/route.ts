@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
         userName: user.userName,
         email: user.email,
         isActive: user.isActive,
-        role: user.role,
+        role: user.role || 'USER',
         skinType: user.skinType || '',
         createdAt: user.createdAt.toISOString(),
         postCount: user._count.posts,
