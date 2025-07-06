@@ -105,6 +105,8 @@ Vercelでメール送信機能を有効にするには、以下の環境変数�
 
 - `FROM_EMAIL`: 送信元メールアドレス（デフォルト: noreply@yourdomain.com）
 - `NEXT_PUBLIC_BASE_URL`: 本番ドメイン（メール認証リンク用、デフォルト: http://localhost:3000）
+- `IP_RESTRICTION_ENABLED`: IP制限を有効化（true/false）
+- `ALLOWED_IPS`: 許可するIPアドレス（カンマ区切り）
 
 ### 開発環境URL
 
