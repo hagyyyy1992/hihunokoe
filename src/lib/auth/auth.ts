@@ -120,29 +120,54 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
 
     if (deletedUser) {
       // 論理削除されたユーザーが存在する場合、そのレコードを復活
-      user = await prisma!.user.update({
+      // updateの前に再度存在確認（競合状態対策）
+      const userStillExists = await prisma!.user.findUnique({
         where: { id: deletedUser.id },
-        data: {
-          userName: data.userName,
-          email: data.email,
-          passwordHash: hashedPassword,
-          birthDate: data.birthDate,
-          gender: data.gender,
-          skinType: data.skinType,
-          skinTypeOther: data.skinTypeOther,
-          allergies: data.allergies || [],
-          allergiesOther: data.allergiesOther,
-          isActive: true,
-          deletedAt: null,
-          emailVerified:
-            process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
-          // その他のフィールドもリセット
-          emailVerificationToken: null,
-          emailVerificationExpiry: null,
-          passwordResetToken: null,
-          passwordResetExpiry: null,
-        },
       })
+      
+      if (!userStillExists) {
+        // ユーザーが存在しない場合は新規作成にフォールバック
+        user = await prisma!.user.create({
+          data: {
+            userName: data.userName,
+            email: data.email,
+            passwordHash: hashedPassword,
+            birthDate: data.birthDate,
+            gender: data.gender,
+            skinType: data.skinType,
+            skinTypeOther: data.skinTypeOther,
+            allergies: data.allergies || [],
+            allergiesOther: data.allergiesOther,
+            emailVerified:
+              process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
+          },
+        })
+      } else {
+        // ユーザーが存在する場合は更新
+        user = await prisma!.user.update({
+          where: { id: deletedUser.id },
+          data: {
+            userName: data.userName,
+            email: data.email,
+            passwordHash: hashedPassword,
+            birthDate: data.birthDate,
+            gender: data.gender,
+            skinType: data.skinType,
+            skinTypeOther: data.skinTypeOther,
+            allergies: data.allergies || [],
+            allergiesOther: data.allergiesOther,
+            isActive: true,
+            deletedAt: null,
+            emailVerified:
+              process.env.NODE_ENV === 'test' ? false : process.env.NODE_ENV !== 'production',
+            // その他のフィールドもリセット
+            emailVerificationToken: null,
+            emailVerificationExpiry: null,
+            passwordResetToken: null,
+            passwordResetExpiry: null,
+          },
+        })
+      }
     } else {
       // 新規ユーザー作成
       user = await prisma!.user.create({
@@ -327,8 +352,28 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
     })
 
     console.log('[AUTH] User found:', user ? 'yes' : 'no')
+    if (user) {
+      console.log('[AUTH] User details:', { 
+        id: user.id, 
+        email: user.email, 
+        userName: user.userName,
+        isActive: user.isActive,
+        deletedAt: user.deletedAt
+      })
+    }
 
     if (!user) {
+      // ユーザーが見つからない場合、すべてのユーザーの状態を確認（デバッグ用）
+      const anyUser = await prisma!.user.findUnique({
+        where: { id },
+      })
+      if (anyUser) {
+        console.log('[AUTH] User exists but not active:', {
+          id: anyUser.id,
+          isActive: anyUser.isActive,
+          deletedAt: anyUser.deletedAt
+        })
+      }
       throw new Error('ユーザーが見つかりません')
     }
 
@@ -346,7 +391,12 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
       },
     })
 
-    console.log('[AUTH] User deletion result:', result)
+    console.log('[AUTH] User deletion result:', {
+      id: result.id,
+      deletedAt: result.deletedAt,
+      isActive: result.isActive,
+      userName: result.userName
+    })
 
     return true
   } catch (error) {
