@@ -217,38 +217,30 @@ export class AuthHelper {
     const inputDelay = this.isMobile() ? 500 : 200
     await this.page.waitForTimeout(inputDelay)
 
-    await this.page.fill('[data-testid="username-input"]', userData.username)
+    await this.page.getByLabel('ユーザー名 *').fill(userData.username)
     await this.page.waitForTimeout(inputDelay)
 
-    await this.page.fill('[data-testid="email-input"]', userData.email)
+    await this.page.getByLabel('メールアドレス *').fill(userData.email)
     await this.page.waitForTimeout(inputDelay)
 
-    await this.page.fill('[data-testid="password-input"]', userData.password)
+    await this.page.locator('input[name="password"]').fill(userData.password)
     await this.page.waitForTimeout(inputDelay)
 
-    await this.page.fill('[data-testid="confirm-password-input"]', userData.password)
+    await this.page.locator('input[name="confirmPassword"]').fill(userData.password)
     await this.page.waitForTimeout(inputDelay)
 
     if (userData.skinType) {
-      await this.page.selectOption('[data-testid="skin-type-select"]', userData.skinType)
+      await this.page.getByLabel('肌質').selectOption(userData.skinType)
       await this.page.waitForTimeout(200) // モバイルブラウザ用の遅延
     }
 
     // Wait for button to be enabled before clicking
-    const registerButton = this.page.locator('[data-testid="register-button"]')
+    const registerButton = this.page.getByRole('button', { name: '会員登録' })
     await registerButton.waitFor({ state: 'visible', timeout: 10000 })
 
     // モバイルブラウザでのクリックを確実にする
     await registerButton.scrollIntoViewIfNeeded()
-    await this.page.waitForFunction(
-      () => {
-        const button = document.querySelector(
-          '[data-testid="register-button"]'
-        ) as HTMLButtonElement
-        return button && !button.disabled
-      },
-      { timeout: 10000 }
-    )
+    await expect(registerButton).toBeEnabled({ timeout: 10000 })
 
     // Submit the form
     await registerButton.click()
@@ -341,20 +333,23 @@ export class AuthHelper {
     await this.page.goto('/auth/login')
 
     // Clear any existing values first to avoid form validation issues
-    await this.page.fill('[data-testid="email-input"]', '')
-    await this.page.fill('[data-testid="password-input"]', '')
+    const emailInput = this.page.getByLabel('メールアドレス')
+    const passwordInput = this.page.locator('input[name="password"]')
+
+    await emailInput.fill('')
+    await passwordInput.fill('')
 
     // Wait a bit for form to clear
     await this.page.waitForTimeout(500)
 
-    await this.page.fill('[data-testid="email-input"]', email)
-    await this.page.fill('[data-testid="password-input"]', password)
+    await emailInput.fill(email)
+    await passwordInput.fill(password)
 
     // Wait for form validation to enable the button
     await this.page.waitForTimeout(500)
 
     // Ensure the login button is enabled before clicking
-    const loginButton = this.page.locator('[data-testid="login-button"]')
+    const loginButton = this.page.getByRole('button', { name: 'ログイン' })
     await expect(loginButton).toBeEnabled({ timeout: 5000 })
 
     await loginButton.click()
