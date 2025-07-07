@@ -1,37 +1,73 @@
 version: '3.8'
 
 services:
+  # Next.js アプリケーション（オプション）
+  # コメントアウトを解除して使用
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: hihunokoe_app${WORKTREE_SUFFIX:-}
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgresql://postgres:password@postgres:5432/hihunokoe_${WORKTREE_NAME:-dev}
+  #     - NEXTAUTH_URL=http://localhost:${APP_PORT:-3000}
+  #   ports:
+  #     - '${APP_PORT:-3000}:3000'
+  #   depends_on:
+  #     - postgres
+  #     - mailhog
+  #   command: npm run dev
+  #   networks:
+  #     - hihunokoe
+
   postgres:
     image: postgres:15
-    container_name: hihunokoe_postgres
+    container_name: hihunokoe_postgres${WORKTREE_SUFFIX:-}
     environment:
-      POSTGRES_DB: hihunokoe_dev
+      POSTGRES_DB: hihunokoe_${WORKTREE_NAME:-dev}
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - '5432:5432'
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     restart: unless-stopped
+    networks:
+      - hihunokoe
 
   adminer:
     image: adminer
-    container_name: hihunokoe_adminer
+    container_name: hihunokoe_adminer${WORKTREE_SUFFIX:-}
     ports:
-      - '8080:8080'
+      - '${ADMINER_PORT:-8080}:8080'
     depends_on:
       - postgres
     restart: unless-stopped
+    networks:
+      - hihunokoe
 
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: hihunokoe_mailhog
+    container_name: hihunokoe_mailhog${WORKTREE_SUFFIX:-}
     platform: linux/amd64
     ports:
-      - '1025:1025' # SMTP port
-      - '8025:8025' # Web UI port
+      - '${MAILHOG_SMTP_PORT:-1025}:1025' # SMTP port
+      - '${MAILHOG_WEB_PORT:-8025}:8025' # Web UI port
     restart: unless-stopped
+    networks:
+      - hihunokoe
 
 volumes:
   postgres_data:
+    name: postgres_data${WORKTREE_SUFFIX:-}
+
+networks:
+  hihunokoe:
+    name: hihunokoe${WORKTREE_SUFFIX:-}
+    driver: bridge
