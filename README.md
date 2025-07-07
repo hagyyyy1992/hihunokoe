@@ -141,6 +141,14 @@ Vercelでメール送信機能を有効にするには、以下の環境変数�
 - `npm run mailhog:start` - MailHog起動
 - `npm run mailhog:stop` - MailHog停止
 
+### Worktree管理
+
+- `./scripts/worktree-ports.sh` - すべてのworktreeのポート情報を表示
+- `./scripts/worktree-ports.sh check` - 現在のworktreeのポート確認
+- `./scripts/worktree-dashboard.sh` - worktreeダッシュボード表示
+- `./scripts/worktree-dev.sh up <name>` - worktree環境を起動
+- `./scripts/worktree-dev.sh down <name>` - worktree環境を停止
+
 ## 文書構成
 
 このプロジェクトの詳細な技術文書は以下のディレクトリに整理されています：
