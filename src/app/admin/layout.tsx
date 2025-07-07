@@ -103,12 +103,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* サイドバー */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:inset-auto lg:h-screen`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b bg-white">
           <div className="flex items-center">
@@ -169,7 +169,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="lg:pl-64">
+      <div className="flex-1 flex flex-col min-h-screen">
         {/* ヘッダー */}
         <header className="bg-white shadow-sm border-b">
           <div className="flex items-center justify-between h-16 px-6">
@@ -190,7 +190,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </header>
 
         {/* メインコンテンツエリア */}
-        <main className="p-6">{children}</main>
+        <main className="flex-1 p-6">{children}</main>
       </div>
 
       {/* サイドバーオーバーレイ */}
