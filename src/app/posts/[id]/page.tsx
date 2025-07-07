@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+// import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { useQuery, useMutation } from '@apollo/client'
-import { GET_POST, ADD_EMPATHY, REMOVE_EMPATHY } from '@/graphql/queries/post'
-import { EmpathyType } from '@/types'
+import { useQuery } from '@apollo/client'
+// import { useMutation } from '@apollo/client'
+import { GET_POST } from '@/graphql/queries/post'
+// import { ADD_EMPATHY, REMOVE_EMPATHY } from '@/graphql/queries/post'
+// import { EmpathyType } from '@/types'
 import {
   fragranceTypeLabels,
   fragranceIntensityLabels,
@@ -160,42 +162,42 @@ export default function PostDetailPage() {
   const params = useParams()
   const id = params.id as string
   const { user } = useAuth()
-  const [empathyLoading, setEmpathyLoading] = useState(false)
+  // const [empathyLoading, setEmpathyLoading] = useState(false)
 
   const { data, loading, error } = useQuery<PostData>(GET_POST, {
     variables: { id },
     skip: !id,
   })
 
-  const [addEmpathy] = useMutation(ADD_EMPATHY, {
-    refetchQueries: [{ query: GET_POST, variables: { id } }],
-  })
+  // const [addEmpathy] = useMutation(ADD_EMPATHY, {
+  //   refetchQueries: [{ query: GET_POST, variables: { id } }],
+  // })
 
-  const [removeEmpathy] = useMutation(REMOVE_EMPATHY, {
-    refetchQueries: [{ query: GET_POST, variables: { id } }],
-  })
+  // const [removeEmpathy] = useMutation(REMOVE_EMPATHY, {
+  //   refetchQueries: [{ query: GET_POST, variables: { id } }],
+  // })
 
   const post = data?.post
 
-  const userEmpathy = post?.empathies.find(e => e.user.id === user?.id)
-  const hasEmpathized = !!userEmpathy
+  // const userEmpathy = post?.empathies.find(e => e.user.id === user?.id)
+  // const hasEmpathized = !!userEmpathy
 
-  const handleEmpathy = async (type: EmpathyType) => {
-    if (!user || empathyLoading) return
+  // const handleEmpathy = async (type: EmpathyType) => {
+  //   if (!user || empathyLoading) return
 
-    setEmpathyLoading(true)
-    try {
-      if (hasEmpathized) {
-        await removeEmpathy({ variables: { postId: id } })
-      } else {
-        await addEmpathy({ variables: { postId: id, type } })
-      }
-    } catch (err) {
-      console.error('Failed to update empathy:', err)
-    } finally {
-      setEmpathyLoading(false)
-    }
-  }
+  //   setEmpathyLoading(true)
+  //   try {
+  //     if (hasEmpathized) {
+  //       await removeEmpathy({ variables: { postId: id } })
+  //     } else {
+  //       await addEmpathy({ variables: { postId: id, type } })
+  //     }
+  //   } catch (err) {
+  //     console.error('Failed to update empathy:', err)
+  //   } finally {
+  //     setEmpathyLoading(false)
+  //   }
+  // }
 
   if (loading) {
     return (
@@ -414,38 +416,11 @@ export default function PostDetailPage() {
                   </Link>
                 </div>
               )}
-
-              {/* 共感ボタン */}
-              {user && user.id !== post.user.id && (
-                <button
-                  onClick={() => handleEmpathy('love' as EmpathyType)}
-                  disabled={empathyLoading}
-                  className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    hasEmpathized
-                      ? 'bg-apple-600 text-white hover:bg-apple-700'
-                      : 'text-gray-600 bg-gray-100 hover:bg-gray-200'
-                  }`}
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill={hasEmpathized ? 'currentColor' : 'none'}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                  <span>{post.empathyCount} 共感</span>
-                </button>
-              )}
             </div>
 
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
+              {/* コメント数（非表示） */}
+              {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -455,7 +430,7 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span>{post.comments.length} コメント</span>
-              </div>
+              </div> */}
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -477,8 +452,8 @@ export default function PostDetailPage() {
           </div>
         </article>
 
-        {/* コメントセクション */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* コメントセクション（非表示） */}
+        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">コメント</h3>
           {post.comments.length > 0 ? (
             <div className="space-y-4">
@@ -511,7 +486,7 @@ export default function PostDetailPage() {
           ) : (
             <p className="text-gray-500 text-sm">まだコメントはありません</p>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   )

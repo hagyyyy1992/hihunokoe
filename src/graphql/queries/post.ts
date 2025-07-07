@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const GET_POSTS = gql`
-  query GetPosts($first: Int, $after: String, $filter: PostFilter, $orderBy: PostOrderBy) {
+  query GetPosts($first: Int, $after: String, $filter: PostFilterInput, $orderBy: PostOrderBy) {
     posts(first: $first, after: $after, filter: $filter, orderBy: $orderBy) {
       edges {
         cursor
@@ -27,9 +27,6 @@ export const GET_POSTS = gql`
             user {
               id
             }
-          }
-          _count {
-            comments
           }
         }
       }

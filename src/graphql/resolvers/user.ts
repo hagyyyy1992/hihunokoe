@@ -41,6 +41,11 @@ export const userResolvers = {
   },
 
   User: {
+    displayName: (parent: { userName?: string; displayName?: string }) => {
+      // Map userName to displayName for backward compatibility
+      return parent.displayName || parent.userName || 'Unknown User'
+    },
+
     posts: async (parent: { id: string }) => {
       if (!isDatabaseAvailable() || !prisma) return []
       return prisma.post.findMany({
