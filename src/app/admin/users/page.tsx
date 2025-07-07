@@ -73,20 +73,16 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
+      } else if (response.status === 401) {
+        console.error('認証されていません。ログインしてください。')
+        // 必要に応じてログインページにリダイレクト
       }
     } catch (error) {
       console.error('ユーザー一覧の取得に失敗しました:', error)
@@ -107,16 +103,9 @@ export default function UserManagement() {
     if (!selectedUser) return
 
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch(`/api/admin/users/${selectedUser.id}/${action}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -131,15 +120,8 @@ export default function UserManagement() {
 
   const exportUsers = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/users/export', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {

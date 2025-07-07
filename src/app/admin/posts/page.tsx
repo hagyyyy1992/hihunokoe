@@ -69,15 +69,8 @@ export default function PostModeration() {
 
   const fetchPosts = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/posts', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -103,16 +96,9 @@ export default function PostModeration() {
     if (!selectedPost) return
 
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch(`/api/admin/posts/${selectedPost.id}/${action}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
