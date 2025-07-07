@@ -1,0 +1,205 @@
+
+> hihunokoe@0.1.0 dev
+> npm run codegen && next dev --turbopack
+
+
+> hihunokoe@0.1.0 codegen
+> graphql-codegen --config codegen.ts
+
+[STARTED] Parse Configuration
+[SUCCESS] Parse Configuration
+[STARTED] Generate outputs
+[STARTED] Generate to src/generated/graphql.ts
+[STARTED] Load GraphQL schemas
+[SUCCESS] Load GraphQL schemas
+[STARTED] Load GraphQL documents
+[SUCCESS] Load GraphQL documents
+[STARTED] Generate
+[SUCCESS] Generate
+[SUCCESS] Generate to src/generated/graphql.ts
+[SUCCESS] Generate outputs
+ ⚠ Port 3000 is in use, using available port 3002 instead.
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.1.2:3002
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Compiled middleware in 126ms
+ ✓ Ready in 1115ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1744ms
+ GET / 200 in 1985ms
+ GET / 200 in 210ms
+ ○ Compiling /api/auth/me ...
+ ✓ Compiled /api/auth/me in 507ms
+🗄️  Database: local (development)
+📍 URL: postgresql://postgres:***@localhost:5432/hihunokoe_dev
+✅ Prisma connected to local database
+ GET /api/auth/me 404 in 670ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 722ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 992ms
+ GET /auth/login 200 in 1024ms
+ ✓ Compiled /api/auth/login in 405ms
+ POST /api/auth/login 401 in 478ms
+ ○ Compiling /auth/register ...
+ ✓ Compiled /auth/register in 915ms
+ GET /auth/register 200 in 936ms
+ ○ Compiling /api/auth/register ...
+ ✓ Compiled /api/auth/register in 986ms
+ POST /api/auth/register 200 in 1425ms
+ ○ Compiling /auth/registration-complete ...
+ ✓ Compiled /auth/registration-complete in 628ms
+ GET /auth/registration-complete?email=keiichi.hagiwara.1992%40gmail.com 200 in 655ms
+ ○ Compiling /auth/verify-email ...
+ ✓ Compiled /auth/verify-email in 737ms
+ GET /auth/verify-email?token=b9d6d3d0e701d18b74e6d36dab1cb4b75eefa60179ba762686ccc87c024a4e3e 200 in 816ms
+ GET /api/auth/me 404 in 53ms
+ ✓ Compiled /api/auth/verify-email in 357ms
+ GET /api/auth/verify-email?token=b9d6d3d0e701d18b74e6d36dab1cb4b75eefa60179ba762686ccc87c024a4e3e 200 in 400ms
+ GET /api/auth/me 200 in 26ms
+ GET / 200 in 79ms
+ ○ Compiling /posts ...
+ ✓ Compiled /posts in 1236ms
+ GET /posts 200 in 1270ms
+ ○ Compiling /api/graphql ...
+GraphQL Server starting...
+ POST /api/graphql 200 in 2310ms
+ ✓ Compiled /api/graphql in 2.5s
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1169ms
+ ○ Compiling /posts/[id] ...
+ ✓ Compiled /posts/[id] in 1325ms
+ GET /posts/771e4b8c-5237-4da4-99fc-504ba1904767 200 in 1743ms
+ POST /api/graphql 200 in 88ms
+ GET /posts 200 in 98ms
+ POST /api/graphql 200 in 179ms
+ ○ Compiling /posts/new ...
+ ✓ Compiled /posts/new in 984ms
+ GET /posts/new 200 in 1014ms
+ POST /api/graphql 200 in 57ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 1079ms
+ POST /api/auth/logout 200 in 1237ms
+ GET /auth/login 200 in 232ms
+ POST /api/auth/login 200 in 378ms
+ GET /api/auth/me 200 in 50ms
+ ○ Compiling /home ...
+ ✓ Compiled /home in 1053ms
+ GET /home 200 in 1079ms
+ ✓ Compiled /api/posts in 242ms
+ GET /api/posts?limit=20 200 in 307ms
+ GET /api/posts?limit=20 200 in 28ms
+ GET /posts/new 200 in 42ms
+ POST /api/graphql 200 in 37ms
+ GET /posts/new 200 in 434ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 552ms
+ GET /api/auth/me 200 in 318ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 479ms
+ POST /api/auth/logout 200 in 139ms
+ GET /auth/login 200 in 147ms
+🗄️  Database: local (development)
+📍 URL: postgresql://postgres:***@localhost:5432/hihunokoe_dev
+✅ Prisma connected to local database
+ POST /api/auth/login 200 in 461ms
+ GET /api/auth/me 200 in 21ms
+ GET /home 200 in 42ms
+ GET /api/posts?limit=20 200 in 49ms
+ GET /api/posts?limit=20 200 in 27ms
+ GET /posts 200 in 48ms
+ POST /api/graphql 200 in 117ms
+ GET /posts/new 200 in 47ms
+ POST /api/graphql 200 in 51ms
+ ⚠ Fast Refresh had to perform a full reload when ./src/lib/auth/AuthContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 266ms
+ GET /posts/new 200 in 402ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 301ms
+ GET /api/auth/me 200 in 75ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 275ms
+ POST /api/auth/logout 200 in 51ms
+ GET /auth/login 200 in 44ms
+🗄️  Database: local (development)
+📍 URL: postgresql://postgres:***@localhost:5432/hihunokoe_dev
+✅ Prisma connected to local database
+Generated token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE1ODAyZGQwLTUzMzMtNDQzMi1iYTNkLWFjOGIxODEyZTAyOSIsInVzZXJOYW1lIjoia2VpaWNoaTAiLCJlbWFpbCI6ImtlaWljaGkuaGFnaXdhcmEuMTk5MkBnbWFpbC5jb20iLCJyb2xlIjpudWxsLCJpYXQiOjE3NTE5MjEzNzEsImV4cCI6MTc1MjUyNjE3MX0.f-E221FTK8SZv6CDEewJM0sR4bWvpkCbwqWt4ALKFAQ
+Login response: { user: 'keiichi.hagiwara.1992@gmail.com', hasToken: true }
+ POST /api/auth/login 200 in 487ms
+ GET /api/auth/me 200 in 42ms
+ GET /home 200 in 41ms
+ GET /api/posts?limit=20 200 in 121ms
+ GET /api/posts?limit=20 200 in 53ms
+ GET /posts/new 200 in 75ms
+ POST /api/graphql 200 in 34ms
+ GET /posts/new 200 in 286ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 420ms
+ GET /api/auth/me 200 in 120ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 313ms
+ POST /api/auth/logout 200 in 33ms
+ GET /auth/login 200 in 82ms
+Generated token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE1ODAyZGQwLTUzMzMtNDQzMi1iYTNkLWFjOGIxODEyZTAyOSIsInVzZXJOYW1lIjoia2VpaWNoaTAiLCJlbWFpbCI6ImtlaWljaGkuaGFnaXdhcmEuMTk5MkBnbWFpbC5jb20iLCJyb2xlIjpudWxsLCJpYXQiOjE3NTE5MjE1NTQsImV4cCI6MTc1MjUyNjM1NH0.vV4T0yZL_Dqjuv0Zru0mHltALc7rTeyUEGQi3aume9M
+Login response: { user: 'keiichi.hagiwara.1992@gmail.com', hasToken: true }
+ POST /api/auth/login 200 in 411ms
+ GET /api/auth/me 200 in 44ms
+ GET /home 200 in 44ms
+ GET /api/posts?limit=20 200 in 95ms
+ GET /api/posts?limit=20 200 in 63ms
+ GET /posts/new 200 in 32ms
+ POST /api/graphql 200 in 44ms
+ POST /api/auth/logout 200 in 84ms
+ GET /auth/login 200 in 65ms
+Generated token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE1ODAyZGQwLTUzMzMtNDQzMi1iYTNkLWFjOGIxODEyZTAyOSIsInVzZXJOYW1lIjoia2VpaWNoaTAiLCJlbWFpbCI6ImtlaWljaGkuaGFnaXdhcmEuMTk5MkBnbWFpbC5jb20iLCJyb2xlIjpudWxsLCJpYXQiOjE3NTE5MjE3MzYsImV4cCI6MTc1MjUyNjUzNn0.VM_crOkIb2UNoXQL42RC05aBuS8MfDPQPTv7Ls7TSYQ
+Login response: { user: 'keiichi.hagiwara.1992@gmail.com', hasToken: true }
+ POST /api/auth/login 200 in 359ms
+ GET /api/auth/me 200 in 38ms
+ GET /home 200 in 40ms
+ GET /api/posts?limit=20 200 in 72ms
+ GET /api/posts?limit=20 200 in 42ms
+ ✓ Compiled in 240ms
+ ✓ Compiled in 543ms
+ GET /home 200 in 69ms
+ ✓ Compiled in 122ms
+ POST /api/auth/logout 200 in 50ms
+ ✓ Compiled /auth/login in 60ms
+ GET /auth/login 200 in 207ms
+Generated token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE1ODAyZGQwLTUzMzMtNDQzMi1iYTNkLWFjOGIxODEyZTAyOSIsInVzZXJOYW1lIjoia2VpaWNoaTAiLCJlbWFpbCI6ImtlaWljaGkuaGFnaXdhcmEuMTk5MkBnbWFpbC5jb20iLCJyb2xlIjpudWxsLCJpYXQiOjE3NTE5MjE5NjcsImV4cCI6MTc1MjUyNjc2N30.-TUH2t7kFJyqPEAkgRYygkwmJJGBIbLDA4MtWr3kg0k
+Login response: { user: 'keiichi.hagiwara.1992@gmail.com', hasToken: true }
+ POST /api/auth/login 200 in 381ms
+ GET /home 200 in 37ms
+ GET /api/posts?limit=20 200 in 31ms
+ GET /api/posts?limit=20 200 in 25ms
+ GET /posts/new 200 in 58ms
+ POST /api/graphql 200 in 77ms
+ GET /posts/bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 81ms
+ POST /api/graphql 200 in 114ms
+ ○ Compiling /posts/[id]/edit ...
+ ✓ Compiled /posts/[id]/edit in 950ms
+ GET /posts/bf8367ab-17ba-4fd5-8860-c6cc8961d0f3/edit 200 in 1315ms
+ ✓ Compiled /api/posts/get in 239ms
+ GET /api/posts/get?id=bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 281ms
+ GET /api/posts/get?id=bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 29ms
+ POST /api/graphql 200 in 59ms
+ GET /posts/bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 33ms
+ POST /api/graphql 200 in 40ms
+ GET /posts/bf8367ab-17ba-4fd5-8860-c6cc8961d0f3/edit 200 in 49ms
+ GET /api/posts/get?id=bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 46ms
+ GET /api/posts/get?id=bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 43ms
+ ✓ Compiled /api/posts/delete in 342ms
+DELETE /api/posts/delete called
+ DELETE /api/posts/delete?id=bf8367ab-17ba-4fd5-8860-c6cc8961d0f3 200 in 444ms
+ GET /posts 200 in 50ms
+ POST /api/graphql 200 in 112ms
+ GET /posts 200 in 126ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 430ms
+ GET /api/auth/me 200 in 250ms
+ POST /api/graphql 200 in 271ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 440ms
+ POST /api/graphql 200 in 70ms
+ POST /api/graphql 200 in 68ms
+ POST /api/graphql 200 in 74ms
+ POST /api/graphql 200 in 73ms
+ POST /api/graphql 200 in 80ms
+ POST /api/graphql 200 in 67ms
+ POST /api/graphql 200 in 67ms
+ POST /api/graphql 200 in 57ms
+ POST /api/graphql 200 in 81ms
+ POST /api/graphql 200 in 76ms
