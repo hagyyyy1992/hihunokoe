@@ -4,24 +4,36 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_USERS, MOCK_POSTS } from '@/lib/mock-data'
 
 export async function GET(req: NextRequest) {
-  const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
-
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
-  }
-
-  const user = verifyToken(token)
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 })
-  }
-
-  if (!isAdmin(user)) {
-    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
-  }
-
   try {
-    if (!isDatabaseAvailable()) {
+    const token = req.cookies.get('auth-token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 })
+    }
+
+    if (!isAdmin(user)) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+    }
+
+    // データベースが利用可能かどうかを実際にテストしてから使用
+    let useDatabase = false
+    if (isDatabaseAvailable() && prisma) {
+      try {
+        // 実際にAdminUserテーブルが存在するかテスト
+        await prisma.adminUser.findFirst({ take: 1 })
+        useDatabase = true
+      } catch (dbError) {
+        console.log('Database table test failed, using mock data:', dbError)
+        useDatabase = false
+      }
+    }
+
+    if (!useDatabase) {
       // モックデータを使用した統計
       const mockStats = {
         totalUsers: MOCK_USERS.length,
@@ -104,6 +116,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(stats)
   } catch (error) {
     console.error('Dashboard stats error:', error)
-    return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('Database available:', isDatabaseAvailable())
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch dashboard stats',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }

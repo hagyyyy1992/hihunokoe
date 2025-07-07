@@ -146,12 +146,13 @@ describe('AdminLayout', () => {
   it('renders admin layout for valid admin user', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        id: '1',
-        userName: 'admin',
-        email: 'admin@example.com',
-        role: 'ADMIN',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }),
     } as Response)
 
     render(
@@ -168,12 +169,13 @@ describe('AdminLayout', () => {
   it('renders navigation items', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        id: '1',
-        userName: 'admin',
-        email: 'admin@example.com',
-        role: 'ADMIN',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }),
     } as Response)
 
     render(
@@ -194,12 +196,13 @@ describe('AdminLayout', () => {
   it('shows user info and logout button', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        id: '1',
-        userName: 'admin',
-        email: 'admin@example.com',
-        role: 'ADMIN',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }),
     } as Response)
 
     render(
@@ -218,12 +221,13 @@ describe('AdminLayout', () => {
   it('shows super admin role correctly', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        id: '1',
-        userName: 'superadmin',
-        email: 'superadmin@example.com',
-        role: 'SUPER_ADMIN',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: '1',
+          userName: 'superadmin',
+          email: 'superadmin@example.com',
+          role: 'SUPER_ADMIN',
+        }),
     } as Response)
 
     render(
@@ -241,12 +245,13 @@ describe('AdminLayout', () => {
     mockFetch
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          id: '1',
-          userName: 'admin',
-          email: 'admin@example.com',
-          role: 'ADMIN',
-        }),
+        json: () =>
+          Promise.resolve({
+            id: '1',
+            userName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          }),
       } as Response)
       .mockResolvedValueOnce({
         ok: true,
@@ -270,12 +275,13 @@ describe('AdminLayout', () => {
   it('toggles sidebar on mobile', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        id: '1',
-        userName: 'admin',
-        email: 'admin@example.com',
-        role: 'ADMIN',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: '1',
+          userName: 'admin',
+          email: 'admin@example.com',
+          role: 'ADMIN',
+        }),
     } as Response)
 
     render(
