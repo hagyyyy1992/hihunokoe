@@ -358,16 +358,56 @@ export default function PostDetailPage() {
           </div>
 
           {/* 詳細情報 */}
-          {/* 非ログイン時は詳細情報自体が存在しないことを表示 */}
+          {/* 非ログイン時は項目名のみを表示 */}
           {!user && (
             <div className="border-t pt-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
-              <div className="bg-gray-50 rounded-lg p-6 text-center">
-                <p className="text-gray-700 mb-4">
-                  詳細情報を見るには
-                  <br />
-                  ログインが必要です
-                </p>
+
+              {/* 使用状況の項目名のみ表示 */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">季節:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">時間帯:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">肌状態:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">生理周期:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 体験詳細の項目名のみ表示 */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">香り:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">テクスチャ:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">使用後:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ログイン促進 */}
+              <div className="bg-gray-50 rounded-lg p-4 text-center">
+                <p className="text-gray-700 mb-3">詳細情報を見るにはログインが必要です</p>
                 <Link
                   href="/auth/login"
                   className="inline-block px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
