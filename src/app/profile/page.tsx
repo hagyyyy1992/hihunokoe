@@ -150,9 +150,9 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex justify-between items-center mb-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-gray-900">プロフィール</h1>
             {!isEditing && (
               <Button
@@ -334,9 +334,9 @@ export default function ProfilePage() {
               </div>
             </form>
           ) : (
-            <div className="space-y-6">
-              <div className="flex items-center space-x-6 p-6 bg-gradient-to-r from-apple-50 to-apple-100 rounded-lg border border-apple-200">
-                <div className="w-24 h-24 rounded-full bg-apple-100 flex items-center justify-center border-4 border-white shadow-lg">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-apple-50 to-apple-100 rounded-lg border border-apple-200">
+                <div className="w-20 h-20 rounded-full bg-apple-100 flex items-center justify-center border-4 border-white shadow-lg">
                   <span className="text-apple-600 text-2xl font-bold">
                     {(formData.userName || '').charAt(0).toUpperCase()}
                   </span>
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">{formData.userName}</h2>
                   {formData.skinType && (
-                    <div className="mt-2">
+                    <div className="mt-1">
                       <Badge variant="lavender" className="text-sm">
                         {getSkinTypeLabel(formData.skinType)}
                       </Badge>
@@ -353,82 +353,73 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
-                    基本情報
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">ユーザー名</span>
-                        <p className="font-medium text-gray-900">{formData.userName}</p>
-                      </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
+                  基本情報
+                </h3>
+                <div className="space-y-1">
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">ユーザー名</span>
+                      <p className="text-sm font-medium text-gray-900">{formData.userName}</p>
                     </div>
                   </div>
-                </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
-                    アカウント情報
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">メールアドレス</span>
-                        <p className="font-medium text-gray-900">{user.email}</p>
-                      </div>
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">メールアドレス</span>
+                      <p className="text-sm font-medium text-gray-900">{user.email}</p>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">肌タイプ</span>
-                        <p className="font-medium text-gray-900">
-                          {getSkinTypeLabel(formData.skinType)}
-                        </p>
-                      </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">肌タイプ</span>
+                      <p className="text-sm font-medium text-gray-900">
+                        {getSkinTypeLabel(formData.skinType)}
+                      </p>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">生年月日</span>
-                        <p className="font-medium text-gray-900">
-                          {formData.birthDate
-                            ? new Date(formData.birthDate).toLocaleDateString('ja-JP')
-                            : ''}
-                        </p>
-                      </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">生年月日</span>
+                      <p className="text-sm font-medium text-gray-900">
+                        {formData.birthDate
+                          ? new Date(formData.birthDate).toLocaleDateString('ja-JP')
+                          : ''}
+                      </p>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">性別</span>
-                        <p className="font-medium text-gray-900">
-                          {getGenderLabel(formData.gender)}
-                        </p>
-                      </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">性別</span>
+                      <p className="text-sm font-medium text-gray-900">
+                        {getGenderLabel(formData.gender)}
+                      </p>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-black rounded-full mr-3"></div>
-                      <div>
-                        <span className="text-sm text-gray-600">アレルギー</span>
-                        <p className="font-medium text-gray-900">
-                          {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
-                          {formData.allergiesOther && `、${formData.allergiesOther}`}
-                        </p>
-                      </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-xs text-gray-500">アレルギー</span>
+                      <p className="text-sm font-medium text-gray-900">
+                        {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
+                        {formData.allergiesOther && `、${formData.allergiesOther}`}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* アカウント設定セクション */}
-              <div className="border-t border-gray-200 pt-6 mt-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">アカウント設定</h3>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-sm text-red-700 mb-4">
+              <div className="border-t border-gray-200 pt-3 mt-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">アカウント設定</h3>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-sm text-red-700 mb-3">
                     アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます。この操作は取り消すことができません。
                   </p>
                   <Button
