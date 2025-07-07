@@ -117,6 +117,7 @@ export default function CommentForm({
           } ${isReply ? 'text-sm' : ''}`}
           rows={isReply ? 2 : 3}
           disabled={isLoading || isSubmitting}
+          data-testid="comment-input"
           style={{
             minHeight: isReply ? '64px' : '76px',
             maxHeight: '200px',
@@ -128,7 +129,11 @@ export default function CommentForm({
         </div>
       </div>
 
-      {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md">{error}</div>}
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md" data-testid="error-message">
+          {error}
+        </div>
+      )}
 
       <div className={`flex ${isReply ? 'justify-end' : 'justify-between'} items-center`}>
         <div className="flex items-center space-x-2">
@@ -148,6 +153,7 @@ export default function CommentForm({
             className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors disabled:opacity-50 ${
               isReply ? 'bg-gray-600 hover:bg-gray-700' : 'bg-apple-600 hover:bg-apple-700'
             }`}
+            data-testid="add-comment-button"
           >
             {isLoading || isSubmitting ? (
               <div className="flex items-center space-x-2">
