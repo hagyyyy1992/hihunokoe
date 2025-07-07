@@ -60,9 +60,7 @@ export async function POST(request: NextRequest) {
 
     // HTTPOnlyクッキーをセット（サーバーサイド）
     const isProduction = process.env.NODE_ENV === 'production'
-    response.cookies.set({
-      name: 'auth-token',
-      value: token,
+    response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
