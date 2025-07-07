@@ -45,8 +45,8 @@ npm run dev:setup
 # Quick development start
 npm run dev
 
-# Full development environment
-npm run dev:full
+# Full development environment setup
+npm run dev:setup
 ```
 
 ### Database
