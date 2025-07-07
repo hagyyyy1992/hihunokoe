@@ -57,7 +57,8 @@
       "Bash(docker stop:*)",
       "Bash(npx prettier:*)",
       "Bash(npx next lint:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Bash(./scripts/worktree-dev.sh up:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
