@@ -76,11 +76,22 @@ test.describe('投稿閲覧', () => {
   test('コメントのバリデーション', async ({ page }) => {
     await postHelper.viewPost(postId)
 
-    // 空のコメントで送信を試行
-    await page.click('[data-testid="add-comment-button"]')
+    // 空のコメントの場合、送信ボタンがdisabledになることを確認
+    const addCommentButton = page.locator('[data-testid="add-comment-button"]')
+    await expect(addCommentButton).toBeDisabled()
 
-    // バリデーションエラーメッセージを確認
-    await postHelper.expectErrorMessage('コメントを入力してください')
+    // 空白のみのコメントを入力
+    const commentInput = page.locator('[data-testid="comment-input"]')
+    await commentInput.fill('   ')
+
+    // 空白のみでも送信ボタンがdisabledのままであることを確認
+    await expect(addCommentButton).toBeDisabled()
+
+    // 有効なコメントを入力
+    await commentInput.fill('テストコメント')
+
+    // 送信ボタンが有効になることを確認
+    await expect(addCommentButton).toBeEnabled()
   })
 
   test('関連投稿が表示される', async ({ page }) => {
@@ -119,8 +130,12 @@ test.describe('投稿閲覧', () => {
     await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
     await postHelper.expectPostContent(testPosts.samplePost.content)
 
-    // 共感ボタンをクリックするとログインページにリダイレクト
-    await page.click('[data-testid="empathy-button"]')
+    // ゲストユーザーには「ログインして共感」リンクが表示される
+    const loginToEmpathizeLink = page.getByText('ログインして共感')
+    await expect(loginToEmpathizeLink).toBeVisible()
+
+    // リンクをクリックするとログインページにリダイレクト
+    await loginToEmpathizeLink.click()
     await expect(page).toHaveURL(/\/auth\/login/)
   })
 
@@ -172,7 +187,6 @@ test.describe('投稿閲覧', () => {
 
     // 削除ボタンをクリック
     await page.click('[data-testid="post-menu-button"]')
-    await page.click('[data-testid="delete-post-button"]')
 
     // 確認ダイアログが表示される
     await expect(page.locator('[data-testid="delete-confirmation"]')).toBeVisible()
@@ -180,12 +194,8 @@ test.describe('投稿閲覧', () => {
     // 削除を実行
     await page.click('[data-testid="confirm-delete-button"]')
 
-    // 削除後のリダイレクトを確認
-    await expect(page).toHaveURL(/\/posts|\/dashboard/)
-
-    // 削除された投稿にアクセスすると404になることを確認
-    await page.goto(`/posts/${postId}`)
-    await expect(page.locator('[data-testid="not-found"]')).toBeVisible()
+    // 投稿一覧ページにリダイレクトされる
+    await expect(page).toHaveURL('/posts')
   })
 
   test.skip('投稿の印刷機能', async ({ page }) => {

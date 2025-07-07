@@ -177,6 +177,7 @@ export default function PostDetailPage() {
   const [error, setError] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [commentCount, setCommentCount] = useState(0)
   const [empathyState, setEmpathyState] = useState<{
     hasEmpathized: boolean
     empathyType?: EmpathyType
@@ -203,6 +204,7 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
+      setCommentCount(data.post._count?.comments || 0)
       setEmpathyState(prevState => ({
         ...prevState,
         totalCount: data.post._count?.empathies || 0,
@@ -531,7 +533,7 @@ export default function PostDetailPage() {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <span data-testid="comment-count">{post._count.comments} コメント</span>
+                <span data-testid="comment-count">{commentCount} コメント</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,7 +603,11 @@ export default function PostDetailPage() {
             </div>
           }
         >
-          <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
+          <CommentList
+            postId={post.id}
+            initialCommentsCount={post._count.comments}
+            onCommentCountChange={setCommentCount}
+          />
         </AuthGuard>
 
         {/* 関連投稿セクション */}
@@ -621,7 +627,10 @@ export default function PostDetailPage() {
         {/* 削除確認モーダル */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div
+              className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+              data-testid="delete-confirmation"
+            >
               <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
               <p className="text-gray-600 mb-6">
                 この操作は取り消すことができません。本当に削除してもよろしいですか？
@@ -638,7 +647,7 @@ export default function PostDetailPage() {
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
-                  data-testid="delete-post-button"
+                  data-testid="confirm-delete-button"
                 >
                   {isDeleting ? '削除中...' : '削除する'}
                 </button>

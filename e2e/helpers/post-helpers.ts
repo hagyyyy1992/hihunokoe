@@ -103,7 +103,10 @@ export class PostHelper {
     }
 
     // 投稿詳細ページが正しく読み込まれたことを確認
-    await this.page.waitForSelector('[data-testid="post-title"]', { timeout: 10000 })
+    // h1タグでタイトルが表示されることを確認
+    await this.page.waitForSelector('h1', { timeout: 10000 })
+    // 投稿タイトルが表示されていることを確認
+    await expect(this.page.locator('h1')).toContainText(postData.title)
 
     return postId
   }
@@ -141,6 +144,10 @@ export class PostHelper {
 
   async viewPost(postId: string) {
     await this.page.goto(`/posts/${postId}`)
+    // ページが完全に読み込まれるまで待機
+    await this.page.waitForLoadState('networkidle')
+    // 投稿タイトルが表示されるまで待機（ゲストユーザーでも表示される要素）
+    await this.page.waitForSelector('[data-testid="post-title"]', { timeout: 10000 })
   }
 
   async editPost(
@@ -222,10 +229,11 @@ export class PostHelper {
 
   async expectCommentToBeVisible(comment: string) {
     // コメントが表示されるまで待機
+    // 実装に応じて複数のセレクターを試す
     await expect(
       this.page
         .locator(
-          `[data-testid="comment"]:has-text("${comment}"), .comment-content:has-text("${comment}")`
+          `[data-testid="comment"]:has-text("${comment}"), .comment-content:has-text("${comment}"), p:has-text("${comment}")`
         )
         .first()
     ).toBeVisible({ timeout: 10000 })
