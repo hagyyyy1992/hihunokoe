@@ -115,14 +115,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Shield className="h-7 w-7 text-blue-600" />
             <span className="ml-2 text-lg font-semibold text-gray-900">管理画面</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden"
+          <button
+            type="button"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors relative z-10"
             onClick={() => setIsSidebarOpen(false)}
+            aria-label="サイドバーを閉じる"
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto mt-2 px-4 pb-4 space-y-1">
