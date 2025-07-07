@@ -49,7 +49,14 @@
       "Bash(claude mcp add:*)",
       "Bash(./scripts/worktree-dev.sh up:*)",
       "Bash(curl -I:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(docker:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker stop:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npx playwright:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
@@ -104,5 +111,6 @@
     "use_existing_patterns": true,
     "security_first": true,
     "vercel_optimized": true
-  }
+  },
+  "enabledMcpjsonServers": ["filesystem", "git", "memory", "playwright", "figma"]
 }

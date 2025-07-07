@@ -10,9 +10,14 @@ import { AuthGuard, LoginPrompt } from '@/components/auth/AuthGuard'
 interface CommentListProps {
   postId: string
   initialCommentsCount?: number
+  onCommentCountChange?: (count: number) => void
 }
 
-export default function CommentList({ postId, initialCommentsCount = 0 }: CommentListProps) {
+export default function CommentList({
+  postId,
+  initialCommentsCount = 0,
+  onCommentCountChange,
+}: CommentListProps) {
   const { user } = useAuth()
   const {
     comments,
@@ -28,6 +33,9 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
 
   const handleCommentSuccess = (comment: Comment) => {
     addComment(comment)
+    if (onCommentCountChange) {
+      onCommentCountChange((pagination.total || initialCommentsCount) + 1)
+    }
   }
 
   const handleReplySuccess = (parentCommentId: string) => (reply: Comment) => {
@@ -40,6 +48,9 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
 
   const handleDeleteSuccess = (commentId: string) => {
     deleteComment(commentId)
+    if (onCommentCountChange) {
+      onCommentCountChange(Math.max(0, (pagination.total || initialCommentsCount) - 1))
+    }
   }
 
   const handleLoadMore = () => {
@@ -51,7 +62,7 @@ export default function CommentList({ postId, initialCommentsCount = 0 }: Commen
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
       <h3 className="text-lg font-medium text-gray-900 mb-6">
-        コメント ({pagination.total || initialCommentsCount})
+        コメント ({comments.length > 0 ? pagination.total : initialCommentsCount})
       </h3>
 
       {/* コメント投稿フォーム */}

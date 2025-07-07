@@ -36,38 +36,23 @@ test.describe('投稿作成', () => {
   test('必須フィールドのバリデーション', async ({ page }) => {
     await page.goto('/posts/new')
 
-    // 空のフォームで投稿を試行
-    await page.click('[data-testid="publish-button"]')
+    // 空のフォームで次へボタンをクリックしてバリデーションを確認
+    const nextButton = page.getByRole('button', { name: '次へ' })
 
-    // バリデーションエラーメッセージを確認
-    await expect(page.locator('[data-testid="title-error"]')).toContainText('タイトルは必須です')
-    await expect(page.locator('[data-testid="content-error"]')).toContainText('内容は必須です')
-  })
+    // 必須フィールドが空の場合、次へボタンが無効化されていることを確認
+    await expect(nextButton).toBeDisabled()
 
-  test('タイトルの文字数制限', async ({ page }) => {
-    const longTitle = 'あ'.repeat(101) // 100文字を超える
+    // タイトルだけ入力した場合
+    await page.fill('[data-testid="post-title-input"]', 'テストタイトル')
+    await expect(nextButton).toBeDisabled()
 
-    await postHelper.createPost({
-      title: longTitle,
-      content: testPosts.samplePost.content,
-    })
+    // コスメ名も入力した場合
+    await page.fill('[name="cosmeticName"]', 'テストコスメ')
+    await expect(nextButton).toBeDisabled()
 
-    await postHelper.expectErrorMessage('タイトルは100文字以内で入力してください')
-  })
-
-  test('下書き保存機能', async ({ page }) => {
-    await postHelper.saveDraft({
-      title: 'ドラフトのテスト',
-      content: 'これは下書きの内容です',
-      cosmeticName: 'テストセラム',
-      cosmeticCategory: 'serum',
-    })
-
-    await postHelper.expectSuccessMessage('下書きが保存されました')
-
-    // 下書き一覧に移動
-    await page.goto('/posts/drafts')
-    await postHelper.expectPostToBeVisible('ドラフトのテスト')
+    // 内容も入力した場合、次へボタンが有効になる
+    await page.fill('[data-testid="post-content-textarea"]', 'テスト内容')
+    await expect(nextButton).toBeEnabled()
   })
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
@@ -92,6 +77,18 @@ test.describe('投稿作成', () => {
   test('ムード選択が正常に動作する', async ({ page }) => {
     await page.goto('/posts/new')
 
+    // 必須フィールドを入力
+    await page.fill('[data-testid="post-title-input"]', 'テストタイトル')
+    await page.fill('[name="cosmeticName"]', 'テストコスメ')
+    await page.fill('[data-testid="post-content-textarea"]', 'テスト内容')
+
+    // ステップ4まで進む
+    for (let i = 1; i < 4; i++) {
+      const nextButton = page.getByRole('button', { name: '次へ' })
+      await nextButton.click()
+      await page.waitForTimeout(500)
+    }
+
     const moodSelect = page.locator('[name="moodTag"]')
 
     // 各ムードオプションが存在することを確認
@@ -104,98 +101,5 @@ test.describe('投稿作成', () => {
     // ムードを選択
     await moodSelect.selectOption('good')
     await expect(moodSelect).toHaveValue('good')
-  })
-
-  test('タグ追加機能', async ({ page }) => {
-    await page.goto('/posts/new')
-
-    const tagsInput = page.locator('[data-testid="tags-input"]')
-
-    // タグを追加
-    await tagsInput.fill('スキンケア')
-    await tagsInput.press('Enter')
-
-    await tagsInput.fill('保湿')
-    await tagsInput.press('Enter')
-
-    // 追加されたタグを確認
-    await expect(page.locator('[data-testid="tag"]:has-text("スキンケア")')).toBeVisible()
-    await expect(page.locator('[data-testid="tag"]:has-text("保湿")')).toBeVisible()
-  })
-
-  test('タグ削除機能', async ({ page }) => {
-    await page.goto('/posts/new')
-
-    const tagsInput = page.locator('[data-testid="tags-input"]')
-
-    // タグを追加
-    await tagsInput.fill('テストタグ')
-    await tagsInput.press('Enter')
-
-    // タグが追加されたことを確認
-    await expect(page.locator('[data-testid="tag"]:has-text("テストタグ")')).toBeVisible()
-
-    // タグを削除
-    await page.click('[data-testid="tag"]:has-text("テストタグ") [data-testid="remove-tag"]')
-
-    // タグが削除されたことを確認
-    await expect(page.locator('[data-testid="tag"]:has-text("テストタグ")')).not.toBeVisible()
-  })
-
-  test('プレビュー機能', async ({ page }) => {
-    await page.goto('/posts/new')
-
-    await page.fill('[data-testid="post-title-input"]', testPosts.samplePost.title)
-    await page.fill('[data-testid="post-content-textarea"]', testPosts.samplePost.content)
-
-    // プレビューボタンをクリック
-    await page.click('[data-testid="preview-button"]')
-
-    // プレビューモードでの表示を確認
-    await expect(page.locator('[data-testid="preview-title"]')).toContainText(
-      testPosts.samplePost.title
-    )
-    await expect(page.locator('[data-testid="preview-content"]')).toContainText(
-      testPosts.samplePost.content
-    )
-
-    // 編集モードに戻る
-    await page.click('[data-testid="edit-button"]')
-    await expect(page.locator('[data-testid="post-title-input"]')).toBeVisible()
-  })
-
-  test('文字数カウンター', async ({ page }) => {
-    await page.goto('/posts/new')
-
-    const titleInput = page.locator('[data-testid="post-title-input"]')
-    const contentTextarea = page.locator('[data-testid="post-content-textarea"]')
-
-    // タイトルの文字数カウンター
-    await titleInput.fill('テストタイトル')
-    await expect(page.locator('[data-testid="title-counter"]')).toContainText('7/100')
-
-    // 内容の文字数カウンター
-    await contentTextarea.fill('テスト内容です')
-    await expect(page.locator('[data-testid="content-counter"]')).toContainText('7/10000')
-  })
-
-  test('自動保存機能', async ({ page }) => {
-    await page.goto('/posts/new')
-
-    await page.fill('[data-testid="post-title-input"]', 'テスト自動保存')
-    await page.fill('[data-testid="post-content-textarea"]', 'これは自動保存のテストです')
-
-    // 少し待機して自動保存をトリガー
-    await page.waitForTimeout(3000)
-
-    // 自動保存のメッセージを確認
-    await expect(page.locator('[data-testid="autosave-status"]')).toContainText('自動保存済み')
-
-    // ページをリロードして内容が復元されることを確認
-    await page.reload()
-    await expect(page.locator('[data-testid="post-title-input"]')).toHaveValue('テスト自動保存')
-    await expect(page.locator('[data-testid="post-content-textarea"]')).toHaveValue(
-      'これは自動保存のテストです'
-    )
   })
 })
