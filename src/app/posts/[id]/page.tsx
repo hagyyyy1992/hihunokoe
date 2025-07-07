@@ -6,10 +6,10 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import EmpathyButton from '@/components/ui/EmpathyButton'
-import { EmpathyType } from '@/types'
-import CommentList from '@/components/comments/CommentList'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+// import EmpathyButton from '@/components/ui/EmpathyButton'
+// import { EmpathyType } from '@/types'
+// import CommentList from '@/components/comments/CommentList'
+// import { AuthGuard } from '@/components/auth/AuthGuard'
 import {
   fragranceTypeLabels,
   fragranceIntensityLabels,
@@ -63,34 +63,6 @@ interface Post {
     userName: string
     skinType?: string
   }
-  empathies: Array<{
-    id: string
-    empathyType: string
-    user: {
-      id: string
-      userName: string
-    }
-  }>
-  comments: Array<{
-    id: string
-    content: string
-    createdAt: string
-    user: {
-      id: string
-      userName: string
-      skinType?: string
-    }
-    replies: Array<{
-      id: string
-      content: string
-      createdAt: string
-      user: {
-        id: string
-        userName: string
-        skinType?: string
-      }
-    }>
-  }>
   _count: {
     empathies: number
     comments: number
@@ -177,18 +149,17 @@ export default function PostDetailPage() {
   const [error, setError] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [commentCount, setCommentCount] = useState(0)
-  const [empathyState, setEmpathyState] = useState<{
-    hasEmpathized: boolean
-    empathyType?: EmpathyType
-    totalCount: number
-    isLoading: boolean
-  }>({
-    hasEmpathized: false,
-    totalCount: 0,
-    isLoading: false,
-  })
-  console.log('empathyState', empathyState)
+  // const [commentCount, setCommentCount] = useState(0)
+  // const [empathyState, setEmpathyState] = useState<{
+  //   hasEmpathized: boolean
+  //   empathyType?: EmpathyType
+  //   totalCount: number
+  //   isLoading: boolean
+  // }>({
+  //   hasEmpathized: false,
+  //   totalCount: 0,
+  //   isLoading: false,
+  // })
 
   const fetchPost = useCallback(async () => {
     try {
@@ -204,11 +175,11 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
-      setCommentCount(data.post._count?.comments || 0)
-      setEmpathyState(prevState => ({
-        ...prevState,
-        totalCount: data.post._count?.empathies || 0,
-      }))
+      // setCommentCount(data.post._count?.comments || 0)
+      // setEmpathyState(prevState => ({
+      //   ...prevState,
+      //   totalCount: data.post._count?.empathies || 0,
+      // }))
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
@@ -218,42 +189,42 @@ export default function PostDetailPage() {
     }
   }, [id])
 
-  const fetchEmpathyState = useCallback(async () => {
-    if (!user || !id) return
+  // const fetchEmpathyState = useCallback(async () => {
+  //   if (!user || !id) return
 
-    setEmpathyState(prevState => ({
-      ...prevState,
-      isLoading: true,
-    }))
+  //   setEmpathyState(prevState => ({
+  //     ...prevState,
+  //     isLoading: true,
+  //   }))
 
-    try {
-      const response = await fetch(`/api/posts/empathy?id=${id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setEmpathyState({
-          hasEmpathized: data.hasEmpathized || false,
-          empathyType: data.empathyType,
-          totalCount: data.totalCount || 0,
-          isLoading: false,
-        })
-      } else {
-        // 404やその他のエラーの場合、デフォルト状態を設定
-        setEmpathyState({
-          hasEmpathized: false,
-          totalCount: 0,
-          isLoading: false,
-        })
-      }
-    } catch (err) {
-      // 共感状態の取得に失敗してもエラーにはしない
-      console.warn('Failed to fetch empathy state:', err)
-      setEmpathyState({
-        hasEmpathized: false,
-        totalCount: 0,
-        isLoading: false,
-      })
-    }
-  }, [user, id])
+  //   try {
+  //     const response = await fetch(`/api/posts/empathy?id=${id}`)
+  //     if (response.ok) {
+  //       const data = await response.json()
+  //       setEmpathyState({
+  //         hasEmpathized: data.hasEmpathized || false,
+  //         empathyType: data.empathyType,
+  //         totalCount: data.totalCount || 0,
+  //         isLoading: false,
+  //       })
+  //     } else {
+  //       // 404やその他のエラーの場合、デフォルト状態を設定
+  //       setEmpathyState({
+  //         hasEmpathized: false,
+  //         totalCount: 0,
+  //         isLoading: false,
+  //       })
+  //     }
+  //   } catch (err) {
+  //     // 共感状態の取得に失敗してもエラーにはしない
+  //     console.warn('Failed to fetch empathy state:', err)
+  //     setEmpathyState({
+  //       hasEmpathized: false,
+  //       totalCount: 0,
+  //       isLoading: false,
+  //     })
+  //   }
+  // }, [user, id])
 
   useEffect(() => {
     if (id) {
@@ -261,11 +232,11 @@ export default function PostDetailPage() {
     }
   }, [id, fetchPost])
 
-  useEffect(() => {
-    if (id && user && post) {
-      fetchEmpathyState()
-    }
-  }, [id, user, post, fetchEmpathyState])
+  // useEffect(() => {
+  //   if (id && user && post) {
+  //     fetchEmpathyState()
+  //   }
+  // }, [id, user, post, fetchEmpathyState])
 
   const handleDelete = async () => {
     if (!post || isDeleting) return
@@ -387,101 +358,165 @@ export default function PostDetailPage() {
           </div>
 
           {/* 詳細情報 */}
-          {(post.usageSituation || post.experienceDetails) && (
+          {/* 非ログイン時は項目名のみを表示 */}
+          {!user && (
             <div className="border-t pt-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
 
-              {/* 使用状況 */}
-              {post.usageSituation && Object.keys(post.usageSituation).length > 0 && (
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                    {post.usageSituation.season && (
-                      <div>
-                        <span className="text-gray-500">季節:</span>
-                        <span className="ml-2 text-gray-900">
-                          {seasonLabels[post.usageSituation.season] || post.usageSituation.season}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.timeOfDay && (
-                      <div>
-                        <span className="text-gray-500">時間帯:</span>
-                        <span className="ml-2 text-gray-900">
-                          {timeOfDayLabels[post.usageSituation.timeOfDay] ||
-                            post.usageSituation.timeOfDay}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.skinCondition && (
-                      <div>
-                        <span className="text-gray-500">肌状態:</span>
-                        <span className="ml-2 text-gray-900">
-                          {skinConditionLabels[post.usageSituation.skinCondition] ||
-                            post.usageSituation.skinCondition}
-                        </span>
-                      </div>
-                    )}
-                    {post.usageSituation.menstrualCycle && (
-                      <div>
-                        <span className="text-gray-500">生理周期:</span>
-                        <span className="ml-2 text-gray-900">
-                          {menstrualCycleLabels[post.usageSituation.menstrualCycle] ||
-                            post.usageSituation.menstrualCycle}
-                        </span>
-                      </div>
-                    )}
+              {/* 使用状況の項目名のみ表示 */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">季節:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">時間帯:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">肌状態:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">生理周期:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* 体験詳細 */}
-              {post.experienceDetails && Object.keys(post.experienceDetails).length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
-                  <div className="space-y-4 text-sm">
-                    {post.experienceDetails.fragrance && (
-                      <div>
-                        <span className="text-gray-500">香り:</span>
-                        <span className="ml-2 text-gray-900">
-                          {fragranceTypeLabels[post.experienceDetails.fragrance.type || ''] ||
-                            post.experienceDetails.fragrance.type}
-                          {post.experienceDetails.fragrance.intensity &&
-                            ` (${fragranceIntensityLabels[post.experienceDetails.fragrance.intensity] || post.experienceDetails.fragrance.intensity})`}
-                        </span>
-                      </div>
-                    )}
-                    {post.experienceDetails.texture && (
-                      <div>
-                        <span className="text-gray-500">テクスチャ:</span>
-                        <span className="ml-2 text-gray-900">
-                          {textureTypeLabels[post.experienceDetails.texture.type || ''] ||
-                            post.experienceDetails.texture.type}
-                          {post.experienceDetails.texture.spreadability &&
-                            ` / ${spreadabilityLabels[post.experienceDetails.texture.spreadability] || post.experienceDetails.texture.spreadability}`}
-                          {post.experienceDetails.texture.absorption &&
-                            ` / 浸透: ${absorptionLabels[post.experienceDetails.texture.absorption] || post.experienceDetails.texture.absorption}`}
-                        </span>
-                      </div>
-                    )}
-                    {post.experienceDetails.afterUse && (
-                      <div>
-                        <span className="text-gray-500">使用後:</span>
-                        <span className="ml-2 text-gray-900">
-                          {post.experienceDetails.afterUse.moisture &&
-                            `うるおい感: ${moistureLabels[post.experienceDetails.afterUse.moisture] || post.experienceDetails.afterUse.moisture}`}
-                          {post.experienceDetails.afterUse.texture &&
-                            ` / 手触り: ${textureAfterUseLabels[post.experienceDetails.afterUse.texture] || post.experienceDetails.afterUse.texture}`}
-                          {post.experienceDetails.afterUse.comfort &&
-                            ` / ${comfortLabels[post.experienceDetails.afterUse.comfort] || post.experienceDetails.afterUse.comfort}`}
-                          {post.experienceDetails.afterUse.duration &&
-                            ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
-                        </span>
-                      </div>
-                    )}
+              {/* 体験詳細の項目名のみ表示 */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">香り:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">テクスチャ:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">使用後:</span>
+                    <span className="ml-2 text-gray-400">ログインして確認</span>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* ログイン促進 */}
+              <div className="bg-gray-50 rounded-lg p-4 text-center">
+                <p className="text-gray-700 mb-3">詳細情報を見るにはログインが必要です</p>
+                <Link
+                  href="/auth/login"
+                  className="inline-block px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  ログイン
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* ログイン時のみ詳細情報を表示 */}
+          {user && (post.usageSituation || post.experienceDetails) && (
+            <div className="border-t pt-6 mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
+
+              {/* ログイン時の通常表示 */}
+              <>
+                {/* 使用状況 */}
+                {post.usageSituation && Object.keys(post.usageSituation).length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      {post.usageSituation.season && (
+                        <div>
+                          <span className="text-gray-500">季節:</span>
+                          <span className="ml-2 text-gray-900">
+                            {seasonLabels[post.usageSituation.season] || post.usageSituation.season}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.timeOfDay && (
+                        <div>
+                          <span className="text-gray-500">時間帯:</span>
+                          <span className="ml-2 text-gray-900">
+                            {timeOfDayLabels[post.usageSituation.timeOfDay] ||
+                              post.usageSituation.timeOfDay}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.skinCondition && (
+                        <div>
+                          <span className="text-gray-500">肌状態:</span>
+                          <span className="ml-2 text-gray-900">
+                            {skinConditionLabels[post.usageSituation.skinCondition] ||
+                              post.usageSituation.skinCondition}
+                          </span>
+                        </div>
+                      )}
+                      {post.usageSituation.menstrualCycle && (
+                        <div>
+                          <span className="text-gray-500">生理周期:</span>
+                          <span className="ml-2 text-gray-900">
+                            {menstrualCycleLabels[post.usageSituation.menstrualCycle] ||
+                              post.usageSituation.menstrualCycle}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 体験詳細 */}
+                {post.experienceDetails && Object.keys(post.experienceDetails).length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
+                    <div className="space-y-4 text-sm">
+                      {post.experienceDetails.fragrance && (
+                        <div>
+                          <span className="text-gray-500">香り:</span>
+                          <span className="ml-2 text-gray-900">
+                            {fragranceTypeLabels[post.experienceDetails.fragrance.type || ''] ||
+                              post.experienceDetails.fragrance.type}
+                            {post.experienceDetails.fragrance.intensity &&
+                              ` (${fragranceIntensityLabels[post.experienceDetails.fragrance.intensity] || post.experienceDetails.fragrance.intensity})`}
+                          </span>
+                        </div>
+                      )}
+                      {post.experienceDetails.texture && (
+                        <div>
+                          <span className="text-gray-500">テクスチャ:</span>
+                          <span className="ml-2 text-gray-900">
+                            {textureTypeLabels[post.experienceDetails.texture.type || ''] ||
+                              post.experienceDetails.texture.type}
+                            {post.experienceDetails.texture.spreadability &&
+                              ` / ${spreadabilityLabels[post.experienceDetails.texture.spreadability] || post.experienceDetails.texture.spreadability}`}
+                            {post.experienceDetails.texture.absorption &&
+                              ` / 浸透: ${absorptionLabels[post.experienceDetails.texture.absorption] || post.experienceDetails.texture.absorption}`}
+                          </span>
+                        </div>
+                      )}
+                      {post.experienceDetails.afterUse && (
+                        <div>
+                          <span className="text-gray-500">使用後:</span>
+                          <span className="ml-2 text-gray-900">
+                            {post.experienceDetails.afterUse.moisture &&
+                              `うるおい感: ${moistureLabels[post.experienceDetails.afterUse.moisture] || post.experienceDetails.afterUse.moisture}`}
+                            {post.experienceDetails.afterUse.texture &&
+                              ` / 手触り: ${textureAfterUseLabels[post.experienceDetails.afterUse.texture] || post.experienceDetails.afterUse.texture}`}
+                            {post.experienceDetails.afterUse.comfort &&
+                              ` / ${comfortLabels[post.experienceDetails.afterUse.comfort] || post.experienceDetails.afterUse.comfort}`}
+                            {post.experienceDetails.afterUse.duration &&
+                              ` / 持続時間: ${durationLabels[post.experienceDetails.afterUse.duration] || post.experienceDetails.afterUse.duration}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             </div>
           )}
 
@@ -524,7 +559,7 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -534,8 +569,8 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="comment-count">{commentCount} コメント</span>
-              </div>
-              <div className="flex items-center space-x-2">
+              </div> */}
+              {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -551,10 +586,10 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="view-count">{post.viewCount} 閲覧</span>
-              </div>
+              </div> */}
             </div>
 
-            <AuthGuard
+            {/* <AuthGuard
               fallback={
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -585,12 +620,12 @@ export default function PostDetailPage() {
                 initializing={empathyState.isLoading}
                 size="md"
               />
-            </AuthGuard>
+            </AuthGuard> */}
           </div>
         </article>
 
         {/* コメントセクション */}
-        <AuthGuard
+        {/* <AuthGuard
           fallback={
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
@@ -608,21 +643,7 @@ export default function PostDetailPage() {
             initialCommentsCount={post._count.comments}
             onCommentCountChange={setCommentCount}
           />
-        </AuthGuard>
-
-        {/* 関連投稿セクション */}
-        <section className="mt-8" data-testid="related-posts">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">関連する投稿</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* TODO: 関連投稿の実装 */}
-            <div
-              className="bg-gray-100 rounded-lg p-6 text-center text-gray-500"
-              data-testid="related-post"
-            >
-              関連投稿機能は現在開発中です
-            </div>
-          </div>
-        </section>
+        </AuthGuard> */}
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (
