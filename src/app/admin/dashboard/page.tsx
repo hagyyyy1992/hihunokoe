@@ -137,7 +137,7 @@ export default function AdminDashboard() {
             <CardDescription>直近5名のユーザー</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-h-64 overflow-y-auto">
+            <div className="space-y-4">
               {stats.recentUsers.map(user => (
                 <div
                   key={user.id}
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
             <CardDescription>直近5件の投稿</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-h-64 overflow-y-auto">
+            <div className="space-y-4">
               {stats.recentPosts.map(post => (
                 <div key={post.id} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
