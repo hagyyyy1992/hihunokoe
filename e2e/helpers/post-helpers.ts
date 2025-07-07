@@ -87,13 +87,16 @@ export class PostHelper {
       console.error('Failed to navigate to post detail page')
       console.error('Current URL:', this.page.url())
       console.error('Page title:', await this.page.title())
-      
+
       // エラーメッセージがあるかチェック
-      const errorMessage = await this.page.locator('[data-testid="error-message"]').textContent().catch(() => null)
+      const errorMessage = await this.page
+        .locator('[data-testid="error-message"]')
+        .textContent()
+        .catch(() => null)
       if (errorMessage) {
         console.error('Error message on page:', errorMessage)
       }
-      
+
       // 手動で投稿詳細ページに移動を試みる
       await this.page.goto(`/posts/${postId}`)
       await this.page.waitForLoadState('networkidle')
@@ -179,7 +182,7 @@ export class PostHelper {
   async addComment(comment: string) {
     await this.page.fill('[data-testid="comment-input"]', comment)
     await this.page.click('[data-testid="add-comment-button"]')
-    
+
     // コメントが送信されるを待つ
     await this.page.waitForTimeout(1000)
   }
@@ -220,13 +223,19 @@ export class PostHelper {
   async expectCommentToBeVisible(comment: string) {
     // コメントが表示されるまで待機
     await expect(
-      this.page.locator(`[data-testid="comment"]:has-text("${comment}"), .comment-content:has-text("${comment}")`).first()
+      this.page
+        .locator(
+          `[data-testid="comment"]:has-text("${comment}"), .comment-content:has-text("${comment}")`
+        )
+        .first()
     ).toBeVisible({ timeout: 10000 })
   }
 
   async expectCommentCount(count: number) {
     // コメント数が更新されるまで待機
-    await expect(this.page.locator('[data-testid="comment-count"]')).toContainText(`${count}`, { timeout: 10000 })
+    await expect(this.page.locator('[data-testid="comment-count"]')).toContainText(`${count}`, {
+      timeout: 10000,
+    })
   }
 
   async expectEmpathyCount(count: number) {
