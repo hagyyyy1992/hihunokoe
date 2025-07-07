@@ -6,10 +6,10 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import EmpathyButton from '@/components/ui/EmpathyButton'
-import { EmpathyType } from '@/types'
-import CommentList from '@/components/comments/CommentList'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+// import EmpathyButton from '@/components/ui/EmpathyButton'
+// import { EmpathyType } from '@/types'
+// import CommentList from '@/components/comments/CommentList'
+// import { AuthGuard } from '@/components/auth/AuthGuard'
 import {
   fragranceTypeLabels,
   fragranceIntensityLabels,
@@ -149,17 +149,17 @@ export default function PostDetailPage() {
   const [error, setError] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [commentCount, setCommentCount] = useState(0)
-  const [empathyState, setEmpathyState] = useState<{
-    hasEmpathized: boolean
-    empathyType?: EmpathyType
-    totalCount: number
-    isLoading: boolean
-  }>({
-    hasEmpathized: false,
-    totalCount: 0,
-    isLoading: false,
-  })
+  // const [commentCount, setCommentCount] = useState(0)
+  // const [empathyState, setEmpathyState] = useState<{
+  //   hasEmpathized: boolean
+  //   empathyType?: EmpathyType
+  //   totalCount: number
+  //   isLoading: boolean
+  // }>({
+  //   hasEmpathized: false,
+  //   totalCount: 0,
+  //   isLoading: false,
+  // })
 
   const fetchPost = useCallback(async () => {
     try {
@@ -175,11 +175,11 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
-      setCommentCount(data.post._count?.comments || 0)
-      setEmpathyState(prevState => ({
-        ...prevState,
-        totalCount: data.post._count?.empathies || 0,
-      }))
+      // setCommentCount(data.post._count?.comments || 0)
+      // setEmpathyState(prevState => ({
+      //   ...prevState,
+      //   totalCount: data.post._count?.empathies || 0,
+      // }))
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
@@ -189,42 +189,42 @@ export default function PostDetailPage() {
     }
   }, [id])
 
-  const fetchEmpathyState = useCallback(async () => {
-    if (!user || !id) return
+  // const fetchEmpathyState = useCallback(async () => {
+  //   if (!user || !id) return
 
-    setEmpathyState(prevState => ({
-      ...prevState,
-      isLoading: true,
-    }))
+  //   setEmpathyState(prevState => ({
+  //     ...prevState,
+  //     isLoading: true,
+  //   }))
 
-    try {
-      const response = await fetch(`/api/posts/empathy?id=${id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setEmpathyState({
-          hasEmpathized: data.hasEmpathized || false,
-          empathyType: data.empathyType,
-          totalCount: data.totalCount || 0,
-          isLoading: false,
-        })
-      } else {
-        // 404やその他のエラーの場合、デフォルト状態を設定
-        setEmpathyState({
-          hasEmpathized: false,
-          totalCount: 0,
-          isLoading: false,
-        })
-      }
-    } catch (err) {
-      // 共感状態の取得に失敗してもエラーにはしない
-      console.warn('Failed to fetch empathy state:', err)
-      setEmpathyState({
-        hasEmpathized: false,
-        totalCount: 0,
-        isLoading: false,
-      })
-    }
-  }, [user, id])
+  //   try {
+  //     const response = await fetch(`/api/posts/empathy?id=${id}`)
+  //     if (response.ok) {
+  //       const data = await response.json()
+  //       setEmpathyState({
+  //         hasEmpathized: data.hasEmpathized || false,
+  //         empathyType: data.empathyType,
+  //         totalCount: data.totalCount || 0,
+  //         isLoading: false,
+  //       })
+  //     } else {
+  //       // 404やその他のエラーの場合、デフォルト状態を設定
+  //       setEmpathyState({
+  //         hasEmpathized: false,
+  //         totalCount: 0,
+  //         isLoading: false,
+  //       })
+  //     }
+  //   } catch (err) {
+  //     // 共感状態の取得に失敗してもエラーにはしない
+  //     console.warn('Failed to fetch empathy state:', err)
+  //     setEmpathyState({
+  //       hasEmpathized: false,
+  //       totalCount: 0,
+  //       isLoading: false,
+  //     })
+  //   }
+  // }, [user, id])
 
   useEffect(() => {
     if (id) {
@@ -232,11 +232,11 @@ export default function PostDetailPage() {
     }
   }, [id, fetchPost])
 
-  useEffect(() => {
-    if (id && user && post) {
-      fetchEmpathyState()
-    }
-  }, [id, user, post, fetchEmpathyState])
+  // useEffect(() => {
+  //   if (id && user && post) {
+  //     fetchEmpathyState()
+  //   }
+  // }, [id, user, post, fetchEmpathyState])
 
   const handleDelete = async () => {
     if (!post || isDeleting) return
@@ -369,7 +369,7 @@ export default function PostDetailPage() {
                   ログインが必要です
                 </p>
                 <Link
-                  href="/login"
+                  href="/auth/login"
                   className="inline-block px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                 >
                   ログイン
@@ -519,7 +519,7 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -529,8 +529,8 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="comment-count">{commentCount} コメント</span>
-              </div>
-              <div className="flex items-center space-x-2">
+              </div> */}
+              {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -546,10 +546,10 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="view-count">{post.viewCount} 閲覧</span>
-              </div>
+              </div> */}
             </div>
 
-            <AuthGuard
+            {/* <AuthGuard
               fallback={
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -580,12 +580,12 @@ export default function PostDetailPage() {
                 initializing={empathyState.isLoading}
                 size="md"
               />
-            </AuthGuard>
+            </AuthGuard> */}
           </div>
         </article>
 
         {/* コメントセクション */}
-        <AuthGuard
+        {/* <AuthGuard
           fallback={
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
@@ -603,21 +603,7 @@ export default function PostDetailPage() {
             initialCommentsCount={post._count.comments}
             onCommentCountChange={setCommentCount}
           />
-        </AuthGuard>
-
-        {/* 関連投稿セクション */}
-        <section className="mt-8" data-testid="related-posts">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">関連する投稿</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* TODO: 関連投稿の実装 */}
-            <div
-              className="bg-gray-100 rounded-lg p-6 text-center text-gray-500"
-              data-testid="related-post"
-            >
-              関連投稿機能は現在開発中です
-            </div>
-          </div>
-        </section>
+        </AuthGuard> */}
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (
