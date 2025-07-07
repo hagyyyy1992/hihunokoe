@@ -47,4 +47,36 @@ export class AuthSessionRepositoryImpl implements AuthSessionRepository {
 
     tokensToDelete.forEach(token => this.sessions.delete(token))
   }
+
+  async findById(id: string): Promise<AuthSession | null> {
+    for (const session of this.sessions.values()) {
+      if (session.id === id) {
+        if (session.isExpired()) {
+          this.sessions.delete(session.token)
+          return null
+        }
+        return session
+      }
+    }
+    return null
+  }
+
+  async invalidate(id: string): Promise<void> {
+    for (const [token, session] of this.sessions.entries()) {
+      if (session.id === id) {
+        session.isValid = false
+        this.sessions.set(token, session)
+        break
+      }
+    }
+  }
+
+  async invalidateAllUserSessions(userId: string): Promise<void> {
+    for (const [token, session] of this.sessions.entries()) {
+      if (session.userId === userId) {
+        session.isValid = false
+        this.sessions.set(token, session)
+      }
+    }
+  }
 }

@@ -1,9 +1,13 @@
 import { POST } from '@/app/api/auth/logout/route'
+import { NextRequest } from 'next/server'
 
 describe('/api/auth/logout', () => {
   describe('POST', () => {
     it('ログアウト成功レスポンスを返す', async () => {
-      const response = await POST()
+      const request = new NextRequest('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+      })
+      const response = await POST(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -11,7 +15,10 @@ describe('/api/auth/logout', () => {
     })
 
     it('auth-tokenクッキーを削除する', async () => {
-      const response = await POST()
+      const request = new NextRequest('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+      })
+      const response = await POST(request)
 
       // Check if the cookie is set to expire immediately
       const cookies = response.headers.get('set-cookie')
@@ -26,7 +33,10 @@ describe('/api/auth/logout', () => {
       const mockEnv = { ...process.env, NODE_ENV: 'production' as const }
       jest.replaceProperty(process, 'env', mockEnv as NodeJS.ProcessEnv)
 
-      const response = await POST()
+      const request = new NextRequest('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+      })
+      const response = await POST(request)
 
       const cookies = response.headers.get('set-cookie')
       expect(cookies).toContain('Secure')
@@ -42,7 +52,10 @@ describe('/api/auth/logout', () => {
       const mockEnv = { ...process.env, NODE_ENV: 'development' as const }
       jest.replaceProperty(process, 'env', mockEnv as NodeJS.ProcessEnv)
 
-      const response = await POST()
+      const request = new NextRequest('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+      })
+      const response = await POST(request)
 
       const cookies = response.headers.get('set-cookie')
       expect(cookies).not.toContain('Secure')

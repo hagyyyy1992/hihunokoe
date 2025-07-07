@@ -1,17 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { handleLogout } from '../auth-route-adapters'
 
-export async function POST() {
-  const response = NextResponse.json({
-    message: 'ログアウトしました',
-  })
-
-  // HttpOnly Cookie を削除
-  response.cookies.set('auth-token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 0,
-  })
-
-  return response
+export async function POST(request: NextRequest) {
+  return handleLogout(request)
 }

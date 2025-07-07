@@ -30,16 +30,36 @@ export interface UpdateUserData {
   deletedAt?: Date | null
 }
 
+export interface FindUsersFilter {
+  offset: number
+  limit: number
+  search?: string
+  activeOnly?: boolean
+  inactiveOnly?: boolean
+  role?: string
+  createdAfter?: Date
+  publishedOnly: boolean
+}
+
+export interface FindUsersResult {
+  users: User[]
+  totalCount: number
+}
+
 export interface UserRepository {
   findById(id: string): Promise<User | null>
   findByEmail(email: string): Promise<User | null>
   findByUsername(username: string): Promise<User | null>
   findByEmailVerificationToken(token: string): Promise<User | null>
   findByPasswordResetToken(token: string): Promise<User | null>
+  findMany(filter: FindUsersFilter): Promise<FindUsersResult>
   create(user: CreateUserData): Promise<User>
   update(id: string, data: UpdateUserData): Promise<User>
   delete(id: string): Promise<void>
+  softDelete(id: string): Promise<void>
   incrementFailedLoginAttempts(id: string): Promise<void>
   resetFailedLoginAttempts(id: string): Promise<void>
   lockAccount(id: string, until: Date): Promise<void>
+  updatePassword(id: string, passwordHash: string): Promise<void>
+  verifyEmail(id: string): Promise<void>
 }

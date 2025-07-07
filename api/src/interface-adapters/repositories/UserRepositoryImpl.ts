@@ -3,6 +3,8 @@ import {
   UserRepository,
   CreateUserData,
   UpdateUserData,
+  FindUsersFilter,
+  FindUsersResult,
 } from '@api/domain/repositories/UserRepository'
 import { prisma } from '@/lib/prisma'
 import { User as PrismaUser } from '@prisma/client'
@@ -151,6 +153,128 @@ export class UserRepositoryImpl implements UserRepository {
       SET locked_until = ${until} 
       WHERE id = ${id}::uuid
     `
+  }
+
+  async softDelete(id: string): Promise<void> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    })
+  }
+
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    })
+  }
+
+  async verifyEmail(id: string): Promise<void> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        emailVerified: true,
+        emailVerificationToken: null,
+      },
+    })
+  }
+
+  async findMany(filter: FindUsersFilter): Promise<FindUsersResult> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const where: any = {}
+
+    // Active/inactive filter
+    if (filter.activeOnly) {
+      where.isActive = true
+      where.deletedAt = null
+    } else if (filter.inactiveOnly) {
+      where.OR = [{ isActive: false }, { deletedAt: { not: null } }]
+    }
+
+    // Role filter
+    if (filter.role) {
+      where.role = filter.role
+    }
+
+    // Created after filter
+    if (filter.createdAfter) {
+      where.createdAt = { gte: filter.createdAfter }
+    }
+
+    // Search filter
+    if (filter.search) {
+      where.OR = [
+        { userName: { contains: filter.search, mode: 'insensitive' } },
+        { email: { contains: filter.search, mode: 'insensitive' } },
+      ]
+    }
+
+    const [users, totalCount] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip: filter.offset,
+        take: filter.limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.user.count({ where }),
+    ])
+
+    return {
+      users: users.map(user => this.toDomainUser(user)),
+      totalCount,
+    }
+  }
+
+  // Admin-specific methods
+  async findAllWithPostCount(): Promise<User[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
+      },
+    })
+
+    return users.map(user => this.toDomainUser(user))
+  }
+
+  async findRecentUsers(limit: number): Promise<User[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const users = await prisma.user.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+
+    return users.map(user => this.toDomainUser(user))
+  }
+
+  async countActiveUsers(): Promise<number> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    return await prisma.user.count({
+      where: {
+        isActive: true,
+        deletedAt: null,
+      },
+    })
   }
 
   private toDomainUser(

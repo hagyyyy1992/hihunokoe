@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { LoginUseCase } from '@api/usecases/auth/LoginUseCase'
 import { RegisterUseCase } from '@api/usecases/auth/RegisterUseCase'
+import { ForgotPasswordUseCase } from '@api/usecases/auth/ForgotPasswordUseCase'
+import { ResetPasswordUseCase } from '@api/usecases/auth/ResetPasswordUseCase'
+import { VerifyEmailUseCase } from '@api/usecases/auth/VerifyEmailUseCase'
+import { LogoutUseCase } from '@api/usecases/auth/LogoutUseCase'
+import { GetCurrentUserUseCase } from '@api/usecases/auth/GetCurrentUserUseCase'
+import { DeleteAccountUseCase } from '@api/usecases/auth/DeleteAccountUseCase'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -17,12 +24,14 @@ export class AuthController {
   private authSessionRepository: AuthSessionRepositoryImpl
   private passwordHashService: PasswordHashServiceImpl
   private tokenService: TokenServiceImpl
+  private emailService: EmailServiceImpl
 
   constructor() {
     this.userRepository = new UserRepositoryImpl()
     this.authSessionRepository = new AuthSessionRepositoryImpl()
     this.passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
+    this.emailService = new EmailServiceImpl()
   }
 
   async login(request: NextRequest): Promise<NextResponse> {
@@ -116,6 +125,231 @@ export class AuthController {
 
       console.error('Registration error:', error)
       return NextResponse.json({ error: 'An error occurred during registration' }, { status: 500 })
+    }
+  }
+
+  async forgotPassword(request: NextRequest): Promise<NextResponse> {
+    try {
+      const body = await request.json()
+      const { email } = body
+
+      if (!email) {
+        return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+      }
+
+      const forgotPasswordUseCase = new ForgotPasswordUseCase(
+        this.userRepository,
+        this.emailService,
+        this.tokenService
+      )
+
+      const result = await forgotPasswordUseCase.execute({ email })
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Invalid email format') {
+          return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
+        }
+      }
+
+      console.error('Forgot password error:', error)
+      return NextResponse.json(
+        { error: 'パスワードリセットの処理中にエラーが発生しました' },
+        { status: 500 }
+      )
+    }
+  }
+
+  async resetPassword(request: NextRequest): Promise<NextResponse> {
+    try {
+      const body = await request.json()
+      const { token, password } = body
+
+      if (!token || !password) {
+        return NextResponse.json({ error: 'Token and password are required' }, { status: 400 })
+      }
+
+      const resetPasswordUseCase = new ResetPasswordUseCase(
+        this.userRepository,
+        this.passwordHashService,
+        this.tokenService
+      )
+
+      const result = await resetPasswordUseCase.execute({ token, password })
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Invalid or expired reset token') {
+          return NextResponse.json({ error: 'Invalid or expired reset token' }, { status: 400 })
+        }
+        if (error.message.includes('Password must be')) {
+          return NextResponse.json({ error: error.message }, { status: 400 })
+        }
+        if (error.message === 'User not found' || error.message === 'Account is inactive') {
+          return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+        }
+      }
+
+      console.error('Reset password error:', error)
+      return NextResponse.json(
+        { error: 'パスワードリセットの処理中にエラーが発生しました' },
+        { status: 500 }
+      )
+    }
+  }
+
+  async verifyEmail(request: NextRequest): Promise<NextResponse> {
+    try {
+      const body = await request.json()
+      const { token } = body
+
+      if (!token) {
+        return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+      }
+
+      const verifyEmailUseCase = new VerifyEmailUseCase(this.userRepository, this.tokenService)
+
+      const result = await verifyEmailUseCase.execute({ token })
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Invalid or expired verification token') {
+          return NextResponse.json(
+            { error: 'Invalid or expired verification token' },
+            { status: 400 }
+          )
+        }
+        if (error.message === 'User not found') {
+          return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+        }
+      }
+
+      console.error('Verify email error:', error)
+      return NextResponse.json(
+        { error: 'メール認証の処理中にエラーが発生しました' },
+        { status: 500 }
+      )
+    }
+  }
+
+  async logout(request: NextRequest): Promise<NextResponse> {
+    try {
+      const authHeader = request.headers.get('Authorization')
+      const token = authHeader?.replace('Bearer ', '')
+
+      if (!token) {
+        return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
+      }
+
+      const logoutUseCase = new LogoutUseCase(this.authSessionRepository)
+
+      const result = await logoutUseCase.execute({ token })
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+      return NextResponse.json({ error: 'An error occurred during logout' }, { status: 500 })
+    }
+  }
+
+  async getCurrentUser(request: NextRequest): Promise<NextResponse> {
+    try {
+      const authHeader = request.headers.get('Authorization')
+      const token = authHeader?.replace('Bearer ', '')
+
+      if (!token) {
+        return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
+      }
+
+      const getCurrentUserUseCase = new GetCurrentUserUseCase(
+        this.userRepository,
+        this.authSessionRepository,
+        this.tokenService
+      )
+
+      const result = await getCurrentUserUseCase.execute({ token })
+
+      return NextResponse.json({
+        success: true,
+        user: result.user,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Invalid or expired token' || error.message === 'Session expired') {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+        if (error.message === 'User not found' || error.message === 'Account is inactive') {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+      }
+
+      console.error('Get current user error:', error)
+      return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
+    }
+  }
+
+  async deleteAccount(request: NextRequest): Promise<NextResponse> {
+    try {
+      const authHeader = request.headers.get('Authorization')
+      const token = authHeader?.replace('Bearer ', '')
+
+      if (!token) {
+        return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
+      }
+
+      const body = await request.json()
+      const { password } = body
+
+      if (!password) {
+        return NextResponse.json({ error: 'Password is required' }, { status: 400 })
+      }
+
+      const deleteAccountUseCase = new DeleteAccountUseCase(
+        this.userRepository,
+        this.passwordHashService,
+        this.authSessionRepository,
+        this.tokenService
+      )
+
+      const result = await deleteAccountUseCase.execute({ token, password })
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Invalid or expired token') {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+        if (error.message === 'Invalid password') {
+          return NextResponse.json({ error: 'Invalid password' }, { status: 400 })
+        }
+        if (error.message === 'User not found') {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+      }
+
+      console.error('Delete account error:', error)
+      return NextResponse.json(
+        { error: 'An error occurred while deleting account' },
+        { status: 500 }
+      )
     }
   }
 }
