@@ -151,22 +151,6 @@ test.describe('投稿閲覧', () => {
     await expect(page.locator('[data-testid="view-count"]')).toBeVisible()
   })
 
-  test.skip('SNSシェア機能', async ({ page }) => {
-    // SNSシェア機能が実装されていない場合はスキップ
-    await postHelper.viewPost(postId)
-
-    // シェアボタンが表示される
-    await expect(page.locator('[data-testid="share-twitter"]')).toBeVisible()
-    await expect(page.locator('[data-testid="share-facebook"]')).toBeVisible()
-    await expect(page.locator('[data-testid="share-line"]')).toBeVisible()
-
-    // Twitterシェアリンクのhrefを確認
-    const twitterLink = page.locator('[data-testid="share-twitter"]')
-    const href = await twitterLink.getAttribute('href')
-    expect(href).toContain('twitter.com/intent/tweet')
-    expect(href).toContain(encodeURIComponent(testPosts.samplePost.title))
-  })
-
   test('投稿編集権限のテスト', async ({ page }) => {
     await postHelper.viewPost(postId)
 
@@ -196,31 +180,5 @@ test.describe('投稿閲覧', () => {
 
     // 投稿一覧ページにリダイレクトされる
     await expect(page).toHaveURL('/posts')
-  })
-
-  test.skip('投稿の印刷機能', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 印刷ボタンが表示される
-    await expect(page.locator('[data-testid="print-button"]')).toBeVisible()
-
-    // 印刷ダイアログは実際のブラウザ機能のためモックで代用
-    const printPromise = page.waitForEvent('console')
-    await page.click('[data-testid="print-button"]')
-    // 印刷機能が呼び出されたことを確認（実装に依存）
-  })
-
-  test.skip('ブックマーク機能', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // ブックマークボタンをクリック
-    await page.click('[data-testid="bookmark-button"]')
-
-    // ブックマークされたことを確認
-    await expect(page.locator('[data-testid="bookmark-button"]')).toHaveClass(/bookmarked|active/)
-
-    // ブックマーク一覧に移動して確認
-    await page.goto('/bookmarks')
-    await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
   })
 })
