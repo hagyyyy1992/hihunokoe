@@ -372,6 +372,17 @@ export default function PostDetailPage() {
     )
   }
 
+  if (!currentPost) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -383,18 +394,20 @@ export default function PostDetailPage() {
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
                   <span className="text-apple-600 font-medium text-sm">
-                    {currentPost.user.displayName?.charAt(0).toUpperCase() || currentPost.user.userName?.charAt(0).toUpperCase()}
+                    {('displayName' in currentPost.user ? currentPost.user.displayName : currentPost.user.userName)?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
                   <p className="font-medium text-gray-900" data-testid="post-author">
-                    {currentPost.user.displayName || currentPost.user.userName}
+                    {'displayName' in currentPost.user ? currentPost.user.displayName : currentPost.user.userName}
                   </p>
-                  {currentPost.user.bio && <p className="text-xs text-gray-500">{currentPost.user.bio}</p>}
+                  {'bio' in currentPost.user && currentPost.user.bio && (
+                    <p className="text-xs text-gray-500">{currentPost.user.bio}</p>
+                  )}
                 </div>
               </div>
               <time className="text-sm text-gray-500" data-testid="post-date">
-                {formatDistanceToNow(new Date(currentPost.createdAt || currentPost.publishedAt), {
+                {formatDistanceToNow(new Date('createdAt' in currentPost ? currentPost.createdAt : currentPost.publishedAt), {
                   addSuffix: true,
                   locale: ja,
                 })}
@@ -439,7 +452,9 @@ export default function PostDetailPage() {
 
           {/* 本文 */}
           <div className="prose max-w-none mb-8">
-            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">{currentPost.content}</div>
+            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              {currentPost.content}
+            </div>
           </div>
 
           {/* 詳細情報 */}
@@ -511,96 +526,101 @@ export default function PostDetailPage() {
               {/* ログイン時の通常表示 */}
               <>
                 {/* 使用状況 */}
-                {currentPost.usageSituation && Object.keys(currentPost.usageSituation).length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      {currentPost.usageSituation.season && (
-                        <div>
-                          <span className="text-gray-500">季節:</span>
-                          <span className="ml-2 text-gray-900">
-                            {seasonLabels[currentPost.usageSituation.season] || currentPost.usageSituation.season}
-                          </span>
-                        </div>
-                      )}
-                      {currentPost.usageSituation.timeOfDay && (
-                        <div>
-                          <span className="text-gray-500">時間帯:</span>
-                          <span className="ml-2 text-gray-900">
-                            {timeOfDayLabels[currentPost.usageSituation.timeOfDay] ||
-                              currentPost.usageSituation.timeOfDay}
-                          </span>
-                        </div>
-                      )}
-                      {currentPost.usageSituation.skinCondition && (
-                        <div>
-                          <span className="text-gray-500">肌状態:</span>
-                          <span className="ml-2 text-gray-900">
-                            {skinConditionLabels[currentPost.usageSituation.skinCondition] ||
-                              currentPost.usageSituation.skinCondition}
-                          </span>
-                        </div>
-                      )}
-                      {currentPost.usageSituation.menstrualCycle && (
-                        <div>
-                          <span className="text-gray-500">生理周期:</span>
-                          <span className="ml-2 text-gray-900">
-                            {menstrualCycleLabels[currentPost.usageSituation.menstrualCycle] ||
-                              currentPost.usageSituation.menstrualCycle}
-                          </span>
-                        </div>
-                      )}
+                {currentPost.usageSituation &&
+                  Object.keys(currentPost.usageSituation).length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        {currentPost.usageSituation.season && (
+                          <div>
+                            <span className="text-gray-500">季節:</span>
+                            <span className="ml-2 text-gray-900">
+                              {seasonLabels[currentPost.usageSituation.season] ||
+                                currentPost.usageSituation.season}
+                            </span>
+                          </div>
+                        )}
+                        {currentPost.usageSituation.timeOfDay && (
+                          <div>
+                            <span className="text-gray-500">時間帯:</span>
+                            <span className="ml-2 text-gray-900">
+                              {timeOfDayLabels[currentPost.usageSituation.timeOfDay] ||
+                                currentPost.usageSituation.timeOfDay}
+                            </span>
+                          </div>
+                        )}
+                        {currentPost.usageSituation.skinCondition && (
+                          <div>
+                            <span className="text-gray-500">肌状態:</span>
+                            <span className="ml-2 text-gray-900">
+                              {skinConditionLabels[currentPost.usageSituation.skinCondition] ||
+                                currentPost.usageSituation.skinCondition}
+                            </span>
+                          </div>
+                        )}
+                        {currentPost.usageSituation.menstrualCycle && (
+                          <div>
+                            <span className="text-gray-500">生理周期:</span>
+                            <span className="ml-2 text-gray-900">
+                              {menstrualCycleLabels[currentPost.usageSituation.menstrualCycle] ||
+                                currentPost.usageSituation.menstrualCycle}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* 体験詳細 */}
-                {currentPost.experienceDetails && Object.keys(currentPost.experienceDetails).length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
-                    <div className="space-y-4 text-sm">
-                      {currentPost.experienceDetails.fragrance && (
-                        <div>
-                          <span className="text-gray-500">香り:</span>
-                          <span className="ml-2 text-gray-900">
-                            {fragranceTypeLabels[currentPost.experienceDetails.fragrance.type || ''] ||
-                              currentPost.experienceDetails.fragrance.type}
-                            {currentPost.experienceDetails.fragrance.intensity &&
-                              ` (${fragranceIntensityLabels[currentPost.experienceDetails.fragrance.intensity] || currentPost.experienceDetails.fragrance.intensity})`}
-                          </span>
-                        </div>
-                      )}
-                      {currentPost.experienceDetails.texture && (
-                        <div>
-                          <span className="text-gray-500">テクスチャ:</span>
-                          <span className="ml-2 text-gray-900">
-                            {textureTypeLabels[currentPost.experienceDetails.texture.type || ''] ||
-                              currentPost.experienceDetails.texture.type}
-                            {currentPost.experienceDetails.texture.spreadability &&
-                              ` / ${spreadabilityLabels[currentPost.experienceDetails.texture.spreadability] || currentPost.experienceDetails.texture.spreadability}`}
-                            {currentPost.experienceDetails.texture.absorption &&
-                              ` / 浸透: ${absorptionLabels[currentPost.experienceDetails.texture.absorption] || currentPost.experienceDetails.texture.absorption}`}
-                          </span>
-                        </div>
-                      )}
-                      {currentPost.experienceDetails.afterUse && (
-                        <div>
-                          <span className="text-gray-500">使用後:</span>
-                          <span className="ml-2 text-gray-900">
-                            {currentPost.experienceDetails.afterUse.moisture &&
-                              `うるおい感: ${moistureLabels[currentPost.experienceDetails.afterUse.moisture] || currentPost.experienceDetails.afterUse.moisture}`}
-                            {currentPost.experienceDetails.afterUse.texture &&
-                              ` / 手触り: ${textureAfterUseLabels[currentPost.experienceDetails.afterUse.texture] || currentPost.experienceDetails.afterUse.texture}`}
-                            {currentPost.experienceDetails.afterUse.comfort &&
-                              ` / ${comfortLabels[currentPost.experienceDetails.afterUse.comfort] || currentPost.experienceDetails.afterUse.comfort}`}
-                            {currentPost.experienceDetails.afterUse.duration &&
-                              ` / 持続時間: ${durationLabels[currentPost.experienceDetails.afterUse.duration] || currentPost.experienceDetails.afterUse.duration}`}
-                          </span>
-                        </div>
-                      )}
+                {currentPost.experienceDetails &&
+                  Object.keys(currentPost.experienceDetails).length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
+                      <div className="space-y-4 text-sm">
+                        {currentPost.experienceDetails.fragrance && (
+                          <div>
+                            <span className="text-gray-500">香り:</span>
+                            <span className="ml-2 text-gray-900">
+                              {fragranceTypeLabels[
+                                currentPost.experienceDetails.fragrance.type || ''
+                              ] || currentPost.experienceDetails.fragrance.type}
+                              {currentPost.experienceDetails.fragrance.intensity &&
+                                ` (${fragranceIntensityLabels[currentPost.experienceDetails.fragrance.intensity] || currentPost.experienceDetails.fragrance.intensity})`}
+                            </span>
+                          </div>
+                        )}
+                        {currentPost.experienceDetails.texture && (
+                          <div>
+                            <span className="text-gray-500">テクスチャ:</span>
+                            <span className="ml-2 text-gray-900">
+                              {textureTypeLabels[
+                                currentPost.experienceDetails.texture.type || ''
+                              ] || currentPost.experienceDetails.texture.type}
+                              {currentPost.experienceDetails.texture.spreadability &&
+                                ` / ${spreadabilityLabels[currentPost.experienceDetails.texture.spreadability] || currentPost.experienceDetails.texture.spreadability}`}
+                              {currentPost.experienceDetails.texture.absorption &&
+                                ` / 浸透: ${absorptionLabels[currentPost.experienceDetails.texture.absorption] || currentPost.experienceDetails.texture.absorption}`}
+                            </span>
+                          </div>
+                        )}
+                        {currentPost.experienceDetails.afterUse && (
+                          <div>
+                            <span className="text-gray-500">使用後:</span>
+                            <span className="ml-2 text-gray-900">
+                              {currentPost.experienceDetails.afterUse.moisture &&
+                                `うるおい感: ${moistureLabels[currentPost.experienceDetails.afterUse.moisture] || currentPost.experienceDetails.afterUse.moisture}`}
+                              {currentPost.experienceDetails.afterUse.texture &&
+                                ` / 手触り: ${textureAfterUseLabels[currentPost.experienceDetails.afterUse.texture] || currentPost.experienceDetails.afterUse.texture}`}
+                              {currentPost.experienceDetails.afterUse.comfort &&
+                                ` / ${comfortLabels[currentPost.experienceDetails.afterUse.comfort] || currentPost.experienceDetails.afterUse.comfort}`}
+                              {currentPost.experienceDetails.afterUse.duration &&
+                                ` / 持続時間: ${durationLabels[currentPost.experienceDetails.afterUse.duration] || currentPost.experienceDetails.afterUse.duration}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </>
             </div>
           )}
