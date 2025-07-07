@@ -135,7 +135,7 @@ export default function CommentItem({
   }
 
   return (
-    <div className={`${isReply ? 'ml-8 mt-3' : ''}`}>
+    <div className={`${isReply ? 'ml-8 mt-3' : ''}`} data-testid="comment">
       <div className="flex items-start space-x-3">
         <div
           className={`${isReply ? 'w-6 h-6' : 'w-8 h-8'} bg-apple-100 rounded-full flex items-center justify-center flex-shrink-0`}
@@ -194,7 +194,9 @@ export default function CommentItem({
             </form>
           ) : (
             <>
-              <p className={`text-gray-700 leading-relaxed ${isReply ? 'text-sm' : ''}`}>
+              <p
+                className={`text-gray-700 leading-relaxed ${isReply ? 'text-sm' : ''} comment-content`}
+              >
                 {comment.content}
               </p>
 
