@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -188,17 +182,16 @@ export default function PostModeration() {
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ステータス" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="published">公開</SelectItem>
-                <SelectItem value="draft">下書き</SelectItem>
-                <SelectItem value="hidden">非公開</SelectItem>
-              </SelectContent>
-            </Select>
+            <SimpleSelect
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              className="w-full sm:w-40"
+            >
+              <option value="all">すべて</option>
+              <option value="published">公開</option>
+              <option value="draft">下書き</option>
+              <option value="hidden">非公開</option>
+            </SimpleSelect>
           </div>
 
           {/* 投稿一覧テーブル */}

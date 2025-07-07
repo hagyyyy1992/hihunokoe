@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -195,28 +189,26 @@ export default function UserManagement() {
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ステータス" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="active">アクティブ</SelectItem>
-                <SelectItem value="inactive">停止中</SelectItem>
-              </SelectContent>
-            </Select>
+            <SimpleSelect
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              className="w-full sm:w-40"
+            >
+              <option value="all">すべて</option>
+              <option value="active">アクティブ</option>
+              <option value="inactive">停止中</option>
+            </SimpleSelect>
 
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ロール" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="USER">ユーザー</SelectItem>
-                <SelectItem value="ADMIN">管理者</SelectItem>
-                <SelectItem value="SUPER_ADMIN">スーパー管理者</SelectItem>
-              </SelectContent>
-            </Select>
+            <SimpleSelect
+              value={roleFilter}
+              onValueChange={setRoleFilter}
+              className="w-full sm:w-40"
+            >
+              <option value="all">すべて</option>
+              <option value="USER">ユーザー</option>
+              <option value="ADMIN">管理者</option>
+              <option value="SUPER_ADMIN">スーパー管理者</option>
+            </SimpleSelect>
 
             <Button onClick={exportUsers} variant="outline">
               <Download className="mr-2 h-4 w-4" />
