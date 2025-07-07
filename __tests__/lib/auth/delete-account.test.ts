@@ -104,6 +104,7 @@ describe('deleteUserAccount', () => {
       data: {
         deletedAt: expect.any(Date),
         isActive: false,
+        userName: expect.stringMatching(/^testuser_deleted_\d+$/),
       },
     })
   })
