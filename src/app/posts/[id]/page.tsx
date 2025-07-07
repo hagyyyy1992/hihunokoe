@@ -394,12 +394,19 @@ export default function PostDetailPage() {
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
                   <span className="text-apple-600 font-medium text-sm">
-                    {('displayName' in currentPost.user ? currentPost.user.displayName : currentPost.user.userName)?.charAt(0).toUpperCase()}
+                    {('displayName' in currentPost.user
+                      ? currentPost.user.displayName
+                      : currentPost.user.userName
+                    )
+                      ?.charAt(0)
+                      .toUpperCase()}
                   </span>
                 </div>
                 <div>
                   <p className="font-medium text-gray-900" data-testid="post-author">
-                    {'displayName' in currentPost.user ? currentPost.user.displayName : currentPost.user.userName}
+                    {'displayName' in currentPost.user
+                      ? currentPost.user.displayName
+                      : currentPost.user.userName}
                   </p>
                   {'bio' in currentPost.user && currentPost.user.bio && (
                     <p className="text-xs text-gray-500">{currentPost.user.bio}</p>
@@ -407,10 +414,15 @@ export default function PostDetailPage() {
                 </div>
               </div>
               <time className="text-sm text-gray-500" data-testid="post-date">
-                {formatDistanceToNow(new Date('createdAt' in currentPost ? currentPost.createdAt : currentPost.publishedAt), {
-                  addSuffix: true,
-                  locale: ja,
-                })}
+                {formatDistanceToNow(
+                  new Date(
+                    'createdAt' in currentPost ? currentPost.createdAt : currentPost.publishedAt
+                  ),
+                  {
+                    addSuffix: true,
+                    locale: ja,
+                  }
+                )}
               </time>
             </div>
 
