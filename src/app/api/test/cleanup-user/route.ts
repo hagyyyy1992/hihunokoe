@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         where: { userId: user.id },
       })
 
-      // ユーザーを削除
+      // ユーザーをハード削除（E2Eテストで再利用可能にするため）
       await prisma.user.delete({
         where: { id: user.id },
       })

@@ -6,42 +6,69 @@ export class PostHelper {
   async createPost(postData: {
     title: string
     content: string
-    category?: string
-    mood?: string
+    cosmeticName?: string
+    cosmeticCategory?: string
+    moodTag?: string
     tags?: string[]
   }) {
-    await this.page.goto('/posts/create')
+    await this.page.goto('/posts/new')
 
+    // ステップ1: 基本情報
     await this.page.fill('[data-testid="post-title-input"]', postData.title)
     await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
 
-    if (postData.category) {
-      await this.page.selectOption('[data-testid="category-select"]', postData.category)
+    if (postData.cosmeticName) {
+      await this.page.fill('[name="cosmeticName"]', postData.cosmeticName)
     }
 
-    if (postData.mood) {
-      await this.page.click(`[data-testid="mood-${postData.mood}"]`)
+    if (postData.cosmeticCategory) {
+      await this.page.selectOption('[data-testid="category-select"]', postData.cosmeticCategory)
     }
 
-    if (postData.tags && postData.tags.length > 0) {
-      const tagsInput = this.page.locator('[data-testid="tags-input"]')
-      for (const tag of postData.tags) {
-        await tagsInput.fill(tag)
-        await tagsInput.press('Enter')
+    // 最後のステップまでスキップ（オプション項目をスキップ）
+    // ステップ1から4まで進む
+    for (let i = 1; i < 4; i++) {
+      // 既に投稿詳細ページに遷移している場合は終了
+      if (this.page.url().includes('/posts/') && !this.page.url().includes('/posts/new')) {
+        return
       }
+
+      const nextButton = this.page.getByRole('button', { name: '次へ' })
+      await nextButton.click()
+      await this.page.waitForTimeout(500) // 遷移を待つ
     }
 
-    await this.page.click('[data-testid="publish-button"]')
+    // ステップ4でムードタグを設定（まだフォームにいる場合）
+    if (
+      (postData.moodTag && !this.page.url().includes('/posts/')) ||
+      this.page.url().includes('/posts/new')
+    ) {
+      await this.page.selectOption('[name="moodTag"]', postData.moodTag!)
+    }
+
+    // 投稿を公開（まだフォームにいる場合）
+    if (!this.page.url().includes('/posts/') || this.page.url().includes('/posts/new')) {
+      await this.page.click('[data-testid="publish-button"]')
+    }
   }
 
-  async saveDraft(postData: { title: string; content: string; category?: string }) {
-    await this.page.goto('/posts/create')
+  async saveDraft(postData: {
+    title: string
+    content: string
+    cosmeticName?: string
+    cosmeticCategory?: string
+  }) {
+    await this.page.goto('/posts/new')
 
     await this.page.fill('[data-testid="post-title-input"]', postData.title)
     await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
 
-    if (postData.category) {
-      await this.page.selectOption('[data-testid="category-select"]', postData.category)
+    if (postData.cosmeticName) {
+      await this.page.fill('[name="cosmeticName"]', postData.cosmeticName)
+    }
+
+    if (postData.cosmeticCategory) {
+      await this.page.selectOption('[data-testid="category-select"]', postData.cosmeticCategory)
     }
 
     await this.page.click('[data-testid="save-draft-button"]')
@@ -109,11 +136,15 @@ export class PostHelper {
   }
 
   async expectPostToBeVisible(title: string) {
-    await expect(this.page.locator(`[data-testid="post-title"]:has-text("${title}")`)).toBeVisible()
+    // タイトルがh1またはh2タグに含まれていることを確認
+    await expect(
+      this.page.locator(`h1:has-text("${title}"), h2:has-text("${title}")`).first()
+    ).toBeVisible()
   }
 
   async expectPostContent(content: string) {
-    await expect(this.page.locator('[data-testid="post-content"]')).toContainText(content)
+    // 投稿内容がページのどこかに表示されていることを確認
+    await expect(this.page.locator(`text="${content}"`)).toBeVisible()
   }
 
   async expectCommentToBeVisible(comment: string) {

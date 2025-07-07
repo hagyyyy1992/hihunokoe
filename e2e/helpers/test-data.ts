@@ -2,14 +2,14 @@ export const testUsers = {
   validUser: {
     username: 'testuser_e2e',
     email: 'testuser@example.com',
-    password: 'testpassword123',
+    password: 'TestPassword123',
     skinType: 'normal',
   },
 
   admin: {
     username: 'admin_e2e',
     email: 'admin@example.com',
-    password: 'adminpassword123',
+    password: 'AdminPassword123',
     skinType: 'combination',
   },
 }
@@ -18,17 +18,15 @@ export const testPosts = {
   samplePost: {
     title: 'E2Eテスト投稿',
     content: 'これはPlaywrightのE2Eテストで作成された投稿です。',
-    category: 'SKINCARE',
-    mood: 'happy',
-    tags: ['test', 'e2e', 'playwright'],
+    cosmeticName: 'テストクリーム',
+    cosmeticCategory: 'cream',
   },
 
   longPost: {
     title: '長文投稿のテスト',
     content: 'この投稿は長い内容のテストです。'.repeat(10),
-    category: 'MAKEUP',
-    mood: 'excited',
-    tags: ['longform', 'test'],
+    cosmeticName: 'テストファンデーション',
+    cosmeticCategory: 'foundation',
   },
 }
 
@@ -41,7 +39,7 @@ export const generateRandomUser = () => {
   return {
     username: `user_${uniqueId}`,
     email: `user${uniqueId}@example.com`,
-    password: 'testpassword123',
+    password: 'TestPassword123',
     skinType: 'normal',
   }
 }
