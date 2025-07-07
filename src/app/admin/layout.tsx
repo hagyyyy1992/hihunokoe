@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/avatar'
 import { AuthUser } from '@/lib/auth/auth'
+import { SERVICE_NAME } from '@/lib/constants'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -113,7 +114,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="flex items-center justify-between h-16 px-4 border-b bg-white">
           <div className="flex items-center">
             <Shield className="h-7 w-7 text-blue-600" />
-            <span className="ml-2 text-lg font-semibold text-gray-900">管理画面</span>
+            <span className="ml-2 text-lg font-semibold text-gray-900">{SERVICE_NAME}管理画面</span>
           </div>
           <button
             type="button"

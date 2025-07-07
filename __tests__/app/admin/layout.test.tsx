@@ -162,7 +162,7 @@ describe('AdminLayout', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('管理画面')).toBeInTheDocument()
+      expect(screen.getByText('ひふのこえ管理画面')).toBeInTheDocument()
     })
   })
 
