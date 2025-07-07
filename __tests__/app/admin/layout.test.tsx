@@ -185,7 +185,7 @@ describe('AdminLayout', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getAllByText('ダッシュボード')).toHaveLength(2) // nav link + header
+      expect(screen.getByText('ダッシュボード')).toBeInTheDocument()
       expect(screen.getByText('ユーザー管理')).toBeInTheDocument()
       expect(screen.getByText('投稿管理')).toBeInTheDocument()
       expect(screen.getByText('通報管理')).toBeInTheDocument()

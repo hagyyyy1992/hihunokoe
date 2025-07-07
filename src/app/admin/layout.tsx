@@ -170,22 +170,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* メインコンテンツ */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* ヘッダー */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="flex items-center h-16 px-4 lg:px-6">
-            <button
-              type="button"
-              className="lg:hidden p-2 -ml-2 mr-2 rounded-lg hover:bg-gray-100 transition-colors"
-              onClick={() => setIsSidebarOpen(true)}
-              aria-label="メニューを開く"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900">
-              {navigationItems.find(item => item.href === pathname)?.label || 'ダッシュボード'}
-            </h1>
-          </div>
-        </header>
+        {/* モバイル用ハンバーガーメニュー */}
+        <button
+          type="button"
+          className="lg:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="メニューを開く"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
 
         {/* メインコンテンツエリア */}
         <main className="flex-1 p-6">{children}</main>
