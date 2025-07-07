@@ -35,15 +35,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/dashboard/stats', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (!response.ok) {
@@ -176,8 +169,8 @@ export default function AdminDashboard() {
               {stats.recentPosts.map(post => (
                 <div key={post.id} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-gray-900 line-clamp-1">{post.title}</h4>
-                    <span className="flex items-center text-sm text-gray-500">
+                    <h4 className="font-medium text-gray-900 truncate flex-1 mr-2">{post.title}</h4>
+                    <span className="flex items-center text-sm text-gray-500 flex-shrink-0">
                       <Heart className="h-4 w-4 mr-1" />
                       {post.empathyCount}
                     </span>
