@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/avatar'
-import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { AuthUser } from '@/lib/auth/auth'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -45,26 +45,26 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     const checkAuth = async () => {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
+      try {
+        // サーバー側でユーザー情報を取得するAPIを呼び出す
+        const response = await fetch('/api/admin/auth/me', {
+          credentials: 'include', // HTTPOnlyクッキーを送信
+        })
 
-      if (!token) {
+        if (!response.ok) {
+          router.push('/admin/login')
+          setIsLoading(false)
+          return
+        }
+
+        const userData = await response.json()
+        setUser(userData)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Auth check error:', error)
         router.push('/admin/login')
         setIsLoading(false)
-        return
       }
-
-      const userData = verifyToken(token)
-      if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN')) {
-        router.push('/admin/login')
-        setIsLoading(false)
-        return
-      }
-
-      setUser(userData)
-      setIsLoading(false)
     }
 
     checkAuth()
