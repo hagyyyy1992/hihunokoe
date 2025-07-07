@@ -203,3 +203,141 @@ DELETE /api/posts/delete called
  POST /api/graphql 200 in 57ms
  POST /api/graphql 200 in 81ms
  POST /api/graphql 200 in 76ms
+
+# ===== LOGS FROM HIDE-DETAIL-POST FEATURE =====
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3003
+   - Network:      http://192.168.1.2:3003
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Compiled middleware in 132ms
+ ✓ Ready in 1066ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1591ms
+ GET / 200 in 1873ms
+ ✓ Compiled /api/auth/me in 493ms
+🗄️  Database: local (development)
+📍 URL: postgresql://postgres:***@localhost:5434/hihunokoe_hide-detail-post
+✅ Prisma connected to local database
+ GET /api/auth/me 401 in 582ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 699ms
+ HEAD / 200 in 70ms
+ GET / 200 in 115ms
+ GET /api/auth/me 401 in 29ms
+ ○ Compiling /posts ...
+ ✓ Compiled /posts in 724ms
+ GET /posts 200 in 746ms
+ ✓ Compiled /api/posts in 297ms
+ GET /api/posts?page=1&limit=10 200 in 394ms
+ GET /api/posts?page=1&limit=10 200 in 23ms
+ ○ Compiling /posts/[id] ...
+ ✓ Compiled /posts/[id] in 554ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 915ms
+ ✓ Compiled /api/posts/get in 250ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 290ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 26ms
+ ✓ Compiled in 212ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 58ms
+ ✓ Compiled in 136ms
+ ✓ Compiled /posts/[id] in 9ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 168ms
+ ✓ Compiled in 138ms
+ ✓ Compiled /posts/[id] in 15ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 37ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 38ms
+ ✓ Compiled in 170ms
+ ✓ Compiled in 174ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 45ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 27ms
+ ✓ Compiled in 166ms
+ ✓ Compiled in 123ms
+ ✓ Compiled /posts/[id] in 25ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 187ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 199ms
+ ✓ Compiled in 128ms
+ ✓ Compiled /posts/[id] in 7ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 35ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 54ms
+ ✓ Compiled in 169ms
+ ✓ Compiled /posts/[id] in 6ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 50ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 82ms
+ ✓ Compiled in 243ms
+ ✓ Compiled /posts/[id] in 9ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 46ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 83ms
+ ✓ Compiled in 121ms
+ ✓ Compiled /posts/[id] in 7ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 38ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 85ms
+ ✓ Compiled in 140ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 561ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 404 in 677ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 41ms
+ ✓ Compiled in 150ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 42ms
+ ✓ Compiled in 116ms
+ ✓ Compiled in 149ms
+ ✓ Compiled /posts/[id] in 10ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 195ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 93ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 27ms
+ ✓ Compiled in 230ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 22ms
+ ✓ Compiled in 139ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 236ms
+ GET /api/auth/me 401 in 45ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 51ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 246ms
+ GET /login 404 in 48ms
+ GET /login 404 in 67ms
+ GET /api/auth/me 401 in 28ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 76ms
+ GET /api/auth/me 401 in 44ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 49ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 35ms
+ ✓ Compiled in 357ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 601ms
+ GET /auth/login 200 in 635ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 54ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 37ms
+ GET /auth/login 200 in 73ms
+ ✓ Compiled /api/auth/login in 362ms
+ POST /api/auth/login 401 in 411ms
+ GET / 200 in 232ms
+ GET /api/auth/me 200 in 70ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 276ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 526ms
+ POST /api/auth/logout 200 in 576ms
+ GET /posts 200 in 59ms
+ GET /api/posts?page=1&limit=10 200 in 85ms
+ GET /api/posts?page=1&limit=10 200 in 26ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 208ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 51ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 28ms
+ ✓ Compiled in 206ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 74ms
+ ✓ Compiled in 149ms
+ ✓ Compiled in 139ms
+ ✓ Compiled /posts/[id] in 27ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 228ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 232ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 40ms
+ ✓ Compiled in 171ms
+ ✓ Compiled in 173ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 128ms
+ GET /api/auth/me 401 in 43ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 182ms
+ GET /posts/ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 315ms
+ GET /api/auth/me 401 in 58ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 63ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 254ms
+ GET /api/posts/get?id=ecdc6a12-a2ec-4db7-926c-38a3372a4058 200 in 29ms
+ ✓ Compiled in 139ms
