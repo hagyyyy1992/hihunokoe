@@ -104,5 +104,6 @@
     "use_existing_patterns": true,
     "security_first": true,
     "vercel_optimized": true
-  }
+  },
+  "enabledMcpjsonServers": ["filesystem", "git", "memory", "playwright", "figma"]
 }
