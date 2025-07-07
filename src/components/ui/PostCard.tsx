@@ -111,12 +111,16 @@ export default function PostCard({ post }: PostCardProps) {
     post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+      data-testid="post-card"
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <Link
             href={`/posts/${post.id}`}
             className="text-lg font-semibold text-gray-900 hover:text-apple-600 transition-colors"
+            data-testid="post-title"
           >
             {post.title}
           </Link>
