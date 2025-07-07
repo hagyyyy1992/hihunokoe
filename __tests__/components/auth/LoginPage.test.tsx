@@ -25,10 +25,11 @@ jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
 }))
 
+const mockLogin = jest.fn()
 jest.mock('../../../src/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
-    login: jest.fn(),
+    login: mockLogin,
     register: jest.fn(),
     logout: jest.fn(),
     refreshAuth: jest.fn(),
@@ -57,6 +58,7 @@ describe('LoginPage', () => {
     setupFetchMock(mockFetch)
     mockRefreshAuth = jest.fn()
     jest.clearAllMocks()
+    mockLogin.mockClear()
   })
 
   afterEach(() => {
@@ -142,7 +144,7 @@ describe('LoginPage', () => {
   describe('フォーム送信', () => {
     it('正しい情報でログインできる', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: 'ログイン成功' }) as any)
+      mockLogin.mockResolvedValueOnce(undefined)
 
       render(<LoginPage />)
 
@@ -154,21 +156,12 @@ describe('LoginPage', () => {
       await fillInput(user, passwordInput, 'password123')
       await submitForm(user, form)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'password123',
-        }),
-      })
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123')
     })
 
     it('ログイン成功時にダッシュボードにリダイレクトされる', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: 'ログイン成功' }) as any)
+      mockLogin.mockResolvedValueOnce(undefined)
 
       render(<LoginPage />)
 
@@ -187,9 +180,7 @@ describe('LoginPage', () => {
 
     it('ログインエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(
-        mockApiResponse.error('メールアドレスまたはパスワードが間違っています') as any
-      )
+      mockLogin.mockRejectedValueOnce(new Error('メールアドレスまたはパスワードが間違っています'))
 
       render(<LoginPage />)
 
@@ -210,6 +201,7 @@ describe('LoginPage', () => {
 
     it('メール認証が必要な場合に再送信ボタンが表示される', async () => {
       const user = createUser()
+      mockLogin.mockRejectedValueOnce(new Error('メールアドレスの確認が完了していません'))
 
       render(<LoginPage />)
 
@@ -220,20 +212,10 @@ describe('LoginPage', () => {
       await fillInput(user, emailInput, 'unverified@example.com')
       await fillInput(user, passwordInput, 'password123')
 
-      // Mock the response to include emailVerificationRequired
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: 'メールアドレスの確認が必要です',
-          emailVerificationRequired: true,
-        }),
-      } as any)
-
       await submitForm(user, form)
       await delay(100)
 
-      expect(screen.getByText('メールアドレスの確認が必要です')).toBeInTheDocument()
+      expect(screen.getByText('メールアドレスの確認が完了していません')).toBeInTheDocument()
 
       // Wait for the resend button to appear after the error message
       await waitFor(() => expect(screen.getByText('確認メールを再送信する')).toBeInTheDocument())
@@ -243,14 +225,7 @@ describe('LoginPage', () => {
       const user = createUser()
 
       // First call - login with email verification required
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: 'メールアドレスの確認が必要です',
-          emailVerificationRequired: true,
-        }),
-      } as any)
+      mockLogin.mockRejectedValueOnce(new Error('メールアドレスの確認が完了していません'))
 
       render(<LoginPage />)
 
@@ -291,7 +266,7 @@ describe('LoginPage', () => {
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      mockLogin.mockRejectedValueOnce(new Error('Network error'))
 
       render(<LoginPage />)
 
@@ -306,7 +281,7 @@ describe('LoginPage', () => {
       await delay(100)
 
       const errorMessage = screen.getByTestId('error-message')
-      expect(errorMessage).toHaveTextContent('ログインに失敗しました')
+      expect(errorMessage).toHaveTextContent('Network error')
       expect(consoleSpy).toHaveBeenCalledWith('Login error:', expect.any(Error))
 
       consoleSpy.mockRestore()
@@ -318,7 +293,7 @@ describe('LoginPage', () => {
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockLogin.mockReturnValueOnce(pendingPromise as any)
 
       render(<LoginPage />)
 
@@ -333,7 +308,7 @@ describe('LoginPage', () => {
 
       expect(submitButton).toBeDisabled()
 
-      resolvePromise(mockApiResponse.success({ message: 'Success' }))
+      resolvePromise(undefined)
       await delay(100)
 
       expect(submitButton).not.toBeDisabled()
@@ -348,7 +323,7 @@ describe('LoginPage', () => {
       const form = screen.getByTestId('login-form') as HTMLFormElement
       await submitForm(user, form)
 
-      expect(mockFetch).not.toHaveBeenCalled()
+      expect(mockLogin).not.toHaveBeenCalled()
     })
 
     it('必須フィールドにrequired属性が設定されている', () => {
