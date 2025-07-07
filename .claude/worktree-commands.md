@@ -35,12 +35,12 @@
 
 各worktreeは以下のルールでポートが自動割り当てされます：
 
-| サービス | メイン | worktree 1 | worktree 2 | worktree 3 |
-|---------|--------|------------|------------|------------|
-| Next.js | 3000 | 3001 | 3002 | 3003 |
-| PostgreSQL | 5432 | 5433 | 5434 | 5435 |
-| MailHog | 8025 | 8026 | 8027 | 8028 |
-| Adminer | 8080 | 8081 | 8082 | 8083 |
+| サービス   | メイン | worktree 1 | worktree 2 | worktree 3 |
+| ---------- | ------ | ---------- | ---------- | ---------- |
+| Next.js    | 3000   | 3001       | 3002       | 3003       |
+| PostgreSQL | 5432   | 5433       | 5434       | 5435       |
+| MailHog    | 8025   | 8026       | 8027       | 8028       |
+| Adminer    | 8080   | 8081       | 8082       | 8083       |
 
 ## 🛠️ セットアップ
 
@@ -71,7 +71,7 @@ wt-ports scan   # アクティブポートスキャン
 
 # 出力例:
 # === 現在のWorktree: feature-auth ===
-# 
+#
 # 🟢 feature-auth
 #    Next.js:    http://localhost:3001
 #    PostgreSQL: localhost:5433
@@ -89,7 +89,7 @@ wt-ports scan   # アクティブポートスキャン
 # ╔════════════════════════════════════════════════════════════════╗
 # ║               🚀 Hihunokoe Worktree Dashboard 🚀               ║
 # ╚════════════════════════════════════════════════════════════════╝
-# 
+#
 # Worktree        Status   Next.js      PostgreSQL   MailHog      Adminer      Branch
 # ────────────────────────────────────────────────────────────────────────────────────────
 # 🟢 main         起動中   :3000        :5432        :8025        :8080        main
@@ -105,10 +105,10 @@ wt-ports scan   # アクティブポートスキャン
 
 # 出力例:
 # === 使用中のポートスキャン ===
-# 
+#
 # ● Port 3000 - Next.js
 #   node      12345 user   23u  IPv6 0x... TCP *:3000 (LISTEN)
-# 
+#
 # ● Port 5432 - PostgreSQL
 #   postgres  12346 user   7u  IPv6 0x... TCP *:5432 (LISTEN)
 ```
