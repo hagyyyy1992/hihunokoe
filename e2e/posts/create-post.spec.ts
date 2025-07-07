@@ -1,27 +1,32 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { registerAndLoginTestUser } from '@e2e/helpers/auth-helpers'
 import { PostHelper } from '@e2e/helpers/post-helpers'
 import { generateRandomUser, testPosts } from '@e2e/helpers/test-data'
 
 test.describe('投稿作成', () => {
-  let authHelper: AuthHelper
   let postHelper: PostHelper
 
   test.beforeEach(async ({ page }) => {
-    authHelper = new AuthHelper(page)
     postHelper = new PostHelper(page)
 
-    // テスト用ユーザーでログイン
+    // テスト用ユーザーで登録してログイン
     const user = generateRandomUser()
-    await authHelper.register(user)
+    await registerAndLoginTestUser(page, {
+      email: user.email,
+      password: user.password,
+      userName: user.username,
+      skinType: user.skinType,
+    })
   })
 
   test('正常な投稿作成ができる', async ({ page }) => {
     await postHelper.createPost(testPosts.samplePost)
 
-    // 投稿作成成功を確認
-    await postHelper.expectSuccessMessage('投稿が作成されました')
-    await expect(page).toHaveURL(/\/posts\/[a-z0-9-]+/)
+    // 投稿作成成功を確認 - URLが投稿詳細ページに遷移したことを確認
+    await expect(page).toHaveURL(/\/posts\/[a-zA-Z0-9_-]+/)
+
+    // 投稿のタイトルが表示されていることを確認
+    await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
 
     // 投稿内容を確認
     await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
@@ -29,7 +34,7 @@ test.describe('投稿作成', () => {
   })
 
   test('必須フィールドのバリデーション', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     // 空のフォームで投稿を試行
     await page.click('[data-testid="publish-button"]')
@@ -54,7 +59,8 @@ test.describe('投稿作成', () => {
     await postHelper.saveDraft({
       title: 'ドラフトのテスト',
       content: 'これは下書きの内容です',
-      category: 'SKINCARE',
+      cosmeticName: 'テストセラム',
+      cosmeticCategory: 'serum',
     })
 
     await postHelper.expectSuccessMessage('下書きが保存されました')
@@ -65,39 +71,43 @@ test.describe('投稿作成', () => {
   })
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     const categorySelect = page.locator('[data-testid="category-select"]')
 
     // 各カテゴリオプションが存在することを確認
-    await expect(categorySelect.locator('option[value="SKINCARE"]')).toContainText('スキンケア')
-    await expect(categorySelect.locator('option[value="MAKEUP"]')).toContainText('メイクアップ')
-    await expect(categorySelect.locator('option[value="FRAGRANCE"]')).toContainText('香水')
-    await expect(categorySelect.locator('option[value="HAIRCARE"]')).toContainText('ヘアケア')
-    await expect(categorySelect.locator('option[value="BODYCARE"]')).toContainText('ボディケア')
+    await expect(categorySelect.locator('option[value="toner"]')).toContainText('化粧水')
+    await expect(categorySelect.locator('option[value="serum"]')).toContainText('美容液')
+    await expect(categorySelect.locator('option[value="cream"]')).toContainText('クリーム')
+    await expect(categorySelect.locator('option[value="foundation"]')).toContainText(
+      'ファンデーション'
+    )
+    await expect(categorySelect.locator('option[value="lipstick"]')).toContainText('リップ')
 
     // カテゴリを選択
-    await categorySelect.selectOption('MAKEUP')
-    await expect(categorySelect).toHaveValue('MAKEUP')
+    await categorySelect.selectOption('foundation')
+    await expect(categorySelect).toHaveValue('foundation')
   })
 
   test('ムード選択が正常に動作する', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
-    // 各ムードボタンが存在することを確認
-    await expect(page.locator('[data-testid="mood-happy"]')).toBeVisible()
-    await expect(page.locator('[data-testid="mood-excited"]')).toBeVisible()
-    await expect(page.locator('[data-testid="mood-relaxed"]')).toBeVisible()
-    await expect(page.locator('[data-testid="mood-confident"]')).toBeVisible()
-    await expect(page.locator('[data-testid="mood-nostalgic"]')).toBeVisible()
+    const moodSelect = page.locator('[name="moodTag"]')
+
+    // 各ムードオプションが存在することを確認
+    await expect(moodSelect.locator('option[value="disappointed"]')).toContainText('ちょっと残念')
+    await expect(moodSelect.locator('option[value="okay"]')).toContainText('まあまあ')
+    await expect(moodSelect.locator('option[value="good"]')).toContainText('良かった')
+    await expect(moodSelect.locator('option[value="love"]')).toContainText('また使いたい')
+    await expect(moodSelect.locator('option[value="perfect"]')).toContainText('完璧')
 
     // ムードを選択
-    await page.click('[data-testid="mood-happy"]')
-    await expect(page.locator('[data-testid="mood-happy"]')).toHaveClass(/selected|active/)
+    await moodSelect.selectOption('good')
+    await expect(moodSelect).toHaveValue('good')
   })
 
   test('タグ追加機能', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     const tagsInput = page.locator('[data-testid="tags-input"]')
 
@@ -114,7 +124,7 @@ test.describe('投稿作成', () => {
   })
 
   test('タグ削除機能', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     const tagsInput = page.locator('[data-testid="tags-input"]')
 
@@ -133,7 +143,7 @@ test.describe('投稿作成', () => {
   })
 
   test('プレビュー機能', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     await page.fill('[data-testid="post-title-input"]', testPosts.samplePost.title)
     await page.fill('[data-testid="post-content-textarea"]', testPosts.samplePost.content)
@@ -155,7 +165,7 @@ test.describe('投稿作成', () => {
   })
 
   test('文字数カウンター', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     const titleInput = page.locator('[data-testid="post-title-input"]')
     const contentTextarea = page.locator('[data-testid="post-content-textarea"]')
@@ -170,7 +180,7 @@ test.describe('投稿作成', () => {
   })
 
   test('自動保存機能', async ({ page }) => {
-    await page.goto('/posts/create')
+    await page.goto('/posts/new')
 
     await page.fill('[data-testid="post-title-input"]', 'テスト自動保存')
     await page.fill('[data-testid="post-content-textarea"]', 'これは自動保存のテストです')

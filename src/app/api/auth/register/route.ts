@@ -107,6 +107,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (error instanceof Error && error.message.includes('このユーザー名は使用できません')) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
     if (
       error &&
       typeof error === 'object' &&

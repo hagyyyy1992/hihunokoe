@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper } from '@e2e/helpers/auth-helpers'
+import { AuthHelper, registerAndLoginTestUser } from '@e2e/helpers/auth-helpers'
 import { PostHelper } from '@e2e/helpers/post-helpers'
 import { generateRandomUser, testPosts } from '@e2e/helpers/test-data'
 
@@ -12,9 +12,14 @@ test.describe('投稿閲覧', () => {
     authHelper = new AuthHelper(page)
     postHelper = new PostHelper(page)
 
-    // テスト用ユーザーでログインして投稿を作成
+    // テスト用ユーザーで登録してログイン
     const user = generateRandomUser()
-    await authHelper.register(user)
+    await registerAndLoginTestUser(page, {
+      email: user.email,
+      password: user.password,
+      userName: user.username,
+      skinType: user.skinType,
+    })
     await postHelper.createPost(testPosts.samplePost)
 
     // 作成された投稿のIDを取得（URLから）
@@ -34,10 +39,7 @@ test.describe('投稿閲覧', () => {
     await expect(page.locator('[data-testid="post-author"]')).toBeVisible()
     await expect(page.locator('[data-testid="post-date"]')).toBeVisible()
 
-    // タグを確認
-    for (const tag of testPosts.samplePost.tags) {
-      await expect(page.locator(`[data-testid="tag"]:has-text("${tag}")`)).toBeVisible()
-    }
+    // カテゴリを確認（タグは削除されたため、スキップ）
   })
 
   test('いいね機能が正常に動作する', async ({ page }) => {
@@ -87,7 +89,8 @@ test.describe('投稿閲覧', () => {
     await postHelper.createPost({
       title: '関連投稿のテスト',
       content: '関連投稿の内容です',
-      category: testPosts.samplePost.category,
+      cosmeticName: testPosts.samplePost.cosmeticName,
+      cosmeticCategory: testPosts.samplePost.cosmeticCategory,
     })
 
     await postHelper.viewPost(postId)

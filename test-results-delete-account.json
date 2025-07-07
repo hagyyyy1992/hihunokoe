@@ -1,0 +1,2445 @@
+{
+  "config": {
+    "configFile": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/playwright.config.ts",
+    "rootDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "reporter": [["json"]],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.53.1",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:password@localhost:5432/usaka_dev",
+        "NEXTAUTH_SECRET": "test-secret-key-for-e2e-tests",
+        "NODE_ENV": "development",
+        "USE_MOCK_DATA": "false"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "auth/delete-account.spec.ts",
+      "file": "auth/delete-account.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "アカウント削除機能",
+          "file": "auth/delete-account.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ログインしていないユーザーはアカウント削除ページにアクセスできない",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 21875,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:25.027Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-8641b89b1e8894629123",
+              "file": "auth/delete-account.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "ログインユーザーがアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10987,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:47.327Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-e04b091e34a234c7da02",
+              "file": "auth/delete-account.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "プロフィールページからアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8198,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:58.320Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-fcfde7035d2ac99b3a1d",
+              "file": "auth/delete-account.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除の警告メッセージが適切に表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7632,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:06.524Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-3cd0d818b3c997c1e8ed",
+              "file": "auth/delete-account.spec.ts",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "継続ボタンをクリックするとパスワード確認フォームが表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7641,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:14.174Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-1ac84a287a8f2aed12ea",
+              "file": "auth/delete-account.spec.ts",
+              "line": 152,
+              "column": 7
+            },
+            {
+              "title": "キャンセルボタンをクリックすると初期状態に戻る",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7831,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:21.821Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-6e49801308fa9419323b",
+              "file": "auth/delete-account.spec.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワードが入力されていない場合は無効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7904,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:29.656Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-b96deb759b4f6e04ea6a",
+              "file": "auth/delete-account.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "正しいパスワードでアカウント削除が成功する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7799,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:37.566Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-e905f5a3b1ac6bfe10c5",
+              "file": "auth/delete-account.spec.ts",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じアカウントでログインできないことを確認",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18215,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:45.371Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-80b5795f9aa6bf20c668",
+              "file": "auth/delete-account.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除中にローディング状態が表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12261,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:03.590Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-4e41f512dcb602f80858",
+              "file": "auth/delete-account.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワード入力時のみ有効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7087,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:15.856Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-981cd78d9809f9d046ad",
+              "file": "auth/delete-account.spec.ts",
+              "line": 322,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じメールアドレスで再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13195,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:22.950Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-e39f76e1b7d6dd1e42b8",
+              "file": "auth/delete-account.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じユーザー名で再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11730,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:36.150Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-35efc6b3c59ce88984e5",
+              "file": "auth/delete-account.spec.ts",
+              "line": 416,
+              "column": 7
+            },
+            {
+              "title": "ログインしていないユーザーはアカウント削除ページにアクセスできない",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 26570,
+                      "error": {
+                        "message": "Error: Authentication verification failed - user may not be properly logged in",
+                        "stack": "Error: Authentication verification failed - user may not be properly logged in\n    at registerAndLoginTestUser (/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts:122:11)\n    at /Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/auth/delete-account.spec.ts:66:7",
+                        "location": {
+                          "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                          "column": 11,
+                          "line": 122
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers/auth-helpers.ts:122\n\n  120 |   } catch (error) {\n  121 |     console.error('Failed to verify authentication state after login')\n> 122 |     throw new Error('Authentication verification failed - user may not be properly logged in')\n      |           ^\n  123 |   }\n  124 | }\n  125 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                            "column": 11,
+                            "line": 122
+                          },
+                          "message": "Error: Authentication verification failed - user may not be properly logged in\n\n   at helpers/auth-helpers.ts:122\n\n  120 |   } catch (error) {\n  121 |     console.error('Failed to verify authentication state after login')\n> 122 |     throw new Error('Authentication verification failed - user may not be properly logged in')\n      |           ^\n  123 |   }\n  124 | }\n  125 |\n    at registerAndLoginTestUser (/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts:122:11)\n    at /Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/auth/delete-account.spec.ts:66:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Failed to verify authentication state after login\n"
+                        },
+                        {
+                          "text": "Failed to setup test user: Error: Authentication verification failed - user may not be properly logged in\n    at registerAndLoginTestUser \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39me2e/helpers/auth-helpers.ts:122:11\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39me2e/auth/delete-account.spec.ts:66:7\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:284:11\n    at TimeoutManager.withRunnable \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:282:7\u001b[90m)\u001b[39m\n    at FixtureRunner.resolveParametersAndRunFunction \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/fixtureRunner.js:223:5\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:460:11\n    at TestInfoImpl._runAsStep \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:273:7\u001b[90m)\u001b[39m\n    at WorkerMain._runEachHooksForSuites \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:459:9\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:296:9\n    at TestInfoImpl._runAsStep \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:273:7\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:292:7\n    at WorkerMain._runTest \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:277:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:193:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:65:22\u001b[90m)\u001b[39m\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:25.024Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                        "column": 11,
+                        "line": 122
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-f27942a86de1bd629919",
+              "file": "auth/delete-account.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "ログインユーザーがアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-c6a1f95795e62841da78",
+              "file": "auth/delete-account.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "プロフィールページからアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-89869c44c82df1b52c73",
+              "file": "auth/delete-account.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除の警告メッセージが適切に表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-0567f55ffb94287df56d",
+              "file": "auth/delete-account.spec.ts",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "継続ボタンをクリックするとパスワード確認フォームが表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-dc50a47293217ecf6f73",
+              "file": "auth/delete-account.spec.ts",
+              "line": 152,
+              "column": 7
+            },
+            {
+              "title": "キャンセルボタンをクリックすると初期状態に戻る",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-e5662d8f9942bf4a0615",
+              "file": "auth/delete-account.spec.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワードが入力されていない場合は無効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-8ad81aeb5bd2e26c54aa",
+              "file": "auth/delete-account.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "正しいパスワードでアカウント削除が成功する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-dee45bd1caf8e16a273d",
+              "file": "auth/delete-account.spec.ts",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じアカウントでログインできないことを確認",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-c9481640924a530ebc4f",
+              "file": "auth/delete-account.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除中にローディング状態が表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-a476676ad9aa7e6e1471",
+              "file": "auth/delete-account.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワード入力時のみ有効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-43b8c9fe43ef7bc4cbae",
+              "file": "auth/delete-account.spec.ts",
+              "line": 322,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じメールアドレスで再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-653bcbd13e8875103ec0",
+              "file": "auth/delete-account.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じユーザー名で再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:54.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-11acf409ea19e0eac569",
+              "file": "auth/delete-account.spec.ts",
+              "line": 416,
+              "column": 7
+            },
+            {
+              "title": "ログインしていないユーザーはアカウント削除ページにアクセスできない",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 13243,
+                      "error": {
+                        "message": "Error: Authentication verification failed - user may not be properly logged in",
+                        "stack": "Error: Authentication verification failed - user may not be properly logged in\n    at registerAndLoginTestUser (/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts:122:11)\n    at /Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/auth/delete-account.spec.ts:66:7",
+                        "location": {
+                          "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                          "column": 11,
+                          "line": 122
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers/auth-helpers.ts:122\n\n  120 |   } catch (error) {\n  121 |     console.error('Failed to verify authentication state after login')\n> 122 |     throw new Error('Authentication verification failed - user may not be properly logged in')\n      |           ^\n  123 |   }\n  124 | }\n  125 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                            "column": 11,
+                            "line": 122
+                          },
+                          "message": "Error: Authentication verification failed - user may not be properly logged in\n\n   at helpers/auth-helpers.ts:122\n\n  120 |   } catch (error) {\n  121 |     console.error('Failed to verify authentication state after login')\n> 122 |     throw new Error('Authentication verification failed - user may not be properly logged in')\n      |           ^\n  123 |   }\n  124 | }\n  125 |\n    at registerAndLoginTestUser (/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts:122:11)\n    at /Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/auth/delete-account.spec.ts:66:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Failed to verify authentication state after login\n"
+                        },
+                        {
+                          "text": "Failed to setup test user: Error: Authentication verification failed - user may not be properly logged in\n    at registerAndLoginTestUser \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39me2e/helpers/auth-helpers.ts:122:11\u001b[90m)\u001b[39m\n\u001b[90m    at runNextTicks (node:internal/process/task_queues:60:5)\u001b[39m\n\u001b[90m    at processImmediate (node:internal/timers:447:9)\u001b[39m\n\u001b[90m    at process.callbackTrampoline (node:internal/async_hooks:128:17)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39me2e/auth/delete-account.spec.ts:66:7\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:284:11\n    at TimeoutManager.withRunnable \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:282:7\u001b[90m)\u001b[39m\n    at FixtureRunner.resolveParametersAndRunFunction \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/fixtureRunner.js:223:5\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:460:11\n    at TestInfoImpl._runAsStep \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:273:7\u001b[90m)\u001b[39m\n    at WorkerMain._runEachHooksForSuites \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:459:9\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:296:9\n    at TestInfoImpl._runAsStep \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:273:7\u001b[90m)\u001b[39m\n    at \u001b[90m/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:292:7\n    at WorkerMain._runTest \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:277:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:193:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/\u001b[39mnode_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:65:22\u001b[90m)\u001b[39m\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:25.021Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/test-results/auth-delete-account-アカウント削-cc0ed-いないユーザーはアカウント削除ページにアクセスできない-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/hagiharakeiichi/work/my-app/worktree/usaka/fix/e2e-test/e2e/helpers/auth-helpers.ts",
+                        "column": 11,
+                        "line": 122
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-4ae8c5097d193c89af55",
+              "file": "auth/delete-account.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "ログインユーザーがアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-5c06386b489863b9dcc9",
+              "file": "auth/delete-account.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "プロフィールページからアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-56a9a388c719c2b1d425",
+              "file": "auth/delete-account.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除の警告メッセージが適切に表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-b76e095878b89d4d107f",
+              "file": "auth/delete-account.spec.ts",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "継続ボタンをクリックするとパスワード確認フォームが表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-0317bb6fa109ad03b7f9",
+              "file": "auth/delete-account.spec.ts",
+              "line": 152,
+              "column": 7
+            },
+            {
+              "title": "キャンセルボタンをクリックすると初期状態に戻る",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-f77b7917d21001ba8b0a",
+              "file": "auth/delete-account.spec.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワードが入力されていない場合は無効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-2ba64fb10de4cb45ad6e",
+              "file": "auth/delete-account.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "正しいパスワードでアカウント削除が成功する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-904d5b7298412512e74a",
+              "file": "auth/delete-account.spec.ts",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じアカウントでログインできないことを確認",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-26b9d5898611ae4de716",
+              "file": "auth/delete-account.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除中にローディング状態が表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-7e9af1336ed6b72828e8",
+              "file": "auth/delete-account.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワード入力時のみ有効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-a21f9fcb84a64b83a84d",
+              "file": "auth/delete-account.spec.ts",
+              "line": 322,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じメールアドレスで再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-a0483b090b8107040dab",
+              "file": "auth/delete-account.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じユーザー名で再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:38.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-d901fb4287be8706a41b",
+              "file": "auth/delete-account.spec.ts",
+              "line": 416,
+              "column": 7
+            },
+            {
+              "title": "ログインしていないユーザーはアカウント削除ページにアクセスできない",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 20889,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:25.024Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-c54ea9153641196de337",
+              "file": "auth/delete-account.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "ログインユーザーがアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 11812,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:46.344Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-8b2c7d6366210991f191",
+              "file": "auth/delete-account.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "プロフィールページからアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 10221,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:58.163Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-0e706291c3211246b417",
+              "file": "auth/delete-account.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除の警告メッセージが適切に表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 7828,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:08.393Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-017cf8c2cf4fd45061af",
+              "file": "auth/delete-account.spec.ts",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "継続ボタンをクリックするとパスワード確認フォームが表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 8389,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:16.226Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-ac430a2d91aeed25e69e",
+              "file": "auth/delete-account.spec.ts",
+              "line": 152,
+              "column": 7
+            },
+            {
+              "title": "キャンセルボタンをクリックすると初期状態に戻る",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 9152,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:24.620Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-67d065e7eec842c26e7c",
+              "file": "auth/delete-account.spec.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワードが入力されていない場合は無効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 8201,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:33.776Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-19bd67e85724fddbb555",
+              "file": "auth/delete-account.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "正しいパスワードでアカウント削除が成功する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 10141,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:41.981Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-436bcdaf498cb62a25c6",
+              "file": "auth/delete-account.spec.ts",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じアカウントでログインできないことを確認",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 20383,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:52.132Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-ba525a4325ff9eb85f5d",
+              "file": "auth/delete-account.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除中にローディング状態が表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 7245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:12.525Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-e2536657c8cd9958f6d1",
+              "file": "auth/delete-account.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワード入力時のみ有効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 7113,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:19.781Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-4481dc358e38477bb2cb",
+              "file": "auth/delete-account.spec.ts",
+              "line": 322,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じメールアドレスで再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 12480,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:26.897Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-42ac16832e3ac64b6df8",
+              "file": "auth/delete-account.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じユーザー名で再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 10967,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:39.383Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-fa6c8cef9c2da981ba0f",
+              "file": "auth/delete-account.spec.ts",
+              "line": 416,
+              "column": 7
+            },
+            {
+              "title": "ログインしていないユーザーはアカウント削除ページにアクセスできない",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 15633,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:41.392Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-247457ca9ae96932e4df",
+              "file": "auth/delete-account.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "ログインユーザーがアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 7380,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:02:57.422Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-7b80ee7bb47b550c2cad",
+              "file": "auth/delete-account.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "プロフィールページからアカウント削除ページにアクセスできる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 7840,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:04.808Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-be8910d03e90615b03db",
+              "file": "auth/delete-account.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除の警告メッセージが適切に表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 10277,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:12.653Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-c70562b49d775a9ceffc",
+              "file": "auth/delete-account.spec.ts",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "継続ボタンをクリックするとパスワード確認フォームが表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 9091,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:22.934Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-7a5dff5157e936c88c29",
+              "file": "auth/delete-account.spec.ts",
+              "line": 152,
+              "column": 7
+            },
+            {
+              "title": "キャンセルボタンをクリックすると初期状態に戻る",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8015,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:32.030Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-d67f81a2ccac08f3aea6",
+              "file": "auth/delete-account.spec.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワードが入力されていない場合は無効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8020,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:40.052Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-91fa601f56568dc810c9",
+              "file": "auth/delete-account.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "正しいパスワードでアカウント削除が成功する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 14677,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:03:48.079Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-0e7603e3c360c07596b1",
+              "file": "auth/delete-account.spec.ts",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じアカウントでログインできないことを確認",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 17611,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:02.765Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-b6501e65956d9beaa07f",
+              "file": "auth/delete-account.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除中にローディング状態が表示される",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 9321,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:20.389Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-9fa19c2862bc10a99b6a",
+              "file": "auth/delete-account.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "削除ボタンはパスワード入力時のみ有効になる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8638,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:29.717Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-a63a7c22a4084a3bd751",
+              "file": "auth/delete-account.spec.ts",
+              "line": 322,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じメールアドレスで再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 11690,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:38.360Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-7bdd7a7701292385bf3b",
+              "file": "auth/delete-account.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "アカウント削除後に同じユーザー名で再登録できる",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8751,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-06T00:04:50.059Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0c9991466b6fc8ceaf22-be6dd4b2cdd27f939ab0",
+              "file": "auth/delete-account.spec.ts",
+              "line": 416,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-07-06T00:02:24.182Z",
+    "duration": 154677.512,
+    "expected": 39,
+    "skipped": 24,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

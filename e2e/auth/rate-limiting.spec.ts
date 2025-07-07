@@ -15,15 +15,16 @@ test.describe('レート制限', () => {
       const response = await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
       if (!response.ok()) {
         console.log('Rate limiter reset failed with status:', response.status())
-      } else {
-        console.log('Rate limiter reset successful')
       }
     } catch (error) {
       console.log('Rate limiter reset failed (continuing anyway):', error)
     }
 
     // レート制限リセット後に十分な待機時間を確保
-    await page.waitForTimeout(2000)
+    // Mobile Safari は特に長めの待機が必要
+    const userAgent = await page.evaluate(() => navigator.userAgent)
+    const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+    await page.waitForTimeout(isMobileSafari ? 3000 : 2000)
   })
 
   test.afterEach(async ({ page }) => {
@@ -87,8 +88,11 @@ test.describe('レート制限', () => {
         }
 
         // リクエスト間の適切な間隔を確保
+        // Mobile Safari は特に長めの間隔が必要
         if (i < 4) {
-          await page.waitForTimeout(100)
+          const userAgent = await page.evaluate(() => navigator.userAgent)
+          const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+          await page.waitForTimeout(isMobileSafari ? 500 : 100)
         }
       }
     })
@@ -125,7 +129,9 @@ test.describe('レート制限', () => {
           )
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // レート制限に到達していることを確認
@@ -180,7 +186,9 @@ test.describe('レート制限', () => {
           )
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // レート制限に到達していることを確認
@@ -248,7 +256,9 @@ test.describe('レート制限', () => {
           break
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // レート制限に到達していることを確認
@@ -280,7 +290,9 @@ test.describe('レート制限', () => {
           break
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // レート制限後でもフォームが操作可能であることを確認
@@ -328,7 +340,9 @@ test.describe('レート制限', () => {
           await expect(page.locator('[data-testid="message"]')).toHaveClass(/bg-green-50/)
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // レート制限に到達していることを確認
@@ -360,7 +374,9 @@ test.describe('レート制限', () => {
           break
         }
 
-        await page.waitForTimeout(100)
+        const userAgent = await page.evaluate(() => navigator.userAgent)
+        const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+        await page.waitForTimeout(isMobileSafari ? 500 : 100)
       }
 
       // ページをリロード

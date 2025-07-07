@@ -33,13 +33,20 @@ export class TokenServiceImpl implements TokenService {
         decoded.userId = decoded.id
       }
 
+      // 必須フィールドの確認
+      if (!decoded.userId && !decoded.id) {
+        throw new Error('Token missing user ID')
+      }
+
       // AuthTokenPayload形式に変換
       return {
         userId: decoded.userId || decoded.id,
         email: decoded.email,
         role: decoded.role || 'USER',
+        userName: decoded.userName, // userNameも含める（オプショナル）
       }
     } catch (error) {
+      console.error('Token verification error:', error)
       throw new Error('Invalid token')
     }
   }

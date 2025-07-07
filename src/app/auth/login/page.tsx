@@ -36,8 +36,12 @@ export default function LoginPage() {
         const data = await response.json()
 
         if (response.ok) {
+          // refreshAuthを待ってからリダイレクト
           await refreshAuth()
-          router.push('/home')
+          // 少し待機してから確実にリダイレクト
+          setTimeout(() => {
+            router.push('/home')
+          }, 100)
         } else {
           setError(data.error || 'ログインに失敗しました')
 

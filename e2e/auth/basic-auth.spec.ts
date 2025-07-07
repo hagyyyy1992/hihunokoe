@@ -72,9 +72,17 @@ test.describe('基本的な認証フロー', () => {
 
     await page.goto('/auth/login')
 
+    // ページが完全に読み込まれるのを待つ
+    await page.waitForLoadState('networkidle')
+
+    // リンクが表示されるのを待つ
+    await page.waitForSelector('[data-testid="register-link"]', { state: 'visible' })
+
     // 登録ページへのリンクをクリック（ページ内のリンク）
     await page.click('[data-testid="register-link"]')
-    await expect(page).toHaveURL(/\/auth\/register/)
+
+    // URLの変更を待つ（タイムアウトを長めに設定）
+    await page.waitForURL(/\/auth\/register/, { timeout: 10000 })
 
     // ログインページへのリンクをクリック（ページ内のリンク）
     if (isMobile) {
