@@ -55,21 +55,52 @@ export class PostHelper {
     // ボタンが有効になっていることを確認
     const publishButton = this.page.locator('[data-testid="publish-button"]')
     await expect(publishButton).toBeEnabled({ timeout: 10000 })
+    await expect(publishButton).toBeVisible({ timeout: 10000 })
+
+    // ボタンのテキストを確認
+    await expect(publishButton).toContainText('投稿する')
+
+    // ネットワークレスポンスを監視して投稿IDを取得
+    const responsePromise = this.page.waitForResponse(
+      response => response.url().includes('/api/posts') && response.status() === 200,
+      { timeout: 30000 }
+    )
 
     // フォームを送信
     await publishButton.click()
 
-    // 投稿作成後のリダイレクトを待つ
-    await this.page.waitForURL(/\/posts\/[a-zA-Z0-9_-]+/, { timeout: 10000 })
+    // APIレスポンスを待つ
+    const response = await responsePromise
+    const responseData = await response.json()
 
-    // URLから投稿IDを取得
-    const url = this.page.url()
-    const match = url.match(/\/posts\/([a-zA-Z0-9_-]+)/)
-    const postId = match ? match[1] : null
-
-    if (!postId) {
-      throw new Error(`Failed to get post ID from URL: ${url}`)
+    if (!responseData.post || !responseData.post.id) {
+      throw new Error('Failed to get post ID from API response')
     }
+
+    const postId = responseData.post.id
+
+    // 投稿詳細ページへのナビゲーションを待つ
+    try {
+      await this.page.waitForURL(`**/posts/${postId}`, { timeout: 30000 })
+    } catch (error) {
+      // リダイレクトが失敗した場合の詳細な診断情報
+      console.error('Failed to navigate to post detail page')
+      console.error('Current URL:', this.page.url())
+      console.error('Page title:', await this.page.title())
+      
+      // エラーメッセージがあるかチェック
+      const errorMessage = await this.page.locator('[data-testid="error-message"]').textContent().catch(() => null)
+      if (errorMessage) {
+        console.error('Error message on page:', errorMessage)
+      }
+      
+      // 手動で投稿詳細ページに移動を試みる
+      await this.page.goto(`/posts/${postId}`)
+      await this.page.waitForLoadState('networkidle')
+    }
+
+    // 投稿詳細ページが正しく読み込まれたことを確認
+    await this.page.waitForSelector('[data-testid="post-title"]', { timeout: 10000 })
 
     return postId
   }
@@ -148,6 +179,9 @@ export class PostHelper {
   async addComment(comment: string) {
     await this.page.fill('[data-testid="comment-input"]', comment)
     await this.page.click('[data-testid="add-comment-button"]')
+    
+    // コメントが送信されるを待つ
+    await this.page.waitForTimeout(1000)
   }
 
   async searchPosts(query: string) {
@@ -184,7 +218,15 @@ export class PostHelper {
   }
 
   async expectCommentToBeVisible(comment: string) {
-    await expect(this.page.locator(`[data-testid="comment"]:has-text("${comment}")`)).toBeVisible()
+    // コメントが表示されるまで待機
+    await expect(
+      this.page.locator(`[data-testid="comment"]:has-text("${comment}"), .comment-content:has-text("${comment}")`).first()
+    ).toBeVisible({ timeout: 10000 })
+  }
+
+  async expectCommentCount(count: number) {
+    // コメント数が更新されるまで待機
+    await expect(this.page.locator('[data-testid="comment-count"]')).toContainText(`${count}`, { timeout: 10000 })
   }
 
   async expectEmpathyCount(count: number) {

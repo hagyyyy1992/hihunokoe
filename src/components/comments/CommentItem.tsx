@@ -194,7 +194,7 @@ export default function CommentItem({
             </form>
           ) : (
             <>
-              <p className={`text-gray-700 leading-relaxed ${isReply ? 'text-sm' : ''}`}>
+              <p className={`text-gray-700 leading-relaxed ${isReply ? 'text-sm' : ''} comment-content`}>
                 {comment.content}
               </p>
 

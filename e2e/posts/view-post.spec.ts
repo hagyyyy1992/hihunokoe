@@ -70,7 +70,7 @@ test.describe('投稿閲覧', () => {
     await postHelper.expectCommentToBeVisible(commentText)
 
     // コメント数が更新されることを確認
-    await expect(page.locator('[data-testid="comment-count"]')).toContainText('1')
+    await postHelper.expectCommentCount(1)
   })
 
   test('コメントのバリデーション', async ({ page }) => {
