@@ -172,20 +172,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex-1 flex flex-col min-h-screen">
         {/* ヘッダー */}
         <header className="bg-white shadow-sm border-b">
-          <div className="flex items-center justify-between h-16 px-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
+          <div className="flex items-center h-16 px-4 lg:px-6">
+            <button
+              type="button"
+              className="lg:hidden p-2 -ml-2 mr-2 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => setIsSidebarOpen(true)}
+              aria-label="メニューを開く"
             >
-              <Menu className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center">
-              <h1 className="text-lg font-semibold text-gray-900">
-                {navigationItems.find(item => item.href === pathname)?.label || 'ダッシュボード'}
-              </h1>
-            </div>
+              <Menu className="h-6 w-6" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {navigationItems.find(item => item.href === pathname)?.label || 'ダッシュボード'}
+            </h1>
           </div>
         </header>
 
