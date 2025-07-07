@@ -43,22 +43,22 @@ test.describe('投稿作成', () => {
     await expect(nextButton).toBeDisabled()
 
     // タイトルだけ入力した場合
-    await page.fill('[data-testid="post-title-input"]', 'テストタイトル')
+    await page.getByLabel('タイトル').fill('テストタイトル')
     await expect(nextButton).toBeDisabled()
 
     // コスメ名も入力した場合
-    await page.fill('[name="cosmeticName"]', 'テストコスメ')
+    await page.getByLabel('使用したコスメ名').fill('テストコスメ')
     await expect(nextButton).toBeDisabled()
 
     // 内容も入力した場合、次へボタンが有効になる
-    await page.fill('[data-testid="post-content-textarea"]', 'テスト内容')
+    await page.locator('textarea[name="content"]').fill('テスト内容')
     await expect(nextButton).toBeEnabled()
   })
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
     await page.goto('/posts/new')
 
-    const categorySelect = page.locator('[data-testid="category-select"]')
+    const categorySelect = page.getByLabel('コスメカテゴリ')
 
     // 各カテゴリオプションが存在することを確認
     await expect(categorySelect.locator('option[value="toner"]')).toContainText('化粧水')
@@ -78,9 +78,9 @@ test.describe('投稿作成', () => {
     await page.goto('/posts/new')
 
     // 必須フィールドを入力
-    await page.fill('[data-testid="post-title-input"]', 'テストタイトル')
-    await page.fill('[name="cosmeticName"]', 'テストコスメ')
-    await page.fill('[data-testid="post-content-textarea"]', 'テスト内容')
+    await page.getByLabel('タイトル').fill('テストタイトル')
+    await page.getByLabel('使用したコスメ名').fill('テストコスメ')
+    await page.locator('textarea[name="content"]').fill('テスト内容')
 
     // ステップ4まで進む
     for (let i = 1; i < 4; i++) {

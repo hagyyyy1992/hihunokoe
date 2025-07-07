@@ -102,11 +102,11 @@ test.describe('ログイン', () => {
     await page.goto('/auth/login')
 
     // 空のフォームで送信（HTML5 validationが発生する）
-    await page.click('[data-testid="login-button"]')
+    await page.getByRole('button', { name: 'ログイン' }).click()
 
     // HTML5バリデーションメッセージが表示されることを確認
-    const emailInput = page.locator('[data-testid="email-input"]')
-    const passwordInput = page.locator('[data-testid="password-input"]')
+    const emailInput = page.getByLabel('メールアドレス')
+    const passwordInput = page.locator('input[name="password"]')
 
     await expect(emailInput).toHaveAttribute('required')
     await expect(passwordInput).toHaveAttribute('required')
@@ -119,15 +119,15 @@ test.describe('ログイン', () => {
     await page.goto('/auth/login')
 
     // 無効なメールアドレスを入力
-    await page.fill('[data-testid="email-input"]', 'invalid-email')
-    await page.fill('[data-testid="password-input"]', 'somepassword')
-    await page.click('[data-testid="login-button"]')
+    await page.getByLabel('メールアドレス').fill('invalid-email')
+    await page.locator('input[name="password"]').fill('somepassword')
+    await page.getByRole('button', { name: 'ログイン' }).click()
 
     // HTML5 validation によりフォームが送信されない（ページが変わらない）
     await expect(page).toHaveURL(/\/auth\/login/)
 
     // メールフィールドが無効状態になっている
-    const emailInput = page.locator('[data-testid="email-input"]')
+    const emailInput = page.getByLabel('メールアドレス')
     await expect(emailInput).toHaveAttribute('type', 'email')
   })
 
@@ -171,12 +171,12 @@ test.describe('ログイン', () => {
     const demoUser = { email: 'demo@example.com', password: 'demo123' }
 
     await page.goto('/auth/login')
-    await page.fill('[data-testid="email-input"]', demoUser.email)
-    await page.fill('[data-testid="password-input"]', demoUser.password)
+    await page.getByLabel('メールアドレス').fill(demoUser.email)
+    await page.locator('input[name="password"]').fill(demoUser.password)
 
     // Remember me チェックボックスをチェック
-    await page.check('[data-testid="remember-me-checkbox"]')
-    await page.click('[data-testid="login-button"]')
+    await page.getByLabel('ログイン状態を保持する').check()
+    await page.getByRole('button', { name: 'ログイン' }).click()
 
     // ログイン成功を待つ - ホームページまたは投稿一覧ページへのリダイレクトを確認
     await page.waitForURL(
@@ -199,12 +199,13 @@ test.describe('ログイン', () => {
     await page.goto('/auth/login')
 
     // より確実にリンクがクリックされるように待機とナビゲーション検証を追加
-    await page.waitForSelector('[data-testid="forgot-password-link"]')
+    const forgotPasswordLink = page.getByText('パスワードをお忘れですか？')
+    await forgotPasswordLink.waitFor({ state: 'visible' })
 
     // ナビゲーション完了を待つ
     const [response] = await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-      page.click('[data-testid="forgot-password-link"]'),
+      forgotPasswordLink.click(),
     ])
 
     await expect(page).toHaveURL(/\/auth\/forgot-password/)
@@ -217,7 +218,7 @@ test.describe('ログイン', () => {
     await page.goto('/auth/login')
 
     // リンクがクリック可能になるまで待つ
-    const registerLink = page.locator('[data-testid="register-link"]')
+    const registerLink = page.getByText('会員登録')
     await registerLink.waitFor({ state: 'visible' })
 
     // クリックして直接遷移を待つ
@@ -250,9 +251,9 @@ test.describe('ログイン', () => {
 
     // ログインページから開始
     await page.goto('/auth/login')
-    await page.fill('[data-testid="email-input"]', demoUser.email)
-    await page.fill('[data-testid="password-input"]', demoUser.password)
-    await page.click('[data-testid="login-button"]')
+    await page.getByLabel('メールアドレス').fill(demoUser.email)
+    await page.locator('input[name="password"]').fill(demoUser.password)
+    await page.getByRole('button', { name: 'ログイン' }).click()
 
     // ログイン成功を待つ（タイムアウトを延長）
     await expect(page).toHaveURL('/home', { timeout: 10000 })
