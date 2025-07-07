@@ -14,15 +14,15 @@ export class PostHelper {
     await this.page.goto('/posts/new')
 
     // ステップ1: 基本情報
-    await this.page.fill('[data-testid="post-title-input"]', postData.title)
-    await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
+    await this.page.getByLabel('タイトル').fill(postData.title)
+    await this.page.locator('textarea[name="content"]').fill(postData.content)
 
     if (postData.cosmeticName) {
-      await this.page.fill('[data-testid="cosmeticName-input"]', postData.cosmeticName)
+      await this.page.getByLabel('使用したコスメ名').fill(postData.cosmeticName)
     }
 
     if (postData.cosmeticCategory) {
-      await this.page.selectOption('[data-testid="category-select"]', postData.cosmeticCategory)
+      await this.page.getByLabel('コスメカテゴリ').selectOption(postData.cosmeticCategory)
     }
 
     // 最後のステップまで進む
@@ -53,12 +53,9 @@ export class PostHelper {
     await this.page.waitForTimeout(1000) // ボタンが有効になるのを待つ
 
     // ボタンが有効になっていることを確認
-    const publishButton = this.page.locator('[data-testid="publish-button"]')
+    const publishButton = this.page.getByRole('button', { name: '投稿する' })
     await expect(publishButton).toBeEnabled({ timeout: 10000 })
     await expect(publishButton).toBeVisible({ timeout: 10000 })
-
-    // ボタンのテキストを確認
-    await expect(publishButton).toContainText('投稿する')
 
     // ネットワークレスポンスを監視して投稿IDを取得
     const responsePromise = this.page.waitForResponse(
@@ -119,15 +116,15 @@ export class PostHelper {
   }) {
     await this.page.goto('/posts/new')
 
-    await this.page.fill('[data-testid="post-title-input"]', postData.title)
-    await this.page.fill('[data-testid="post-content-textarea"]', postData.content)
+    await this.page.getByLabel('タイトル').fill(postData.title)
+    await this.page.locator('textarea[name="content"]').fill(postData.content)
 
     if (postData.cosmeticName) {
-      await this.page.fill('[name="cosmeticName"]', postData.cosmeticName)
+      await this.page.getByLabel('使用したコスメ名').fill(postData.cosmeticName)
     }
 
     if (postData.cosmeticCategory) {
-      await this.page.selectOption('[data-testid="category-select"]', postData.cosmeticCategory)
+      await this.page.getByLabel('コスメカテゴリ').selectOption(postData.cosmeticCategory)
     }
 
     // save-draft-buttonが見つからない場合は、フォームがステップ形式のため
@@ -161,18 +158,18 @@ export class PostHelper {
     await this.page.goto(`/posts/${postId}/edit`)
 
     if (newData.title) {
-      await this.page.fill('[data-testid="post-title-input"]', newData.title)
+      await this.page.getByLabel('タイトル').fill(newData.title)
     }
 
     if (newData.content) {
-      await this.page.fill('[data-testid="post-content-textarea"]', newData.content)
+      await this.page.locator('textarea[name="content"]').fill(newData.content)
     }
 
     if (newData.category) {
-      await this.page.selectOption('[data-testid="category-select"]', newData.category)
+      await this.page.getByLabel('コスメカテゴリ').selectOption(newData.category)
     }
 
-    await this.page.click('[data-testid="update-button"]')
+    await this.page.getByRole('button', { name: '更新' }).click()
   }
 
   async deletePost(postId: string) {
