@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </Button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto mt-6 px-4 pb-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto mt-2 px-4 pb-4 space-y-1">
           {navigationItems.map(item => {
             const isActive = pathname === item.href
             return (
