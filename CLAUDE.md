@@ -456,11 +456,119 @@ git rebase -i HEAD~3
 - Test environment: Real browser automation (Chromium, Firefox, Safari)
 - Coverage: User workflows, cross-browser compatibility, visual regression
 
+### E2E Tests Locator Strategy (重要)
+
+Playwright/Testing Libraryのベストプラクティスに従い、E2Eテストでは以下の優先順位でロケーターを使用すること：
+
+#### 推奨順位（上から順に使用を検討）
+
+1. **getByRole()** - ARIA roleとアクセシブルな名前で要素を取得
+
+   ```typescript
+   // Good: ボタンをroleとnameで特定
+   await page.getByRole('button', { name: 'ログイン' }).click()
+   await page.getByRole('heading', { name: 'ダッシュボード' }).waitFor()
+   ```
+
+2. **getByLabel()** - フォーム要素をラベルテキストで取得
+
+   ```typescript
+   // Good: ラベル付きの入力フィールド
+   await page.getByLabel('メールアドレス').fill('user@example.com')
+   await page.getByLabel('パスワード').fill('password123')
+   ```
+
+3. **getByPlaceholder()** - プレースホルダーテキストで取得
+
+   ```typescript
+   // Good: プレースホルダーが一意の場合
+   await page.getByPlaceholder('検索キーワードを入力').fill('化粧水')
+   ```
+
+4. **getByText()** - 表示されているテキストで取得
+
+   ```typescript
+   // Good: 静的なテキスト要素
+   await page.getByText('新規登録はこちら').click()
+   expect(page.getByText('投稿が完了しました')).toBeVisible()
+   ```
+
+5. **getByAltText()** - 画像のalt属性で取得
+
+   ```typescript
+   // Good: 画像要素
+   await page.getByAltText('プロフィール画像').click()
+   ```
+
+6. **getByTitle()** - title属性（ツールチップ）で取得
+
+   ```typescript
+   // Good: ツールチップ付き要素
+   await page.getByTitle('詳細を表示').hover()
+   ```
+
+7. **getByTestId()** - data-testid属性で取得（最終手段）
+   ```typescript
+   // Acceptable: 他の方法では特定が困難な場合のみ
+   await page.getByTestId('dynamic-content-12345').waitFor()
+   ```
+
+#### data-testidを使用すべきケース
+
+以下の場合に限り、data-testidの使用を許可する：
+
+1. **動的に変化するコンテンツ**
+
+   - カウンター表示（例：「3件のコメント」→「4件のコメント」）
+   - 状態によって変わるボタンテキスト（例：「フォローする」⇔「フォロー中」）
+
+2. **同一ページに複数存在する同じ要素**
+
+   - モバイルメニューとデスクトップメニューの区別
+   - リスト内の個別アイテム
+
+3. **フォーム要素で他の方法では特定困難**
+   - ラベルがない、または動的に生成される入力フィールド
+   - 複雑なカスタムコンポーネント
+
+#### コンポーネント実装時の注意
+
+フロントエンドコンポーネントには、適切なアクセシビリティ属性を追加すること：
+
+```tsx
+// Good: アクセシブルなボタンコンポーネント
+<button
+  role="button"
+  aria-label="投稿を削除"
+  onClick={handleDelete}
+>
+  <TrashIcon />
+</button>
+
+// Good: ラベル付きフォーム要素
+<label htmlFor="email">メールアドレス</label>
+<input id="email" type="email" />
+
+// Acceptable: 動的コンテンツにはdata-testidを追加
+<span data-testid={`comment-count-${postId}`}>
+  {commentCount}件のコメント
+</span>
+```
+
+#### 移行ガイドライン
+
+既存のdata-testidベースのテストを段階的に改善：
+
+1. 新規テストは上記優先順位に従って実装
+2. 既存テストは機能追加・修正時に併せて改善
+3. コンポーネント側にアクセシビリティ属性を追加してからテストを更新
+4. 一度に全て変更するのではなく、段階的に移行
+
 ### Test Data Strategy
 
 - Unit tests: Mock data and API responses
 - E2E tests: Real database with test-specific data
-- Use `data-testid` attributes for reliable element selection
+- Use accessibility-based locators as primary method, `data-testid` only when necessary
 - Isolated test environments prevent data conflicts
 
 ## Development Workflow
