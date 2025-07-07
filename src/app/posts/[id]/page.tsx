@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-// import EmpathyButton from '@/components/ui/EmpathyButton'
+import EmpathyButton from '@/components/ui/EmpathyButton'
 import { EmpathyType } from '@/types'
-// import CommentList from '@/components/comments/CommentList'
-// import { AuthGuard } from '@/components/auth/AuthGuard'
+import CommentList from '@/components/comments/CommentList'
+import { AuthGuard } from '@/components/auth/AuthGuard'
 import {
   fragranceTypeLabels,
   fragranceIntensityLabels,
@@ -142,11 +142,14 @@ const durationLabels: Record<string, string> = {
 
 export default function PostDetailPage() {
   const { id } = useParams()
+  const router = useRouter()
   const { user } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [commentCount, setCommentCount] = useState(0)
   const [empathyState, setEmpathyState] = useState<{
     hasEmpathized: boolean
     empathyType?: EmpathyType
@@ -172,6 +175,7 @@ export default function PostDetailPage() {
       }
 
       setPost(data.post)
+      setCommentCount(data.post._count?.comments || 0)
       setEmpathyState(prevState => ({
         ...prevState,
         totalCount: data.post._count?.empathies || 0,
@@ -234,6 +238,31 @@ export default function PostDetailPage() {
     }
   }, [id, user, post, fetchEmpathyState])
 
+  const handleDelete = async () => {
+    if (!post || isDeleting) return
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/posts/delete?id=${post.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || '投稿の削除に失敗しました')
+      }
+
+      // 削除成功後、投稿一覧に戻る
+      router.push('/posts')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'
+      alert(errorMessage) // 簡易的なエラー表示
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteModal(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -271,13 +300,15 @@ export default function PostDetailPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{post.user.userName}</p>
+                  <p className="font-medium text-gray-900" data-testid="post-author">
+                    {post.user.userName}
+                  </p>
                   {post.user.skinType && (
                     <p className="text-xs text-gray-500">{skinTypeLabels[post.user.skinType]}</p>
                   )}
                 </div>
               </div>
-              <time className="text-sm text-gray-500">
+              <time className="text-sm text-gray-500" data-testid="post-date">
                 {formatDistanceToNow(new Date(post.publishedAt), {
                   addSuffix: true,
                   locale: ja,
@@ -285,11 +316,19 @@ export default function PostDetailPage() {
               </time>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
+            <h1
+              className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4"
+              data-testid="post-title"
+            >
+              {post.title}
+            </h1>
 
             <div className="flex flex-wrap gap-2 mb-4">
               {post.cosmeticCategory && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <span
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                  data-testid="post-category"
+                >
                   {categoryLabels[post.cosmeticCategory]}
                 </span>
               )}
@@ -449,6 +488,7 @@ export default function PostDetailPage() {
                 <Link
                   href={`/posts/${post.id}/edit`}
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  data-testid="edit-post-button"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -460,9 +500,10 @@ export default function PostDetailPage() {
                   </svg>
                   <span>編集</span>
                 </Link>
-                <Link
-                  href={`/posts/${post.id}/edit#delete`}
+                <button
+                  onClick={() => setShowDeleteModal(true)}
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  data-testid="post-menu-button"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -473,11 +514,11 @@ export default function PostDetailPage() {
                     />
                   </svg>
                   <span>削除</span>
-                </Link>
+                </button>
               </div>
             )}
 
-            {/* <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -487,7 +528,7 @@ export default function PostDetailPage() {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <span>{post._count.comments} コメント</span>
+                <span data-testid="comment-count">{commentCount} コメント</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,11 +545,11 @@ export default function PostDetailPage() {
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                <span>{post.viewCount} 閲覧</span>
+                <span data-testid="view-count">{post.viewCount} 閲覧</span>
               </div>
-            </div> */}
+            </div>
 
-            {/* <AuthGuard
+            <AuthGuard
               fallback={
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -539,12 +580,12 @@ export default function PostDetailPage() {
                 initializing={empathyState.isLoading}
                 size="md"
               />
-            </AuthGuard> */}
+            </AuthGuard>
           </div>
         </article>
 
         {/* コメントセクション */}
-        {/* <AuthGuard
+        <AuthGuard
           fallback={
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
@@ -557,8 +598,58 @@ export default function PostDetailPage() {
             </div>
           }
         >
-          <CommentList postId={post.id} initialCommentsCount={post._count.comments} />
-        </AuthGuard> */}
+          <CommentList
+            postId={post.id}
+            initialCommentsCount={post._count.comments}
+            onCommentCountChange={setCommentCount}
+          />
+        </AuthGuard>
+
+        {/* 関連投稿セクション */}
+        <section className="mt-8" data-testid="related-posts">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">関連する投稿</h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* TODO: 関連投稿の実装 */}
+            <div
+              className="bg-gray-100 rounded-lg p-6 text-center text-gray-500"
+              data-testid="related-post"
+            >
+              関連投稿機能は現在開発中です
+            </div>
+          </div>
+        </section>
+
+        {/* 削除確認モーダル */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div
+              className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+              data-testid="delete-confirmation"
+            >
+              <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
+              <p className="text-gray-600 mb-6">
+                この操作は取り消すことができません。本当に削除してもよろしいですか？
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeleting}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                  data-testid="confirm-delete-button"
+                >
+                  {isDeleting ? '削除中...' : '削除する'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
