@@ -35,18 +35,21 @@ export class ExportUsersUseCase {
     }
 
     try {
-      // Get all users with post count
-      const users = await this.userRepository.findAllWithPostCount()
+      // Get all users
+      const { users } = await this.userRepository.findMany({
+        limit: 10000, // High limit to get all users
+        offset: 0,
+      })
 
-      const userExportData: UserExportData[] = users.map(user => ({
+      const userExportData: UserExportData[] = users.map((user: any) => ({
         id: user.id,
         userName: user.username,
         email: user.email,
         isActive: user.active,
         role: user.role,
-        skinType: '', // User entity doesn't have skinType in clean arch yet
+        skinType: user.skinType || '',
         createdAt: user.createdAt.toISOString(),
-        postCount: 0, // Will be populated by repository implementation
+        postCount: 0, // TODO: Implement post count aggregation
       }))
 
       // Generate CSV content

@@ -27,12 +27,11 @@ export class GetDashboardStatsUseCase {
     // Get basic counts
     const [totalUsersResult, activeUsersResult, totalPostsResult, publishedPostsResult] =
       await Promise.all([
-        this.userRepository.findMany({ offset: 0, limit: 1, publishedOnly: false }),
+        this.userRepository.findMany({ offset: 0, limit: 1 }),
         this.userRepository.findMany({
           offset: 0,
           limit: 1,
           activeOnly: true,
-          publishedOnly: false,
         }),
         this.postRepository.findMany({ offset: 0, limit: 1, publishedOnly: false }),
         this.postRepository.findMany({ offset: 0, limit: 1, publishedOnly: true }),
@@ -46,7 +45,6 @@ export class GetDashboardStatsUseCase {
         offset: 0,
         limit: 1,
         createdAfter: thirtyDaysAgo,
-        publishedOnly: false,
       }),
       this.postRepository.findMany({
         offset: 0,

@@ -18,8 +18,6 @@ export function adaptCookieToBearer(request: NextRequest): NextRequest {
     method: request.method,
     headers,
     body: request.body,
-    // @ts-expect-error - NextRequest constructor doesn't expose all options
-    duplex: 'half',
   })
 }
 

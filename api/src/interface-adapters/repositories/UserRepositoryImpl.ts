@@ -284,7 +284,16 @@ export class UserRepositoryImpl implements UserRepository {
       prismaUser.id,
       prismaUser.email,
       prismaUser.userName,
+      prismaUser.userName, // userName alias
       prismaUser.passwordHash,
+      null, // displayName (not in current schema)
+      null, // profileImageUrl (not in current schema)
+      prismaUser.birthDate,
+      prismaUser.gender,
+      prismaUser.skinType,
+      prismaUser.skinTypeOther,
+      prismaUser.allergies?.join(',') || null, // Convert array to string
+      prismaUser.allergiesOther,
       prismaUser.emailVerified,
       prismaUser.emailVerificationToken,
       prismaUser.passwordResetToken,
@@ -293,9 +302,11 @@ export class UserRepositoryImpl implements UserRepository {
       prismaUser.lockedUntil || null,
       prismaUser.role as UserRole,
       prismaUser.isActive,
+      prismaUser.isActive, // isActive alias
       prismaUser.deletedAt,
       prismaUser.createdAt,
-      prismaUser.updatedAt
+      prismaUser.updatedAt,
+      undefined // password field (not stored)
     )
   }
 }

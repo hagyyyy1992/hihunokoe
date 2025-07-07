@@ -38,7 +38,6 @@ export interface FindUsersFilter {
   inactiveOnly?: boolean
   role?: string
   createdAfter?: Date
-  publishedOnly: boolean
 }
 
 export interface FindUsersResult {

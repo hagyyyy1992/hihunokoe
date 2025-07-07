@@ -67,7 +67,7 @@ export class LoginUseCase implements LoginInputPort {
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 24)
 
-    const session = new AuthSession(user.id, token, expiresAt, new Date())
+    const session = new AuthSession(crypto.randomUUID(), user.id, token, expiresAt, new Date())
 
     await this.authSessionRepository.create(session)
 

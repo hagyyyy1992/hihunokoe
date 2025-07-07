@@ -369,7 +369,6 @@ export class AdminController {
       const result = await this.userRepository.findMany({
         offset: 0,
         limit: 10000, // Large limit to get all users
-        publishedOnly: false,
       })
 
       // Generate CSV

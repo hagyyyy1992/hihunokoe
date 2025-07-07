@@ -24,4 +24,11 @@ export class HealthController {
       },
     })
   }
+
+  async checkPostsApi(request: NextRequest): Promise<NextResponse> {
+    return NextResponse.json({
+      message: 'Posts API is working',
+      timestamp: new Date().toISOString(),
+    })
+  }
 }

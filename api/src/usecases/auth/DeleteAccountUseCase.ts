@@ -45,7 +45,7 @@ export class DeleteAccountUseCase {
     }
 
     // Verify password
-    const isPasswordValid = await this.passwordHashService.compare(password, user.password)
+    const isPasswordValid = await this.passwordHashService.compare(password, user.passwordHash)
     if (!isPasswordValid) {
       throw new Error('Invalid password')
     }

@@ -35,7 +35,7 @@ export class PostRepositoryImpl implements PostRepository {
     const where: any = {}
 
     if (filter.publishedOnly) {
-      where.isPublished = true
+      where.status = 'published'
     }
 
     if (filter.userId) {
@@ -50,8 +50,8 @@ export class PostRepositoryImpl implements PostRepository {
       where.OR = [
         { title: { contains: filter.search, mode: 'insensitive' } },
         { content: { contains: filter.search, mode: 'insensitive' } },
-        { productName: { contains: filter.search, mode: 'insensitive' } },
-        { brandName: { contains: filter.search, mode: 'insensitive' } },
+        { cosmeticName: { contains: filter.search, mode: 'insensitive' } },
+        { cosmeticCategory: { contains: filter.search, mode: 'insensitive' } },
       ]
     }
 
@@ -94,11 +94,10 @@ export class PostRepositoryImpl implements PostRepository {
         userId: data.userId,
         title: data.title,
         content: data.content,
-        productName: data.productName || null,
-        brandName: data.brandName || null,
-        imageUrl: data.imageUrl || null,
-        category: data.category || null,
-        isPublished: data.isPublished || false,
+        cosmeticName: data.productName || '',
+        cosmeticCategory: data.category || null,
+        status: data.isPublished ? 'published' : 'draft',
+        publishedAt: data.isPublished ? new Date() : null,
       },
       include: {
         _count: {
@@ -119,11 +118,12 @@ export class PostRepositoryImpl implements PostRepository {
     const updateData: any = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.content !== undefined) updateData.content = data.content
-    if (data.productName !== undefined) updateData.productName = data.productName
-    if (data.brandName !== undefined) updateData.brandName = data.brandName
-    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl
-    if (data.category !== undefined) updateData.category = data.category
-    if (data.isPublished !== undefined) updateData.isPublished = data.isPublished
+    if (data.productName !== undefined) updateData.cosmeticName = data.productName
+    if (data.category !== undefined) updateData.cosmeticCategory = data.category
+    if (data.isPublished !== undefined) {
+      updateData.status = data.isPublished ? 'published' : 'draft'
+      updateData.publishedAt = data.isPublished ? new Date() : null
+    }
 
     const prismaPost = await prisma.post.update({
       where: { id },
@@ -192,7 +192,7 @@ export class PostRepositoryImpl implements PostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     const posts = await prisma.post.findMany({
-      where: { isPublished: true },
+      where: { status: 'published' },
       orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
@@ -212,7 +212,7 @@ export class PostRepositoryImpl implements PostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     return await prisma.post.count({
-      where: { isPublished: true },
+      where: { status: 'published' },
     })
   }
 
@@ -233,7 +233,10 @@ export class PostRepositoryImpl implements PostRepository {
 
     await prisma.post.update({
       where: { id },
-      data: { isPublished },
+      data: {
+        status: isPublished ? 'published' : 'draft',
+        publishedAt: isPublished ? new Date() : null,
+      },
     })
   }
 
@@ -250,11 +253,18 @@ export class PostRepositoryImpl implements PostRepository {
       prismaPost.userId,
       prismaPost.title,
       prismaPost.content,
-      prismaPost.productName,
-      prismaPost.brandName,
-      prismaPost.imageUrl,
-      prismaPost.category,
-      prismaPost.isPublished,
+      prismaPost.cosmeticName || null, // productName
+      null, // brandName (not in current schema)
+      null, // imageUrl (not in current schema)
+      prismaPost.cosmeticCategory || null, // category
+      prismaPost.status === 'published', // isPublished
+      prismaPost.publishedAt,
+      prismaPost.status,
+      prismaPost.cosmeticName,
+      prismaPost.cosmeticCategory,
+      prismaPost.skinType,
+      prismaPost.moodTag,
+      prismaPost.viewCount || 0,
       prismaPost._count.empathies,
       prismaPost._count.comments,
       prismaPost.createdAt,

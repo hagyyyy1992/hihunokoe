@@ -18,12 +18,10 @@ export class EmpathyRepositoryImpl implements EmpathyRepository {
   async findByUserAndPost(userId: string, postId: string): Promise<Empathy | null> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const prismaEmpathy = await prisma.empathy.findUnique({
+    const prismaEmpathy = await prisma.empathy.findFirst({
       where: {
-        userId_postId: {
-          userId,
-          postId,
-        },
+        userId,
+        postId,
       },
     })
 
@@ -60,6 +58,7 @@ export class EmpathyRepositoryImpl implements EmpathyRepository {
       data: {
         userId: data.userId,
         postId: data.postId,
+        empathyType: 'like', // Default empathy type
       },
     })
 

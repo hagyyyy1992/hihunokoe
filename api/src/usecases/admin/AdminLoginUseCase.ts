@@ -35,31 +35,31 @@ export class AdminLoginUseCase {
     // Find user by email
     const user = await this.userRepository.findByEmail(email)
     if (!user) {
-      throw new InvalidCredentialsError('Invalid email or password')
+      throw new InvalidCredentialsError()
     }
 
     // Check if user is an admin
     if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
-      throw new InvalidCredentialsError('Access denied: Admin privileges required')
+      throw new InvalidCredentialsError()
     }
 
     // Check if account is locked
     if (user.lockedUntil && user.lockedUntil > new Date()) {
-      throw new AccountLockedError('Account is temporarily locked')
+      throw new AccountLockedError()
     }
 
     // Check if account is active
     if (!user.isActive || user.deletedAt) {
-      throw new AccountInactiveError('Account is inactive')
+      throw new AccountInactiveError()
     }
 
     // Check if email is verified (optional for admins, but recommended)
     if (!user.emailVerified) {
-      throw new EmailNotVerifiedError('Email verification required')
+      throw new EmailNotVerifiedError()
     }
 
     // Verify password
-    const isPasswordValid = await this.passwordHashService.compare(password, user.password)
+    const isPasswordValid = await this.passwordHashService.compare(password, user.passwordHash)
     if (!isPasswordValid) {
       // Increment failed login attempts
       await this.userRepository.incrementFailedLoginAttempts(user.id)
@@ -68,10 +68,10 @@ export class AdminLoginUseCase {
       if (user.failedLoginAttempts + 1 >= 5) {
         const lockUntil = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
         await this.userRepository.lockAccount(user.id, lockUntil)
-        throw new AccountLockedError('Account locked due to too many failed attempts')
+        throw new AccountLockedError()
       }
 
-      throw new InvalidCredentialsError('Invalid email or password')
+      throw new InvalidCredentialsError()
     }
 
     // Reset failed login attempts on successful login
@@ -92,9 +92,8 @@ export class AdminLoginUseCase {
       crypto.randomUUID(),
       user.id,
       token,
-      new Date(),
       new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours for admin sessions
-      true
+      new Date()
     )
     await this.authSessionRepository.create(session)
 
