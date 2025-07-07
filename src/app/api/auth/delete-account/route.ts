@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server'
-import { handleDeleteAccount } from '../auth-route-adapters'
+import { AuthController } from '@api/framework/controllers/AuthController'
 
-export async function DELETE(request: NextRequest) {
-  return handleDeleteAccount(request)
+const authController = new AuthController()
+
+export async function DELETE(request: Request) {
+  return authController.deleteAccount(request as NextRequest)
 }

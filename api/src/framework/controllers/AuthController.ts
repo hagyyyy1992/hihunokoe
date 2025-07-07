@@ -7,6 +7,8 @@ import { VerifyEmailUseCase } from '@api/usecases/auth/VerifyEmailUseCase'
 import { LogoutUseCase } from '@api/usecases/auth/LogoutUseCase'
 import { GetCurrentUserUseCase } from '@api/usecases/auth/GetCurrentUserUseCase'
 import { DeleteAccountUseCase } from '@api/usecases/auth/DeleteAccountUseCase'
+import { ResendVerificationEmailUseCase } from '@api/usecases/auth/ResendVerificationEmailUseCase'
+import { VerifyPasswordResetTokenUseCase } from '@api/usecases/auth/VerifyPasswordResetTokenUseCase'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
@@ -348,6 +350,81 @@ export class AuthController {
       console.error('Delete account error:', error)
       return NextResponse.json(
         { error: 'An error occurred while deleting account' },
+        { status: 500 }
+      )
+    }
+  }
+
+  async resendVerificationEmail(request: NextRequest): Promise<NextResponse> {
+    try {
+      const body = await request.json()
+      const { email } = body
+
+      if (!email || !email.includes('@')) {
+        return NextResponse.json(
+          { error: 'メールアドレスの形式が正しくありません' },
+          { status: 400 }
+        )
+      }
+
+      // リクエストから動的にベースURLを取得
+      const host = request.headers.get('host')
+      const protocol = request.headers.get('x-forwarded-proto') || 'http'
+      const baseUrl = host ? `${protocol}://${host}` : undefined
+
+      const resendVerificationUseCase = new ResendVerificationEmailUseCase(
+        this.userRepository,
+        this.emailService,
+        this.tokenService
+      )
+
+      const result = await resendVerificationUseCase.execute({ email, baseUrl })
+
+      if (!result.success) {
+        return NextResponse.json({ error: result.message }, { status: 400 })
+      }
+
+      return NextResponse.json({ message: result.message })
+    } catch (error) {
+      console.error('Resend verification email error:', error)
+      return NextResponse.json({ error: '確認メールの再送信に失敗しました' }, { status: 500 })
+    }
+  }
+
+  async verifyPasswordResetToken(request: NextRequest): Promise<NextResponse> {
+    try {
+      const body = await request.json()
+      const { token } = body
+
+      if (!token || token.trim() === '') {
+        return NextResponse.json({ success: false, message: 'トークンが必要です' }, { status: 400 })
+      }
+
+      const verifyTokenUseCase = new VerifyPasswordResetTokenUseCase(
+        this.userRepository,
+        this.tokenService
+      )
+
+      const result = await verifyTokenUseCase.execute({ token })
+
+      if (result.success) {
+        return NextResponse.json({
+          success: true,
+          message: result.message,
+        })
+      } else {
+        return NextResponse.json(
+          {
+            success: false,
+            message: result.message,
+          },
+          { status: 400 }
+        )
+      }
+    } catch (error) {
+      console.error('Token verification error:', error)
+      return NextResponse.json(
+        { success: false, message: 'トークンの確認中にエラーが発生しました' },
         { status: 500 }
       )
     }

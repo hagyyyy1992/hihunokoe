@@ -138,6 +138,7 @@ export class CommentRepositoryImpl implements CommentRepository {
       where: {
         postId,
         isActive: true,
+        parentCommentId: null, // トップレベルコメントのみ
       },
     })
   }
@@ -151,6 +152,27 @@ export class CommentRepositoryImpl implements CommentRepository {
         isActive: true,
       },
     })
+  }
+
+  async findByPostIdWithPagination(
+    postId: string,
+    skip: number,
+    limit: number
+  ): Promise<Comment[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const prismaComments = await prisma.comment.findMany({
+      where: {
+        postId,
+        isActive: true,
+        parentCommentId: null, // トップレベルコメントのみ
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    })
+
+    return prismaComments.map(comment => this.toDomainComment(comment))
   }
 
   private toDomainComment(prismaComment: PrismaComment): Comment {

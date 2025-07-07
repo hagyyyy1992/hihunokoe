@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server'
-import { handleGetCurrentUser } from '../auth-route-adapters'
+import { AuthController } from '@api/framework/controllers/AuthController'
 
-export async function GET(request: NextRequest) {
-  return handleGetCurrentUser(request)
+const authController = new AuthController()
+
+export async function GET(request: Request) {
+  return authController.getCurrentUser(request as NextRequest)
 }

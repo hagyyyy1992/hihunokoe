@@ -5,22 +5,27 @@ import { UpdateCommentUseCase } from '@api/usecases/comments/UpdateCommentUseCas
 import { DeleteCommentUseCase } from '@api/usecases/comments/DeleteCommentUseCase'
 import { GetCommentUseCase } from '@api/usecases/comments/GetCommentUseCase'
 import { GetCommentsUseCase } from '@api/usecases/comments/GetCommentsUseCase'
+import { GetCommentsWithPaginationUseCase } from '@api/usecases/comments/GetCommentsWithPaginationUseCase'
 import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
+import { CommentPresenter } from '@api/framework/presenters/CommentPresenter'
 
 export class CommentController {
   private commentRepository: CommentRepositoryImpl
   private postRepository: PostRepositoryImpl
   private userRepository: UserRepositoryImpl
   private tokenService: TokenServiceImpl
+  private rateLimitService: RateLimitServiceImpl
 
   constructor() {
     this.commentRepository = new CommentRepositoryImpl()
     this.postRepository = new PostRepositoryImpl()
     this.userRepository = new UserRepositoryImpl()
     this.tokenService = new TokenServiceImpl()
+    this.rateLimitService = new RateLimitServiceImpl()
   }
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
@@ -65,7 +70,8 @@ export class CommentController {
       const createCommentUseCase = new CreateCommentUseCase(
         this.commentRepository,
         this.postRepository,
-        this.userRepository
+        this.userRepository,
+        this.rateLimitService
       )
 
       const result = await createCommentUseCase.execute({
@@ -95,6 +101,9 @@ export class CommentController {
         }
         if (error.message === 'ユーザーが見つかりませんでした') {
           return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
+        }
+        if (error.message === '投稿間隔を空けてください（5秒に1回まで）') {
+          return NextResponse.json({ error: error.message }, { status: 429 })
         }
       }
 
@@ -326,6 +335,173 @@ export class CommentController {
 
       console.error('Get comments error:', error)
       return NextResponse.json({ error: 'コメントの取得に失敗しました' }, { status: 500 })
+    }
+  }
+
+  async getCommentsWithPagination(request: NextRequest): Promise<NextResponse> {
+    try {
+      const userId = await this.getUserIdFromRequest(request)
+      const url = new URL(request.url)
+      const postId = url.searchParams.get('id')
+      const page = parseInt(url.searchParams.get('page') || '1', 10)
+      const limit = parseInt(url.searchParams.get('limit') || '10', 10)
+
+      if (!postId) {
+        return NextResponse.json({ error: '投稿IDが指定されていません' }, { status: 400 })
+      }
+
+      const getCommentsUseCase = new GetCommentsWithPaginationUseCase(
+        this.commentRepository,
+        this.postRepository,
+        this.userRepository
+      )
+
+      const result = await getCommentsUseCase.execute({
+        postId,
+        page,
+        limit,
+        userId: userId || undefined,
+      })
+
+      // Presenterを使用してレスポンスを整形
+      const formattedComments = result.comments.map(({ comment, user, replies }) => {
+        const formattedReplies = replies?.map(reply => ({
+          comment: reply.comment,
+          user: reply.user,
+        }))
+        return CommentPresenter.toResponse(comment, user, userId || undefined, formattedReplies)
+      })
+
+      return NextResponse.json({
+        comments: formattedComments,
+        pagination: result.pagination,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '投稿が見つかりませんでした') {
+          return NextResponse.json({ error: error.message }, { status: 404 })
+        }
+        if (error.message === 'この投稿のコメントは表示できません') {
+          return NextResponse.json({ error: error.message }, { status: 403 })
+        }
+      }
+
+      console.error('Get comments with pagination error:', error)
+      return NextResponse.json({ error: 'コメントの取得に失敗しました' }, { status: 500 })
+    }
+  }
+
+  async getCommentsForPost(
+    request: NextRequest,
+    context: { params: { id: string } }
+  ): Promise<NextResponse> {
+    try {
+      const userId = await this.getUserIdFromRequest(request)
+      const postId = context.params.id
+      const url = new URL(request.url)
+      const page = parseInt(url.searchParams.get('page') || '1', 10)
+      const limit = parseInt(url.searchParams.get('limit') || '10', 10)
+
+      const getCommentsUseCase = new GetCommentsWithPaginationUseCase(
+        this.commentRepository,
+        this.postRepository,
+        this.userRepository
+      )
+
+      const result = await getCommentsUseCase.execute({
+        postId,
+        page,
+        limit,
+        userId: userId || undefined,
+      })
+
+      // Presenterを使用してレスポンスを整形
+      const formattedComments = result.comments.map(({ comment, user, replies }) => {
+        const formattedReplies = replies?.map(reply => ({
+          comment: reply.comment,
+          user: reply.user,
+        }))
+        return CommentPresenter.toResponse(comment, user, userId || undefined, formattedReplies)
+      })
+
+      return NextResponse.json({
+        comments: formattedComments,
+        pagination: result.pagination,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '投稿が見つかりませんでした') {
+          return NextResponse.json({ error: error.message }, { status: 404 })
+        }
+        if (error.message === 'この投稿のコメントは表示できません') {
+          return NextResponse.json({ error: error.message }, { status: 403 })
+        }
+      }
+
+      console.error('Get comments for post error:', error)
+      return NextResponse.json({ error: 'コメントの取得に失敗しました' }, { status: 500 })
+    }
+  }
+
+  async createCommentForPost(
+    request: NextRequest,
+    context: { params: { id: string } }
+  ): Promise<NextResponse> {
+    try {
+      const userId = await this.getUserIdFromRequest(request)
+      if (!userId) {
+        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
+      }
+
+      const postId = context.params.id
+      const body = await request.json()
+      const { content } = body
+
+      const createCommentUseCase = new CreateCommentUseCase(
+        this.commentRepository,
+        this.postRepository,
+        this.userRepository,
+        this.rateLimitService
+      )
+
+      const result = await createCommentUseCase.execute({
+        postId,
+        userId,
+        content,
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          comment: result.comment,
+          message: 'コメントを投稿しました',
+        },
+        { status: 201 }
+      )
+    } catch (error) {
+      if (error instanceof Error) {
+        if (
+          error.message === 'コメント内容は必須です' ||
+          error.message === 'コメントは1000文字以内で入力してください'
+        ) {
+          return NextResponse.json({ error: error.message }, { status: 400 })
+        }
+        if (error.message === '投稿が見つかりませんでした') {
+          return NextResponse.json({ error: error.message }, { status: 404 })
+        }
+        if (error.message === 'この投稿にはコメントできません') {
+          return NextResponse.json({ error: error.message }, { status: 403 })
+        }
+        if (error.message === 'ユーザーが見つかりませんでした') {
+          return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
+        }
+        if (error.message === '投稿間隔を空けてください（5秒に1回まで）') {
+          return NextResponse.json({ error: error.message }, { status: 429 })
+        }
+      }
+
+      console.error('Create comment for post error:', error)
+      return NextResponse.json({ error: 'コメントの投稿に失敗しました' }, { status: 500 })
     }
   }
 }

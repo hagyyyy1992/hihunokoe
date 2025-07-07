@@ -2,6 +2,7 @@ import { Comment } from '@api/domain/entities/Comment'
 import { CommentRepository } from '@api/domain/repositories/CommentRepository'
 import { PostRepository } from '@api/domain/repositories/PostRepository'
 import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { RateLimitService } from '@api/domain/services/RateLimitService'
 
 export interface CreateCommentInput {
   postId: string
@@ -17,10 +18,23 @@ export class CreateCommentUseCase {
   constructor(
     private commentRepository: CommentRepository,
     private postRepository: PostRepository,
-    private userRepository: UserRepository
+    private userRepository: UserRepository,
+    private rateLimitService?: RateLimitService
   ) {}
 
   async execute(input: CreateCommentInput): Promise<CreateCommentOutput> {
+    // レート制限チェック（5秒に1回まで）
+    if (this.rateLimitService) {
+      const canProceed = this.rateLimitService.checkRateLimit(
+        input.userId,
+        'create_comment',
+        5 * 1000, // 5秒
+        1 // 1回まで
+      )
+      if (!canProceed) {
+        throw new Error('投稿間隔を空けてください（5秒に1回まで）')
+      }
+    }
     // バリデーション
     if (!input.content.trim()) {
       throw new Error('コメント内容は必須です')

@@ -3,18 +3,21 @@ import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRep
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
 import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 
 export class TestController {
   private userRepository: UserRepositoryImpl
   private postRepository: PostRepositoryImpl
   private empathyRepository: EmpathyRepositoryImpl
   private emailService: EmailServiceImpl
+  private rateLimitService: RateLimitServiceImpl
 
   constructor() {
     this.userRepository = new UserRepositoryImpl()
     this.postRepository = new PostRepositoryImpl()
     this.empathyRepository = new EmpathyRepositoryImpl()
     this.emailService = new EmailServiceImpl()
+    this.rateLimitService = new RateLimitServiceImpl()
   }
 
   private checkTestEnvironment(): NextResponse | null {
@@ -60,8 +63,9 @@ export class TestController {
     if (envCheck) return envCheck
 
     try {
-      // Rate limiter reset logic would go here
-      // For now, just return success
+      // Reset all rate limiters
+      this.rateLimitService.clearRateLimits()
+
       return NextResponse.json({
         success: true,
         message: 'Rate limiters reset successfully',

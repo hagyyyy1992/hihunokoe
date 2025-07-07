@@ -15,6 +15,7 @@ export interface TokenService {
 
   // Email verification token methods
   generateEmailToken(userId: string): Promise<string>
+  generateEmailVerificationToken(userId: string): Promise<string>
   verifyEmailToken(token: string): Promise<string | null>
   invalidateEmailToken(token: string): Promise<void>
 }

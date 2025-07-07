@@ -91,6 +91,11 @@ export class TokenServiceImpl implements TokenService {
     return this.generateRandomToken()
   }
 
+  async generateEmailVerificationToken(userId: string): Promise<string> {
+    // This is an alias for generateEmailToken for backward compatibility
+    return this.generateEmailToken(userId)
+  }
+
   async verifyEmailToken(token: string): Promise<string | null> {
     // This should verify against the database
     // For now, we'll assume the token is valid if it's not empty

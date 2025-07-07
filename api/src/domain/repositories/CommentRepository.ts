@@ -27,4 +27,6 @@ export interface CommentRepository {
   countByPostId(postId: string): Promise<number>
 
   countRepliesByParentId(parentCommentId: string): Promise<number>
+
+  findByPostIdWithPagination(postId: string, skip: number, limit: number): Promise<Comment[]>
 }
