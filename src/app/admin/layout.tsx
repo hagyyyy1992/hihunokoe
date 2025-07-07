@@ -38,28 +38,48 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('auth-token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      router.push('/admin/login')
+    // ログインページではチェックをスキップ
+    if (pathname === '/admin/login') {
+      setIsLoading(false)
       return
     }
 
-    const userData = verifyToken(token)
-    if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN')) {
-      router.push('/admin/login')
-      return
+    const checkAuth = async () => {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth-token='))
+        ?.split('=')[1]
+
+      if (!token) {
+        router.push('/admin/login')
+        setIsLoading(false)
+        return
+      }
+
+      const userData = verifyToken(token)
+      if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN')) {
+        router.push('/admin/login')
+        setIsLoading(false)
+        return
+      }
+
+      setUser(userData)
+      setIsLoading(false)
     }
 
-    setUser(userData)
-    setIsLoading(false)
-  }, [router])
+    checkAuth()
+  }, [router, pathname])
 
-  const handleLogout = () => {
-    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+
+    setUser(null)
     router.push('/admin/login')
   }
 

@@ -50,3 +50,4 @@ test-results
 # MCP configuration (contains API keys)
 .mcp.json
 
+.env.local

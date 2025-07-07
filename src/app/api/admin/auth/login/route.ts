@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
     console.log('[ADMIN LOGIN] Admin action logged successfully')
 
     console.log('[ADMIN LOGIN] Login successful')
-    return NextResponse.json({
+
+    // レスポンスを作成
+    const response = NextResponse.json({
       token,
       user: {
         id: user.id,
@@ -55,6 +57,20 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
     })
+
+    // HTTPOnlyクッキーをセット（サーバーサイド）
+    const isProduction = process.env.NODE_ENV === 'production'
+    response.cookies.set({
+      name: 'auth-token',
+      value: token,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7日間
+    })
+
+    return response
   } catch (error) {
     console.error('[ADMIN LOGIN] ERROR:', error)
     console.error(
