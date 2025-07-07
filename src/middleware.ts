@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyToken } from '@/lib/auth/auth'
+import { validateAdminAccess } from '@/lib/auth/middleware-auth'
 
 // IP制限の設定を環境変数から取得
 const ALLOWED_IPS = process.env.ALLOWED_IPS?.split(',').map(ip => ip.trim()) || []
@@ -48,18 +48,7 @@ export function middleware(request: NextRequest) {
 
   // 管理画面の認証チェック
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const token = request.cookies.get('auth-token')?.value
-
-    if (!token) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
-    }
-
-    try {
-      const user = verifyToken(token)
-      if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
-      }
-    } catch {
+    if (!validateAdminAccess(request)) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
   }
