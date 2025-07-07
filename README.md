@@ -121,7 +121,7 @@ Vercelでメール送信機能を有効にするには、以下の環境変数�
 ### 基本コマンド
 
 - `npm run dev` - 開発サーバー起動（Turbopack有効）
-- `npm run dev:full` - Supabase + MailHog + 開発サーバーを一括起動
+- `npm run dev:setup` - Docker + DB + MailHogの初期セットアップ
 - `npm run build` - プロダクションビルド
 - `npm start` - プロダクションサーバー起動
 - `npm run lint` - ESLint実行
