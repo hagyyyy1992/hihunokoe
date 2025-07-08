@@ -63,7 +63,9 @@ describe('/api/auth/register', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
-      expect(data.message).toBe('Registration successful. Please check your email to verify your account.')
+      expect(data.message).toBe(
+        'Registration successful. Please check your email to verify your account.'
+      )
       expect(data.userId).toBe('1')
       expect(mockRegister).toHaveBeenCalledWith(request)
     })
@@ -234,7 +236,8 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number',
+        error:
+          'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number',
       })
       mockRegister.mockResolvedValue(mockResponse)
 

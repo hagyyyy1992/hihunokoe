@@ -1,23 +1,19 @@
 jest.mock('@api/framework/controllers/PostController', () => ({
   PostController: jest.fn().mockImplementation(() => ({
-    getPost: jest.fn().mockImplementation(async (request) => {
+    getPost: jest.fn().mockImplementation(async request => {
       // Default mock implementation
-      return new Response(
-        JSON.stringify({ message: 'Mock response' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
-    })
-  }))
+      return new Response(JSON.stringify({ message: 'Mock response' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }),
+  })),
 }))
 
 import { NextRequest } from 'next/server'
-import { GET, POST, PUT, DELETE } from '@/app/api/route'
+import { GET, PUT, DELETE } from '@/app/api/posts/[id]/route'
 
 // Mock the controller
-
-})),
-}))
-
 
 const createMockResponse = (status, data) => {
   return new Response(JSON.stringify(data), {
@@ -119,7 +115,9 @@ describe('/api/posts/[id]', () => {
 
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
-      mockPrisma.post.update.mockResolvedValue(createMockResponse(200, { ...mockPost, viewCount: 6 }))
+      mockPrisma.post.update.mockResolvedValue(
+        createMockResponse(200, { ...mockPost, viewCount: 6 })
+      )
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -239,7 +237,9 @@ describe('/api/posts/[id]', () => {
 
     it('データベースエラーが発生した場合、500エラーを返す（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.post.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -264,7 +264,7 @@ describe('/api/posts/[id]', () => {
 
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
-      mockPrisma.post.update.mockResolvedValue(createMockResponse(500, { error: "Update error" }))
+      mockPrisma.post.update.mockResolvedValue(createMockResponse(500, { error: 'Update error' }))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 

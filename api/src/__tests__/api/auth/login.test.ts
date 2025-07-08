@@ -24,13 +24,16 @@ describe('AuthController - login', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    
+
     // Setup the mock for LoginUseCase
     mockLoginUseCaseExecute = jest.fn()
-    ;(LoginUseCase as jest.MockedClass<typeof LoginUseCase>).mockImplementation(() => ({
-      execute: mockLoginUseCaseExecute,
-    } as any))
-    
+    ;(LoginUseCase as jest.MockedClass<typeof LoginUseCase>).mockImplementation(
+      () =>
+        ({
+          execute: mockLoginUseCaseExecute,
+        }) as any
+    )
+
     authController = new AuthController()
   })
 

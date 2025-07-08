@@ -1,0 +1,354 @@
+jest.mock('@api/framework/controllers/AuthController', () => ({
+  AuthController: jest.fn().mockImplementation(() => ({
+    forgotPassword: jest.fn().mockImplementation(async request => {
+      // Default mock implementation
+      return new Response(JSON.stringify({ message: 'Mock response' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }),
+  })),
+}))
+
+import { NextRequest } from 'next/server'
+import { POST } from '@/app/api/auth/forgot-password/route'
+
+// Mock the controller
+
+const createMockResponse = (status, data) => {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+  })
+}
+
+describe('/api/auth/forgot-password', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockIsDatabaseAvailable.mockReturnValue(true)
+    // デフォルトではレート制限を通す
+    mockPasswordResetLimiter.checkLimit.mockReturnValue({
+      allowed: true,
+      remaining: 2,
+      resetTime: Date.now() + 15 * 60 * 1000,
+    })
+    mockGetClientIP.mockReturnValue('127.0.0.1')
+  })
+
+  const createRequest = (body: any) => {
+    return new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        host: 'localhost:3000',
+        'x-forwarded-proto': 'http',
+      },
+      body: JSON.stringify(body),
+    })
+  }
+
+  describe('POST', () => {
+    it('有効なメールアドレスでパスワードリセットメールが送信される', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        username: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(createMockResponse(200, mockUser))
+      mockSendPasswordResetEmail.mockResolvedValue()
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: {
+          email: 'test@example.com',
+          isActive: true,
+          deletedAt: null,
+        },
+      })
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser',
+        'http://localhost:3000'
+      )
+    })
+
+    it('存在しないメールアドレスでも成功メッセージを返す（セキュリティ対策）', async () => {
+      mockFindUnique.mockResolvedValue(createMockResponse(200, null))
+
+      const request = createRequest({ email: 'nonexistent@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: {
+          email: 'nonexistent@example.com',
+          isActive: true,
+          deletedAt: null,
+        },
+      })
+      // メール送信は呼ばれない
+      expect(mockSendPasswordResetEmail).not.toHaveBeenCalled()
+    })
+
+    it('無効なメールアドレス形式でバリデーションエラーを返す', async () => {
+      const request = createRequest({ email: 'invalid-email' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('有効なメールアドレスを入力してください')
+    })
+
+    it('メールフィールドが欠如している場合、バリデーションエラーを返す', async () => {
+      const request = createRequest({})
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe('メールアドレスは必須です')
+    })
+
+    it('メール送信に失敗しても成功メッセージを返す（ユーザーには内部エラーを隠す）', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        username: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(createMockResponse(200, mockUser))
+      mockSendPasswordResetEmail.mockResolvedValue(
+        createMockResponse(500, { error: 'Email service error' })
+      )
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to send password reset email:',
+        expect.objectContaining({
+          error: expect.any(Error),
+          message: 'Email service error',
+          stack: expect.any(String),
+          userId: 'user123',
+          email: 'test@example.com',
+        })
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('非Errorオブジェクトのメール送信エラーを処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        username: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(createMockResponse(200, mockUser))
+      mockSendPasswordResetEmail.mockRejectedValue('String error')
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to send password reset email:',
+        expect.objectContaining({
+          error: 'String error',
+          message: 'Unknown error',
+          stack: undefined,
+          userId: 'user123',
+          email: 'test@example.com',
+        })
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('x-forwarded-protoヘッダーがない場合のプロトコル処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        username: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(createMockResponse(200, mockUser))
+      mockSendPasswordResetEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          host: 'localhost:3000',
+          // x-forwarded-protoヘッダーを設定しない
+        },
+        body: JSON.stringify({ email: 'test@example.com' }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser',
+        'http://localhost:3000'
+      )
+    })
+
+    it('hostヘッダーがない場合のbaseURL処理', async () => {
+      const mockUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        username: 'testuser',
+        isActive: true,
+      }
+
+      mockFindUnique.mockResolvedValue(createMockResponse(200, mockUser))
+      mockSendPasswordResetEmail.mockResolvedValue()
+
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // hostヘッダーを設定しない
+        },
+        body: JSON.stringify({ email: 'test@example.com' }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(mockSendPasswordResetEmail).toHaveBeenCalledWith(
+        'user123',
+        'test@example.com',
+        'testuser',
+        undefined
+      )
+    })
+
+    it('データベースが利用できない場合のモックモードをテスト', async () => {
+      mockIsDatabaseAvailable.mockReturnValue(false)
+
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+      const request = createRequest({ email: 'demo@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Mock mode: Password reset email would be sent to:',
+        'demo@example.com'
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('モックモードで存在しないユーザーの場合、ログ出力されない', async () => {
+      mockIsDatabaseAvailable.mockReturnValue(false)
+
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+      const request = createRequest({ email: 'nonexistent@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('パスワードリセットメールを送信しました。メールをご確認ください。')
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        'Mock mode: Password reset email would be sent to:',
+        'nonexistent@example.com'
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('データベースエラーでサーバーエラーを返す', async () => {
+      mockFindUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database connection error' })
+      )
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(data.error).toBe('パスワードリセットの処理中にエラーが発生しました')
+      expect(consoleSpy).toHaveBeenCalled()
+
+      consoleSpy.mockRestore()
+    })
+
+    it('レート制限に達した場合、429エラーが返される', async () => {
+      const resetTime = Date.now() + 5 * 60 * 1000
+      mockPasswordResetLimiter.checkLimit.mockReturnValue({
+        allowed: false,
+        remaining: 0,
+        resetTime,
+      })
+      mockCreateRateLimitErrorResponse.mockReturnValue({
+        error: 'リクエストが多すぎます。しばらく時間をおいてから再試行してください。',
+        retryAfter: 300,
+        message: '5分後に再試行してください。',
+      })
+
+      const request = createRequest({ email: 'test@example.com' })
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(429)
+      expect(data.error).toBe(
+        'リクエストが多すぎます。しばらく時間をおいてから再試行してください。'
+      )
+      expect(data.retryAfter).toBe(300)
+      expect(data.message).toBe('5分後に再試行してください。')
+
+      // レート制限ヘッダーが設定されていることを確認
+      expect(response.headers.get('Retry-After')).toBeTruthy()
+      expect(response.headers.get('X-RateLimit-Limit')).toBe('3')
+      expect(response.headers.get('X-RateLimit-Remaining')).toBe('0')
+      expect(response.headers.get('X-RateLimit-Reset')).toBeTruthy()
+
+      // メール送信が実行されないことを確認
+      expect(mockSendPasswordResetEmail).not.toHaveBeenCalled()
+    })
+
+    it('レート制限チェックが実行される', async () => {
+      const request = createRequest({ email: 'test@example.com' })
+      await POST(request)
+
+      expect(mockGetClientIP).toHaveBeenCalledWith(request)
+      expect(mockPasswordResetLimiter.checkLimit).toHaveBeenCalledWith('127.0.0.1')
+    })
+  })
+})

@@ -1,23 +1,19 @@
 jest.mock('@api/framework/controllers/PostController', () => ({
   PostController: jest.fn().mockImplementation(() => ({
-    toggleEmpathy: jest.fn().mockImplementation(async (request) => {
+    toggleEmpathy: jest.fn().mockImplementation(async request => {
       // Default mock implementation
-      return new Response(
-        JSON.stringify({ message: 'Mock response' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
-    })
-  }))
+      return new Response(JSON.stringify({ message: 'Mock response' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }),
+  })),
 }))
 
 import { NextRequest } from 'next/server'
-import { GET, POST, PUT, DELETE } from '@/app/api/route'
+import { POST, DELETE } from '@/app/api/posts/[id]/empathy/route'
 
 // Mock the controller
-
-})),
-}))
-
 
 const createMockResponse = (status, data) => {
   return new Response(JSON.stringify(data), {
@@ -200,7 +196,9 @@ describe('/api/posts/[id]/empathy', () => {
     it('投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockToggleEmpathy.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.post.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -269,7 +267,9 @@ describe('/api/posts/[id]/empathy', () => {
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
-      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.empathy.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -485,7 +485,9 @@ describe('/api/posts/[id]/empathy', () => {
     it('POSTの投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockToggleEmpathy.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.post.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -529,7 +531,9 @@ describe('/api/posts/[id]/empathy', () => {
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
-      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.empathy.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -591,7 +595,9 @@ describe('/api/posts/[id]/empathy', () => {
 
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
       mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, null))
-      mockPrisma.$transaction.mockResolvedValue(createMockResponse(500, { error: "Transaction failed" }))
+      mockPrisma.$transaction.mockResolvedValue(
+        createMockResponse(500, { error: 'Transaction failed' })
+      )
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -747,7 +753,9 @@ describe('/api/posts/[id]/empathy', () => {
     it('DELETEの投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockToggleEmpathy.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.post.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -785,7 +793,9 @@ describe('/api/posts/[id]/empathy', () => {
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
       mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
-      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
+      mockPrisma.empathy.findUnique.mockResolvedValue(
+        createMockResponse(500, { error: 'Database error' })
+      )
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')

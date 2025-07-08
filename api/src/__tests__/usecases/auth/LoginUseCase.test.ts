@@ -13,18 +13,20 @@ import {
 } from '@api/domain/exceptions/AuthenticationError'
 
 // Helper function to create mock users
-function createMockUser(overrides: Partial<{
-  id: string
-  email: string
-  username: string
-  passwordHash: string
-  emailVerified: boolean
-  active: boolean
-  failedLoginAttempts: number
-  lockedUntil: Date | null
-  deletedAt: Date | null
-  role: UserRole
-}> = {}): User {
+function createMockUser(
+  overrides: Partial<{
+    id: string
+    email: string
+    username: string
+    passwordHash: string
+    emailVerified: boolean
+    active: boolean
+    failedLoginAttempts: number
+    lockedUntil: Date | null
+    deletedAt: Date | null
+    role: UserRole
+  }> = {}
+): User {
   return new User(
     overrides.id || '1',
     overrides.email || 'test@example.com',
@@ -150,7 +152,7 @@ describe('LoginUseCase', () => {
       mockUserRepository.findByEmail.mockResolvedValue(null)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(InvalidCredentialsError)
-      
+
       expect(mockPasswordHashService.compare).not.toHaveBeenCalled()
     })
 
@@ -162,7 +164,7 @@ describe('LoginUseCase', () => {
       mockUserRepository.findById.mockResolvedValue(mockUser)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(InvalidCredentialsError)
-      
+
       expect(mockUserRepository.incrementFailedLoginAttempts).toHaveBeenCalledWith('1')
     })
 
@@ -179,15 +181,15 @@ describe('LoginUseCase', () => {
       const lockUntil = new Date()
       lockUntil.setHours(lockUntil.getHours() + 1)
 
-      const mockUser = createMockUser({ 
+      const mockUser = createMockUser({
         failedLoginAttempts: 5,
-        lockedUntil: lockUntil
+        lockedUntil: lockUntil,
       })
 
       mockUserRepository.findByEmail.mockResolvedValue(mockUser)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(AccountLockedError)
-      
+
       expect(mockPasswordHashService.compare).not.toHaveBeenCalled()
     })
 
@@ -197,7 +199,7 @@ describe('LoginUseCase', () => {
       mockUserRepository.findByEmail.mockResolvedValue(mockUser)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(AccountInactiveError)
-      
+
       expect(mockPasswordHashService.compare).not.toHaveBeenCalled()
     })
 
@@ -207,7 +209,7 @@ describe('LoginUseCase', () => {
       mockUserRepository.findByEmail.mockResolvedValue(mockUser)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(AccountInactiveError)
-      
+
       expect(mockPasswordHashService.compare).not.toHaveBeenCalled()
     })
 
@@ -221,7 +223,7 @@ describe('LoginUseCase', () => {
       mockUserRepository.findById.mockResolvedValue(mockUserAfterIncrement as User)
 
       await expect(loginUseCase.execute(validInput)).rejects.toThrow(InvalidCredentialsError)
-      
+
       expect(mockUserRepository.incrementFailedLoginAttempts).toHaveBeenCalledWith('1')
       expect(mockUserRepository.lockAccount).toHaveBeenCalledWith('1', expect.any(Date))
     })
@@ -241,7 +243,9 @@ describe('LoginUseCase', () => {
         password: 'short',
       }
 
-      await expect(loginUseCase.execute(invalidInput)).rejects.toThrow('Password must be at least 8 characters long')
+      await expect(loginUseCase.execute(invalidInput)).rejects.toThrow(
+        'Password must be at least 8 characters long'
+      )
     })
   })
 })

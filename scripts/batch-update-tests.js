@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 // Test templates for different controllers
 const testTemplates = {
@@ -80,7 +80,7 @@ const createMockResponse = (status, data) => {
   })
 }
 `,
-};
+}
 
 // Mapping of test files to their controller methods
 const testMappings = {
@@ -144,101 +144,109 @@ const testMappings = {
     method: 'updateProfile',
     routePath: '@/app/api/profile/update/route',
   },
-};
+}
 
 // Function to update a test file
 function updateTestFile(filePath, mapping) {
-  console.log(`Updating ${filePath}...`);
-  
+  console.log(`Updating ${filePath}...`)
+
   try {
-    let content = fs.readFileSync(filePath, 'utf8');
-    
+    let content = fs.readFileSync(filePath, 'utf8')
+
     // Get the template
-    const template = testTemplates[mapping.controller];
+    const template = testTemplates[mapping.controller]
     if (!template) {
-      console.log(`⚠️  No template for controller: ${mapping.controller}`);
-      return;
+      console.log(`⚠️  No template for controller: ${mapping.controller}`)
+      return
     }
-    
+
     // Extract the test cases (everything after the first describe block)
-    const describeMatch = content.match(/describe\(['"`].*?['"`],\s*\(\)\s*=>\s*{[\s\S]*$/);
+    const describeMatch = content.match(/describe\(['"`].*?['"`],\s*\(\)\s*=>\s*{[\s\S]*$/)
     if (!describeMatch) {
-      console.log(`⚠️  Could not find describe block in ${filePath}`);
-      return;
+      console.log(`⚠️  Could not find describe block in ${filePath}`)
+      return
     }
-    
+
     // Generate new content
-    const newContent = template(mapping.method, mapping.routePath) + '\n' + describeMatch[0];
-    
+    const newContent = template(mapping.method, mapping.routePath) + '\n' + describeMatch[0]
+
     // Update mock references
-    const mockName = `mock${mapping.method.charAt(0).toUpperCase() + mapping.method.slice(1)}`;
-    
+    const mockName = `mock${mapping.method.charAt(0).toUpperCase() + mapping.method.slice(1)}`
+
     // Common replacements
     const replacements = [
       // Auth module mocks
-      [/mock(LoginUser|RegisterUser|GetCurrentUser|VerifyToken|GetUserById|DeleteAccount)/g, mockName],
+      [
+        /mock(LoginUser|RegisterUser|GetCurrentUser|VerifyToken|GetUserById|DeleteAccount)/g,
+        mockName,
+      ],
       [/authModule\.\w+/g, mockName],
-      
+
       // Password reset mocks
       [/mock(InitPasswordReset|ResetPassword|VerifyPasswordResetToken)/g, mockName],
       [/passwordResetModule\.\w+/g, mockName],
-      
+
       // Email verification mocks
       [/mock(VerifyEmail|ResendVerificationEmail)/g, mockName],
       [/emailVerificationModule\.\w+/g, mockName],
-      
+
       // Admin mocks
       [/mockAuth\.\w+/g, mockName],
       [/mockLoginAdmin/g, mockName],
-      
+
       // Response handling
-      [/\.mockResolvedValue\(([^)]+)\)/g, (match, value) => {
-        // If the value is just an object, wrap it in createMockResponse
-        if (!value.includes('createMockResponse')) {
-          return `.mockResolvedValue(createMockResponse(200, ${value}))`
-        }
-        return match;
-      }],
-      
+      [
+        /\.mockResolvedValue\(([^)]+)\)/g,
+        (match, value) => {
+          // If the value is just an object, wrap it in createMockResponse
+          if (!value.includes('createMockResponse')) {
+            return `.mockResolvedValue(createMockResponse(200, ${value}))`
+          }
+          return match
+        },
+      ],
+
       // Error handling
-      [/\.mockRejectedValue\(new Error\(['"`](.*?)['"`]\)\)/g, '.mockResolvedValue(createMockResponse(500, { error: "$1" }))'],
-      
+      [
+        /\.mockRejectedValue\(new Error\(['"`](.*?)['"`]\)\)/g,
+        '.mockResolvedValue(createMockResponse(500, { error: "$1" }))',
+      ],
+
       // Field name updates
       [/userName/g, 'username'],
-      
+
       // Remove unused imports
       [/import \* as \w+Module from.*?\n/g, ''],
       [/const mock\w+ = [\s\S]*?>\n/g, ''],
-    ];
-    
-    let updatedContent = newContent;
+    ]
+
+    let updatedContent = newContent
     replacements.forEach(([pattern, replacement]) => {
-      updatedContent = updatedContent.replace(pattern, replacement);
-    });
-    
+      updatedContent = updatedContent.replace(pattern, replacement)
+    })
+
     // Write the updated content
-    fs.writeFileSync(filePath, updatedContent);
-    console.log(`✓ Updated ${filePath}`);
-    
+    fs.writeFileSync(filePath, updatedContent)
+    console.log(`✓ Updated ${filePath}`)
   } catch (error) {
-    console.error(`✗ Error updating ${filePath}: ${error.message}`);
+    console.error(`✗ Error updating ${filePath}: ${error.message}`)
   }
 }
 
 // Main function
 function updateAllTests() {
-  console.log('Batch updating test files for clean architecture...\n');
-  
+  console.log('Batch updating test files for clean architecture...\n')
+
   Object.entries(testMappings).forEach(([filePath, mapping]) => {
     if (fs.existsSync(filePath)) {
-      updateTestFile(filePath, mapping);
+      updateTestFile(filePath, mapping)
     } else {
-      console.log(`⚠️  File not found: ${filePath}`);
+      console.log(`⚠️  File not found: ${filePath}`)
     }
-  });
-  
-  console.log('\nBatch update complete!');
+  })
+
+  console.log('\nBatch update complete!')
 }
 
 // Run the update
-updateAllTests();
+updateAllTests()

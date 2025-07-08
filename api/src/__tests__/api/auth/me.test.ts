@@ -3,44 +3,44 @@ jest.mock('@api/framework/controllers/AuthController', () => {
   return {
     AuthController: jest.fn().mockImplementation(() => {
       return {
-        getCurrentUser: jest.fn().mockImplementation(async (request) => {
+        getCurrentUser: jest.fn().mockImplementation(async request => {
           const token = request.cookies.get('auth-token')?.value
-          
+
           if (!token) {
-            return new Response(
-              JSON.stringify({ error: '認証が必要です' }),
-              { status: 401, headers: { 'Content-Type': 'application/json' } }
-            )
+            return new Response(JSON.stringify({ error: '認証が必要です' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            })
           }
-          
+
           if (token === 'invalid-token') {
-            return new Response(
-              JSON.stringify({ error: 'トークンが無効です' }),
-              { status: 401, headers: { 'Content-Type': 'application/json' } }
-            )
+            return new Response(JSON.stringify({ error: 'トークンが無効です' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            })
           }
-          
+
           if (token === 'not-found-token') {
-            return new Response(
-              JSON.stringify({ error: 'ユーザーが見つかりません' }),
-              { status: 404, headers: { 'Content-Type': 'application/json' } }
-            )
+            return new Response(JSON.stringify({ error: 'ユーザーが見つかりません' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            })
           }
-          
+
           if (token === 'unverified-token') {
-            return new Response(
-              JSON.stringify({ error: 'メールアドレスの確認が必要です' }),
-              { status: 403, headers: { 'Content-Type': 'application/json' } }
-            )
+            return new Response(JSON.stringify({ error: 'メールアドレスの確認が必要です' }), {
+              status: 403,
+              headers: { 'Content-Type': 'application/json' },
+            })
           }
-          
+
           if (token === 'error-token') {
-            return new Response(
-              JSON.stringify({ error: 'ユーザー情報の取得に失敗しました' }),
-              { status: 500, headers: { 'Content-Type': 'application/json' } }
-            )
+            return new Response(JSON.stringify({ error: 'ユーザー情報の取得に失敗しました' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            })
           }
-          
+
           // Default valid token response
           return new Response(
             JSON.stringify({
@@ -49,13 +49,13 @@ jest.mock('@api/framework/controllers/AuthController', () => {
                 username: 'testuser',
                 email: 'test@example.com',
                 emailVerified: true,
-              }
+              },
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
           )
-        })
+        }),
       }
-    })
+    }),
   }
 })
 

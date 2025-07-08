@@ -3,7 +3,10 @@ import { ApolloServer } from '@apollo/server'
 import { NextRequest } from 'next/server'
 import { typeDefs } from '@/graphql/schema'
 import { resolvers } from '@/graphql/resolvers'
-import { verifyToken } from '@/lib/auth/auth'
+import { VerifyTokenUseCase } from '@api/usecases/auth/VerifyTokenUseCase'
+import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
 
 const server = new ApolloServer<GraphQLContext>({
@@ -30,8 +33,18 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
     const token = authHeader.substring(7)
 
     try {
-      const session = await verifyToken(token)
-      return { userId: session?.id || null }
+      const authSessionRepository = new AuthSessionRepositoryImpl()
+      const userRepository = new UserRepositoryImpl()
+      const tokenService = new TokenServiceImpl()
+
+      const verifyTokenUseCase = new VerifyTokenUseCase(
+        authSessionRepository,
+        userRepository,
+        tokenService
+      )
+
+      const { user } = await verifyTokenUseCase.execute({ token })
+      return { userId: user?.id || null }
     } catch {
       return { userId: null }
     }
