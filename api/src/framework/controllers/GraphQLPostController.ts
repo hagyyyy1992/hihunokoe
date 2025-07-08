@@ -118,10 +118,7 @@ export class GraphQLPostController {
       throw new Error('Authentication required')
     }
 
-    const createPostUseCase = new CreatePostUseCase(
-      this.postRepository,
-      this.userRepository
-    )
+    const createPostUseCase = new CreatePostUseCase(this.postRepository, this.userRepository)
 
     try {
       const { post } = await createPostUseCase.execute({

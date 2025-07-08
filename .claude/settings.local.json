@@ -86,24 +86,11 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)"
     ]
   },
-  "enabledMcpjsonServers": [
-    "filesystem",
-    "git",
-    "memory",
-    "playwright",
-    "figma"
-  ],
+  "enabledMcpjsonServers": ["filesystem", "git", "memory", "playwright", "figma"],
   "project_context": {
     "name": "Usaka",
     "description": "Cosmetics experience sharing service",
-    "tech_stack": [
-      "Next.js",
-      "TypeScript",
-      "Prisma",
-      "PostgreSQL",
-      "Tailwind CSS",
-      "Vercel"
-    ],
+    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS", "Vercel"],
     "key_commands": {
       "dev": "npm run dev:setup",
       "test": "npm test",

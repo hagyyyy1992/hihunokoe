@@ -18,8 +18,8 @@ describe('/api/auth/logout', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/logout', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer valid-token'
-        }
+          Authorization: 'Bearer valid-token',
+        },
       })
       const response = await POST(request)
       const data = await response.json()

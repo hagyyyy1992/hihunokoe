@@ -37,11 +37,7 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       const userRepository = new UserRepositoryImpl()
       const tokenService = new TokenServiceImpl()
 
-      const verifyTokenUseCase = new VerifyTokenUseCase(
-        authSessionRepository,
-        userRepository,
-        tokenService
-      )
+      const verifyTokenUseCase = new VerifyTokenUseCase(userRepository, tokenService)
 
       const { user } = await verifyTokenUseCase.execute({ token })
       return { userId: user?.id || null }
