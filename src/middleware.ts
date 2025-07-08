@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { validateAdminAccess } from '@/lib/auth/middleware-auth'
 
 // IP制限の設定を環境変数から取得
 const ALLOWED_IPS = process.env.ALLOWED_IPS?.split(',').map(ip => ip.trim()) || []
@@ -43,6 +44,13 @@ export function middleware(request: NextRequest) {
   // スキップするパスの場合は処理しない
   if (SKIP_PATHS.some(path => pathname.startsWith(path))) {
     return NextResponse.next()
+  }
+
+  // 管理画面の認証チェック
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+    if (!validateAdminAccess(request)) {
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
   }
 
   // IP制限が有効な場合

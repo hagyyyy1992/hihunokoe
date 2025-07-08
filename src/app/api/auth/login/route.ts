@@ -26,6 +26,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 管理者はユーザー側ログインを禁止
+    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+      return NextResponse.json(
+        { error: '管理者アカウントは管理画面からログインしてください' },
+        { status: 403 }
+      )
+    }
+
     // メール認証チェック
     if (!user.emailVerified) {
       return NextResponse.json(

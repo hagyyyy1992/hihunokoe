@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -75,15 +69,8 @@ export default function PostModeration() {
 
   const fetchPosts = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/posts', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -109,16 +96,9 @@ export default function PostModeration() {
     if (!selectedPost) return
 
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch(`/api/admin/posts/${selectedPost.id}/${action}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -175,34 +155,115 @@ export default function PostModeration() {
           <CardTitle>投稿管理</CardTitle>
           <CardDescription>投稿の一覧表示、検索、管理を行います</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-6">
           {/* 検索・フィルター */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="space-y-4 mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="タイトル、内容、コスメ名、ユーザー名で検索"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ステータス" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="published">公開</SelectItem>
-                <SelectItem value="draft">下書き</SelectItem>
-                <SelectItem value="hidden">非公開</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <SimpleSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="published">公開</option>
+                <option value="draft">下書き</option>
+                <option value="hidden">非公開</option>
+              </SimpleSelect>
+            </div>
           </div>
 
-          {/* 投稿一覧テーブル */}
-          <div className="border rounded-lg">
+          {/* 投稿一覧 - モバイル用カード表示 */}
+          <div className="block lg:hidden space-y-3">
+            {filteredPosts.map(post => (
+              <Card key={post.id}>
+                <CardContent className="p-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0 mr-2">
+                      <h3 className="font-semibold text-sm line-clamp-2" title={post.title}>
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 truncate">{post.userName}</p>
+                    </div>
+                    <div className="flex-shrink-0">{getStatusBadge(post.status)}</div>
+                  </div>
+
+                  <div className="space-y-1 mb-3 text-xs">
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">コスメ:</span>
+                      <span className="truncate">{post.cosmeticName}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">投稿日:</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">共感:</span>
+                      <span>
+                        {post.empathyCount} / ビュー: {post.viewCount}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    {post.status === 'published' ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-7 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedPost(post)
+                          setActionType('unpublish')
+                        }}
+                      >
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        非公開
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedPost(post)
+                          setActionType('publish')
+                        }}
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        公開
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        setSelectedPost(post)
+                        setActionType('delete')
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* 投稿一覧テーブル - デスクトップ表示 */}
+          <div className="hidden lg:block border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -299,7 +360,14 @@ export default function PostModeration() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                setActionType(null)
+                setSelectedPost(null)
+              }}
+            >
+              キャンセル
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handlePostAction(actionType)}
               className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : ''}

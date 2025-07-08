@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
+import ConditionalLayout from '@/components/layout/ConditionalLayout'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { ApolloProvider } from '@/components/providers/ApolloProvider'
 import { SERVICE_FULL_TITLE } from '@/lib/constants'
@@ -35,9 +34,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ApolloProvider>
-            <Header />
-            <main className="flex-1 pt-12 sm:pt-14">{children}</main>
-            <Footer />
+            <ConditionalLayout>{children}</ConditionalLayout>
           </ApolloProvider>
         </AuthProvider>
       </body>

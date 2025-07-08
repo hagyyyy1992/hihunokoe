@@ -4,7 +4,8 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
+    req.headers.get('authorization')?.replace('Bearer ', '') ||
+    req.cookies.get('admin-auth-token')?.value
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })

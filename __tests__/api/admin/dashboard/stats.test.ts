@@ -15,6 +15,9 @@ jest.mock('@/lib/auth/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    adminUser: {
+      findFirst: jest.fn(),
+    },
     user: {
       count: jest.fn(),
       findMany: jest.fn(),
@@ -93,7 +96,7 @@ describe('/api/admin/dashboard/stats', () => {
   it('returns 401 when token is invalid', async () => {
     mockVerifyToken.mockReturnValue(null)
 
-    const request = createMockRequest({ authorization: 'Bearer invalid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'invalid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -107,7 +110,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockVerifyToken.mockReturnValue(user as any)
     mockIsAdmin.mockReturnValue(false)
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -122,7 +125,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsAdmin.mockReturnValue(true)
     mockIsDatabaseAvailable.mockReturnValue(false)
 
-    const request = createMockRequest({}, { 'auth-token': 'cookie-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'cookie-token' })
     const response = await GET(request)
 
     expect(response.status).toBe(200)
@@ -135,7 +138,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsAdmin.mockReturnValue(true)
     mockIsDatabaseAvailable.mockReturnValue(false)
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -186,6 +189,7 @@ describe('/api/admin/dashboard/stats', () => {
 
     // Mock database responses
     const mockPrisma = prisma as any
+    mockPrisma.adminUser.findFirst.mockResolvedValue({ id: '1' })
     mockPrisma.user.count.mockResolvedValue(100)
     mockPrisma.post.count.mockResolvedValue(50)
     mockPrisma.post.aggregate.mockResolvedValue({ _sum: { viewCount: 1000 } })
@@ -203,7 +207,7 @@ describe('/api/admin/dashboard/stats', () => {
       },
     ])
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -240,6 +244,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsDatabaseAvailable.mockReturnValue(true)
 
     const mockPrisma = prisma as any
+    mockPrisma.adminUser.findFirst.mockResolvedValue({ id: '1' })
     mockPrisma.user.count.mockResolvedValue(10)
     mockPrisma.post.count.mockResolvedValue(5)
     mockPrisma.post.aggregate.mockResolvedValue({ _sum: { viewCount: null } })
@@ -247,7 +252,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockPrisma.user.findMany.mockResolvedValue([])
     mockPrisma.post.findMany.mockResolvedValue([])
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -262,9 +267,10 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsDatabaseAvailable.mockReturnValue(true)
 
     const mockPrisma = prisma as any
+    mockPrisma.adminUser.findFirst.mockResolvedValue({ id: '1' })
     mockPrisma.user.count.mockRejectedValue(new Error('Database error'))
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -284,7 +290,7 @@ describe('/api/admin/dashboard/stats', () => {
       MOCK_POSTS: [{ id: '1', title: 'Post 1', userId: '1' }],
     }))
 
-    const request = createMockRequest({ authorization: 'Bearer valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
