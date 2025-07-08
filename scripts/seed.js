@@ -19,6 +19,7 @@ async function main() {
       email: 'demo@example.com',
       passwordHash: hashedPassword,
       skinType: 'normal',
+      role: 'USER',
       emailVerified: true, // メール認証済みに設定
     },
   })
