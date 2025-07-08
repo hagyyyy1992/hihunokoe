@@ -78,4 +78,25 @@ export const postResolvers = {
       return postController.deletePost({ id }, context)
     },
   },
+
+  Post: {
+    // Field resolvers for Post type
+    user: async (parent: { userId: string }) => {
+      // TODO: Implement user loading for posts
+      // For now, return basic structure to avoid GraphQL errors
+      return { id: parent.userId, displayName: 'Unknown User' }
+    },
+
+    empathies: async (parent: { id: string }) => {
+      // TODO: Implement empathy loading for posts
+      void parent
+      return []
+    },
+
+    comments: async (parent: { id: string }) => {
+      // TODO: Implement comment loading for posts
+      void parent
+      return []
+    },
+  },
 }
