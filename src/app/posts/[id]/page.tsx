@@ -385,15 +385,15 @@ export default function PostDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8">
         {/* 投稿メイン */}
-        <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
+        <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
           {/* ヘッダー */}
-          <header className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
-                  <span className="text-apple-600 font-medium text-sm">
+          <header className="mb-4 sm:mb-6">
+            <div className="flex items-start justify-between mb-4 gap-3">
+              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-apple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-apple-600 font-medium text-xs sm:text-sm">
                     {('displayName' in currentPost.user
                       ? currentPost.user.displayName
                       : currentPost.user.userName
@@ -402,18 +402,31 @@ export default function PostDetailPage() {
                       .toUpperCase()}
                   </span>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900" data-testid="post-author">
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="font-medium text-gray-900 text-sm sm:text-base truncate"
+                    data-testid="post-author"
+                    title={
+                      'displayName' in currentPost.user
+                        ? currentPost.user.displayName
+                        : currentPost.user.userName
+                    }
+                  >
                     {'displayName' in currentPost.user
                       ? currentPost.user.displayName
                       : currentPost.user.userName}
                   </p>
                   {'bio' in currentPost.user && currentPost.user.bio && (
-                    <p className="text-xs text-gray-500">{currentPost.user.bio}</p>
+                    <p className="text-xs text-gray-500 truncate" title={currentPost.user.bio}>
+                      {currentPost.user.bio}
+                    </p>
                   )}
                 </div>
               </div>
-              <time className="text-sm text-gray-500" data-testid="post-date">
+              <time
+                className="text-xs sm:text-sm text-gray-500 whitespace-nowrap flex-shrink-0"
+                data-testid="post-date"
+              >
                 {formatDistanceToNow(
                   new Date(
                     'createdAt' in currentPost ? currentPost.createdAt : currentPost.publishedAt
@@ -427,16 +440,16 @@ export default function PostDetailPage() {
             </div>
 
             <h1
-              className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4"
+              className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight"
               data-testid="post-title"
             >
               {currentPost.title}
             </h1>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
               {currentPost.cosmeticCategory && (
                 <span
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800"
                   data-testid="post-category"
                 >
                   {categoryLabels[currentPost.cosmeticCategory]}
@@ -444,27 +457,31 @@ export default function PostDetailPage() {
               )}
               {currentPost.moodTag && (
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${moodTagColors[currentPost.moodTag]}`}
+                  className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${moodTagColors[currentPost.moodTag]}`}
                 >
                   {moodTagLabels[currentPost.moodTag]}
                 </span>
               )}
               {currentPost.skinType && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
+                <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-700">
                   {skinTypeLabels[currentPost.skinType]}
                 </span>
               )}
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-2">使用したコスメ</h3>
-              <p className="text-gray-700">{currentPost.cosmeticName}</p>
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <h3 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">
+                使用したコスメ
+              </h3>
+              <p className="text-gray-700 text-sm sm:text-base break-words">
+                {currentPost.cosmeticName}
+              </p>
             </div>
           </header>
 
           {/* 本文 */}
-          <div className="prose max-w-none mb-8">
-            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+          <div className="prose max-w-none mb-6 sm:mb-8">
+            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm sm:text-base">
               {currentPost.content}
             </div>
           </div>
@@ -472,13 +489,17 @@ export default function PostDetailPage() {
           {/* 詳細情報 */}
           {/* 非ログイン時は項目名のみを表示 */}
           {!user && (
-            <div className="border-t pt-6 mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
+            <div className="border-t pt-4 sm:pt-6 mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                詳細情報
+              </h3>
 
               {/* 使用状況の項目名のみ表示 */}
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              <div className="mb-4 sm:mb-6">
+                <h4 className="font-medium text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">
+                  使用状況
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                   <div>
                     <span className="text-gray-500">季節:</span>
                     <span className="ml-2 text-gray-400">ログインして確認</span>
@@ -499,9 +520,11 @@ export default function PostDetailPage() {
               </div>
 
               {/* 体験詳細の項目名のみ表示 */}
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
-                <div className="space-y-4 text-sm">
+              <div className="mb-4 sm:mb-6">
+                <h4 className="font-medium text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">
+                  体験詳細
+                </h4>
+                <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
                   <div>
                     <span className="text-gray-500">香り:</span>
                     <span className="ml-2 text-gray-400">ログインして確認</span>
@@ -518,11 +541,13 @@ export default function PostDetailPage() {
               </div>
 
               {/* ログイン促進 */}
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <p className="text-gray-700 mb-3">詳細情報を見るにはログインが必要です</p>
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                <p className="text-gray-700 mb-3 text-sm sm:text-base">
+                  詳細情報を見るにはログインが必要です
+                </p>
                 <Link
                   href="/auth/login"
-                  className="inline-block px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  className="inline-block px-4 sm:px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm sm:text-base"
                 >
                   ログイン
                 </Link>
@@ -532,17 +557,21 @@ export default function PostDetailPage() {
 
           {/* ログイン時のみ詳細情報を表示 */}
           {user && (currentPost.usageSituation || currentPost.experienceDetails) && (
-            <div className="border-t pt-6 mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">詳細情報</h3>
+            <div className="border-t pt-4 sm:pt-6 mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                詳細情報
+              </h3>
 
               {/* ログイン時の通常表示 */}
               <>
                 {/* 使用状況 */}
                 {currentPost.usageSituation &&
                   Object.keys(currentPost.usageSituation).length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-medium text-gray-900 mb-3">使用状況</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div className="mb-4 sm:mb-6">
+                      <h4 className="font-medium text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">
+                        使用状況
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                         {currentPost.usageSituation.season && (
                           <div>
                             <span className="text-gray-500">季節:</span>
@@ -587,8 +616,10 @@ export default function PostDetailPage() {
                 {currentPost.experienceDetails &&
                   Object.keys(currentPost.experienceDetails).length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-3">体験詳細</h4>
-                      <div className="space-y-4 text-sm">
+                      <h4 className="font-medium text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">
+                        体験詳細
+                      </h4>
+                      <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
                         {currentPost.experienceDetails.fragrance && (
                           <div>
                             <span className="text-gray-500">香り:</span>
@@ -638,16 +669,21 @@ export default function PostDetailPage() {
           )}
 
           {/* アクション */}
-          <div className="flex items-center justify-between pt-6 border-t">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 sm:pt-6 border-t space-y-3 sm:space-y-0">
             {/* 編集・削除ボタン（投稿者のみ表示） */}
             {user && user.id === currentPost.user.id && (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
                   href={`/posts/${currentPost.id}/edit`}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors flex-1 sm:flex-initial"
                   data-testid="edit-post-button"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3 h-3 sm:w-4 sm:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -659,10 +695,15 @@ export default function PostDetailPage() {
                 </Link>
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex-1 sm:flex-initial"
                   data-testid="post-menu-button"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3 h-3 sm:w-4 sm:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -675,7 +716,7 @@ export default function PostDetailPage() {
               </div>
             )}
 
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-500 order-first sm:order-last">
               {/* <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -764,27 +805,29 @@ export default function PostDetailPage() {
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div
-              className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+              className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full"
               data-testid="delete-confirmation"
             >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                投稿を削除しますか？
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                 この操作は取り消すことができません。本当に削除してもよろしいですか？
               </p>
-              <div className="flex justify-end space-x-3">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1"
                 >
                   キャンセル
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2"
                   data-testid="confirm-delete-button"
                 >
                   {isDeleting ? '削除中...' : '削除する'}

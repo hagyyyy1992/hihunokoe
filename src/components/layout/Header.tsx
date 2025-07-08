@@ -74,49 +74,51 @@ export default function Header() {
 
   const getMobileNavLinkClass = (href: string) => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive =
       currentPath === href ||
       (href === '/posts' && currentPath.startsWith('/posts') && currentPath !== '/posts/new')
     if (isActive) {
-      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-1.5 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   const getMobilePostNewLinkClass = () => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === '/posts/new'
     if (isActive) {
-      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-1.5 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   const getMobileAuthLinkClass = (href: string) => {
     if (!currentPath) {
-      return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+      return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
     }
     const isActive = currentPath === href
     if (isActive) {
-      return 'block px-3 py-2 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
+      return 'block px-3 py-1.5 bg-apple-600 text-white rounded-lg text-sm font-medium transition-colors mx-2'
     }
-    return 'block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
+    return 'block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors'
   }
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-100 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex justify-between items-center h-12 sm:h-14">
           {/* ロゴ */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-apple-100 rounded-full flex items-center justify-center">
-              <span className="text-apple-600 font-bold text-sm">H</span>
+          <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-apple-100 rounded-full flex items-center justify-center">
+              <span className="text-apple-600 font-bold text-xs sm:text-sm">H</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">{SERVICE_NAME}</span>
+            <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+              {SERVICE_NAME}
+            </span>
           </Link>
 
           {/* デスクトップナビゲーション */}
@@ -137,23 +139,26 @@ export default function Header() {
           </nav>
 
           {/* ユーザーメニュー */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             {loading ? (
-              <div className="text-gray-500">Loading...</div>
+              <div className="text-gray-500 text-sm">Loading...</div>
             ) : user ? (
               <>
-                <span className="text-gray-700 text-sm" data-testid="user-menu-button">
+                <span
+                  className="text-gray-700 text-sm truncate max-w-20"
+                  data-testid="user-menu-button"
+                >
                   {user.userName}さん
                 </span>
                 <Link
                   href="/profile"
-                  className="text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors"
+                  className="text-gray-700 hover:text-apple-600 px-2 py-1 text-sm font-medium transition-colors"
                 >
                   プロフィール
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-gray-700 hover:text-apple-600 px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
+                  className="text-gray-700 hover:text-apple-600 px-2 py-1 text-sm font-medium transition-colors cursor-pointer"
                   data-testid="logout-button"
                 >
                   ログアウト
@@ -178,10 +183,10 @@ export default function Header() {
           {/* モバイルメニューボタン */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-apple-600 hover:bg-gray-100 transition-colors relative z-[60]"
+            className="md:hidden p-1.5 rounded-md text-gray-700 hover:text-apple-600 hover:bg-gray-100 transition-colors relative z-[60]"
             data-testid="mobile-menu-button"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -195,15 +200,15 @@ export default function Header() {
         {/* モバイルメニュー */}
         {isMenuOpen && (
           <div
-            className="md:hidden fixed top-16 left-0 right-0 bottom-0 z-50"
+            className="md:hidden fixed top-12 sm:top-14 left-0 right-0 bottom-0 z-50"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
             onClick={() => setIsMenuOpen(false)}
           >
             <div
-              className="fixed top-16 left-0 right-0 bg-white shadow-lg border-t border-gray-100"
+              className="fixed top-12 sm:top-14 left-0 right-0 bg-white shadow-lg border-t border-gray-100"
               onClick={e => e.stopPropagation()}
             >
-              <div className="px-2 pt-2 pb-3 space-y-1 max-h-screen overflow-y-auto">
+              <div className="px-2 pt-1 pb-2 space-y-0.5 max-h-screen overflow-y-auto">
                 {user ? (
                   <Link
                     href="/home"
@@ -237,15 +242,18 @@ export default function Header() {
                     体験を投稿
                   </Link>
                 )}
-                <hr className="my-2 border-gray-100" />
+                <hr className="my-1 border-gray-100" />
                 {user ? (
                   <>
-                    <div className="px-3 py-2 text-sm text-gray-600" data-testid="user-menu-button">
+                    <div
+                      className="px-3 py-1.5 text-sm text-gray-600 truncate"
+                      data-testid="user-menu-button"
+                    >
                       {user.userName}さん
                     </div>
                     <Link
                       href="/profile"
-                      className="block px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors"
+                      className="block px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       プロフィール
@@ -255,7 +263,7 @@ export default function Header() {
                         logout()
                         setIsMenuOpen(false)
                       }}
-                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors cursor-pointer"
+                      className="block w-full text-left px-3 py-1.5 text-gray-700 hover:text-apple-600 text-sm font-medium transition-colors cursor-pointer"
                       data-testid="logout-button"
                     >
                       ログアウト

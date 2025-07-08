@@ -40,24 +40,28 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-sm sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-apple-100 rounded-full flex items-center justify-center">
-            <span className="text-apple-600 font-bold text-lg">H</span>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-apple-100 rounded-full flex items-center justify-center">
+            <span className="text-apple-600 font-bold text-base sm:text-lg">H</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-4 sm:mt-6 text-center text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900">
           パスワードをお忘れですか？
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-xs sm:text-sm text-gray-600 px-2">
           メールアドレスを入力してください。パスワードリセットリンクをお送りします。
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit} data-testid="reset-password-form">
+      <div className="mt-6 sm:mt-8 mx-auto w-full max-w-sm sm:max-w-md">
+        <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 lg:px-10 shadow rounded-lg">
+          <form
+            className="space-y-4 sm:space-y-6"
+            onSubmit={handleSubmit}
+            data-testid="reset-password-form"
+          >
             {message && (
               <div
                 className={`p-3 rounded-md text-sm ${
@@ -96,8 +100,11 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link href="/auth/login" className="text-sm text-apple-600 hover:text-apple-500">
+          <div className="mt-4 sm:mt-6 text-center">
+            <Link
+              href="/auth/login"
+              className="text-xs sm:text-sm text-apple-600 hover:text-apple-500"
+            >
               ログインページに戻る
             </Link>
           </div>

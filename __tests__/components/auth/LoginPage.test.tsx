@@ -80,7 +80,14 @@ describe('LoginPage', () => {
 
     const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
-    expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-apple-100', 'rounded-full')
+    expect(logo.closest('div')).toHaveClass(
+      'w-10',
+      'h-10',
+      'sm:w-12',
+      'sm:h-12',
+      'bg-apple-100',
+      'rounded-full'
+    )
   })
 
   it('会員登録リンクが表示される', () => {
@@ -342,7 +349,7 @@ describe('LoginPage', () => {
       render(<LoginPage />)
 
       const container = screen.getByRole('heading', { name: 'ログイン' }).closest('div')
-      expect(container).toHaveClass('sm:mx-auto', 'sm:w-full', 'sm:max-w-md')
+      expect(container).toHaveClass('mx-auto', 'w-full', 'max-w-sm', 'sm:max-w-md')
     })
 
     it('フォームコンテナに適切なスタイルが適用されている', () => {
@@ -351,11 +358,13 @@ describe('LoginPage', () => {
       const formContainer = screen.getByTestId('login-form').closest('div')
       expect(formContainer).toHaveClass(
         'bg-white',
-        'py-8',
+        'py-6',
+        'sm:py-8',
         'px-4',
+        'sm:px-6',
+        'lg:px-10',
         'shadow',
-        'sm:rounded-lg',
-        'sm:px-10'
+        'rounded-lg'
       )
     })
   })

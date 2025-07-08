@@ -36,7 +36,7 @@ export default function RootLayout({
         <AuthProvider>
           <ApolloProvider>
             <Header />
-            <main className="flex-1 pt-16">{children}</main>
+            <main className="flex-1 pt-12 sm:pt-14">{children}</main>
             <Footer />
           </ApolloProvider>
         </AuthProvider>

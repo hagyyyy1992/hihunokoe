@@ -253,9 +253,7 @@ describe('ProfilePage Component', () => {
     // アカウント設定セクションが表示されることを確認
     expect(screen.getByText('アカウント設定')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        /アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます/
-      )
+      screen.getByText(/アカウントを削除すると、すべての投稿が永久に削除されます/)
     ).toBeInTheDocument()
 
     // アカウント削除ボタンが表示されることを確認

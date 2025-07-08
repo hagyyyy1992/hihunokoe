@@ -112,27 +112,27 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 hover:shadow-md transition-shadow"
       data-testid="post-card"
     >
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className="flex-1">
           <Link
             href={`/posts/${post.id}`}
-            className="text-lg font-semibold text-gray-900 hover:text-apple-600 transition-colors"
+            className="text-base sm:text-lg font-semibold text-gray-900 hover:text-apple-600 transition-colors line-clamp-2"
             data-testid="post-title"
           >
             {post.title}
           </Link>
-          <div className="flex items-center space-x-2 mt-2">
+          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-2">
             {post.cosmeticCategory && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {categoryLabels[post.cosmeticCategory]}
               </span>
             )}
             {post.moodTag && (
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${moodTagColors[post.moodTag]}`}
+                className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${moodTagColors[post.moodTag]}`}
               >
                 {moodTagLabels[post.moodTag]}
               </span>
@@ -141,23 +141,29 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
       </div>
 
-      <div className="mb-4">
-        <p className="text-sm font-medium text-gray-900 mb-1">使用コスメ: {post.cosmeticName}</p>
-        <p className="text-gray-600 text-sm leading-relaxed">{truncatedContent}</p>
+      <div className="mb-3 sm:mb-4">
+        <p className="text-xs sm:text-sm font-medium text-gray-900 mb-1 truncate">
+          使用コスメ: {post.cosmeticName}
+        </p>
+        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-3">
+          {truncatedContent}
+        </p>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+        <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-500">
           <div className="flex items-center space-x-1">
-            <span className="font-medium">{post.user.userName}</span>
+            <span className="font-medium truncate max-w-20 sm:max-w-none">
+              {post.user.userName}
+            </span>
             {post.user.skinType && (
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-gray-100 text-gray-600 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded hidden sm:inline">
                 {skinTypeLabels[post.user.skinType]}
               </span>
             )}
           </div>
-          <span>•</span>
-          <span>
+          <span className="hidden sm:inline">•</span>
+          <span className="text-xs">
             {formatDistanceToNow(new Date(post.publishedAt), {
               addSuffix: true,
               locale: ja,
@@ -165,21 +171,14 @@ export default function PostCard({ post }: PostCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
-          {/* コメント数（非表示） */}
-          {/* <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-              <span>{post._count.comments}</span>
-            </div> */}
+        <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm text-gray-500">
           <div className="flex items-center space-x-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-3 h-3 sm:w-4 sm:h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

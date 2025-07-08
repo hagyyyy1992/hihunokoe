@@ -79,14 +79,16 @@ export default function LoginPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-sm sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-apple-100 rounded-full flex items-center justify-center">
-            <span className="text-apple-600 font-bold text-lg">H</span>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-apple-100 rounded-full flex items-center justify-center">
+            <span className="text-apple-600 font-bold text-base sm:text-lg">H</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">ログイン</h2>
+        <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+          ログイン
+        </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           アカウントをお持ちでない方は{' '}
           <Link
@@ -99,9 +101,9 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit} data-testid="login-form">
+      <div className="mt-6 sm:mt-8 mx-auto w-full max-w-sm sm:max-w-md">
+        <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 lg:px-10 shadow rounded-lg">
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit} data-testid="login-form">
             {error && (
               <div
                 className={`p-3 rounded-md text-sm ${
@@ -164,7 +166,7 @@ export default function LoginPage() {
                 className="h-4 w-4 text-apple-600 focus:ring-apple-500 border-gray-300 rounded"
                 data-testid="remember-me-checkbox"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-900">
                 ログイン状態を保持する
               </label>
             </div>
@@ -181,10 +183,10 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <Link
               href="/auth/forgot-password"
-              className="text-sm text-apple-600 hover:text-apple-500"
+              className="text-xs sm:text-sm text-apple-600 hover:text-apple-500"
               data-testid="forgot-password-link"
             >
               パスワードをお忘れですか？

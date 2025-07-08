@@ -285,7 +285,7 @@ export class PostController {
 
       const body = await request.json()
       const { empathyType } = body
-      
+
       const result = await addEmpathyUseCase.execute({ postId, userId, empathyType })
 
       return NextResponse.json({

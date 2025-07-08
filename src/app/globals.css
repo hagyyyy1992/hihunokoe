@@ -250,7 +250,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 0.375rem;
@@ -261,6 +261,14 @@ body {
   cursor: pointer;
   text-decoration: none;
   will-change: background-color;
+  min-height: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .btn {
+    padding: 0.5rem 1rem;
+    min-height: auto;
+  }
 }
 
 .btn:disabled {
@@ -329,7 +337,7 @@ select,
 textarea {
   display: block;
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -339,6 +347,20 @@ textarea {
     border-color 0.2s ease,
     box-shadow 0.2s ease;
   will-change: border-color, box-shadow;
+}
+
+@media (min-width: 640px) {
+  .input,
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='search'],
+  select,
+  textarea {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
 }
 
 .input::placeholder,
@@ -527,29 +549,54 @@ textarea:focus {
 
 /* Form Components - Optimized */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   contain: layout style;
+}
+
+@media (min-width: 640px) {
+  .form-group {
+    margin-bottom: 1rem;
+  }
 }
 
 .form-label,
 label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--charcoal);
   margin-bottom: 0.25rem;
 }
 
+@media (min-width: 640px) {
+  .form-label,
+  label {
+    font-size: 0.875rem;
+  }
+}
+
 .form-error {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #ef4444;
   margin-top: 0.25rem;
 }
 
+@media (min-width: 640px) {
+  .form-error {
+    font-size: 0.875rem;
+  }
+}
+
 .form-hint {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #6b7280;
   margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .form-hint {
+    font-size: 0.875rem;
+  }
 }
 
 /* Animations */
