@@ -4,7 +4,6 @@ import { NextRequest } from 'next/server'
 import { typeDefs } from '@/graphql/schema'
 import { resolvers } from '@/graphql/resolvers'
 import { VerifyTokenUseCase } from '@api/usecases/auth/VerifyTokenUseCase'
-import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
@@ -33,7 +32,6 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
     const token = authHeader.substring(7)
 
     try {
-      const authSessionRepository = new AuthSessionRepositoryImpl()
       const userRepository = new UserRepositoryImpl()
       const tokenService = new TokenServiceImpl()
 
