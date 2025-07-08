@@ -61,6 +61,11 @@ export default defineConfig({
         // WebKit専用の設定
         actionTimeout: 20000,
         navigationTimeout: 40000,
+        contextOptions: {
+          // WebKit用の追加設定
+          ignoreHTTPSErrors: true,
+          bypassCSP: true,
+        },
         launchOptions: {
           slowMo: 500, // WebKitでの操作を少し遅くする
         },
@@ -110,7 +115,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'postgresql://postgres:password@localhost:5436/hihunokoe_dev',
       NEXTAUTH_SECRET: 'test-secret-key-for-e2e-tests',
-      NODE_ENV: 'development',
+      NODE_ENV: 'test', // E2Eテスト環境であることを明示
       USE_MOCK_DATA: 'false',
       MAILHOG_HOST: 'localhost',
       MAILHOG_PORT: '1025',

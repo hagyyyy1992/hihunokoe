@@ -22,7 +22,7 @@ test.describe('投稿作成', () => {
   test('正常な投稿作成ができる', async ({ page }) => {
     // 認証状態が完全に確立されるまで追加待機
     await page.waitForTimeout(2000)
-    
+
     await postHelper.createPost(testPosts.samplePost)
 
     // 投稿作成成功を確認 - URLが投稿詳細ページに遷移したことを確認
@@ -40,12 +40,12 @@ test.describe('投稿作成', () => {
     // 認証状態の確立を確認
     await page.waitForFunction(
       () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
+        const cookies = document.cookie.split(';').map(c => c.trim())
+        return cookies.some(c => c.startsWith('auth-token='))
       },
       { timeout: 10000 }
     )
-    
+
     await page.goto('/posts/new')
     await page.waitForTimeout(3000) // 認証状態が確立するまで待機
 
@@ -81,12 +81,12 @@ test.describe('投稿作成', () => {
     // 認証状態の確立を確認
     await page.waitForFunction(
       () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
+        const cookies = document.cookie.split(';').map(c => c.trim())
+        return cookies.some(c => c.startsWith('auth-token='))
       },
       { timeout: 10000 }
     )
-    
+
     await page.goto('/posts/new')
     await page.waitForTimeout(3000) // 認証状態が確立するまで待機
 
@@ -119,12 +119,12 @@ test.describe('投稿作成', () => {
     // 認証状態の確立を確認
     await page.waitForFunction(
       () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
+        const cookies = document.cookie.split(';').map(c => c.trim())
+        return cookies.some(c => c.startsWith('auth-token='))
       },
       { timeout: 10000 }
     )
-    
+
     await page.goto('/posts/new')
     await page.waitForTimeout(3000) // 認証状態が確立するまで待機
 

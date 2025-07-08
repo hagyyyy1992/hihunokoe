@@ -27,15 +27,17 @@ export class PostHelper {
     const isWebKit = await this.isWebKit()
 
     // 認証クッキーが設定されていることを確認
-    await this.page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
-      },
-      { timeout: 10000 }
-    ).catch(() => {
-      console.log('Warning: Could not verify auth cookie, continuing anyway');
-    });
+    await this.page
+      .waitForFunction(
+        () => {
+          const cookies = document.cookie.split(';').map(c => c.trim())
+          return cookies.some(c => c.startsWith('auth-token='))
+        },
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        console.log('Warning: Could not verify auth cookie, continuing anyway')
+      })
 
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
@@ -58,22 +60,44 @@ export class PostHelper {
 
     // 認証によるリダイレクトをチェック（複数回チェック）
     let retryCount = 0
-    const maxRetries = 3
+    const maxRetries = isWebKit ? 5 : 3 // WebKitは長めにリトライ
     while (retryCount < maxRetries) {
-      await this.page.waitForTimeout(2000) // 認証チェックの時間を与える
+      await this.page.waitForTimeout(isWebKit ? 3000 : 2000) // 認証チェックの時間を与える
       const currentUrl = this.page.url()
 
       if (!currentUrl.includes('/auth/login')) {
         break // ログインページではない場合は続行
       }
 
+      // 認証クッキーの再確認
+      const hasAuthCookie = await this.page.evaluate(() => {
+        const cookies = document.cookie.split(';').map(c => c.trim())
+        return cookies.some(c => c.startsWith('auth-token='))
+      })
+
+      if (hasAuthCookie) {
+        console.log('Auth cookie exists but still on login page, reloading...')
+        await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 })
+        await this.page.waitForTimeout(isWebKit ? 3000 : 1000)
+      }
+
       retryCount++
       if (retryCount === maxRetries) {
+        // 詳細なエラー情報を収集
+        const cookies = await this.page.context().cookies()
+        const authCookie = cookies.find(c => c.name === 'auth-token')
+        console.error('Authentication debug info:', {
+          currentUrl,
+          hasAuthCookie,
+          authCookieDetails: authCookie,
+          isWebKit,
+          retryCount,
+        })
         throw new Error('Redirected to login page. Authentication may have failed.')
       }
 
       console.log(`Still on login page, retry ${retryCount}/${maxRetries}`)
-      await this.page.waitForTimeout(2000)
+      await this.page.waitForTimeout(isWebKit ? 3000 : 2000)
     }
 
     // フォームが表示されるのを待機
@@ -270,15 +294,17 @@ export class PostHelper {
     const isWebKit = await this.isWebKit()
 
     // 認証クッキーが設定されていることを確認
-    await this.page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
-      },
-      { timeout: 10000 }
-    ).catch(() => {
-      console.log('Warning: Could not verify auth cookie, continuing anyway');
-    });
+    await this.page
+      .waitForFunction(
+        () => {
+          const cookies = document.cookie.split(';').map(c => c.trim())
+          return cookies.some(c => c.startsWith('auth-token='))
+        },
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        console.log('Warning: Could not verify auth cookie, continuing anyway')
+      })
 
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
@@ -335,15 +361,17 @@ export class PostHelper {
     const isWebKit = await this.isWebKit()
 
     // 認証クッキーが設定されていることを確認
-    await this.page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim());
-        return cookies.some(c => c.startsWith('auth-token='));
-      },
-      { timeout: 10000 }
-    ).catch(() => {
-      console.log('Warning: Could not verify auth cookie, continuing anyway');
-    });
+    await this.page
+      .waitForFunction(
+        () => {
+          const cookies = document.cookie.split(';').map(c => c.trim())
+          return cookies.some(c => c.startsWith('auth-token='))
+        },
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        console.log('Warning: Could not verify auth cookie, continuing anyway')
+      })
 
     await this.page.goto(`/posts/${postId}/edit`, {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',

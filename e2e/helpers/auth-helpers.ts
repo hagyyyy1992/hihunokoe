@@ -301,11 +301,60 @@ export class AuthHelper {
     await this.page.getByLabel('メールアドレス *').fill(userData.email)
     await this.page.waitForTimeout(inputDelay)
 
-    await this.page.locator('input[name="password"]').fill(userData.password)
-    await this.page.waitForTimeout(inputDelay)
+    // パスワードフィールドも安全に処理
+    try {
+      const passwordInput = this.page.locator('input[name="password"]')
+      await passwordInput.waitFor({ state: 'visible', timeout: 5000 })
+      await passwordInput.fill(userData.password)
+      await this.page.waitForTimeout(inputDelay)
+    } catch (error) {
+      console.error('Failed to fill password field:', error)
+      throw new Error(`Failed to find password field: ${error}`)
+    }
 
-    await this.page.locator('input[name="confirmPassword"]').fill(userData.password)
-    await this.page.waitForTimeout(inputDelay)
+    // confirmPasswordフィールドを安全に処理
+    try {
+      const confirmPasswordInput = this.page.locator('input[name="confirmPassword"]')
+      await confirmPasswordInput.waitFor({ state: 'visible', timeout: 5000 })
+      await confirmPasswordInput.fill(userData.password)
+      await this.page.waitForTimeout(inputDelay)
+    } catch (error) {
+      // confirmPasswordフィールドが見つからない場合のデバッグ情報
+      console.error('=== REGISTRATION FORM ERROR ===')
+      console.error('Error finding confirmPassword field')
+      console.error('Current URL:', this.page.url())
+      console.error('Test user data:', { username: userData.username, email: userData.email })
+
+      // フォーム上の入力フィールドの状態を確認
+      const visiblePasswordInputs = await this.page.locator('input[type="password"]').count()
+      console.error('Number of visible password inputs:', visiblePasswordInputs)
+
+      // 全ての入力フィールドの名前を取得
+      const inputNames = await this.page.locator('input').evaluateAll(inputs =>
+        inputs.map(input => ({
+          name: input.getAttribute('name'),
+          type: input.getAttribute('type'),
+          visible: input instanceof HTMLElement ? input.offsetParent !== null : true,
+        }))
+      )
+      console.error('All input fields:', inputNames)
+
+      // ページタイトルを確認（正しいページにいるか）
+      const pageTitle = await this.page.title()
+      console.error('Page title:', pageTitle)
+
+      // エラーメッセージがあるか確認
+      const errorMessages = await this.page
+        .locator('[data-testid="error-message"], .text-red-500, .bg-red-50')
+        .allTextContents()
+      if (errorMessages.length > 0) {
+        console.error('Error messages on page:', errorMessages)
+      }
+
+      console.error('=== END REGISTRATION FORM ERROR ===')
+
+      throw new Error(`Failed to find confirmPassword field: ${error}`)
+    }
 
     if (userData.skinType) {
       await this.page.getByLabel('肌質').selectOption(userData.skinType)
