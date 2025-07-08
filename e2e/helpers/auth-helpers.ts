@@ -122,9 +122,7 @@ export async function registerAndLoginTestUser(
       },
       { timeout: 10000 }
     )
-    .catch(() => {
-      console.log('Warning: Could not verify auth cookie via JavaScript, continuing anyway')
-    })
+    .catch(() => {})
 
   // Verify we're logged in - シンプルな確認
   await page.waitForTimeout(isWebKit ? 3000 : 2000)
@@ -144,7 +142,6 @@ export async function registerAndLoginTestUser(
   }
 
   // クッキー確認はスキップ（タイミング問題があるため）
-  console.log('Skipping cookie verification to avoid timing issues')
 
   // 認証状態が安定するまで待機（WebKitは長めに）
   await page.waitForTimeout(isWebKit ? 3000 : 1000)
@@ -236,9 +233,6 @@ export class AuthHelper {
     } catch (error) {
       // expectSuccessがfalseの場合、confirmPasswordフィールドが無効化されている可能性がある
       if (!expectSuccess) {
-        console.log(
-          'confirmPassword field not accessible (possibly due to validation error), continuing...'
-        )
         // エラーが期待される場合は続行
       } else {
         // confirmPasswordフィールドが見つからない場合のデバッグ情報
@@ -300,7 +294,6 @@ export class AuthHelper {
         .isVisible()
         .catch(() => false)
       if (existingError) {
-        console.log('Validation error already visible, skipping form submission')
         return // エラーが既に表示されているので、フォーム送信をスキップ
       }
       await registerButton.click({ force: true })
@@ -342,12 +335,6 @@ export class AuthHelper {
           const errorText = await errorElement.textContent()
 
           // より詳細なエラー情報をログ出力
-          console.log(`Registration error details:`)
-          console.log(`- Error text: ${errorText}`)
-          console.log(
-            `- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`
-          )
-          console.log(`- Current URL: ${currentUrl}`)
 
           throw new Error(`Registration failed with error: ${errorText}`)
         }
@@ -366,23 +353,11 @@ export class AuthHelper {
           const errorText = await errorElement.textContent()
 
           // より詳細なエラー情報をログ出力
-          console.log(`Registration error details (catch block):`)
-          console.log(`- Error text: ${errorText}`)
-          console.log(
-            `- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`
-          )
-          console.log(`- Current URL: ${currentUrl}`)
 
           throw new Error(`Registration failed with error: ${errorText}`)
         }
 
         // デバッグ情報を追加
-        console.log(`Registration timeout details:`)
-        console.log(
-          `- User data: ${JSON.stringify({ username: userData.username, email: userData.email })}`
-        )
-        console.log(`- Current URL: ${currentUrl}`)
-        console.log(`- Original error: ${error instanceof Error ? error.message : String(error)}`)
 
         throw new Error(
           `Registration timeout or failed - expected registration-complete page but got: ${currentUrl}. Original error: ${error instanceof Error ? error.message : String(error)}`
@@ -600,7 +575,6 @@ export class AuthHelper {
         } catch (error) {
           retryCount++
           if (retryCount < maxRetries) {
-            console.log(`Mobile menu button not visible, retry ${retryCount}/${maxRetries}`)
             await this.page.waitForTimeout(2000)
           }
         }
@@ -721,7 +695,6 @@ export class AuthHelper {
       } catch (error) {
         retryCount++
         if (retryCount < maxRetries) {
-          console.log(`Error message not visible, retry ${retryCount}/${maxRetries}`)
           await this.page.waitForTimeout(2000)
         }
       }

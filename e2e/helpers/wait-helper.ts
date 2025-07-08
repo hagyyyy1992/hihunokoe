@@ -27,7 +27,6 @@ export async function wait(ms: number): Promise<void> {
  */
 export async function waitWithLog(ms: number, context?: string): Promise<void> {
   const startTime = Date.now()
-  console.log(`[WAIT] Starting wait for ${ms}ms${context ? ` (${context})` : ''}`)
 
   await wait(ms)
 
@@ -36,7 +35,5 @@ export async function waitWithLog(ms: number, context?: string): Promise<void> {
     console.warn(
       `[WAIT] WARNING: Expected to wait ${ms}ms but actually waited ${actualWaitTime}ms${context ? ` (${context})` : ''}`
     )
-  } else {
-    console.log(`[WAIT] Completed wait: ${actualWaitTime}ms${context ? ` (${context})` : ''}`)
   }
 }

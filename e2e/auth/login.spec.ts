@@ -13,11 +13,8 @@ test.describe('ログイン', () => {
     try {
       const response = await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
       if (!response.ok()) {
-        console.log('Rate limiter reset failed with status:', response.status())
       }
-    } catch (error) {
-      console.log('Rate limiter reset failed (continuing anyway):', error)
-    }
+    } catch (error) {}
 
     // レート制限リセット後に少し待機
     await waitWithLog(500, 'after rate limiter reset')
@@ -33,9 +30,7 @@ test.describe('ログイン', () => {
     // ログアウト状態にする（既にログアウト状態の場合はエラーを無視）
     try {
       await authHelper.logout()
-    } catch (error) {
-      console.log('Already logged out or logout failed:', error)
-    }
+    } catch (error) {}
 
     // ログイン
     await authHelper.login(demoUser.email, demoUser.password)
@@ -56,9 +51,7 @@ test.describe('ログイン', () => {
       }
 
       retryCount++
-      console.log(
-        `Login verification attempt ${retryCount}/${maxRetries}. Current URL: ${currentUrl}`
-      )
+
       await wait(2000)
     }
 
@@ -115,19 +108,13 @@ test.describe('ログイン', () => {
     // ログアウト状態にする（既にログアウト状態の場合はエラーを無視）
     try {
       await authHelper.logout()
-    } catch (error) {
-      console.log(
-        'User was already logged out or logout failed:',
-        error instanceof Error ? error.message : String(error)
-      )
-    }
+    } catch (error) {}
 
     // 保護されたページにアクセスを試行 - use domcontentloaded for better compatibility
     try {
       await page.goto('/home', { waitUntil: 'domcontentloaded' })
     } catch (error) {
       // If navigation fails due to redirect, that's expected
-      console.log('Navigation redirected as expected')
     }
 
     // ログインページにリダイレクトされる (longer timeout for slower browsers)

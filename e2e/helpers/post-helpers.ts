@@ -35,9 +35,7 @@ export class PostHelper {
         },
         { timeout: 10000 }
       )
-      .catch(() => {
-        console.log('Warning: Could not verify auth cookie, continuing anyway')
-      })
+      .catch(() => {})
 
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
@@ -54,9 +52,7 @@ export class PostHelper {
         },
         { timeout: 10000 }
       )
-    } catch (error) {
-      console.log('Loading indicator wait timeout - continuing anyway')
-    }
+    } catch (error) {}
 
     // 認証によるリダイレクトをチェック（複数回チェック）
     let retryCount = 0
@@ -76,7 +72,6 @@ export class PostHelper {
       })
 
       if (hasAuthCookie) {
-        console.log('Auth cookie exists but still on login page, reloading...')
         await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 })
         await this.page.waitForTimeout(isWebKit ? 3000 : 1000)
       }
@@ -95,8 +90,6 @@ export class PostHelper {
         })
         throw new Error('Redirected to login page. Authentication may have failed.')
       }
-
-      console.log(`Still on login page, retry ${retryCount}/${maxRetries}`)
       await this.page.waitForTimeout(isWebKit ? 3000 : 2000)
     }
 
@@ -302,9 +295,7 @@ export class PostHelper {
         },
         { timeout: 10000 }
       )
-      .catch(() => {
-        console.log('Warning: Could not verify auth cookie, continuing anyway')
-      })
+      .catch(() => {})
 
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
@@ -369,9 +360,7 @@ export class PostHelper {
         },
         { timeout: 10000 }
       )
-      .catch(() => {
-        console.log('Warning: Could not verify auth cookie, continuing anyway')
-      })
+      .catch(() => {})
 
     await this.page.goto(`/posts/${postId}/edit`, {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',

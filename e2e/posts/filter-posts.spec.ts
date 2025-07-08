@@ -22,7 +22,6 @@ test.describe('投稿検索・フィルタリング', () => {
       // 初期状態で投稿が表示されているか確認
       const initialPosts = page.locator('[data-testid^="post-card"]')
       const initialCount = await initialPosts.count()
-      console.log(`Initial post count: ${initialCount}`)
 
       // ファンデーションカテゴリを選択
       await categoryFilter.selectOption('foundation')
@@ -33,13 +32,9 @@ test.describe('投稿検索・フィルタリング', () => {
       // フィルタリング後の投稿数を確認
       const filteredPosts = page.locator('[data-testid^="post-card"]')
       const filteredCount = await filteredPosts.count()
-      console.log(`Filtered post count: ${filteredCount}`)
 
       // テスト環境に投稿がない場合はスキップ
-      if (initialCount === 0) {
-        console.log('No posts available for filtering test')
-        return
-      }
+      if (initialCount === 0) return
 
       // フィルタが機能していることを確認（投稿数が変化したか、または特定のカテゴリの投稿のみが表示されているか）
       // 注：実際の投稿がない場合もあるため、フィルタが選択できることだけを確認
