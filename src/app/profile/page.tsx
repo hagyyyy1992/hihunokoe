@@ -424,7 +424,7 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-medium text-gray-900 mb-3">アカウント設定</h3>
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-sm text-red-700 mb-3">
-                    アカウントを削除すると、すべての投稿、コメント、共感データが永久に削除されます。この操作は取り消すことができません。
+                    アカウントを削除すると、すべての投稿が永久に削除されます。この操作は取り消すことができません。
                   </p>
                   <Button
                     variant="danger"
