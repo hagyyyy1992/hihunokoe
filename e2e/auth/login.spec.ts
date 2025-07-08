@@ -106,7 +106,7 @@ test.describe('ログイン', () => {
 
   test('ログイン成功後にリダイレクトされる', async ({ page }) => {
     // メール認証済みのデモユーザーを使用（新規登録ユーザーは未認証のためログインできない）
-    const demoUser = { email: 'demo@example.com', password: 'demo123' }
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
     // まずトップページに移動
     await page.goto('/')

@@ -1,7 +1,11 @@
 import { NextRequest } from 'next/server'
 import { ProfileController } from '@api/framework/controllers/ProfileController'
+import { GetProfileUseCase } from '@api/usecases/profile/interactor'
+import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 
-const profileController = new ProfileController()
+const userRepository = new UserRepositoryImpl()
+const profileUseCase = new GetProfileUseCase(userRepository)
+const profileController = new ProfileController(profileUseCase)
 
 export async function PUT(request: NextRequest) {
   return profileController.updateProfile(request)

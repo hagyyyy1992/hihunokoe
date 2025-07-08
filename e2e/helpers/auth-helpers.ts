@@ -4,7 +4,7 @@ import { Page, expect } from '@playwright/test'
 export async function loginTestUser(
   page: Page,
   email: string = 'demo@example.com',
-  password: string = 'demo123'
+  password: string = 'demo1234'
 ) {
   const authHelper = new AuthHelper(page)
   await authHelper.login(email, password)

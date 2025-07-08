@@ -87,9 +87,9 @@ export class AuthController {
   async register(request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json()
-      const { email, username, password } = body
+      const { email, userName, password } = body
 
-      if (!email || !username || !password) {
+      if (!email || !userName || !password) {
         return NextResponse.json(
           { error: 'Email, username, and password are required' },
           { status: 400 }
@@ -102,7 +102,7 @@ export class AuthController {
         this.tokenService
       )
 
-      const result = await registerUseCase.execute({ email, username, password })
+      const result = await registerUseCase.execute({ email, username: userName, password })
 
       return NextResponse.json({
         success: true,

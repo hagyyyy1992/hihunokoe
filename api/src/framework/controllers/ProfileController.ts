@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { UpdateProfileUseCase } from '@api/usecases/profile/UpdateProfileUseCase'
-import { GetProfileUseCase } from '@api/usecases/profile/GetProfileUseCase'
+import { GetProfileUseCase } from '@api/usecases/profile/interactor'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { IProfileUseCase } from '@api/usecases/profile/input-port'
 
 export class ProfileController {
   private userRepository: UserRepositoryImpl
   private tokenService: TokenServiceImpl
+  private profileUseCase: IProfileUseCase
 
-  constructor() {
+  constructor(profileUseCase: IProfileUseCase) {
     this.userRepository = new UserRepositoryImpl()
     this.tokenService = new TokenServiceImpl()
+    this.profileUseCase = profileUseCase
   }
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
@@ -41,9 +43,7 @@ export class ProfileController {
       const { userName, skinType, birthDate, gender, allergies, allergiesOther, profileImageUrl } =
         body
 
-      const updateProfileUseCase = new UpdateProfileUseCase(this.userRepository)
-
-      const result = await updateProfileUseCase.execute({
+      const result = await this.profileUseCase.updateProfile({
         userId,
         userName,
         skinType,
@@ -97,9 +97,7 @@ export class ProfileController {
         return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
       }
 
-      const getProfileUseCase = new GetProfileUseCase(this.userRepository)
-
-      const result = await getProfileUseCase.execute({ userId })
+      const result = await this.profileUseCase.getProfile({ userId })
 
       return NextResponse.json({
         success: true,

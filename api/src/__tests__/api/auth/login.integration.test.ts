@@ -107,7 +107,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.error).toBe('Invalid email or password')
+      expect(data.error).toBe('メールアドレスまたはパスワードが間違っています')
     })
 
     it('アカウントがロックされている場合、423エラーを返す', async () => {
@@ -122,7 +122,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(423)
-      expect(data.error).toBe('Account is locked due to too many failed login attempts')
+      expect(data.error).toBe('ログイン試行回数が多すぎるため、アカウントがロックされています')
     })
 
     it('アカウントが無効な場合、403エラーを返す', async () => {
@@ -137,7 +137,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(403)
-      expect(data.error).toBe('Account is inactive')
+      expect(data.error).toBe('アカウントが無効です')
     })
 
     it('無効な入力データでバリデーションエラーを返す', async () => {

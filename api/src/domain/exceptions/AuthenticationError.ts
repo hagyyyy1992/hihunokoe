@@ -35,14 +35,14 @@ export class EmailNotVerifiedError extends AuthenticationError {
 
 export class TokenExpiredError extends AuthenticationError {
   constructor() {
-    super('Token has expired')
+    super('トークンの有効期限が切れています')
     this.name = 'TokenExpiredError'
   }
 }
 
 export class InvalidTokenError extends AuthenticationError {
   constructor() {
-    super('Invalid token')
+    super('無効なトークンです')
     this.name = 'InvalidTokenError'
   }
 }

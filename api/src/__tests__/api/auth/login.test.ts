@@ -139,7 +139,7 @@ describe('AuthController - login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.error).toBe('Invalid email or password')
+      expect(data.error).toBe('メールアドレスまたはパスワードが間違っています')
     })
 
     it('メール認証が未完了の場合、403エラーを返す', async () => {
