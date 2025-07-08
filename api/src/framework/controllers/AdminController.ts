@@ -6,6 +6,7 @@ import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRep
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
 import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { AdminLogRepositoryImpl } from '@api/interface-adapters/repositories/AdminLogRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { UserRole } from '@api/domain/entities/User'
@@ -21,6 +22,7 @@ export class AdminController {
   private postRepository: PostRepositoryImpl
   private empathyRepository: EmpathyRepositoryImpl
   private authSessionRepository: AuthSessionRepositoryImpl
+  private adminLogRepository: AdminLogRepositoryImpl
   private passwordHashService: PasswordHashServiceImpl
   private tokenService: TokenServiceImpl
 
@@ -29,6 +31,7 @@ export class AdminController {
     this.postRepository = new PostRepositoryImpl()
     this.empathyRepository = new EmpathyRepositoryImpl()
     this.authSessionRepository = new AuthSessionRepositoryImpl()
+    this.adminLogRepository = new AdminLogRepositoryImpl()
     this.passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
   }
@@ -74,10 +77,15 @@ export class AdminController {
         this.userRepository,
         this.authSessionRepository,
         this.passwordHashService,
-        this.tokenService
+        this.tokenService,
+        this.adminLogRepository
       )
 
-      const result = await adminLoginUseCase.execute({ email, password })
+      // Get IP address and user agent
+      const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+      const userAgent = request.headers.get('user-agent') || 'unknown'
+
+      const result = await adminLoginUseCase.execute({ email, password, ipAddress, userAgent })
 
       // Set admin cookie
       const response = NextResponse.json({
@@ -94,8 +102,8 @@ export class AdminController {
       response.cookies.set('admin-auth-token', result.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60, // 24 hours
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
         path: '/',
       })
 

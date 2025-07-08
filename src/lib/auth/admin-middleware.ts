@@ -12,7 +12,7 @@ export function withAdminAuth<T = Record<string, string>>(
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
-      req.cookies.get('auth-token')?.value
+      req.cookies.get('admin-auth-token')?.value
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })
@@ -43,7 +43,7 @@ export function requireSuperAdmin<T = Record<string, string>>(
   return async (req: NextRequest, context: { params: Promise<T> }): Promise<Response> => {
     const token =
       req.headers.get('authorization')?.replace('Bearer ', '') ||
-      req.cookies.get('auth-token')?.value
+      req.cookies.get('admin-auth-token')?.value
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })

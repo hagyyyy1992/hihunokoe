@@ -33,6 +33,11 @@ export class LoginUseCase implements LoginInputPort {
       throw new InvalidCredentialsError()
     }
 
+    // 管理者はユーザー側ログインを禁止
+    if (user.isAdmin()) {
+      throw new InvalidCredentialsError('管理者アカウントは管理画面からログインしてください')
+    }
+
     if (!user.canLogin()) {
       if (user.isLocked()) {
         throw new AccountLockedError()

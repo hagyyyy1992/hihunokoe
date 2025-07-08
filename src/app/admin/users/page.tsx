@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -79,20 +73,16 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
+      } else if (response.status === 401) {
+        console.error('認証されていません。ログインしてください。')
+        // 必要に応じてログインページにリダイレクト
       }
     } catch (error) {
       console.error('ユーザー一覧の取得に失敗しました:', error)
@@ -113,16 +103,9 @@ export default function UserManagement() {
     if (!selectedUser) return
 
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch(`/api/admin/users/${selectedUser.id}/${action}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -137,15 +120,8 @@ export default function UserManagement() {
 
   const exportUsers = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1]
-
       const response = await fetch('/api/admin/users/export', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
       if (response.ok) {
@@ -182,50 +158,144 @@ export default function UserManagement() {
           <CardTitle>ユーザー管理</CardTitle>
           <CardDescription>登録ユーザーの一覧表示、検索、管理を行います</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-6">
           {/* 検索・フィルター */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="space-y-4 mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="ユーザー名またはメールアドレスで検索"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ステータス" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="active">アクティブ</SelectItem>
-                <SelectItem value="inactive">停止中</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <SimpleSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="active">アクティブ</option>
+                <option value="inactive">停止中</option>
+              </SimpleSelect>
 
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ロール" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="USER">ユーザー</SelectItem>
-                <SelectItem value="ADMIN">管理者</SelectItem>
-                <SelectItem value="SUPER_ADMIN">スーパー管理者</SelectItem>
-              </SelectContent>
-            </Select>
+              <SimpleSelect
+                value={roleFilter}
+                onValueChange={setRoleFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="USER">ユーザー</option>
+                <option value="ADMIN">管理者</option>
+                <option value="SUPER_ADMIN">スーパー管理者</option>
+              </SimpleSelect>
 
-            <Button onClick={exportUsers} variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              CSV出力
-            </Button>
+              <Button
+                onClick={exportUsers}
+                variant="outline"
+                className="w-full sm:w-auto sm:ml-auto"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                CSV出力
+              </Button>
+            </div>
           </div>
 
-          {/* ユーザー一覧テーブル */}
-          <div className="border rounded-lg">
+          {/* ユーザー一覧 - モバイル用カード表示 */}
+          <div className="block lg:hidden space-y-3">
+            {filteredUsers.map(user => (
+              <Card key={user.id}>
+                <CardContent className="p-3 pt-4">
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h3 className="font-semibold text-base truncate">{user.userName}</h3>
+                      <Badge
+                        variant={user.isActive ? 'default' : 'secondary'}
+                        className="ml-2 flex-shrink-0 text-xs"
+                      >
+                        {user.isActive ? 'アクティブ' : '停歂中'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600 truncate">{user.email}</p>
+                  </div>
+
+                  <div className="space-y-1 mb-3 text-xs">
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-16">ロール:</span>
+                      <Badge
+                        variant={
+                          user.role === 'SUPER_ADMIN'
+                            ? 'destructive'
+                            : user.role === 'ADMIN'
+                              ? 'default'
+                              : 'secondary'
+                        }
+                        className="text-xs"
+                      >
+                        {user.role === 'SUPER_ADMIN'
+                          ? 'スーパー'
+                          : user.role === 'ADMIN'
+                            ? '管理者'
+                            : 'ユーザー'}
+                      </Badge>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-16">肌タイプ:</span>
+                      <span>{user.skinType || '-'}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-16">投稿数:</span>
+                      <span>{user.postCount}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-16">登録日:</span>
+                      <span>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" className="h-8 px-2 flex-1 text-xs">
+                      <Eye className="h-3 w-3 mr-0.5" />
+                      詳細
+                    </Button>
+                    {user.isActive ? (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="h-8 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setActionType('suspend')
+                        }}
+                      >
+                        <UserX className="h-3 w-3 mr-0.5" />
+                        停止
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-8 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setActionType('activate')
+                        }}
+                      >
+                        <UserCheck className="h-3 w-3 mr-0.5" />
+                        復活
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* ユーザー一覧テーブル - デスクトップ表示 */}
+          <div className="hidden lg:block border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -333,7 +403,14 @@ export default function UserManagement() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                setActionType(null)
+                setSelectedUser(null)
+              }}
+            >
+              キャンセル
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handleUserAction(actionType)}
               className={actionType === 'suspend' ? 'bg-red-600 hover:bg-red-700' : ''}

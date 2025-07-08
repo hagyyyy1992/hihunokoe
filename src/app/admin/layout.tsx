@@ -16,7 +16,8 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/avatar'
-import { verifyToken, AuthUser } from '@/lib/auth/auth'
+import { AuthUser } from '@/lib/auth/auth'
+import { SERVICE_NAME } from '@/lib/constants'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -38,28 +39,48 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('auth-token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      router.push('/admin/login')
+    // ログインページではチェックをスキップ
+    if (pathname === '/admin/login') {
+      setIsLoading(false)
       return
     }
 
-    const userData = verifyToken(token)
-    if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN')) {
-      router.push('/admin/login')
-      return
+    const checkAuth = async () => {
+      try {
+        // サーバー側でユーザー情報を取得するAPIを呼び出す
+        const response = await fetch('/api/admin/auth/me', {
+          credentials: 'include', // HTTPOnlyクッキーを送信
+        })
+
+        if (!response.ok) {
+          router.push('/admin/login')
+          setIsLoading(false)
+          return
+        }
+
+        const userData = await response.json()
+        setUser(userData)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Auth check error:', error)
+        router.push('/admin/login')
+        setIsLoading(false)
+      }
     }
 
-    setUser(userData)
-    setIsLoading(false)
-  }, [router])
+    checkAuth()
+  }, [router, pathname])
 
-  const handleLogout = () => {
-    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+
+    setUser(null)
     router.push('/admin/login')
   }
 
@@ -83,60 +104,65 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* サイドバー */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:inset-auto lg:h-screen`}
       >
-        <div className="flex items-center justify-between h-16 px-6 border-b">
+        <div className="flex items-center justify-between h-16 px-4 border-b bg-white">
           <div className="flex items-center">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-semibold">管理画面</span>
+            <Shield className="h-7 w-7 text-blue-600" />
+            <span className="ml-2 text-lg font-semibold text-gray-900">{SERVICE_NAME}管理画面</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden"
+          <button
+            type="button"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors relative z-10"
             onClick={() => setIsSidebarOpen(false)}
+            aria-label="サイドバーを閉じる"
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <nav className="mt-8">
+        <nav className="flex-1 overflow-y-auto mt-2 px-4 pb-4 space-y-1">
           {navigationItems.map(item => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center px-6 py-3 text-sm font-medium ${
+                className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                 }`}
                 onClick={() => setIsSidebarOpen(false)}
               >
-                <item.icon className="mr-3 h-5 w-5" />
+                <item.icon className="mr-3 h-4 w-4 flex-shrink-0" />
                 {item.label}
               </Link>
             )
           })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t">
-          <div className="flex items-center mb-4">
-            <Avatar name={user.userName} size="md" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">{user.userName}</p>
-              <p className="text-xs text-gray-500">
+        <div className="mt-auto p-4 border-t bg-gray-50">
+          <div className="flex items-center mb-3 p-3 bg-white rounded-lg">
+            <Avatar name={user.userName} size="sm" />
+            <div className="ml-2 flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{user.userName}</p>
+              <p className="text-xs text-gray-500 truncate">
                 {user.role === 'SUPER_ADMIN' ? 'スーパー管理者' : '管理者'}
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start hover:bg-red-50 hover:text-red-600"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" />
             ログアウト
           </Button>
@@ -144,28 +170,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="lg:pl-64">
-        {/* ヘッダー */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="flex items-center justify-between h-16 px-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center">
-              <h1 className="text-lg font-semibold text-gray-900">
-                {navigationItems.find(item => item.href === pathname)?.label || 'ダッシュボード'}
-              </h1>
-            </div>
-          </div>
-        </header>
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* モバイル用ハンバーガーメニュー */}
+        <button
+          type="button"
+          className="lg:hidden fixed top-4 left-4 z-30 p-3 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all hover:scale-105"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="メニューを開く"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
 
         {/* メインコンテンツエリア */}
-        <main className="p-6">{children}</main>
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 pt-16 lg:pt-3">{children}</main>
       </div>
 
       {/* サイドバーオーバーレイ */}

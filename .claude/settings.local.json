@@ -57,7 +57,12 @@
       "Bash(npx prettier:*)",
       "Bash(npx next lint:*)",
       "Bash(npx playwright:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(curl:*)",
+      "Bash(-b cookies.txt )",
+      "Bash(-H \"Content-Type: application/json\" -v)",
+      "Bash(-v)",
+      "Bash(-b cookies.txt)"
     ],
     "deny": [
       "Bash(rm -rf:*)",

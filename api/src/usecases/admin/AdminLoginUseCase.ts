@@ -4,6 +4,7 @@ import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepos
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
+import { AdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -14,6 +15,8 @@ import {
 export interface AdminLoginInputData {
   email: string
   password: string
+  ipAddress?: string
+  userAgent?: string
 }
 
 export interface AdminLoginOutputData {
@@ -26,7 +29,8 @@ export class AdminLoginUseCase {
     private userRepository: UserRepository,
     private authSessionRepository: AuthSessionRepository,
     private passwordHashService: PasswordHashService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private adminLogRepository: AdminLogRepository
   ) {}
 
   async execute(inputData: AdminLoginInputData): Promise<AdminLoginOutputData> {
@@ -96,6 +100,15 @@ export class AdminLoginUseCase {
       new Date()
     )
     await this.authSessionRepository.create(session)
+
+    // Log admin login action
+    await this.adminLogRepository.create({
+      adminUserId: user.id,
+      action: 'ADMIN_LOGIN',
+      details: { email: user.email },
+      ipAddress: inputData.ipAddress,
+      userAgent: inputData.userAgent,
+    })
 
     return {
       token,

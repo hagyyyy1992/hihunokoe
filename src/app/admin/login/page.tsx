@@ -35,7 +35,9 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'ログインに失敗しました')
       }
 
-      document.cookie = `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
+      // HTTPOnlyクッキーはサーバー側で設定されるため、クライアント側では設定不要
+      // リダイレクト前に少し待機してクッキーが確実にセットされるようにする
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       router.push('/admin/dashboard')
     } catch (error) {
