@@ -26,13 +26,6 @@ test.describe('ログイン', () => {
     // メール認証済みのデモユーザーを使用
     const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
-    // コンソールエラーを監視
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        console.log('[TEST] Console error:', msg.text())
-      }
-    })
-
     // まずトップページに移動
     await page.goto('/')
 
