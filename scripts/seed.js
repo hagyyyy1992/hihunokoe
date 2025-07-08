@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // デモユーザーの作成
-  const hashedPassword = await bcrypt.hash('demo123', 12)
+  const hashedPassword = await bcrypt.hash('demo1234', 12)
 
   const demoUser = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
@@ -35,7 +35,7 @@ async function main() {
     create: {
       userName: 'admin',
       email: 'admin@example.com',
-      passwordHash: hashedPassword, // 同じパスワード (demo123) を使用
+      passwordHash: hashedPassword, // 同じパスワード (demo1234) を使用
       role: 'SUPER_ADMIN',
       emailVerified: true,
     },
