@@ -15,4 +15,3 @@ export interface AdminLogRepository {
   findByAdminUserId(adminUserId: string, limit?: number): Promise<AdminLogData[]>
   findByAction(action: string, limit?: number): Promise<AdminLogData[]>
 }
-

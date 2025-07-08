@@ -256,7 +256,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   // データベースが利用できない場合、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
   const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
 
-  if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
+  if (mockUser && mockUser.isActive && credentials.password === 'demo1234') {
     return {
       id: mockUser.id,
       userName: mockUser.userName,

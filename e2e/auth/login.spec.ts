@@ -24,7 +24,7 @@ test.describe('ログイン', () => {
 
   test('正常なログインができる', async ({ page }) => {
     // メール認証済みのデモユーザーを使用
-    const demoUser = { email: 'demo@example.com', password: 'demo123' }
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
     // コンソールエラーを監視
     page.on('console', msg => {
@@ -168,7 +168,7 @@ test.describe('ログイン', () => {
 
   test('Remember me 機能のテスト', async ({ page, context }) => {
     // メール認証済みのデモユーザーを使用
-    const demoUser = { email: 'demo@example.com', password: 'demo123' }
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
     await page.goto('/auth/login')
     await page.getByLabel('メールアドレス').fill(demoUser.email)
@@ -247,7 +247,7 @@ test.describe('ログイン', () => {
 
   test('ログアウト機能が正常に動作する', async ({ page }) => {
     // メール認証済みのデモユーザーを使用
-    const demoUser = { email: 'demo@example.com', password: 'demo123' }
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
     // ログインページから開始
     await page.goto('/auth/login')

@@ -32,7 +32,7 @@ export async function logoutTestUser(page: Page) {
 export async function loginUser(
   page: Page,
   email: string = 'demo@example.com',
-  password: string = 'demo123'
+  password: string = 'demo1234'
 ) {
   return loginTestUser(page, email, password)
 }
