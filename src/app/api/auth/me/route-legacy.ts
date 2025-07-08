@@ -1,6 +1,6 @@
 // E2E環境用の一時的なレガシー実装
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth/auth'
+import { auth } from '@/lib/auth/auth'
 
 export async function GET(request: NextRequest) {
   // クッキーからトークンを取得
