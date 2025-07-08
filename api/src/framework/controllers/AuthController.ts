@@ -274,6 +274,15 @@ export class AuthController {
       const authHeader = request.headers.get('Authorization')
       const token = authHeader?.replace('Bearer ', '')
 
+      // E2E環境でのデバッグログ
+      if (process.env.NODE_ENV === 'test') {
+        console.log('getCurrentUser - Authorization header:', authHeader)
+        console.log(
+          'getCurrentUser - Token extracted:',
+          token ? token.substring(0, 20) + '...' : 'null'
+        )
+      }
+
       if (!token) {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
       }
