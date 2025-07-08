@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [showResendButton, setShowResendButton] = useState(false)
 
-  const { refreshAuth } = useAuth()
+  const { login } = useAuth()
   const router = useRouter()
 
   const handleSubmit = useCallback(
@@ -25,39 +25,23 @@ export default function LoginPage() {
       setLoading(true)
 
       try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        })
-
-        const data = await response.json()
-
-        if (response.ok) {
-          // refreshAuthを待ってからリダイレクト
-          await refreshAuth()
-          // 少し待機してから確実にリダイレクト
-          setTimeout(() => {
-            router.push('/home')
-          }, 100)
-        } else {
-          setError(data.error || 'ログインに失敗しました')
-
-          // メール認証が必要な場合
-          if (data.emailVerificationRequired) {
-            setShowResendButton(true)
-          }
-        }
-      } catch (err: unknown) {
+        await login(email, password)
+        // ログイン成功後にリダイレクト
+        router.push('/home')
+      } catch (err) {
         console.error('Login error:', err)
-        setError('ログインに失敗しました')
+        const errorMessage = err instanceof Error ? err.message : 'ログインに失敗しました'
+        setError(errorMessage)
+
+        // エラーレスポンスを解析してメール認証が必要か確認
+        if (errorMessage.includes('メールアドレスの確認が完了していません')) {
+          setShowResendButton(true)
+        }
       } finally {
         setLoading(false)
       }
     },
-    [email, password, refreshAuth, router]
+    [email, password, login, router]
   )
 
   const handleResendEmail = useCallback(async () => {

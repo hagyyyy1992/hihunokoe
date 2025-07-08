@@ -1,0 +1,126 @@
+query GetPosts($first: Int, $after: String, $filter: PostFilterInput, $orderBy: PostOrderBy) {
+  posts(first: $first, after: $after, filter: $filter, orderBy: $orderBy) {
+    edges {
+      node {
+        id
+        title
+        content
+        cosmeticName
+        cosmeticCategory
+        skinType
+        moodTag
+        viewCount
+        empathyCount
+        createdAt
+        user {
+          id
+          displayName
+          profileImageUrl
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+
+query GetPost($id: ID!) {
+  post(id: $id) {
+    id
+    title
+    content
+    cosmeticName
+    cosmeticCategory
+    skinType
+    usageSituation
+    experienceDetails
+    moodTag
+    viewCount
+    empathyCount
+    createdAt
+    updatedAt
+    user {
+      id
+      displayName
+      profileImageUrl
+      bio
+    }
+    comments {
+      id
+      content
+      createdAt
+      user {
+        id
+        displayName
+        profileImageUrl
+      }
+    }
+    empathies {
+      id
+      empathyType
+      user {
+        id
+      }
+    }
+  }
+}
+
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    id
+    title
+    content
+    cosmeticName
+    cosmeticCategory
+    skinType
+    moodTag
+    createdAt
+  }
+}
+
+mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $id, input: $input) {
+    id
+    title
+    content
+    cosmeticName
+    cosmeticCategory
+    skinType
+    moodTag
+    updatedAt
+  }
+}
+
+mutation DeletePost($id: ID!) {
+  deletePost(id: $id)
+}
+
+mutation AddEmpathy($postId: ID!, $type: String!) {
+  addEmpathy(postId: $postId, type: $type) {
+    id
+    empathyType
+  }
+}
+
+mutation RemoveEmpathy($postId: ID!) {
+  removeEmpathy(postId: $postId)
+}
+
+mutation AddComment($postId: ID!, $content: String!) {
+  addComment(postId: $postId, content: $content) {
+    id
+    content
+    createdAt
+    user {
+      id
+      displayName
+      profileImageUrl
+    }
+  }
+}

@@ -50,11 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Auth failed - explicitly set user to null
         setUser(null)
+        // トークンも削除
+        localStorage.removeItem('token')
       }
     } catch (error) {
       console.error('Auth check failed:', error)
       // Network error or other issue - set user to null
       setUser(null)
+      localStorage.removeItem('token')
     } finally {
       setLoading(false)
     }
@@ -72,12 +75,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'same-origin',
       })
       const data = await response.json()
+      console.log('Login response data:', data) // デバッグログ追加
 
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました')
       }
 
       setUser(data.user)
+      // GraphQL用にトークンをlocalStorageに保存
+      if (data.token) {
+        console.log('Saving token to localStorage:', data.token) // デバッグログ追加
+        localStorage.setItem('token', data.token)
+      } else {
+        console.warn('No token in login response!') // デバッグログ追加
+      }
     } finally {
       setLoading(false)
     }
@@ -115,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'same-origin',
       })
       setUser(null)
+      // トークンも削除
+      localStorage.removeItem('token')
     } catch (error) {
       console.error('Logout failed:', error)
     }
