@@ -47,14 +47,12 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateToken(user)
-    console.log('Generated token:', token) // デバッグログ追加
 
     const response = NextResponse.json({
       user,
       token,
       message: 'ログインしました',
     })
-    console.log('Login response:', { user: user.email, hasToken: !!token }) // デバッグログ追加
 
     // HttpOnly Cookie にトークンを設定
     response.cookies.set('auth-token', token, {
