@@ -725,4 +725,41 @@ export class AuthHelper {
     await expect(this.page).toHaveURL(/\/auth\/registration-complete/)
     await expect(this.page.locator('[data-testid="success-message"]')).toBeVisible()
   }
+
+  async requestPasswordReset(email: string) {
+    await this.page.goto('/auth/forgot-password')
+
+    // Wait for form to be ready
+    await this.page.waitForSelector('[data-testid="email-input"]', { timeout: 10000 })
+
+    // Fill email
+    await this.page.fill('[data-testid="email-input"]', email)
+
+    // Click reset button
+    await this.page.click('[data-testid="reset-password-button"]')
+
+    // Wait for message
+    await this.page.waitForSelector('[data-testid="message"]', { timeout: 10000 })
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    await this.page.goto(`/auth/reset-password?token=${token}`)
+
+    // Wait for token verification
+    await this.page.waitForTimeout(2000)
+
+    // Check if form is visible (token is valid)
+    const passwordInput = this.page.locator('input[name="password"]')
+    await expect(passwordInput).toBeVisible({ timeout: 10000 })
+
+    // Fill password fields
+    await passwordInput.fill(newPassword)
+    await this.page.locator('input[name="confirmPassword"]').fill(newPassword)
+
+    // Submit form
+    await this.page.getByRole('button', { name: 'パスワードをリセット' }).click()
+
+    // Wait for success message
+    await this.page.waitForSelector('.bg-green-50', { timeout: 10000 })
+  }
 }

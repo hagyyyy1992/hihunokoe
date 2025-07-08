@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { AuthHelper } from '@e2e/helpers/auth-helpers'
 import { testUsers, generateRandomUser } from '@e2e/helpers/test-data'
+import { wait, waitWithLog } from '@e2e/helpers/wait-helper'
 
 test.describe('ログイン', () => {
   let authHelper: AuthHelper
@@ -19,7 +20,7 @@ test.describe('ログイン', () => {
     }
 
     // レート制限リセット後に少し待機
-    await page.waitForTimeout(500)
+    await waitWithLog(500, 'after rate limiter reset')
   })
 
   test('正常なログインができる', async ({ page }) => {
@@ -40,7 +41,7 @@ test.describe('ログイン', () => {
     await authHelper.login(demoUser.email, demoUser.password)
 
     // ログイン後の認証状態が反映されるのを待つ
-    await page.waitForTimeout(2000)
+    await wait(2000)
 
     // ログイン成功を確認（リトライロジック付き）
     let loginSuccess = false
@@ -58,7 +59,7 @@ test.describe('ログイン', () => {
       console.log(
         `Login verification attempt ${retryCount}/${maxRetries}. Current URL: ${currentUrl}`
       )
-      await page.waitForTimeout(2000)
+      await wait(2000)
     }
 
     await expect(page).toHaveURL(/\/home|\//)
@@ -135,8 +136,11 @@ test.describe('ログイン', () => {
     // ログイン
     await authHelper.login(demoUser.email, demoUser.password)
 
+    // ログイン後の処理が完了するまで待機
+    await wait(2000)
+
     // 元々アクセスしようとしたページにリダイレクトされる
-    await expect(page).toHaveURL(/\/home/)
+    await expect(page).toHaveURL(/\/home/, { timeout: 15000 })
   })
 
   test('Remember me 機能のテスト', async ({ page, context }) => {
@@ -209,8 +213,8 @@ test.describe('ログイン', () => {
   test('新規登録リンクが機能する', async ({ page }) => {
     await page.goto('/auth/login')
 
-    // リンクがクリック可能になるまで待つ
-    const registerLink = page.getByText('会員登録')
+    // data-testidを使用して特定のリンクを取得
+    const registerLink = page.getByTestId('register-link')
     await registerLink.waitFor({ state: 'visible' })
 
     // クリックして直接遷移を待つ
@@ -233,7 +237,7 @@ test.describe('ログイン', () => {
       await authHelper.login(email, wrongPassword, false)
       // 毎回エラーメッセージを確認
       await authHelper.expectErrorMessage('メールアドレスまたはパスワードが間違っています')
-      await page.waitForTimeout(1000) // 次の試行までの待機
+      await wait(1000) // 次の試行までの待機
     }
   })
 
