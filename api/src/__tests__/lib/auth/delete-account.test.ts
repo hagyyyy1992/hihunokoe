@@ -1,4 +1,4 @@
-import { deleteUserAccount } from '@api/usecases/auth/LoginUseCase'
+import { DeleteAccountUseCase } from '@api/usecases/auth/DeleteAccountUseCase'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 // モック
