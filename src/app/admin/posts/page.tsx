@@ -280,7 +280,14 @@ export default function PostModeration() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                setActionType(null)
+                setSelectedPost(null)
+              }}
+            >
+              キャンセル
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handlePostAction(actionType)}
               className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : ''}

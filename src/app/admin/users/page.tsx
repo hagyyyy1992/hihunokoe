@@ -309,7 +309,14 @@ export default function UserManagement() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                setActionType(null)
+                setSelectedUser(null)
+              }}
+            >
+              キャンセル
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handleUserAction(actionType)}
               className={actionType === 'suspend' ? 'bg-red-600 hover:bg-red-700' : ''}
