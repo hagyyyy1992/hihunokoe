@@ -5,6 +5,6 @@ import { adaptCookieToBearer } from '@/lib/auth/cookie-auth-adapter'
 const authController = new AuthController()
 
 export async function GET(request: Request) {
-  const adaptedRequest = adaptCookieToBearer(request as NextRequest)
-  return authController.getCurrentUser(adaptedRequest)
+  const adaptedRequest = adaptCookieToBearer(request)
+  return authController.getCurrentUser(adaptedRequest as NextRequest)
 }

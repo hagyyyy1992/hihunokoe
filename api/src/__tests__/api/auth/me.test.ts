@@ -4,7 +4,7 @@ jest.mock('@api/framework/controllers/AuthController', () => {
     AuthController: jest.fn().mockImplementation(() => {
       return {
         getCurrentUser: jest.fn().mockImplementation(async request => {
-          const token = request.cookies.get('auth-token')?.value
+          const token = request.cookies?.get?.('auth-token')?.value
 
           if (!token) {
             return new Response(JSON.stringify({ error: '認証が必要です' }), {

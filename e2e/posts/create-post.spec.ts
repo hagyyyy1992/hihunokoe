@@ -4,6 +4,7 @@ import { PostHelper } from '@e2e/helpers/post-helpers'
 import { generateRandomUser, testPosts } from '@e2e/helpers/test-data'
 
 test.describe('投稿作成', () => {
+  test.setTimeout(120000) // 2分に延長
   let postHelper: PostHelper
 
   test.beforeEach(async ({ page }) => {

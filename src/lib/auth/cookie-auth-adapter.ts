@@ -3,28 +3,31 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Adapts cookie-based authentication to bearer token format for clean architecture
  */
-export function adaptCookieToBearer(request: NextRequest): NextRequest {
-  const token = request.cookies.get('auth-token')?.value
+export function adaptCookieToBearer(request: Request): Request {
+  // NextRequestに変換
+  const nextRequest = request as NextRequest
+  const token = nextRequest.cookies?.get('auth-token')?.value
 
   if (!token) {
     return request
   }
 
-  // Clone the request with the Authorization header
+  // リクエストヘッダーをクローン
   const headers = new Headers(request.headers)
   headers.set('Authorization', `Bearer ${token}`)
 
-  // Create a new request without copying the body
-  // This avoids issues with body stream already being consumed
-  const adaptedRequest = new NextRequest(request.url, {
+  // 新しいRequestオブジェクトを作成
+  return new Request(request.url, {
     method: request.method,
     headers,
+    body: request.body,
+    mode: request.mode,
+    credentials: request.credentials,
+    cache: request.cache,
+    redirect: request.redirect,
+    referrer: request.referrer,
+    integrity: request.integrity,
   })
-
-  // Copy over the parsed URL params, search params, etc.
-  Object.setPrototypeOf(adaptedRequest, request)
-
-  return adaptedRequest
 }
 
 /**

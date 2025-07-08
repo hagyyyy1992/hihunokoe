@@ -183,8 +183,14 @@ export async function registerAndLoginTestUser(
   retryCount = 0
 
   // モバイルChrome判定の追加
-  const userAgent = await page.evaluate(() => navigator.userAgent)
-  const isMobileChrome = userAgent.includes('Chrome') && userAgent.includes('Mobile')
+  let userAgent = ''
+  let isMobileChrome = false
+  try {
+    userAgent = await page.evaluate(() => navigator.userAgent)
+    isMobileChrome = userAgent.includes('Chrome') && userAgent.includes('Mobile')
+  } catch (error) {
+    console.log('Failed to get user agent, assuming desktop browser')
+  }
 
   while (!authCookie && retryCount < 5) {
     const cookies = await page.context().cookies()
