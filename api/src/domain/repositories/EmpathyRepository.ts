@@ -1,8 +1,9 @@
-import { Empathy } from '@api/domain/entities/Empathy'
+import { Empathy, EmpathyType } from '@api/domain/entities/Empathy'
 
 export interface CreateEmpathyData {
   userId: string
   postId: string
+  empathyType: EmpathyType
 }
 
 export interface EmpathyRepository {

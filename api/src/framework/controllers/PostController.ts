@@ -6,10 +6,13 @@ import { UpdatePostUseCase } from '@api/usecases/posts/UpdatePostUseCase'
 import { DeletePostUseCase } from '@api/usecases/posts/DeletePostUseCase'
 import { AddEmpathyUseCase } from '@api/usecases/posts/AddEmpathyUseCase'
 import { RemoveEmpathyUseCase } from '@api/usecases/posts/RemoveEmpathyUseCase'
+import { GetEmpathyStatusUseCase } from '@api/usecases/posts/GetEmpathyStatusUseCase'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { isDatabaseAvailable } from '@/lib/prisma'
+import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
 
 export class PostController {
   private postRepository: PostRepositoryImpl
@@ -280,7 +283,10 @@ export class PostController {
         this.userRepository
       )
 
-      const result = await addEmpathyUseCase.execute({ postId, userId })
+      const body = await request.json()
+      const { empathyType } = body
+      
+      const result = await addEmpathyUseCase.execute({ postId, userId, empathyType })
 
       return NextResponse.json({
         success: result.success,
@@ -493,17 +499,84 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
+      const body = await request.json()
+      const { empathyType } = body
+
+      if (!empathyType) {
+        return NextResponse.json({ error: 'empathyTypeが指定されていません' }, { status: 400 })
+      }
+
+      // Validate empathyType
+      if (!['helpful', 'interested', 'supportive'].includes(empathyType)) {
+        return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
+      }
+
+      if (!isDatabaseAvailable()) {
+        // Mock mode
+        // Validate postId format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(postId)) {
+          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+        }
+
+        // Check if post exists in mock data
+        const post = MOCK_POSTS.find(p => p.id === postId)
+        if (!post) {
+          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+        }
+
+        // Check if user already gave empathy
+        const existingEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === userId)
+        if (existingEmpathy) {
+          return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
+        }
+
+        // Add empathy to mock data
+        const newEmpathy = {
+          id: `empathy-${Date.now()}`,
+          postId,
+          userId,
+          empathyType,
+          createdAt: new Date(),
+        }
+        MOCK_EMPATHIES.push(newEmpathy)
+
+        // Get updated count
+        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
+
+        return NextResponse.json({
+          success: true,
+          empathy: {
+            id: newEmpathy.id,
+            postId: newEmpathy.postId,
+            userId: newEmpathy.userId,
+            empathyType: newEmpathy.empathyType,
+            createdAt: newEmpathy.createdAt,
+          },
+          totalCount,
+          message: '共感を追加しました（デモモード）',
+        })
+      }
+
+      // Database mode
       const addEmpathyUseCase = new AddEmpathyUseCase(
         this.empathyRepository,
         this.postRepository,
         this.userRepository
       )
 
-      const result = await addEmpathyUseCase.execute({ postId, userId })
+      const result = await addEmpathyUseCase.execute({ postId, userId, empathyType })
 
       return NextResponse.json({
         success: result.success,
-        empathyCount: result.empathyCount,
+        empathy: {
+          id: result.empathy.id,
+          postId: result.empathy.postId,
+          userId: result.empathy.userId,
+          empathyType: result.empathy.empathyType,
+          createdAt: result.empathy.createdAt,
+        },
+        totalCount: result.empathyCount,
         message: '共感を追加しました',
       })
     } catch (error) {
@@ -538,6 +611,42 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
+      if (!isDatabaseAvailable()) {
+        // Mock mode
+        // Validate postId format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(postId)) {
+          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+        }
+
+        // Check if post exists in mock data
+        const post = MOCK_POSTS.find(p => p.id === postId)
+        if (!post) {
+          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+        }
+
+        // Find existing empathy
+        const empathyIndex = MOCK_EMPATHIES.findIndex(
+          e => e.postId === postId && e.userId === userId
+        )
+        if (empathyIndex === -1) {
+          return NextResponse.json({ error: '共感が見つかりません' }, { status: 404 })
+        }
+
+        // Remove empathy from mock data
+        MOCK_EMPATHIES.splice(empathyIndex, 1)
+
+        // Get updated count
+        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
+
+        return NextResponse.json({
+          success: true,
+          totalCount,
+          message: '共感を削除しました（デモモード）',
+        })
+      }
+
+      // Database mode
       const removeEmpathyUseCase = new RemoveEmpathyUseCase(
         this.empathyRepository,
         this.postRepository
@@ -603,13 +712,55 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
-      // For now, return mock status - this should be implemented with a proper use case
+      if (!isDatabaseAvailable()) {
+        // Mock mode
+        // Validate postId format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(postId)) {
+          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
+        }
+
+        // Check if post exists in mock data
+        const post = MOCK_POSTS.find(p => p.id === postId)
+        if (!post) {
+          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+        }
+
+        // Check user's empathy status
+        const userEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === userId)
+        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
+
+        return NextResponse.json({
+          hasEmpathized: !!userEmpathy,
+          empathyType: userEmpathy?.empathyType || null,
+          totalCount,
+        })
+      }
+
+      // Database mode
+      const getEmpathyStatusUseCase = new GetEmpathyStatusUseCase(
+        this.empathyRepository,
+        this.postRepository,
+        this.userRepository
+      )
+
+      const result = await getEmpathyStatusUseCase.execute({ postId, userId })
+
       return NextResponse.json({
-        hasEmpathized: false,
-        empathyType: null,
-        totalCount: 0,
+        hasEmpathized: result.hasEmpathized,
+        empathyType: result.empathyType,
+        totalCount: result.totalCount,
       })
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'User not found' || error.message === 'User account is inactive') {
+          return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
+        }
+        if (error.message === 'Post not found') {
+          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+        }
+      }
+
       console.error('Get empathy status error:', error)
       return NextResponse.json({ error: '共感状態の取得に失敗しました' }, { status: 500 })
     }

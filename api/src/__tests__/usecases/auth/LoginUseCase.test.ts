@@ -75,16 +75,24 @@ describe('LoginUseCase', () => {
       update: jest.fn(),
       findByUsername: jest.fn(),
       delete: jest.fn(),
-    }
+      findByEmailVerificationToken: jest.fn(),
+      findByPasswordResetToken: jest.fn(),
+      findMany: jest.fn(),
+      softDelete: jest.fn(),
+      updatePassword: jest.fn(),
+      verifyEmail: jest.fn(),
+    } as jest.Mocked<UserRepository>
 
     mockAuthSessionRepository = {
       create: jest.fn(),
       findByToken: jest.fn(),
-      findByUserId: jest.fn(),
+      findById: jest.fn(),
       deleteByToken: jest.fn(),
       deleteByUserId: jest.fn(),
       deleteExpiredSessions: jest.fn(),
-    }
+      invalidate: jest.fn(),
+      invalidateAllUserSessions: jest.fn(),
+    } as jest.Mocked<AuthSessionRepository>
 
     mockPasswordHashService = {
       hash: jest.fn(),
@@ -94,10 +102,15 @@ describe('LoginUseCase', () => {
     mockTokenService = {
       generateToken: jest.fn(),
       verifyToken: jest.fn(),
-      generateResetToken: jest.fn(),
-      verifyResetToken: jest.fn(),
-      generateVerificationToken: jest.fn(),
-      verifyVerificationToken: jest.fn(),
+      generatePasswordResetToken: jest.fn(),
+      verifyPasswordResetToken: jest.fn(),
+      generateRandomToken: jest.fn(),
+      verifyAuthToken: jest.fn(),
+      invalidatePasswordResetToken: jest.fn(),
+      generateEmailToken: jest.fn(),
+      generateEmailVerificationToken: jest.fn(),
+      verifyEmailToken: jest.fn(),
+      invalidateEmailToken: jest.fn(),
     }
 
     loginUseCase = new LoginUseCase(

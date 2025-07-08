@@ -58,7 +58,7 @@ export class EmpathyRepositoryImpl implements EmpathyRepository {
       data: {
         userId: data.userId,
         postId: data.postId,
-        empathyType: 'like', // Default empathy type
+        empathyType: data.empathyType,
       },
     })
 
@@ -100,6 +100,7 @@ export class EmpathyRepositoryImpl implements EmpathyRepository {
       prismaEmpathy.id,
       prismaEmpathy.userId,
       prismaEmpathy.postId,
+      prismaEmpathy.empathyType as any, // Type cast needed due to Prisma enum vs domain type
       prismaEmpathy.createdAt
     )
   }

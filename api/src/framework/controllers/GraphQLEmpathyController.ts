@@ -4,6 +4,7 @@ import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/Empa
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { GraphQLContext } from '@/graphql/context'
+import { EmpathyType } from '@api/domain/entities/Empathy'
 
 export class GraphQLEmpathyController {
   private empathyRepository: EmpathyRepositoryImpl
@@ -39,6 +40,7 @@ export class GraphQLEmpathyController {
       const result = await addEmpathyUseCase.execute({
         postId: args.input.postId,
         userId: context.userId,
+        empathyType: args.input.empathyType as EmpathyType,
       })
 
       return result

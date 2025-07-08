@@ -5,7 +5,8 @@ import { GET } from '@/app/api/posts/test/route'
 
 describe('/api/posts/test', () => {
   it('returns success message with timestamp', async () => {
-    const response = await GET()
+    const request = new Request('http://localhost:3000/api/posts/test')
+    const response = await GET(request)
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -14,7 +15,8 @@ describe('/api/posts/test', () => {
   })
 
   it('returns a valid ISO timestamp', async () => {
-    const response = await GET()
+    const request = new Request('http://localhost:3000/api/posts/test')
+    const response = await GET(request)
     const data = await response.json()
 
     const timestamp = new Date(data.timestamp)

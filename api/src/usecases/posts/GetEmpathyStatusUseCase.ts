@@ -1,29 +1,28 @@
 import { EmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
 import { PostRepository } from '@api/domain/repositories/PostRepository'
 import { UserRepository } from '@api/domain/repositories/UserRepository'
-import { Empathy, EmpathyType } from '@api/domain/entities/Empathy'
+import { EmpathyType } from '@api/domain/entities/Empathy'
 
-export interface AddEmpathyInputData {
+export interface GetEmpathyStatusInputData {
   postId: string
   userId: string
-  empathyType: EmpathyType
 }
 
-export interface AddEmpathyOutputData {
-  success: boolean
-  empathy: Empathy
-  empathyCount: number
+export interface GetEmpathyStatusOutputData {
+  hasEmpathized: boolean
+  empathyType: EmpathyType | null
+  totalCount: number
 }
 
-export class AddEmpathyUseCase {
+export class GetEmpathyStatusUseCase {
   constructor(
     private empathyRepository: EmpathyRepository,
     private postRepository: PostRepository,
     private userRepository: UserRepository
   ) {}
 
-  async execute(inputData: AddEmpathyInputData): Promise<AddEmpathyOutputData> {
-    const { postId, userId, empathyType } = inputData
+  async execute(inputData: GetEmpathyStatusInputData): Promise<GetEmpathyStatusOutputData> {
+    const { postId, userId } = inputData
 
     // Validate user exists and is active
     const user = await this.userRepository.findById(userId)
@@ -47,24 +46,14 @@ export class AddEmpathyUseCase {
 
     // Check if user already gave empathy
     const existingEmpathy = await this.empathyRepository.findByUserAndPost(userId, postId)
-    if (existingEmpathy) {
-      throw new Error('Already gave empathy to this post')
-    }
 
-    // Add empathy
-    const empathy = await this.empathyRepository.create({
-      userId,
-      postId,
-      empathyType,
-    })
-
-    // Get updated empathy count
-    const empathyCount = await this.empathyRepository.countByPost(postId)
+    // Get total empathy count for this post
+    const totalCount = await this.empathyRepository.countByPost(postId)
 
     return {
-      success: true,
-      empathy,
-      empathyCount,
+      hasEmpathized: !!existingEmpathy,
+      empathyType: existingEmpathy?.empathyType || null,
+      totalCount,
     }
   }
 }
