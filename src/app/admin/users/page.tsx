@@ -160,42 +160,44 @@ export default function UserManagement() {
         </CardHeader>
         <CardContent>
           {/* 検索・フィルター */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="space-y-4 mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="ユーザー名またはメールアドレスで検索"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
 
-            <SimpleSelect
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              className="w-full sm:w-40"
-            >
-              <option value="all">すべて</option>
-              <option value="active">アクティブ</option>
-              <option value="inactive">停止中</option>
-            </SimpleSelect>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <SimpleSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="active">アクティブ</option>
+                <option value="inactive">停止中</option>
+              </SimpleSelect>
 
-            <SimpleSelect
-              value={roleFilter}
-              onValueChange={setRoleFilter}
-              className="w-full sm:w-40"
-            >
-              <option value="all">すべて</option>
-              <option value="USER">ユーザー</option>
-              <option value="ADMIN">管理者</option>
-              <option value="SUPER_ADMIN">スーパー管理者</option>
-            </SimpleSelect>
+              <SimpleSelect
+                value={roleFilter}
+                onValueChange={setRoleFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="USER">ユーザー</option>
+                <option value="ADMIN">管理者</option>
+                <option value="SUPER_ADMIN">スーパー管理者</option>
+              </SimpleSelect>
 
-            <Button onClick={exportUsers} variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              CSV出力
-            </Button>
+              <Button onClick={exportUsers} variant="outline" className="sm:ml-auto">
+                <Download className="mr-2 h-4 w-4" />
+                CSV出力
+              </Button>
+            </div>
           </div>
 
           {/* ユーザー一覧テーブル */}

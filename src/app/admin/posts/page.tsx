@@ -157,27 +157,29 @@ export default function PostModeration() {
         </CardHeader>
         <CardContent>
           {/* 検索・フィルター */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="space-y-4 mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="タイトル、内容、コスメ名、ユーザー名で検索"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
 
-            <SimpleSelect
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              className="w-full sm:w-40"
-            >
-              <option value="all">すべて</option>
-              <option value="published">公開</option>
-              <option value="draft">下書き</option>
-              <option value="hidden">非公開</option>
-            </SimpleSelect>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <SimpleSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                className="w-full sm:w-40"
+              >
+                <option value="all">すべて</option>
+                <option value="published">公開</option>
+                <option value="draft">下書き</option>
+                <option value="hidden">非公開</option>
+              </SimpleSelect>
+            </div>
           </div>
 
           {/* 投稿一覧テーブル */}

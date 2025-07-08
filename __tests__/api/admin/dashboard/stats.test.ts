@@ -96,7 +96,7 @@ describe('/api/admin/dashboard/stats', () => {
   it('returns 401 when token is invalid', async () => {
     mockVerifyToken.mockReturnValue(null)
 
-    const request = createMockRequest({}, { 'auth-token': 'invalid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'invalid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -110,7 +110,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockVerifyToken.mockReturnValue(user as any)
     mockIsAdmin.mockReturnValue(false)
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -125,7 +125,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsAdmin.mockReturnValue(true)
     mockIsDatabaseAvailable.mockReturnValue(false)
 
-    const request = createMockRequest({}, { 'auth-token': 'cookie-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'cookie-token' })
     const response = await GET(request)
 
     expect(response.status).toBe(200)
@@ -138,7 +138,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockIsAdmin.mockReturnValue(true)
     mockIsDatabaseAvailable.mockReturnValue(false)
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -207,7 +207,7 @@ describe('/api/admin/dashboard/stats', () => {
       },
     ])
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -252,7 +252,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockPrisma.user.findMany.mockResolvedValue([])
     mockPrisma.post.findMany.mockResolvedValue([])
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -270,7 +270,7 @@ describe('/api/admin/dashboard/stats', () => {
     mockPrisma.adminUser.findFirst.mockResolvedValue({ id: '1' })
     mockPrisma.user.count.mockRejectedValue(new Error('Database error'))
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 
@@ -290,7 +290,7 @@ describe('/api/admin/dashboard/stats', () => {
       MOCK_POSTS: [{ id: '1', title: 'Post 1', userId: '1' }],
     }))
 
-    const request = createMockRequest({}, { 'auth-token': 'valid-token' })
+    const request = createMockRequest({}, { 'admin-auth-token': 'valid-token' })
     const response = await GET(request)
     const data = await response.json()
 

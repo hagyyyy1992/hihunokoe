@@ -21,6 +21,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
+    // 管理者はユーザー側APIを使用できない
+    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+      return NextResponse.json(
+        { error: '管理者アカウントは管理画面をご利用ください' },
+        { status: 403 }
+      )
+    }
+
     // メール認証が完了していない場合は認証を無効にする
     if (!user.emailVerified) {
       return NextResponse.json({ error: 'メールアドレスの確認が必要です' }, { status: 403 })

@@ -3,7 +3,7 @@ import { verifyToken } from '@/lib/auth/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value
+    const token = request.cookies.get('admin-auth-token')?.value
 
     if (!token) {
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 })

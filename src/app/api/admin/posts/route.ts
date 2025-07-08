@@ -5,7 +5,8 @@ import { MOCK_POSTS, MOCK_USERS } from '@/lib/mock-data'
 
 export async function GET(req: NextRequest) {
   const token =
-    req.headers.get('authorization')?.replace('Bearer ', '') || req.cookies.get('auth-token')?.value
+    req.headers.get('authorization')?.replace('Bearer ', '') ||
+    req.cookies.get('admin-auth-token')?.value
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized - No token provided' }, { status: 401 })

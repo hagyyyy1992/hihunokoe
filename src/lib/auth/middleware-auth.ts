@@ -35,7 +35,7 @@ function verifyTokenMiddleware(token: string): TokenPayload | null {
 }
 
 export function validateAdminAccess(request: NextRequest): boolean {
-  const token = request.cookies.get('auth-token')?.value
+  const token = request.cookies.get('admin-auth-token')?.value
 
   if (!token) {
     return false
