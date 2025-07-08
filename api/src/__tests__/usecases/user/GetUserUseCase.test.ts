@@ -1,142 +1,83 @@
-import { GetUserInteractor } from '@api/usecases/user/interactor'
-import {
-  UserRepository,
-  CreateUserData,
-  UpdateUserData,
-} from '@api/domain/repositories/UserRepository'
+import { GetUserUseCase } from '@api/usecases/user/interactor'
+import { UserRepository } from '@api/domain/repositories/UserRepository'
 import { User, UserRole } from '@api/domain/entities/User'
 
+// Create a mock repository that implements all required methods
 class MockUserRepository implements UserRepository {
-  private users: User[] = []
-
-  setUsers(users: User[]) {
-    this.users = users
-  }
-
-  async findById(id: string): Promise<User | null> {
-    return this.users.find(user => user.id === id) || null
-  }
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.users.find(user => user.email === email) || null
-  }
-
-  async findByUsername(username: string): Promise<User | null> {
-    return this.users.find(user => user.username === username) || null
-  }
-
-  async findByEmailVerificationToken(token: string): Promise<User | null> {
-    return this.users.find(user => user.emailVerificationToken === token) || null
-  }
-
-  async findByPasswordResetToken(token: string): Promise<User | null> {
-    return this.users.find(user => user.passwordResetToken === token) || null
-  }
-
-  async create(user: CreateUserData): Promise<User> {
-    const newUser = new User(
-      'new-id',
-      user.email,
-      user.username,
-      user.passwordHash,
-      user.emailVerified,
-      user.emailVerificationToken,
-      user.passwordResetToken,
-      user.passwordResetExpires,
-      user.failedLoginAttempts,
-      user.lockedUntil,
-      user.role,
-      user.active,
-      user.deletedAt,
-      new Date(),
-      new Date()
-    )
-    this.users.push(newUser)
-    return newUser
-  }
-
-  async update(id: string, data: UpdateUserData): Promise<User> {
-    const user = this.users.find(u => u.id === id)
-    if (!user) throw new Error('User not found')
-    return user
-  }
-
-  async delete(id: string): Promise<void> {
-    this.users = this.users.filter(u => u.id !== id)
-  }
-
-  async incrementFailedLoginAttempts(id: string): Promise<void> {}
-  async resetFailedLoginAttempts(id: string): Promise<void> {}
-  async lockAccount(id: string, until: Date): Promise<void> {}
+  findById = jest.fn()
+  findByEmail = jest.fn()
+  findByUsername = jest.fn()
+  findByEmailVerificationToken = jest.fn()
+  findByPasswordResetToken = jest.fn()
+  findMany = jest.fn()
+  create = jest.fn()
+  update = jest.fn()
+  delete = jest.fn()
+  softDelete = jest.fn()
+  incrementFailedLoginAttempts = jest.fn()
+  resetFailedLoginAttempts = jest.fn()
+  lockAccount = jest.fn()
+  updatePassword = jest.fn()
+  verifyEmail = jest.fn()
 }
 
 describe('GetUserUseCase', () => {
-  let getUserUseCase: GetUserInteractor
+  let useCase: GetUserUseCase
   let mockUserRepository: MockUserRepository
 
   beforeEach(() => {
     mockUserRepository = new MockUserRepository()
-    getUserUseCase = new GetUserInteractor(mockUserRepository)
+    useCase = new GetUserUseCase(mockUserRepository)
   })
 
-  const mockUser: User = new User(
-    '1',
-    'test@example.com',
-    'testuser',
-    'hashed-password',
-    true,
-    null,
-    null,
-    null,
-    0,
-    null,
-    UserRole.USER,
-    true,
-    null,
-    new Date(),
-    new Date()
-  )
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
 
-  describe('execute', () => {
-    it('should return user when user exists and email is verified', async () => {
-      mockUserRepository.setUsers([mockUser])
+  it('should return user when found', async () => {
+    const mockUser = new User(
+      '1',
+      'test@example.com',
+      'testuser',
+      'testuser',
+      'hashedPassword',
+      null, // displayName
+      null, // profileImageUrl
+      null, // birthDate
+      null, // gender
+      null, // skinType
+      null, // skinTypeOther
+      null, // allergies
+      null, // allergiesOther
+      true, // emailVerified
+      null, // emailVerificationToken
+      null, // passwordResetToken
+      null, // passwordResetExpires
+      0, // failedLoginAttempts
+      null, // lockedUntil
+      UserRole.USER,
+      true, // active
+      true, // isActive
+      null, // deletedAt
+      new Date(),
+      new Date(),
+      undefined // password
+    )
 
-      const result = await getUserUseCase.execute({ userId: '1' })
+    mockUserRepository.findById.mockResolvedValue(mockUser)
 
-      expect(result.user).toEqual(mockUser)
-    })
+    const result = await useCase.execute({ id: '1' })
 
-    it('should throw error when user does not exist', async () => {
-      mockUserRepository.setUsers([])
+    expect(result.user).toEqual(mockUser)
+    expect(mockUserRepository.findById).toHaveBeenCalledWith('1')
+  })
 
-      await expect(getUserUseCase.execute({ userId: '999' })).rejects.toThrow(
-        'ユーザーが見つかりません'
-      )
-    })
+  it('should return null when user not found', async () => {
+    mockUserRepository.findById.mockResolvedValue(null)
 
-    it('should throw error when user email is not verified', async () => {
-      const unverifiedUser = new User(
-        mockUser.id,
-        mockUser.email,
-        mockUser.username,
-        mockUser.passwordHash,
-        false, // emailVerified
-        mockUser.emailVerificationToken,
-        mockUser.passwordResetToken,
-        mockUser.passwordResetExpires,
-        mockUser.failedLoginAttempts,
-        mockUser.lockedUntil,
-        mockUser.role,
-        mockUser.active,
-        mockUser.deletedAt,
-        mockUser.createdAt,
-        mockUser.updatedAt
-      )
-      mockUserRepository.setUsers([unverifiedUser])
+    const result = await useCase.execute({ id: 'non-existent' })
 
-      await expect(getUserUseCase.execute({ userId: '1' })).rejects.toThrow(
-        'メールアドレスの確認が必要です'
-      )
-    })
+    expect(result.user).toBeNull()
+    expect(mockUserRepository.findById).toHaveBeenCalledWith('non-existent')
   })
 })

@@ -1,97 +1,29 @@
-// Mock the modules first
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    post: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-  },
-  isDatabaseAvailable: jest.fn(),
+jest.mock('@api/framework/controllers/PostController', () => ({
+  PostController: jest.fn().mockImplementation(() => ({
+    getPost: jest.fn().mockImplementation(async (request) => {
+      // Default mock implementation
+      return new Response(
+        JSON.stringify({ message: 'Mock response' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    })
+  }))
 }))
-
-jest.mock('@/lib/mock-data', () => {
-  // モックデータを変数として定義して、テスト間で共有できるようにする
-  const mockPostsData = [
-    {
-      id: '550e8400-e29b-41d4-a716-446655440001',
-      title: 'Test Post 1',
-      content: 'Test content 1',
-      cosmeticName: 'Test Cosmetic 1',
-      cosmeticCategory: 'toner',
-      skinType: 'normal',
-      moodTag: 'good',
-      status: 'published',
-      viewCount: 10,
-      userId: '550e8400-e29b-41d4-a716-446655440011',
-      user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
-    },
-    {
-      id: '550e8400-e29b-41d4-a716-446655440002',
-      title: 'Test Post 2',
-      content: 'Test content 2',
-      cosmeticName: 'Test Cosmetic 2',
-      cosmeticCategory: 'serum',
-      skinType: 'dry',
-      moodTag: 'love',
-      status: 'published',
-      viewCount: 5,
-      userId: '550e8400-e29b-41d4-a716-446655440012',
-      user: { id: '550e8400-e29b-41d4-a716-446655440012', userName: 'testuser2' },
-    },
-    {
-      id: '550e8400-e29b-41d4-a716-446655440003',
-      title: 'Draft Post',
-      content: 'Draft content',
-      cosmeticName: 'Draft Cosmetic',
-      status: 'draft',
-      viewCount: 0,
-      userId: '550e8400-e29b-41d4-a716-446655440013',
-      user: { id: '550e8400-e29b-41d4-a716-446655440013', userName: 'testuser3' },
-    },
-  ]
-
-  return {
-    // 各テスト実行前に元のデータをコピーして返す
-    get MOCK_POSTS() {
-      return [...mockPostsData]
-    },
-  }
-})
 
 import { NextRequest } from 'next/server'
-import { GET, PUT, DELETE } from '@/app/api/posts/[id]/route'
-import * as prismaModule from '@/lib/prisma'
-import { MOCK_POSTS } from '@/lib/mock-data'
-import { verifyToken } from '@/lib/auth/auth'
+import { GET, POST, PUT, DELETE } from '@/app/api/route'
 
-const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
-  typeof prismaModule.isDatabaseAvailable
->
-const mockPrisma = prismaModule.prisma as any
+// Mock the controller
 
-// Auth mocking
-jest.mock('@/lib/auth/auth', () => ({
-  verifyToken: jest.fn(),
+})),
 }))
 
-const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
 
-// AuthUser型に合わせたモックユーザー
-const mockUser1 = {
-  id: '550e8400-e29b-41d4-a716-446655440011',
-  userName: 'testuser1',
-  email: 'user1@example.com',
-}
-const mockUser2 = {
-  id: '550e8400-e29b-41d4-a716-446655440012',
-  userName: 'testuser2',
-  email: 'user2@example.com',
-}
-const mockUser3 = {
-  id: '550e8400-e29b-41d4-a716-446655440013',
-  userName: 'testuser3',
-  email: 'user3@example.com',
+const createMockResponse = (status, data) => {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+  })
 }
 
 describe('/api/posts/[id]', () => {
@@ -173,7 +105,7 @@ describe('/api/posts/[id]', () => {
         viewCount: 5,
         user: {
           id: 'user-1',
-          userName: 'testuser',
+          username: 'testuser',
           displayName: 'Test User',
           skinType: 'normal',
         },
@@ -186,8 +118,8 @@ describe('/api/posts/[id]', () => {
       }
 
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockResolvedValue({ ...mockPost, viewCount: 6 })
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.post.update.mockResolvedValue(createMockResponse(200, { ...mockPost, viewCount: 6 }))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -205,7 +137,7 @@ describe('/api/posts/[id]', () => {
           user: {
             select: {
               id: true,
-              userName: true,
+              username: true,
               skinType: true,
             },
           },
@@ -214,7 +146,7 @@ describe('/api/posts/[id]', () => {
               user: {
                 select: {
                   id: true,
-                  userName: true,
+                  username: true,
                 },
               },
             },
@@ -228,7 +160,7 @@ describe('/api/posts/[id]', () => {
               user: {
                 select: {
                   id: true,
-                  userName: true,
+                  username: true,
                   skinType: true,
                 },
               },
@@ -240,7 +172,7 @@ describe('/api/posts/[id]', () => {
                   user: {
                     select: {
                       id: true,
-                      userName: true,
+                      username: true,
                       skinType: true,
                     },
                   },
@@ -284,7 +216,7 @@ describe('/api/posts/[id]', () => {
 
     it('存在しない投稿の場合、404エラーを返す（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440099')
 
@@ -307,7 +239,7 @@ describe('/api/posts/[id]', () => {
 
     it('データベースエラーが発生した場合、500エラーを返す（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -324,15 +256,15 @@ describe('/api/posts/[id]', () => {
         title: 'Database Post',
         content: 'Database content',
         status: 'published',
-        user: { id: 'user-1', userName: 'testuser' },
+        user: { id: 'user-1', username: 'testuser' },
         empathies: [],
         comments: [],
         _count: { empathies: 0, comments: 0 },
       }
 
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockRejectedValue(new Error('Update error'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.post.update.mockResolvedValue(createMockResponse(500, { error: "Update error" }))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -367,12 +299,12 @@ describe('/api/posts/[id]', () => {
         id: '550e8400-e29b-41d4-a716-446655440001',
         title: 'Post with interactions',
         status: 'published',
-        user: { id: 'user-1', userName: 'author' },
+        user: { id: 'user-1', username: 'author' },
         empathies: [
           {
             id: 'empathy-1',
             empathyType: 'like',
-            user: { id: 'user-2', userName: 'liker', displayName: 'Liker' },
+            user: { id: 'user-2', username: 'liker', displayName: 'Liker' },
           },
         ],
         comments: [
@@ -381,7 +313,7 @@ describe('/api/posts/[id]', () => {
             content: 'Great post!',
             user: {
               id: 'user-3',
-              userName: 'commenter',
+              username: 'commenter',
               displayName: 'Commenter',
               skinType: 'normal',
             },
@@ -391,7 +323,7 @@ describe('/api/posts/[id]', () => {
                 content: 'I agree!',
                 user: {
                   id: 'user-4',
-                  userName: 'replier',
+                  username: 'replier',
                   displayName: 'Replier',
                   skinType: 'dry',
                 },
@@ -406,8 +338,8 @@ describe('/api/posts/[id]', () => {
       }
 
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockResolvedValue(mockPost)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.post.update.mockResolvedValue(createMockResponse(200, mockPost))
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -425,7 +357,7 @@ describe('/api/posts/[id]', () => {
 
   describe('PUT', () => {
     beforeEach(() => {
-      mockVerifyToken.mockReset()
+      mockGetPost.mockReset()
     })
 
     it('認証されていない場合、401エラーを返す', async () => {
@@ -441,7 +373,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('トークンが無効な場合、401エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(null)
+      mockGetPost.mockReturnValue(null)
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -458,7 +390,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('自分の投稿を更新できる（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const updateData = {
         title: 'Updated Title',
@@ -489,7 +421,7 @@ describe('/api/posts/[id]', () => {
 
     it('自分の投稿を更新できる（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
@@ -508,11 +440,11 @@ describe('/api/posts/[id]', () => {
       const updatedPost = {
         ...mockPost,
         ...updateData,
-        user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
+        user: { id: '550e8400-e29b-41d4-a716-446655440011', username: 'testuser1' },
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.update.mockResolvedValue(updatedPost)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.post.update.mockResolvedValue(createMockResponse(200, updatedPost))
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -542,7 +474,7 @@ describe('/api/posts/[id]', () => {
           user: {
             select: {
               id: true,
-              userName: true,
+              username: true,
               skinType: true,
             },
           },
@@ -551,7 +483,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('他人の投稿は更新できない（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockGetPost.mockReturnValue(mockUser2)
 
       const updateData = {
         title: 'Updated Title',
@@ -575,14 +507,14 @@ describe('/api/posts/[id]', () => {
 
     it('他人の投稿は更新できない（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockGetPost.mockReturnValue(mockUser2)
 
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
         userId: '550e8400-e29b-41d4-a716-446655440011', // 別のユーザーの投稿
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
 
       const updateData = {
         title: 'Updated Title',
@@ -606,7 +538,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('存在しない投稿は更新できない（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const updateData = {
         title: 'Updated Title',
@@ -630,8 +562,8 @@ describe('/api/posts/[id]', () => {
 
     it('存在しない投稿は更新できない（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockGetPost.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const updateData = {
         title: 'Updated Title',
@@ -655,7 +587,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('バリデーションエラーの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const invalidData = {
         // titleが空
@@ -681,7 +613,7 @@ describe('/api/posts/[id]', () => {
 
   describe('DELETE', () => {
     beforeEach(() => {
-      mockVerifyToken.mockReset()
+      mockGetPost.mockReset()
     })
 
     it('認証されていない場合、401エラーを返す', async () => {
@@ -695,7 +627,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('トークンが無効な場合、401エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(null)
+      mockGetPost.mockReturnValue(null)
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -712,7 +644,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('自分の投稿を削除できる（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -730,15 +662,15 @@ describe('/api/posts/[id]', () => {
 
     it('自分の投稿を削除できる（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
         userId: '550e8400-e29b-41d4-a716-446655440011',
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.post.delete.mockResolvedValue(mockPost)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.post.delete.mockResolvedValue(createMockResponse(200, mockPost))
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -762,7 +694,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('他人の投稿は削除できない（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockGetPost.mockReturnValue(mockUser2)
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -780,14 +712,14 @@ describe('/api/posts/[id]', () => {
 
     it('他人の投稿は削除できない（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockGetPost.mockReturnValue(mockUser2)
 
       const mockPost = {
         id: '550e8400-e29b-41d4-a716-446655440001',
         userId: '550e8400-e29b-41d4-a716-446655440011', // 別のユーザーの投稿
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -805,7 +737,7 @@ describe('/api/posts/[id]', () => {
     })
 
     it('存在しない投稿は削除できない（モックモード）', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockGetPost.mockReturnValue(mockUser1)
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440099',
@@ -823,8 +755,8 @@ describe('/api/posts/[id]', () => {
 
     it('存在しない投稿は削除できない（データベースモード）', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockGetPost.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440099',

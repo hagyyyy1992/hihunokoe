@@ -1,5 +1,5 @@
 // Mock auth module
-jest.mock('@/lib/auth/auth', () => ({
+jest.mock('@api/usecases/auth/LoginUseCase', () => ({
   loginUser: jest.fn(),
   registerUser: jest.fn(),
   generateToken: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('@/lib/auth/email-verification', () => ({
 import { NextRequest } from 'next/server'
 import { POST as loginPost } from '@/app/api/auth/login/route'
 import { POST as registerPost } from '@/app/api/auth/register/route'
-import * as authModule from '@/lib/auth/auth'
+import * as authModule from '@api/usecases/auth/LoginUseCase'
 import * as emailVerificationModule from '@/lib/auth/email-verification'
 
 const mockLoginUser = authModule.loginUser as jest.MockedFunction<typeof authModule.loginUser>
@@ -45,14 +45,14 @@ describe('Email Verification Flow', () => {
 
   it('新規登録されたユーザーはemailVerified: falseで作成される', async () => {
     const registrationData = {
-      userName: 'testuser',
+      username: 'testuser',
       email: 'test@example.com',
       password: 'SecurePass123!',
     }
 
     const mockUser = {
       id: '1',
-      userName: 'testuser',
+      username: 'testuser',
       email: 'test@example.com',
       emailVerified: false, // 重要: 新規ユーザーは未認証
     }
@@ -84,7 +84,7 @@ describe('Email Verification Flow', () => {
     // メール未認証のユーザーを返すようにモック
     const mockUnverifiedUser = {
       id: '1',
-      userName: 'unverifieduser',
+      username: 'unverifieduser',
       email: 'unverified@example.com',
       emailVerified: false, // 未認証
     }
@@ -114,7 +114,7 @@ describe('Email Verification Flow', () => {
 
     const mockVerifiedUser = {
       id: '1',
-      userName: 'verifieduser',
+      username: 'verifieduser',
       email: 'verified@example.com',
       emailVerified: true, // 認証済み
     }

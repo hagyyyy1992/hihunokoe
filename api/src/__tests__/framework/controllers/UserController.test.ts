@@ -49,7 +49,7 @@ describe.skip('UserController', () => {
       const request = new NextRequest('http://localhost/api/auth/me')
       request.cookies.set('auth-token', 'valid-token')
 
-      mockVerifyToken.mockReturnValue({ id: '1', userName: 'testuser', email: 'test@example.com' })
+      mockVerifyToken.mockReturnValue({ id: '1', username: 'testuser', email: 'test@example.com' })
       mockGetUserInputPort.getMockExecute().mockResolvedValue({ user: mockDomainUser })
 
       const response = await userController.getMe(request)
@@ -58,7 +58,7 @@ describe.skip('UserController', () => {
       expect(response.status).toBe(200)
       expect(responseData.user.id).toBe('1')
       expect(responseData.user.email).toBe('test@example.com')
-      expect(responseData.user.userName).toBe('testuser')
+      expect(responseData.user.username).toBe('testuser')
       expect(responseData.user.emailVerified).toBe(true)
     })
 
@@ -91,7 +91,7 @@ describe.skip('UserController', () => {
 
       mockVerifyToken.mockReturnValue({
         id: '999',
-        userName: 'testuser',
+        username: 'testuser',
         email: 'test@example.com',
       })
       mockGetUserInputPort.getMockExecute().mockRejectedValue(new Error('ユーザーが見つかりません'))
@@ -107,7 +107,7 @@ describe.skip('UserController', () => {
       const request = new NextRequest('http://localhost/api/auth/me')
       request.cookies.set('auth-token', 'valid-token')
 
-      mockVerifyToken.mockReturnValue({ id: '1', userName: 'testuser', email: 'test@example.com' })
+      mockVerifyToken.mockReturnValue({ id: '1', username: 'testuser', email: 'test@example.com' })
       mockGetUserInputPort
         .getMockExecute()
         .mockRejectedValue(new Error('メールアドレスの確認が必要です'))

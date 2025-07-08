@@ -1,4 +1,4 @@
-import { deleteUserAccount } from '@/lib/auth/auth'
+import { deleteUserAccount } from '@api/usecases/auth/LoginUseCase'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 
 // モック
@@ -79,7 +79,7 @@ describe('deleteUserAccount', () => {
 
     const activeUser = {
       id: '550e8400-e29b-41d4-a716-446655440000',
-      userName: 'testuser',
+      username: 'testuser',
       email: 'test@example.com',
       isActive: true,
       deletedAt: null,
@@ -104,7 +104,7 @@ describe('deleteUserAccount', () => {
       data: {
         deletedAt: expect.any(Date),
         isActive: false,
-        userName: expect.stringMatching(/^testuser_deleted_\d+$/),
+        username: expect.stringMatching(/^testuser_deleted_\d+$/),
       },
     })
   })
@@ -114,7 +114,7 @@ describe('deleteUserAccount', () => {
 
     const activeUser = {
       id: '550e8400-e29b-41d4-a716-446655440000',
-      userName: 'testuser',
+      username: 'testuser',
       email: 'test@example.com',
       isActive: true,
       deletedAt: null,

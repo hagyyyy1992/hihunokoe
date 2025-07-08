@@ -31,7 +31,7 @@ import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from '../../../src/app/api/posts/empathy/route'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
-import { verifyToken } from '@/lib/auth/auth'
+import { verifyToken } from '@api/usecases/auth/LoginUseCase'
 
 const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
   typeof prismaModule.isDatabaseAvailable
@@ -39,7 +39,7 @@ const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedF
 const mockPrisma = prismaModule.prisma as any
 
 // Auth mocking
-jest.mock('@/lib/auth/auth', () => ({
+jest.mock('@api/usecases/auth/LoginUseCase', () => ({
   verifyToken: jest.fn(),
 }))
 
@@ -48,12 +48,12 @@ const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
 // AuthUser型に合わせたモックユーザー
 const mockUser1 = {
   id: '550e8400-e29b-41d4-a716-446655440011',
-  userName: 'testuser1',
+  username: 'testuser1',
   email: 'user1@example.com',
 }
 const mockUser2 = {
   id: '550e8400-e29b-41d4-a716-446655440012',
-  userName: 'testuser2',
+  username: 'testuser2',
   email: 'user2@example.com',
 }
 
@@ -77,7 +77,7 @@ describe('/api/posts/empathy (query parameter)', () => {
       viewCount: 10,
       empathyCount: 1,
       userId: '550e8400-e29b-41d4-a716-446655440011',
-      user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
+      user: { id: '550e8400-e29b-41d4-a716-446655440011', username: 'testuser1' },
     } as any)
 
     MOCK_EMPATHIES.length = 0

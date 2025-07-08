@@ -1,66 +1,29 @@
+jest.mock('@api/framework/controllers/PostController', () => ({
+  PostController: jest.fn().mockImplementation(() => ({
+    toggleEmpathy: jest.fn().mockImplementation(async (request) => {
+      // Default mock implementation
+      return new Response(
+        JSON.stringify({ message: 'Mock response' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    })
+  }))
+}))
+
 import { NextRequest } from 'next/server'
-import { GET, POST, DELETE } from '../../../../src/app/api/posts/[id]/empathy/route'
-import * as prismaModule from '@/lib/prisma'
-import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
-import { verifyToken } from '@/lib/auth/auth'
+import { GET, POST, PUT, DELETE } from '@/app/api/route'
 
-// Mock the modules first
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    post: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    empathy: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
-    },
-    $transaction: jest.fn(),
-  },
-  isDatabaseAvailable: jest.fn(),
+// Mock the controller
+
+})),
 }))
 
-jest.mock('@/lib/mock-data', () => {
-  // テスト用のモックデータ配列を定義
-  const mockPosts: any[] = []
-  const mockEmpathies: any[] = []
 
-  return {
-    MOCK_POSTS: mockPosts,
-    MOCK_EMPATHIES: mockEmpathies,
-  }
-})
-
-const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
-  typeof prismaModule.isDatabaseAvailable
->
-const mockPrisma = prismaModule.prisma as any
-
-// Auth mocking
-jest.mock('@/lib/auth/auth', () => ({
-  verifyToken: jest.fn(),
-}))
-
-const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>
-
-// AuthUser型に合わせたモックユーザー
-const mockUser1 = {
-  id: '550e8400-e29b-41d4-a716-446655440011',
-  userName: 'testuser1',
-  email: 'user1@example.com',
-}
-const mockUser2 = {
-  id: '550e8400-e29b-41d4-a716-446655440012',
-  userName: 'testuser2',
-  email: 'user2@example.com',
-}
-
-const mockUserInvalidId = {
-  id: 'invalid-uuid',
-  userName: 'testuser3',
-  email: 'user3@example.com',
+const createMockResponse = (status, data) => {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+  })
 }
 
 describe('/api/posts/[id]/empathy', () => {
@@ -83,7 +46,7 @@ describe('/api/posts/[id]/empathy', () => {
       viewCount: 10,
       empathyCount: 1,
       userId: '550e8400-e29b-41d4-a716-446655440011',
-      user: { id: '550e8400-e29b-41d4-a716-446655440011', userName: 'testuser1' },
+      user: { id: '550e8400-e29b-41d4-a716-446655440011', username: 'testuser1' },
     } as any)
 
     MOCK_EMPATHIES.length = 0
@@ -156,7 +119,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なトークンの場合、401エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(null)
+      mockToggleEmpathy.mockReturnValue(null)
       const request = createRequest('GET', null, 'invalid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -168,7 +131,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なユーザーUUIDの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUserInvalidId)
+      mockToggleEmpathy.mockReturnValue(mockUserInvalidId)
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -180,7 +143,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで投稿が見つからない場合、404エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440099')
 
@@ -192,7 +155,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードでユーザーが共感済みの場合、共感状態を返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockToggleEmpathy.mockReturnValue(mockUser2)
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -206,7 +169,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードでユーザーが未共感の場合、共感状態を返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -221,8 +184,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで投稿が見つからない場合、404エラーを返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -236,8 +199,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -251,7 +214,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードでユーザーが共感済みの場合、共感状態を返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
       const mockEmpathy = {
@@ -261,9 +224,9 @@ describe('/api/posts/[id]/empathy', () => {
         empathyType: 'helpful',
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(mockEmpathy)
-      mockPrisma.empathy.count.mockResolvedValue(5)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, mockEmpathy))
+      mockPrisma.empathy.count.mockResolvedValue(createMockResponse(200, 5))
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -279,13 +242,13 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードでユーザーが未共感の場合、共感状態を返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(null)
-      mockPrisma.empathy.count.mockResolvedValue(3)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, null))
+      mockPrisma.empathy.count.mockResolvedValue(createMockResponse(200, 3))
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -301,12 +264,12 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('共感操作でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockRejectedValue(new Error('Database error'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('GET', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -319,7 +282,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('GET処理で一般的なエラーが発生した場合を処理する', async () => {
-      mockVerifyToken.mockImplementation(() => {
+      mockToggleEmpathy.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
 
@@ -336,8 +299,8 @@ describe('/api/posts/[id]/empathy', () => {
 
   describe('POST', () => {
     beforeEach(() => {
-      mockVerifyToken.mockReset()
-      mockVerifyToken.mockReturnValue(mockUser1) // Default authentication
+      mockToggleEmpathy.mockReset()
+      mockToggleEmpathy.mockReturnValue(mockUser1) // Default authentication
     })
 
     it('無効なUUIDの場合、400エラーを返す', async () => {
@@ -353,7 +316,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('認証されていない場合、401エラーを返す', async () => {
       // Override default authentication for this test
-      mockVerifyToken.mockReturnValue(null)
+      mockToggleEmpathy.mockReturnValue(null)
       const request = createRequest('POST', { empathyType: 'helpful' })
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -365,7 +328,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なトークンの場合、401エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(null)
+      mockToggleEmpathy.mockReturnValue(null)
       const request = createRequest('POST', { empathyType: 'helpful' }, 'invalid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -377,7 +340,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なユーザーUUIDの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUserInvalidId)
+      mockToggleEmpathy.mockReturnValue(mockUserInvalidId)
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -389,7 +352,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なJSONボディの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       // Create request with invalid JSON
       const url = `http://localhost:3000/api/posts/550e8400-e29b-41d4-a716-446655440001/empathy`
@@ -414,7 +377,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効な共感タイプの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('POST', { empathyType: 'invalid_type' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -426,7 +389,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('共感タイプが未指定の場合、デフォルト値を使用する', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('POST', {}, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -438,7 +401,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで投稿が見つからない場合、404エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440099')
 
@@ -450,7 +413,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで既に共感済みの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser2) // User who already empathized
+      mockToggleEmpathy.mockReturnValue(mockUser2) // User who already empathized
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -462,7 +425,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで共感を正常に追加できる', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('POST', { empathyType: 'interested' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -483,7 +446,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードでエラーが発生した場合を処理する', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       // Mock findIndex to throw error to trigger mock error handling
       const originalFindIndex = Array.prototype.findIndex
@@ -506,8 +469,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで投稿が見つからない場合、404エラーを返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -521,8 +484,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('POSTの投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -536,7 +499,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで既に共感済みの場合、400エラーを返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
       const mockEmpathy = {
@@ -546,8 +509,8 @@ describe('/api/posts/[id]/empathy', () => {
         empathyType: 'helpful',
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(mockEmpathy)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, mockEmpathy))
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -561,12 +524,12 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('既存共感チェックでデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockRejectedValue(new Error('Database error'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -580,7 +543,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで共感を正常に追加できる', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
       const mockEmpathy = {
@@ -590,18 +553,18 @@ describe('/api/posts/[id]/empathy', () => {
         empathyType: 'helpful',
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(null)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       // Mock transaction to call the actual function
       mockPrisma.$transaction.mockImplementation(async (fn: any) => {
         const mockTx = {
           empathy: {
-            create: jest.fn().mockResolvedValue(mockEmpathy),
-            count: jest.fn().mockResolvedValue(3),
+            create: jest.fn().mockResolvedValue(createMockResponse(200, mockEmpathy)),
+            count: jest.fn().mockResolvedValue(createMockResponse(200, 3)),
           },
           post: {
-            update: jest.fn().mockResolvedValue({}),
+            update: jest.fn().mockResolvedValue(createMockResponse(200, {})),
           },
         }
         return await fn(mockTx)
@@ -622,13 +585,13 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベーストランザクションエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(null)
-      mockPrisma.$transaction.mockRejectedValue(new Error('Transaction failed'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, null))
+      mockPrisma.$transaction.mockResolvedValue(createMockResponse(500, { error: "Transaction failed" }))
 
       const request = createRequest('POST', { empathyType: 'helpful' }, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -641,7 +604,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('POST処理で一般的なエラーが発生した場合を処理する', async () => {
-      mockVerifyToken.mockImplementation(() => {
+      mockToggleEmpathy.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
 
@@ -658,8 +621,8 @@ describe('/api/posts/[id]/empathy', () => {
 
   describe('DELETE', () => {
     beforeEach(() => {
-      mockVerifyToken.mockReset()
-      mockVerifyToken.mockReturnValue(mockUser1) // Default authentication
+      mockToggleEmpathy.mockReset()
+      mockToggleEmpathy.mockReturnValue(mockUser1) // Default authentication
     })
 
     it('無効なUUIDの場合、400エラーを返す', async () => {
@@ -675,7 +638,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('認証されていない場合、401エラーを返す', async () => {
       // Override default authentication for this test
-      mockVerifyToken.mockReturnValue(null)
+      mockToggleEmpathy.mockReturnValue(null)
       const request = createRequest('DELETE')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -687,7 +650,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なトークンの場合、401エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(null)
+      mockToggleEmpathy.mockReturnValue(null)
       const request = createRequest('DELETE', null, 'invalid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -699,7 +662,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('無効なユーザーUUIDの場合、400エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUserInvalidId)
+      mockToggleEmpathy.mockReturnValue(mockUserInvalidId)
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -711,7 +674,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで投稿が見つからない場合、404エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440099')
 
@@ -723,7 +686,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで共感が見つからない場合、404エラーを返す', async () => {
-      mockVerifyToken.mockReturnValue(mockUser1) // User who has not empathized
+      mockToggleEmpathy.mockReturnValue(mockUser1) // User who has not empathized
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -735,7 +698,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('モックモードで共感を正常に削除できる', async () => {
-      mockVerifyToken.mockReturnValue(mockUser2) // User who has empathized
+      mockToggleEmpathy.mockReturnValue(mockUser2) // User who has empathized
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -755,7 +718,7 @@ describe('/api/posts/[id]/empathy', () => {
     it('モックモードで共感数が負の値にならないよう制御する', async () => {
       // Set empathy count to 0 to test Math.max protection
       MOCK_POSTS[0].empathyCount = 0
-      mockVerifyToken.mockReturnValue(mockUser2)
+      mockToggleEmpathy.mockReturnValue(mockUser2)
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
 
@@ -768,8 +731,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで投稿が見つからない場合、404エラーを返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -783,8 +746,8 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('DELETEの投稿検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
-      mockPrisma.post.findUnique.mockRejectedValue(new Error('Database error'))
+      mockToggleEmpathy.mockReturnValue(mockUser1)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -798,12 +761,12 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで共感が見つからない場合、404エラーを返す', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(null)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, null))
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -817,12 +780,12 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('DELETEの共感検索でデータベースエラーが発生した場合を処理する', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockRejectedValue(new Error('Database error'))
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(500, { error: "Database error" }))
 
       const request = createRequest('DELETE', null, 'valid-token')
       const params = createParams('550e8400-e29b-41d4-a716-446655440001')
@@ -836,7 +799,7 @@ describe('/api/posts/[id]/empathy', () => {
 
     it('データベースモードで共感を正常に削除できる', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyToken.mockReturnValue(mockUser1)
+      mockToggleEmpathy.mockReturnValue(mockUser1)
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001' }
       const mockEmpathy = {
@@ -846,18 +809,18 @@ describe('/api/posts/[id]/empathy', () => {
         empathyType: 'helpful',
       }
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPost)
-      mockPrisma.empathy.findUnique.mockResolvedValue(mockEmpathy)
+      mockPrisma.post.findUnique.mockResolvedValue(createMockResponse(200, mockPost))
+      mockPrisma.empathy.findUnique.mockResolvedValue(createMockResponse(200, mockEmpathy))
 
       // Mock transaction to call the actual function
       mockPrisma.$transaction.mockImplementation(async (fn: any) => {
         const mockTx = {
           empathy: {
-            delete: jest.fn().mockResolvedValue({}),
-            count: jest.fn().mockResolvedValue(2),
+            delete: jest.fn().mockResolvedValue(createMockResponse(200, {})),
+            count: jest.fn().mockResolvedValue(createMockResponse(200, 2)),
           },
           post: {
-            update: jest.fn().mockResolvedValue({}),
+            update: jest.fn().mockResolvedValue(createMockResponse(200, {})),
           },
         }
         return await fn(mockTx)
@@ -876,7 +839,7 @@ describe('/api/posts/[id]/empathy', () => {
     })
 
     it('DELETE処理で一般的なエラーが発生した場合を処理する', async () => {
-      mockVerifyToken.mockImplementation(() => {
+      mockToggleEmpathy.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
 
