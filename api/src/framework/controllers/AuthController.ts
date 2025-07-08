@@ -61,23 +61,18 @@ export class AuthController {
       })
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
-        // カスタムメッセージがある場合はそれを使用
-        const message = error.message || 'メールアドレスまたはパスワードが間違っています'
-        return NextResponse.json({ error: message }, { status: 401 })
+        return NextResponse.json({ error: error.message }, { status: 401 })
       }
       if (error instanceof AccountLockedError) {
-        return NextResponse.json(
-          { error: 'ログイン試行回数が多すぎるため、アカウントがロックされています' },
-          { status: 423 }
-        )
+        return NextResponse.json({ error: error.message }, { status: 423 })
       }
       if (error instanceof AccountInactiveError) {
-        return NextResponse.json({ error: 'アカウントが無効です' }, { status: 403 })
+        return NextResponse.json({ error: error.message }, { status: 403 })
       }
       if (error instanceof EmailNotVerifiedError) {
         return NextResponse.json(
           {
-            error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
+            error: 'Please verify your email before logging in',
             emailVerificationRequired: true,
           },
           { status: 403 }
@@ -85,7 +80,7 @@ export class AuthController {
       }
 
       console.error('Login error:', error)
-      return NextResponse.json({ error: 'ログインに失敗しました' }, { status: 500 })
+      return NextResponse.json({ error: 'An error occurred during login' }, { status: 500 })
     }
   }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import { AdminLoginUseCase } from '@api/usecases/admin/AdminLoginUseCase'
 import { GetDashboardStatsUseCase } from '@api/usecases/admin/GetDashboardStatsUseCase'
 import { GetAdminUsersUseCase } from '@api/usecases/admin/GetAdminUsersUseCase'
@@ -31,7 +32,10 @@ export class AdminController {
     this.postRepository = new PostRepositoryImpl()
     this.empathyRepository = new EmpathyRepositoryImpl()
     this.authSessionRepository = new AuthSessionRepositoryImpl()
-    this.adminLogRepository = new AdminLogRepositoryImpl()
+    if (!prisma) {
+      throw new Error('Prisma client is not initialized')
+    }
+    this.adminLogRepository = new AdminLogRepositoryImpl(prisma)
     this.passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
   }
@@ -82,7 +86,8 @@ export class AdminController {
       )
 
       // Get IP address and user agent
-      const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+      const ipAddress =
+        request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
       const userAgent = request.headers.get('user-agent') || 'unknown'
 
       const result = await adminLoginUseCase.execute({ email, password, ipAddress, userAgent })

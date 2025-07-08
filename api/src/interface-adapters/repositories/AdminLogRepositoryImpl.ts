@@ -11,7 +11,7 @@ export class AdminLogRepositoryImpl implements AdminLogRepository {
         action: data.action,
         target: data.target,
         targetType: data.targetType,
-        details: data.details,
+        details: data.details || undefined,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
       },
@@ -54,3 +54,4 @@ export class AdminLogRepositoryImpl implements AdminLogRepository {
     }
   }
 }
+
