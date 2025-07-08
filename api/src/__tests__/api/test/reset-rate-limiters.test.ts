@@ -39,7 +39,7 @@ describe('/api/test/reset-rate-limiters', () => {
       expect(response.status).toBe(200)
       expect(data).toEqual({
         success: true,
-        message: 'レート制限がリセットされました',
+        message: 'Rate limiters reset successfully',
       })
       expect(mockResetAllRateLimiters).toHaveBeenCalledTimes(1)
     })
@@ -57,7 +57,7 @@ describe('/api/test/reset-rate-limiters', () => {
       expect(response.status).toBe(200)
       expect(data).toEqual({
         success: true,
-        message: 'レート制限がリセットされました',
+        message: 'Rate limiters reset successfully',
       })
       expect(mockResetAllRateLimiters).toHaveBeenCalledTimes(1)
     })
@@ -96,7 +96,7 @@ describe('/api/test/reset-rate-limiters', () => {
 
       expect(response.status).toBe(500)
       expect(data).toEqual({
-        error: 'レート制限のリセットに失敗しました',
+        error: 'Rate limiter reset failed',
       })
       expect(consoleError).toHaveBeenCalledWith('Rate limiter reset error:', testError)
       expect(mockResetAllRateLimiters).toHaveBeenCalledTimes(1)

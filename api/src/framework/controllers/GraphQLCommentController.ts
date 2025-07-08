@@ -71,7 +71,7 @@ export class GraphQLCommentController {
         postId: args.postId,
         page,
         limit,
-        userId: context.userId,
+        userId: context.userId || undefined,
       })
 
       // Convert to GraphQL Connection format
