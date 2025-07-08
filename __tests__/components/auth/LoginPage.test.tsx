@@ -80,7 +80,14 @@ describe('LoginPage', () => {
 
     const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
-    expect(logo.closest('div')).toHaveClass('w-10', 'h-10', 'sm:w-12', 'sm:h-12', 'bg-apple-100', 'rounded-full')
+    expect(logo.closest('div')).toHaveClass(
+      'w-10',
+      'h-10',
+      'sm:w-12',
+      'sm:h-12',
+      'bg-apple-100',
+      'rounded-full'
+    )
   })
 
   it('会員登録リンクが表示される', () => {

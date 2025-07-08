@@ -6,15 +6,15 @@ import RootLayout, { metadata } from '@/app/layout'
 import { SERVICE_FULL_TITLE } from '@/lib/constants'
 
 // Mock the components and fonts
-jest.mock('@/components/layout/Header', () => {
-  return function MockHeader() {
-    return <header data-testid="header">Header</header>
-  }
-})
-
-jest.mock('@/components/layout/Footer', () => {
-  return function MockFooter() {
-    return <footer data-testid="footer">Footer</footer>
+jest.mock('@/components/layout/ConditionalLayout', () => {
+  return function MockConditionalLayout({ children }: { children: React.ReactNode }) {
+    return (
+      <>
+        <header data-testid="header">Header</header>
+        <main className="flex-1 pt-16">{children}</main>
+        <footer data-testid="footer">Footer</footer>
+      </>
+    )
   }
 })
 
@@ -55,7 +55,7 @@ describe('RootLayout', () => {
     )
 
     const main = container.querySelector('main')
-    expect(main).toHaveClass('flex-1', 'pt-12', 'sm:pt-14')
+    expect(main).toHaveClass('flex-1', 'pt-16')
   })
 
   it('sets correct HTML lang attribute', () => {
