@@ -1,4 +1,4 @@
-import { POST } from '../../../src/app/api/test/reset-rate-limiters/route'
+import { POST } from '@/app/api/test/reset-rate-limiters/route'
 import { resetAllRateLimiters } from '@/lib/rate-limiter'
 
 // resetAllRateLimitersをモック化

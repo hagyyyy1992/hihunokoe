@@ -5,7 +5,7 @@ import {
   getClientIP,
   createRateLimitErrorResponse,
   resetAllRateLimiters,
-} from '../../src/lib/rate-limiter'
+} from '@/lib/rate-limiter'
 
 describe('Rate Limiter', () => {
   beforeEach(() => {

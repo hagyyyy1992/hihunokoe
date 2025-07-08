@@ -12,6 +12,16 @@ jest.mock('@api/framework/controllers/PostController', () => ({
 
 import { NextRequest } from 'next/server'
 import { GET, PUT, DELETE } from '@/app/api/posts/[id]/route'
+import * as dbConfig from '@/lib/db-config'
+
+// Mock db-config
+jest.mock('@/lib/db-config', () => ({
+  isDatabaseAvailable: jest.fn(),
+}))
+
+const mockIsDatabaseAvailable = dbConfig.isDatabaseAvailable as jest.MockedFunction<
+  typeof dbConfig.isDatabaseAvailable
+>
 
 // Mock the controller
 

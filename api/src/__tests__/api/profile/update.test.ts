@@ -12,6 +12,7 @@ jest.mock('@api/framework/controllers/ProfileController', () => ({
 
 import { NextRequest } from 'next/server'
 import { PUT } from '@/app/api/profile/update/route'
+import { MOCK_USERS } from '@/lib/mock-data'
 
 // Mock the controller
 

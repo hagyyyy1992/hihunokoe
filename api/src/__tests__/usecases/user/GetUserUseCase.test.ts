@@ -1,4 +1,4 @@
-import { GetUserUseCase } from '@api/usecases/user/interactor'
+import { GetUserInteractor } from '@api/usecases/user/interactor'
 import { UserRepository } from '@api/domain/repositories/UserRepository'
 import { User, UserRole } from '@api/domain/entities/User'
 
@@ -22,12 +22,12 @@ class MockUserRepository implements UserRepository {
 }
 
 describe('GetUserUseCase', () => {
-  let useCase: GetUserUseCase
+  let useCase: GetUserInteractor
   let mockUserRepository: MockUserRepository
 
   beforeEach(() => {
     mockUserRepository = new MockUserRepository()
-    useCase = new GetUserUseCase(mockUserRepository)
+    useCase = new GetUserInteractor(mockUserRepository)
   })
 
   afterEach(() => {
@@ -66,18 +66,18 @@ describe('GetUserUseCase', () => {
 
     mockUserRepository.findById.mockResolvedValue(mockUser)
 
-    const result = await useCase.execute({ id: '1' })
+    const result = await useCase.execute({ userId: '1' })
 
     expect(result.user).toEqual(mockUser)
     expect(mockUserRepository.findById).toHaveBeenCalledWith('1')
   })
 
-  it('should return null when user not found', async () => {
+  it('should throw error when user not found', async () => {
     mockUserRepository.findById.mockResolvedValue(null)
 
-    const result = await useCase.execute({ id: 'non-existent' })
-
-    expect(result.user).toBeNull()
+    await expect(useCase.execute({ userId: 'non-existent' })).rejects.toThrow(
+      'ユーザーが見つかりません'
+    )
     expect(mockUserRepository.findById).toHaveBeenCalledWith('non-existent')
   })
 })

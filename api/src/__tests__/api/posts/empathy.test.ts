@@ -28,7 +28,7 @@ jest.mock('@/lib/mock-data', () => {
 })
 
 import { NextRequest } from 'next/server'
-import { GET, POST, DELETE } from '../../../src/app/api/posts/empathy/route'
+import { GET, POST, DELETE } from '@/app/api/posts/empathy/route'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
 import { verifyToken } from '@api/usecases/auth/LoginUseCase'
