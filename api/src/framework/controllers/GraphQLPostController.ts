@@ -69,10 +69,12 @@ export class GraphQLPostController {
 
     try {
       const { posts, totalCount } = await getPostsUseCase.execute({
+        page: Math.floor(skip / limit) + 1,
         limit,
-        skip,
-        filters,
-        orderBy,
+        category: filters?.category,
+        search: filters?.search,
+        sortBy: orderBy as 'recent' | 'popular',
+        userId: filters?.userId,
       })
 
       // Convert to GraphQL Connection format
@@ -116,7 +118,10 @@ export class GraphQLPostController {
       throw new Error('Authentication required')
     }
 
-    const createPostUseCase = new CreatePostUseCase(this.postRepository)
+    const createPostUseCase = new CreatePostUseCase(
+      this.postRepository,
+      this.userRepository
+    )
 
     try {
       const { post } = await createPostUseCase.execute({
