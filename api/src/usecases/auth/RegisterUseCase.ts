@@ -52,12 +52,12 @@ export class RegisterUseCase implements RegisterInputPort {
   private async validateUniqueConstraints(email: string, username: string): Promise<void> {
     const existingUserByEmail = await this.userRepository.findByEmail(email)
     if (existingUserByEmail) {
-      throw new Error('Email already exists')
+      throw new Error('ユーザー名またはメールアドレスが既に使用されています')
     }
 
     const existingUserByUsername = await this.userRepository.findByUsername(username)
     if (existingUserByUsername) {
-      throw new Error('Username already exists')
+      throw new Error('ユーザー名またはメールアドレスが既に使用されています')
     }
   }
 }

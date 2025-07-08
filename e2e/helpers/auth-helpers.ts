@@ -86,6 +86,24 @@ export async function registerAndLoginTestUser(
     skinType: userData.skinType,
   })
 
+  // Verify the user's email for testing
+  const port = process.env.PORT || '3000'
+  try {
+    const response = await fetch(`http://localhost:${port}/api/test/verify-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: userData.email }),
+    })
+
+    if (!response.ok) {
+      console.error(`Failed to verify email for ${userData.email}: ${response.status}`)
+    }
+  } catch (error) {
+    console.error(`Error verifying email for ${userData.email}:`, error)
+  }
+
   // Login with the registered user
   await authHelper.login(userData.email, userData.password)
 

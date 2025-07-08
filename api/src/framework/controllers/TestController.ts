@@ -106,4 +106,38 @@ export class TestController {
       return NextResponse.json({ error: 'Failed to send test email' }, { status: 500 })
     }
   }
+
+  async verifyUserEmail(request: NextRequest): Promise<NextResponse> {
+    const envCheck = this.checkTestEnvironment()
+    if (envCheck) return envCheck
+
+    try {
+      const body = await request.json()
+      const { email } = body
+
+      if (!email) {
+        return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+      }
+
+      // Find user and verify email
+      const user = await this.userRepository.findByEmail(email)
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+
+      // Update user to be email verified
+      await this.userRepository.update(user.id, {
+        emailVerified: true,
+        emailVerificationToken: null,
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: 'Email verified successfully',
+      })
+    } catch (error) {
+      console.error('Verify user email error:', error)
+      return NextResponse.json({ error: 'Email verification failed' }, { status: 500 })
+    }
+  }
 }

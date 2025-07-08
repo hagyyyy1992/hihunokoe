@@ -24,7 +24,7 @@ export class VerifyPasswordResetTokenUseCase {
       if (!userId) {
         return {
           success: false,
-          message: 'トークンが無効または期限切れです',
+          message: '無効なトークンまたは期限切れです',
         }
       }
 
@@ -45,7 +45,7 @@ export class VerifyPasswordResetTokenUseCase {
       console.error('Token verification error:', error)
       return {
         success: false,
-        message: 'トークンが無効または期限切れです',
+        message: '無効なトークンまたは期限切れです',
       }
     }
   }
