@@ -1,6 +1,6 @@
 // E2E環境用の一時的なレガシー実装
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth/auth'
+import { verifyToken } from '@/lib/auth/auth'
 
 export async function GET(request: NextRequest) {
   // クッキーからトークンを取得
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // レガシーシステムの認証検証を使用
-    const user = await auth.verifyToken(token)
+    const user = verifyToken(token)
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
