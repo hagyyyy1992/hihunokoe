@@ -13,6 +13,8 @@ async function main() {
     where: { email: 'demo@example.com' },
     update: {
       emailVerified: true, // メール認証済みに設定
+      failedLoginAttempts: 0, // ログイン失敗回数をリセット
+      lockedUntil: null, // アカウントロックを解除
     },
     create: {
       userName: 'demo_user',
@@ -32,6 +34,8 @@ async function main() {
     update: {
       role: 'SUPER_ADMIN',
       emailVerified: true,
+      failedLoginAttempts: 0,
+      lockedUntil: null,
     },
     create: {
       userName: 'admin',
@@ -50,6 +54,8 @@ async function main() {
     update: {
       role: 'SUPER_ADMIN',
       isActive: true,
+      failedLoginAttempts: 0,
+      lockedUntil: null,
     },
     create: {
       adminName: 'admin',
