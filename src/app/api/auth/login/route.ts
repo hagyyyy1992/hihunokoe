@@ -3,6 +3,6 @@ import { AuthController } from '@api/framework/controllers/AuthController'
 
 const authController = new AuthController()
 
-export async function POST(request: Request) {
-  return authController.login(request as NextRequest)
+export async function POST(request: NextRequest) {
+  return authController.login(request)
 }

@@ -62,6 +62,16 @@ if (process.env.DATABASE_URL) {
   console.log('⚠️  DATABASE_URL not set - skipping migrations')
 }
 
+// Generate GraphQL types before building
+console.log('🔄 Generating GraphQL types...')
+try {
+  execSync('npm run codegen', { stdio: 'inherit' })
+  console.log('✅ GraphQL types generated successfully!')
+} catch (error) {
+  console.error('❌ GraphQL code generation failed:', error.message)
+  process.exit(1)
+}
+
 // Run Next.js build
 console.log('🏗️  Building Next.js application...')
 try {
