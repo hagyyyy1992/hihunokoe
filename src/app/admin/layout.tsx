@@ -174,7 +174,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* モバイル用ハンバーガーメニュー */}
         <button
           type="button"
-          className="lg:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
+          className="lg:hidden fixed top-4 left-4 z-30 p-3 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all hover:scale-105"
           onClick={() => setIsSidebarOpen(true)}
           aria-label="メニューを開く"
         >
@@ -182,7 +182,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </button>
 
         {/* メインコンテンツエリア */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 pt-16 lg:pt-3">{children}</main>
       </div>
 
       {/* サイドバーオーバーレイ */}

@@ -111,43 +111,45 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {statCards.map((stat, index) => (
           <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">{stat.value}</p>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.color} hidden sm:block`} />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 最近のユーザー */}
         <Card>
-          <CardHeader>
-            <CardTitle>最近登録されたユーザー</CardTitle>
-            <CardDescription>直近5名のユーザー</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">最近登録されたユーザー</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">直近5名のユーザー</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+            <div className="space-y-3">
               {stats.recentUsers.map(user => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg"
                 >
-                  <div>
-                    <p className="font-medium text-gray-900">{user.userName}</p>
-                    <p className="text-sm text-gray-600">{user.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
+                      {user.userName}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">{user.email}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0 ml-2">
                     <p className="text-xs text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString('ja-JP')}
                     </p>
@@ -160,24 +162,28 @@ export default function AdminDashboard() {
 
         {/* 最近の投稿 */}
         <Card>
-          <CardHeader>
-            <CardTitle>最近の投稿</CardTitle>
-            <CardDescription>直近5件の投稿</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">最近の投稿</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">直近5件の投稿</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+            <div className="space-y-3">
               {stats.recentPosts.map(post => (
-                <div key={post.id} className="p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-gray-900 truncate flex-1 mr-2">{post.title}</h4>
-                    <span className="flex items-center text-sm text-gray-500 flex-shrink-0">
-                      <Heart className="h-4 w-4 mr-1" />
+                <div key={post.id} className="p-2 sm:p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-start justify-between mb-1 sm:mb-2">
+                    <h4 className="font-medium text-sm sm:text-base text-gray-900 line-clamp-2 flex-1 mr-2">
+                      {post.title}
+                    </h4>
+                    <span className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                      <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       {post.empathyCount}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>by {post.userName}</span>
-                    <span>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-600">
+                    <span className="truncate">by {post.userName}</span>
+                    <span className="text-xs">
+                      {new Date(post.createdAt).toLocaleDateString('ja-JP')}
+                    </span>
                   </div>
                 </div>
               ))}

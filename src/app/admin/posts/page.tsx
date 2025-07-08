@@ -155,7 +155,7 @@ export default function PostModeration() {
           <CardTitle>投稿管理</CardTitle>
           <CardDescription>投稿の一覧表示、検索、管理を行います</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-6">
           {/* 検索・フィルター */}
           <div className="space-y-4 mb-6">
             <div className="relative">
@@ -182,8 +182,88 @@ export default function PostModeration() {
             </div>
           </div>
 
-          {/* 投稿一覧テーブル */}
-          <div className="border rounded-lg">
+          {/* 投稿一覧 - モバイル用カード表示 */}
+          <div className="block lg:hidden space-y-3">
+            {filteredPosts.map(post => (
+              <Card key={post.id}>
+                <CardContent className="p-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0 mr-2">
+                      <h3 className="font-semibold text-sm line-clamp-2" title={post.title}>
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 truncate">{post.userName}</p>
+                    </div>
+                    <div className="flex-shrink-0">{getStatusBadge(post.status)}</div>
+                  </div>
+
+                  <div className="space-y-1 mb-3 text-xs">
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">コスメ:</span>
+                      <span className="truncate">{post.cosmeticName}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">投稿日:</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="text-gray-500 w-14">共感:</span>
+                      <span>
+                        {post.empathyCount} / ビュー: {post.viewCount}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    {post.status === 'published' ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-7 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedPost(post)
+                          setActionType('unpublish')
+                        }}
+                      >
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        非公開
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 px-2 flex-1 text-xs"
+                        onClick={() => {
+                          setSelectedPost(post)
+                          setActionType('publish')
+                        }}
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        公開
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        setSelectedPost(post)
+                        setActionType('delete')
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* 投稿一覧テーブル - デスクトップ表示 */}
+          <div className="hidden lg:block border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
