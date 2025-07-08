@@ -58,9 +58,7 @@
       "Bash(npx next lint:*)",
       "Bash(npx playwright:*)",
       "Bash(gh pr:*)",
-      "Bash(curl:*)",
-      "Bash(-H \"Content-Type: application/json\" -v)",
-      "Bash(-v)"
+      "Bash(curl:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",

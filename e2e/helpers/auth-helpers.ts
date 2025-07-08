@@ -110,6 +110,22 @@ export async function registerAndLoginTestUser(
   // 認証状態が確立されるまで待機
   await page.waitForTimeout(isWebKit ? 3000 : 2000)
 
+  // 認証コンテキストが更新されるまで待機
+  await page
+    .waitForFunction(
+      () => {
+        // React Contextが更新されているか確認
+        // auth-tokenクッキーが設定されていることを確認
+        const cookies = document.cookie.split(';').map(c => c.trim())
+        const hasAuthCookie = cookies.some(c => c.startsWith('auth-token='))
+        return hasAuthCookie
+      },
+      { timeout: 10000 }
+    )
+    .catch(() => {
+      console.log('Warning: Could not verify auth cookie via JavaScript, continuing anyway')
+    })
+
   // Verify we're logged in (リトライロジック付き)
   let verificationSuccess = false
   let retryCount = 0
@@ -217,6 +233,20 @@ export async function registerAndLoginTestUser(
 
   // 認証状態が安定するまで待機（WebKitは長めに）
   await page.waitForTimeout(isWebKit ? 3000 : 1000)
+
+  // 最終確認: 認証が必要なAPIエンドポイントにアクセスできるか確認
+  const meResponse = await page.evaluate(async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      return { ok: response.ok, status: response.status }
+    } catch (error) {
+      return { ok: false, status: 0, error: error instanceof Error ? error.message : String(error) }
+    }
+  })
+
+  if (!meResponse.ok && meResponse.status !== 200) {
+    console.warn(`Auth verification API call failed: ${JSON.stringify(meResponse)}`)
+  }
 }
 
 export class AuthHelper {

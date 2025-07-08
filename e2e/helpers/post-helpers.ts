@@ -26,6 +26,17 @@ export class PostHelper {
     const isMobileSafari = await this.isMobileSafari()
     const isWebKit = await this.isWebKit()
 
+    // 認証クッキーが設定されていることを確認
+    await this.page.waitForFunction(
+      () => {
+        const cookies = document.cookie.split(';').map(c => c.trim());
+        return cookies.some(c => c.startsWith('auth-token='));
+      },
+      { timeout: 10000 }
+    ).catch(() => {
+      console.log('Warning: Could not verify auth cookie, continuing anyway');
+    });
+
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
       timeout: isWebKit ? 30000 : 15000,
@@ -258,6 +269,17 @@ export class PostHelper {
     const isMobileSafari = await this.isMobileSafari()
     const isWebKit = await this.isWebKit()
 
+    // 認証クッキーが設定されていることを確認
+    await this.page.waitForFunction(
+      () => {
+        const cookies = document.cookie.split(';').map(c => c.trim());
+        return cookies.some(c => c.startsWith('auth-token='));
+      },
+      { timeout: 10000 }
+    ).catch(() => {
+      console.log('Warning: Could not verify auth cookie, continuing anyway');
+    });
+
     await this.page.goto('/posts/new', {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
       timeout: isWebKit ? 30000 : 15000,
@@ -311,6 +333,17 @@ export class PostHelper {
   ) {
     const isMobileSafari = await this.isMobileSafari()
     const isWebKit = await this.isWebKit()
+
+    // 認証クッキーが設定されていることを確認
+    await this.page.waitForFunction(
+      () => {
+        const cookies = document.cookie.split(';').map(c => c.trim());
+        return cookies.some(c => c.startsWith('auth-token='));
+      },
+      { timeout: 10000 }
+    ).catch(() => {
+      console.log('Warning: Could not verify auth cookie, continuing anyway');
+    });
 
     await this.page.goto(`/posts/${postId}/edit`, {
       waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',

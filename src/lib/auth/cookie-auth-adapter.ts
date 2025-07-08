@@ -14,11 +14,17 @@ export function adaptCookieToBearer(request: NextRequest): NextRequest {
   const headers = new Headers(request.headers)
   headers.set('Authorization', `Bearer ${token}`)
 
-  return new NextRequest(request.url, {
+  // Create a new request without copying the body
+  // This avoids issues with body stream already being consumed
+  const adaptedRequest = new NextRequest(request.url, {
     method: request.method,
     headers,
-    body: request.body,
   })
+
+  // Copy over the parsed URL params, search params, etc.
+  Object.setPrototypeOf(adaptedRequest, request)
+
+  return adaptedRequest
 }
 
 /**
