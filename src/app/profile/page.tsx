@@ -354,10 +354,10 @@ export default function ProfilePage() {
               </div>
 
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
                   基本情報
                 </h3>
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                     <div>
@@ -373,6 +373,7 @@ export default function ProfilePage() {
                       <p className="text-sm font-medium text-gray-900">{user.email}</p>
                     </div>
                   </div>
+
                   <div className="flex items-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                     <div>
@@ -382,6 +383,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
+
                   <div className="flex items-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                     <div>
@@ -393,6 +395,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
+
                   <div className="flex items-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                     <div>
@@ -402,6 +405,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
+
                   <div className="flex items-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                     <div>
