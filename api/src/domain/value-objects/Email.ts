@@ -3,7 +3,7 @@ export class Email {
 
   constructor(value: string) {
     if (!this.isValid(value)) {
-      throw new Error('Invalid email format')
+      throw new Error('無効なメールアドレス形式です')
     }
     this.value = value.toLowerCase()
   }

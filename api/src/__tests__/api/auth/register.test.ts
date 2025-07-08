@@ -100,7 +100,7 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error: 'Email, username, and password are required',
+        error: 'メールアドレス、ユーザー名、パスワードは必須です',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -109,7 +109,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe('Email, username, and password are required')
+      expect(data.error).toBe('メールアドレス、ユーザー名、パスワードは必須です')
     })
 
     it('無効なメールアドレスでバリデーションエラーを返す', async () => {
@@ -120,7 +120,7 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error: 'Invalid email format',
+        error: '無効なメールアドレス形式です',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -129,7 +129,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe('Invalid email format')
+      expect(data.error).toBe('無効なメールアドレス形式です')
     })
 
     it('パスワードが要件を満たさない場合、エラーを返す', async () => {
@@ -140,7 +140,7 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error: 'Password must be at least 8 characters long',
+        error: 'パスワードは8文字以上で入力してください',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -149,12 +149,12 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toContain('Password must be')
+      expect(data.error).toContain('パスワードは8文字以上で入力してください')
     })
 
     it('メールアドレスが重複している場合、409エラーを返す', async () => {
       const mockResponse = createMockResponse(409, {
-        error: 'Email already exists',
+        error: 'ユーザー名またはメールアドレスが既に使用されています',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -163,12 +163,12 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(409)
-      expect(data.error).toBe('Email already exists')
+      expect(data.error).toBe('ユーザー名またはメールアドレスが既に使用されています')
     })
 
     it('ユーザー名が重複している場合、409エラーを返す', async () => {
       const mockResponse = createMockResponse(409, {
-        error: 'Username already exists',
+        error: 'ユーザー名またはメールアドレスが既に使用されています',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -177,7 +177,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(409)
-      expect(data.error).toBe('Username already exists')
+      expect(data.error).toBe('ユーザー名またはメールアドレスが既に使用されています')
     })
 
     it('必須フィールドが欠如している場合、バリデーションエラーを返す', async () => {
@@ -188,7 +188,7 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error: 'Email, username, and password are required',
+        error: 'メールアドレス、ユーザー名、パスワードは必須です',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -197,7 +197,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe('Email, username, and password are required')
+      expect(data.error).toBe('メールアドレス、ユーザー名、パスワードは必須です')
     })
 
     it('サーバーエラーが発生した場合、500エラーを返す', async () => {
@@ -216,7 +216,7 @@ describe('/api/auth/register', () => {
 
     it('空のリクエストボディでエラーを返す', async () => {
       const mockResponse = createMockResponse(400, {
-        error: 'Email, username, and password are required',
+        error: 'メールアドレス、ユーザー名、パスワードは必須です',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -225,7 +225,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe('Email, username, and password are required')
+      expect(data.error).toBe('メールアドレス、ユーザー名、パスワードは必須です')
     })
 
     it('パスワード強度のエラーメッセージが正しく返される', async () => {
@@ -236,8 +236,7 @@ describe('/api/auth/register', () => {
       }
 
       const mockResponse = createMockResponse(400, {
-        error:
-          'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number',
+        error: 'パスワードは8文字以上で入力してください',
       })
       mockRegister.mockResolvedValue(mockResponse)
 
@@ -246,7 +245,7 @@ describe('/api/auth/register', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toContain('Password must be')
+      expect(data.error).toContain('パスワードは8文字以上で入力してください')
     })
 
     it('特殊文字を含むユーザー名でもエラーなく登録できる', async () => {

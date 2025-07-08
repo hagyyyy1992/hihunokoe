@@ -91,7 +91,7 @@ export class AuthController {
 
       if (!email || !userName || !password) {
         return NextResponse.json(
-          { error: 'Email, username, and password are required' },
+          { error: 'メールアドレス、ユーザー名、パスワードは必須です' },
           { status: 400 }
         )
       }
@@ -111,22 +111,19 @@ export class AuthController {
       })
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message === 'Email already exists') {
-          return NextResponse.json({ error: 'Email already exists' }, { status: 409 })
+        if (error.message === 'ユーザー名またはメールアドレスが既に使用されています') {
+          return NextResponse.json({ error: error.message }, { status: 409 })
         }
-        if (error.message === 'Username already exists') {
-          return NextResponse.json({ error: 'Username already exists' }, { status: 409 })
+        if (error.message.includes('無効なメールアドレス形式です')) {
+          return NextResponse.json({ error: error.message }, { status: 400 })
         }
-        if (error.message.includes('Invalid email format')) {
-          return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
-        }
-        if (error.message.includes('Password must be')) {
+        if (error.message.includes('パスワードは8文字以上で入力してください')) {
           return NextResponse.json({ error: error.message }, { status: 400 })
         }
       }
 
       console.error('Registration error:', error)
-      return NextResponse.json({ error: 'An error occurred during registration' }, { status: 500 })
+      return NextResponse.json({ error: '登録処理中にエラーが発生しました' }, { status: 500 })
     }
   }
 
@@ -136,7 +133,7 @@ export class AuthController {
       const { email } = body
 
       if (!email) {
-        return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+        return NextResponse.json({ error: 'メールアドレスは必須です' }, { status: 400 })
       }
 
       const forgotPasswordUseCase = new ForgotPasswordUseCase(
@@ -153,8 +150,8 @@ export class AuthController {
       })
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message === 'Invalid email format') {
-          return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
+        if (error.message === '無効なメールアドレス形式です') {
+          return NextResponse.json({ error: error.message }, { status: 400 })
         }
       }
 
@@ -172,7 +169,7 @@ export class AuthController {
       const { token, password } = body
 
       if (!token || !password) {
-        return NextResponse.json({ error: 'Token and password are required' }, { status: 400 })
+        return NextResponse.json({ error: 'トークンとパスワードは必須です' }, { status: 400 })
       }
 
       const resetPasswordUseCase = new ResetPasswordUseCase(
@@ -192,7 +189,7 @@ export class AuthController {
         if (error.message === 'Invalid or expired reset token') {
           return NextResponse.json({ error: 'Invalid or expired reset token' }, { status: 400 })
         }
-        if (error.message.includes('Password must be')) {
+        if (error.message.includes('パスワードは8文字以上で入力してください')) {
           return NextResponse.json({ error: error.message }, { status: 400 })
         }
         if (error.message === 'User not found' || error.message === 'Account is inactive') {
@@ -214,7 +211,7 @@ export class AuthController {
       const { token } = body
 
       if (!token) {
-        return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+        return NextResponse.json({ error: 'トークンは必須です' }, { status: 400 })
       }
 
       const verifyEmailUseCase = new VerifyEmailUseCase(this.userRepository, this.tokenService)
