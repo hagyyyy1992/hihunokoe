@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // レガシーシステムの認証検証を使用
-    const user = await verifyToken(token)
+    const user = await auth.verifyToken(token)
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
