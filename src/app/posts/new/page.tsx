@@ -31,23 +31,25 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">体験談を投稿する</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="text-center mb-6 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+            体験談を投稿する
+          </h1>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
             あなたの化粧品体験が、同じ悩みを持つ誰かの参考になります。
             気軽にリアルな感想を共有してください。
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:p-8">
           <PostForm />
         </div>
 
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="mt-6 sm:mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <h3 className="text-sm font-medium text-blue-800 mb-2">投稿ガイドライン</h3>
-          <ul className="text-sm text-blue-700 space-y-1">
+          <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
             <li>• 個人の体験談として、正直な感想を書いてください</li>
             <li>• 「合わなかった」体験も大切な情報です</li>
             <li>• 他の人を批判したり、攻撃的な表現は避けてください</li>

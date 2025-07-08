@@ -324,18 +324,23 @@ export default function EditPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">投稿を編集</h1>
-            <p className="text-gray-600">投稿内容を編集できます。</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
+            <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
           </div>
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+            className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-3 h-3 sm:w-4 sm:h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -360,13 +365,17 @@ export default function EditPostPage() {
             />
             {/* モーダル本体 */}
             <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
-                <p className="text-gray-600 mb-6">この操作は取り消せません。本当に削除しますか？</p>
-                <div className="flex justify-end space-x-3">
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                  投稿を削除しますか？
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                  この操作は取り消せません。本当に削除しますか？
+                </p>
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1"
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={deleteLoading}
                   >
@@ -374,7 +383,7 @@ export default function EditPostPage() {
                   </button>
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2"
                     onClick={handleDelete}
                     disabled={deleteLoading}
                   >
