@@ -1,21 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
 import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
 import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 
 export class TestController {
   private userRepository: UserRepositoryImpl
-  private postRepository: PostRepositoryImpl
-  private empathyRepository: EmpathyRepositoryImpl
   private emailService: EmailServiceImpl
   private rateLimitService: RateLimitServiceImpl
 
   constructor() {
     this.userRepository = new UserRepositoryImpl()
-    this.postRepository = new PostRepositoryImpl()
-    this.empathyRepository = new EmpathyRepositoryImpl()
     this.emailService = new EmailServiceImpl()
     this.rateLimitService = new RateLimitServiceImpl()
   }
@@ -42,7 +36,6 @@ export class TestController {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 })
       }
 
-      // Find and delete user
       const user = await this.userRepository.findByEmail(email)
       if (user) {
         await this.userRepository.delete(user.id)
@@ -63,7 +56,6 @@ export class TestController {
     if (envCheck) return envCheck
 
     try {
-      // Reset all rate limiters
       this.rateLimitService.clearRateLimits()
 
       return NextResponse.json({
@@ -88,13 +80,11 @@ export class TestController {
         return NextResponse.json({ error: 'Email address is required' }, { status: 400 })
       }
 
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(to)) {
         return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
       }
 
-      // Send test email
       await this.emailService.sendWelcomeEmail(to, 'Test User')
 
       return NextResponse.json({
@@ -119,13 +109,11 @@ export class TestController {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 })
       }
 
-      // Find user and verify email
       const user = await this.userRepository.findByEmail(email)
       if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 })
       }
 
-      // Update user to be email verified
       await this.userRepository.update(user.id, {
         emailVerified: true,
         emailVerificationToken: null,

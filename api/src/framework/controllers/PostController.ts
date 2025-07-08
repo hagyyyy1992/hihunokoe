@@ -28,14 +28,11 @@ export class PostController {
   }
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
-    // First try Authorization header
     const authHeader = request.headers.get('Authorization')
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '')
       return await this.tokenService.verifyAuthToken(token)
     }
-
-    // Then try cookie-based authentication (for legacy compatibility)
     const cookieHeader = request.headers.get('cookie')
     if (cookieHeader) {
       const cookies = cookieHeader.split(';').map(c => c.trim())
@@ -58,7 +55,6 @@ export class PostController {
 
       const body = await request.json()
 
-      // Map legacy field names to clean architecture field names
       const {
         title,
         content,
@@ -184,7 +180,6 @@ export class PostController {
 
       const body = await request.json()
 
-      // Map legacy field names to clean architecture field names
       const {
         title,
         content,
@@ -351,7 +346,6 @@ export class PostController {
     }
   }
 
-  // Query parameter-based endpoints for legacy compatibility
   async getPostByQuery(request: NextRequest): Promise<NextResponse> {
     try {
       const url = new URL(request.url)
@@ -401,7 +395,6 @@ export class PostController {
 
       const body = await request.json()
 
-      // Map legacy field names to clean architecture field names
       const {
         title,
         content,
@@ -506,32 +499,26 @@ export class PostController {
         return NextResponse.json({ error: 'empathyTypeが指定されていません' }, { status: 400 })
       }
 
-      // Validate empathyType
       if (!['helpful', 'interested', 'supportive'].includes(empathyType)) {
         return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
       }
 
       if (!isDatabaseAvailable()) {
-        // Mock mode
-        // Validate postId format
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
         if (!uuidRegex.test(postId)) {
           return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
         }
 
-        // Check if post exists in mock data
         const post = MOCK_POSTS.find(p => p.id === postId)
         if (!post) {
           return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
         }
 
-        // Check if user already gave empathy
         const existingEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === userId)
         if (existingEmpathy) {
           return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
         }
 
-        // Add empathy to mock data
         const newEmpathy = {
           id: `empathy-${Date.now()}`,
           postId,
@@ -541,7 +528,6 @@ export class PostController {
         }
         MOCK_EMPATHIES.push(newEmpathy)
 
-        // Get updated count
         const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
 
         return NextResponse.json({
@@ -558,7 +544,6 @@ export class PostController {
         })
       }
 
-      // Database mode
       const addEmpathyUseCase = new AddEmpathyUseCase(
         this.empathyRepository,
         this.postRepository,
