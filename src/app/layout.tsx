@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import ConditionalLayout from '@/components/layout/ConditionalLayout'
 import { AuthProvider } from '@/lib/auth/AuthContext'
+import { ApolloProvider } from '@/components/providers/ApolloProvider'
 import { SERVICE_FULL_TITLE } from '@/lib/constants'
 
 const geistSans = Geist({
@@ -32,7 +33,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <AuthProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <ApolloProvider>
+            <ConditionalLayout>{children}</ConditionalLayout>
+          </ApolloProvider>
         </AuthProvider>
       </body>
     </html>

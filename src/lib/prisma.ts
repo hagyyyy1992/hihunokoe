@@ -41,3 +41,6 @@ export const getDatabaseInfo = () => {
     config: DB_CONFIG.getConnectionInfo(),
   }
 }
+
+// Export types for GraphQL Code Generator
+export type { User, Post, Empathy, Comment } from '@prisma/client'

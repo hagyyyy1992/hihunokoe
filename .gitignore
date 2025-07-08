@@ -47,6 +47,8 @@ next-env.d.ts
 playwright-report
 test-results
 
+/src/generated/
+
 # MCP configuration (contains API keys)
 .mcp.json
 
