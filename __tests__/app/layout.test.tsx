@@ -55,7 +55,7 @@ describe('RootLayout', () => {
     )
 
     const main = container.querySelector('main')
-    expect(main).toHaveClass('flex-1', 'pt-16')
+    expect(main).toHaveClass('flex-1', 'pt-12', 'sm:pt-14')
   })
 
   it('sets correct HTML lang attribute', () => {

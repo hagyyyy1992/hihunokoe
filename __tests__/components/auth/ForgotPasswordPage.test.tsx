@@ -55,7 +55,7 @@ describe('ForgotPasswordPage', () => {
 
     const logo = screen.getByText('H')
     expectElementToBeVisible(logo)
-    expect(logo.closest('div')).toHaveClass('w-12', 'h-12', 'bg-apple-100', 'rounded-full')
+    expect(logo.closest('div')).toHaveClass('w-10', 'h-10', 'sm:w-12', 'sm:h-12', 'bg-apple-100', 'rounded-full')
   })
 
   it('ログインページへのリンクが表示される', () => {
@@ -226,7 +226,7 @@ describe('ForgotPasswordPage', () => {
       render(<ForgotPasswordPage />)
 
       const container = screen.getByText('パスワードをお忘れですか？').closest('div')
-      expect(container).toHaveClass('sm:mx-auto', 'sm:w-full', 'sm:max-w-md')
+      expect(container).toHaveClass('mx-auto', 'w-full', 'max-w-sm', 'sm:max-w-md')
     })
 
     it('フォームコンテナに適切なスタイルが適用されている', () => {
@@ -235,11 +235,13 @@ describe('ForgotPasswordPage', () => {
       const formContainer = screen.getByTestId('reset-password-form').closest('div')
       expect(formContainer).toHaveClass(
         'bg-white',
-        'py-8',
+        'py-6',
+        'sm:py-8',
         'px-4',
+        'sm:px-6',
+        'lg:px-10',
         'shadow',
-        'sm:rounded-lg',
-        'sm:px-10'
+        'rounded-lg'
       )
     })
 
@@ -248,9 +250,12 @@ describe('ForgotPasswordPage', () => {
 
       const title = screen.getByText('パスワードをお忘れですか？')
       expect(title).toHaveClass(
-        'mt-6',
+        'mt-4',
+        'sm:mt-6',
         'text-center',
-        'text-3xl',
+        'text-xl',
+        'sm:text-2xl',
+        'lg:text-3xl',
         'font-extrabold',
         'text-gray-900'
       )

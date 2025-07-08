@@ -237,12 +237,12 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   return (
     <div className="max-w-2xl mx-auto">
       {/* ステップインジケーター */}
-      <div className="mb-8">
-        <div className="flex items-center justify-center space-x-4">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-4">
           {[1, 2, 3, 4].map((step, index) => (
             <React.Fragment key={step}>
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
                   step <= currentStep ? 'bg-apple-600 text-white' : 'bg-gray-200 text-gray-500'
                 }`}
               >
@@ -250,13 +250,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </div>
               {index < 3 && (
                 <div
-                  className={`w-16 h-1 ${step < currentStep ? 'bg-apple-600' : 'bg-gray-200'}`}
+                  className={`w-8 sm:w-16 h-1 ${step < currentStep ? 'bg-apple-600' : 'bg-gray-200'}`}
                 />
               )}
             </React.Fragment>
           ))}
         </div>
-        <div className="mt-2 text-sm text-gray-600 text-center">
+        <div className="mt-2 text-xs sm:text-sm text-gray-600 text-center">
           {currentStep === 1 && '基本情報'}
           {currentStep === 2 && '使用状況'}
           {currentStep === 3 && '体験の詳細'}
@@ -269,14 +269,14 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
           handleSubmit(e)
         }}
         onKeyDown={handleKeyDown}
-        className="space-y-6"
+        className="space-y-4 sm:space-y-6"
       >
         {error && <div className="alert alert-error">{error}</div>}
 
         {/* ステップ1: 基本情報 */}
         {currentStep === 1 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">基本情報</h3>
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">基本情報</h3>
 
             <Input
               label="タイトル"
@@ -350,9 +350,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ステップ2: 使用状況 */}
         {currentStep === 2 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">使用状況（任意）</h3>
-            <p className="text-sm text-gray-600">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">使用状況（任意）</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
               より具体的な体験を共有するために、使用時の状況を教えてください。
             </p>
 
@@ -450,16 +450,18 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ステップ3: 体験の詳細 */}
         {currentStep === 3 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">体験の詳細（任意）</h3>
-            <p className="text-sm text-gray-600">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">体験の詳細（任意）</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
               香りやテクスチャについて、より詳しく教えてください。
             </p>
 
             {/* 香り */}
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">香りについて</h4>
-              <div className="space-y-3">
+            <div className="border rounded-lg p-3 sm:p-4">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
+                香りについて
+              </h4>
+              <div className="space-y-2 sm:space-y-3">
                 <div className="form-group">
                   <label className="form-label">香りのタイプ</label>
                   <select
@@ -508,9 +510,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             </div>
 
             {/* テクスチャ */}
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">テクスチャについて</h4>
-              <div className="space-y-3">
+            <div className="border rounded-lg p-3 sm:p-4">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
+                テクスチャについて
+              </h4>
+              <div className="space-y-2 sm:space-y-3">
                 <div className="form-group">
                   <label className="form-label">テクスチャのタイプ</label>
                   <select
@@ -584,7 +588,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         {/* ステップ4: 感想とまとめ */}
         {currentStep === 4 && (
           <div
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
             onKeyDown={e => {
               // ステップ4内でEnterキーによるサブミットを完全に防ぐ
               if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'BUTTON') {
@@ -593,13 +597,17 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               }
             }}
           >
-            <h3 className="text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
-            <p className="text-sm text-gray-600">使用後の肌状態や総合的な感想を教えてください。</p>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              使用後の肌状態や総合的な感想を教えてください。
+            </p>
 
             {/* 使用後の肌状態 */}
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">使用後の肌状態</h4>
-              <div className="space-y-3">
+            <div className="border rounded-lg p-3 sm:p-4">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
+                使用後の肌状態
+              </h4>
+              <div className="space-y-2 sm:space-y-3">
                 <div className="form-group">
                   <label className="form-label">うるおい感</label>
                   <select
@@ -732,11 +740,15 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* 削除確認ダイアログ */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-opacity-20 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">投稿を削除しますか？</h3>
-              <p className="text-gray-600 mb-6">この操作は取り消せません。本当に削除しますか？</p>
-              <div className="flex justify-end space-x-3">
+          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                投稿を削除しますか？
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                この操作は取り消せません。本当に削除しますか？
+              </p>
+              <div className="flex justify-end space-x-2 sm:space-x-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -754,7 +766,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         )}
 
         {/* ナビゲーションボタン */}
-        <div className="flex justify-between pt-6">
+        <div className="flex justify-between pt-4 sm:pt-6">
           {isEditMode && currentStep === 1 ? (
             <Button
               type="button"

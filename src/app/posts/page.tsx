@@ -90,33 +90,39 @@ export default function PostsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">体験談を見る</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+              体験談を見る
+            </h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
               みんなの化粧品体験を参考にして、自分に合うアイテムを見つけよう
             </p>
           </div>
           <Link
             href="/posts/new"
-            className="bg-apple-600 text-white hover:bg-apple-700 px-6 py-3 rounded-full text-sm font-medium transition-colors"
+            className="bg-apple-600 text-white hover:bg-apple-700 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm font-medium transition-colors text-center sm:text-left"
           >
             体験を投稿する
           </Link>
         </div>
 
         {/* フィルターセクション */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">絞り込み検索</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+            絞り込み検索
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">肌タイプ</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                肌タイプ
+              </label>
               <select
                 value={filters.skinType}
                 onChange={e => handleFilterChange('skinType', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
+                className="block w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
                 <option value="normal">普通肌</option>
@@ -128,11 +134,13 @@ export default function PostsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">カテゴリ</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                カテゴリ
+              </label>
               <select
                 value={filters.cosmeticCategory}
                 onChange={e => handleFilterChange('cosmeticCategory', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
+                className="block w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
                 data-testid="category-filter"
               >
                 <option value="">すべて</option>
@@ -152,11 +160,13 @@ export default function PostsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">感想</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                感想
+              </label>
               <select
                 value={filters.moodTag}
                 onChange={e => handleFilterChange('moodTag', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
+                className="block w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               >
                 <option value="">すべて</option>
                 <option value="disappointed">ちょっと残念</option>
@@ -167,14 +177,16 @@ export default function PostsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">キーワード検索</label>
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                キーワード検索
+              </label>
               <input
                 type="text"
                 value={filters.search}
                 onChange={e => handleFilterChange('search', e.target.value)}
                 placeholder="コスメ名や体験談で検索"
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
+                className="block w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-apple-500 focus:border-apple-500"
               />
             </div>
           </div>
