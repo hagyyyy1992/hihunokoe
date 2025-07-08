@@ -247,7 +247,9 @@ describe('LoginUseCase', () => {
         password: 'password123',
       }
 
-      await expect(loginUseCase.execute(invalidInput)).rejects.toThrow('無効なメールアドレス形式です')
+      await expect(loginUseCase.execute(invalidInput)).rejects.toThrow(
+        '無効なメールアドレス形式です'
+      )
     })
 
     it('無効なパスワード形式でエラーを投げる', async () => {
