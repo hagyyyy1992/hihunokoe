@@ -35,6 +35,16 @@ test.describe('投稿作成', () => {
 
   test('必須フィールドのバリデーション', async ({ page }) => {
     await page.goto('/posts/new')
+    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
+
+    // リダイレクトされていないことを確認
+    const currentUrl = page.url()
+    if (currentUrl.includes('/auth/login')) {
+      throw new Error('Redirected to login page during test')
+    }
+
+    // フォームが表示されるまで待機
+    await page.waitForSelector('input[name="title"]', { state: 'visible' })
 
     // 空のフォームで次へボタンをクリックしてバリデーションを確認
     const nextButton = page.getByRole('button', { name: '次へ' })
@@ -43,11 +53,11 @@ test.describe('投稿作成', () => {
     await expect(nextButton).toBeDisabled()
 
     // タイトルだけ入力した場合
-    await page.getByLabel('タイトル').fill('テストタイトル')
+    await page.locator('input[name="title"]').fill('テストタイトル')
     await expect(nextButton).toBeDisabled()
 
     // コスメ名も入力した場合
-    await page.getByLabel('使用したコスメ名').fill('テストコスメ')
+    await page.locator('input[name="cosmeticName"]').fill('テストコスメ')
     await expect(nextButton).toBeDisabled()
 
     // 内容も入力した場合、次へボタンが有効になる
@@ -57,8 +67,18 @@ test.describe('投稿作成', () => {
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
     await page.goto('/posts/new')
+    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
 
-    const categorySelect = page.getByLabel('コスメカテゴリ')
+    // リダイレクトされていないことを確認
+    const currentUrl = page.url()
+    if (currentUrl.includes('/auth/login')) {
+      throw new Error('Redirected to login page during test')
+    }
+
+    // フォームが表示されるまで待機
+    await page.waitForSelector('select[name="cosmeticCategory"]', { state: 'visible' })
+
+    const categorySelect = page.locator('select[name="cosmeticCategory"]')
 
     // 各カテゴリオプションが存在することを確認
     await expect(categorySelect.locator('option[value="toner"]')).toContainText('化粧水')
@@ -76,10 +96,20 @@ test.describe('投稿作成', () => {
 
   test('ムード選択が正常に動作する', async ({ page }) => {
     await page.goto('/posts/new')
+    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
+
+    // リダイレクトされていないことを確認
+    const currentUrl = page.url()
+    if (currentUrl.includes('/auth/login')) {
+      throw new Error('Redirected to login page during test')
+    }
+
+    // フォームが表示されるまで待機
+    await page.waitForSelector('input[name="title"]', { state: 'visible' })
 
     // 必須フィールドを入力
-    await page.getByLabel('タイトル').fill('テストタイトル')
-    await page.getByLabel('使用したコスメ名').fill('テストコスメ')
+    await page.locator('input[name="title"]').fill('テストタイトル')
+    await page.locator('input[name="cosmeticName"]').fill('テストコスメ')
     await page.locator('textarea[name="content"]').fill('テスト内容')
 
     // ステップ4まで進む

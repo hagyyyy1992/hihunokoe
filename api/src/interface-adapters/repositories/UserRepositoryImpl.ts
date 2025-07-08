@@ -302,7 +302,7 @@ export class UserRepositoryImpl implements UserRepository {
       prismaUser.lockedUntil || null,
       prismaUser.role as UserRole,
       prismaUser.isActive,
-      prismaUser.isActive, // isActive alias
+      prismaUser.isActive, // active alias
       prismaUser.deletedAt,
       prismaUser.createdAt,
       prismaUser.updatedAt,

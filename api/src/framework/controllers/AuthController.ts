@@ -54,11 +54,14 @@ export class AuthController {
 
       const result = await loginUseCase.execute({ email, password })
 
-      return NextResponse.json({
-        success: true,
-        token: result.token,
-        user: result.user,
-      })
+      return NextResponse.json(
+        {
+          success: true,
+          token: result.token,
+          user: result.user,
+        },
+        { status: 200 }
+      )
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
         return NextResponse.json({ error: error.message }, { status: 401 })

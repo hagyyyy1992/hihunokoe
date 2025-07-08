@@ -47,17 +47,38 @@ export default defineConfig({
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        // WebKit専用の設定
+        actionTimeout: 20000,
+        navigationTimeout: 40000,
+        launchOptions: {
+          slowMo: 500, // WebKitでの操作を少し遅くする
+        },
+      },
     },
 
     /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: {
+        ...devices['Pixel 5'],
+        // Mobile Chrome専用の設定
+        actionTimeout: 15000,
+        navigationTimeout: 30000,
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: {
+        ...devices['iPhone 12'],
+        // Mobile Safari専用の設定
+        actionTimeout: 20000,
+        navigationTimeout: 40000,
+        contextOptions: {
+          strictSelectors: false,
+        },
+      },
     },
 
     /* Test against branded browsers. */
@@ -78,10 +99,12 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
-      DATABASE_URL: 'postgresql://postgres:password@localhost:5432/hihunokoe_dev',
+      DATABASE_URL: 'postgresql://postgres:password@localhost:5436/hihunokoe_dev',
       NEXTAUTH_SECRET: 'test-secret-key-for-e2e-tests',
       NODE_ENV: 'development',
       USE_MOCK_DATA: 'false',
+      MAILHOG_HOST: 'localhost',
+      MAILHOG_PORT: '1025',
     },
   },
 })

@@ -3,6 +3,18 @@ import { Page, expect } from '@playwright/test'
 export class PostHelper {
   constructor(private page: Page) {}
 
+  private async isMobileSafari(): Promise<boolean> {
+    const userAgent = await this.page.evaluate(() => navigator.userAgent)
+    return (
+      (userAgent.includes('iPhone') || userAgent.includes('iPad')) && userAgent.includes('Safari')
+    )
+  }
+
+  private async isWebKit(): Promise<boolean> {
+    const browserName = this.page.context().browser()?.browserType().name()
+    return browserName === 'webkit'
+  }
+
   async createPost(postData: {
     title: string
     content: string
@@ -11,18 +23,147 @@ export class PostHelper {
     moodTag?: string
     tags?: string[]
   }) {
-    await this.page.goto('/posts/new')
+    const isMobileSafari = await this.isMobileSafari()
+    const isWebKit = await this.isWebKit()
+
+    await this.page.goto('/posts/new', {
+      waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
+      timeout: isWebKit ? 30000 : 15000,
+    })
+
+    // ページのローディング状態が解除されるまで待機
+    try {
+      // ローディングインジケーターが消えるまで待つ
+      await this.page.waitForFunction(
+        () => {
+          const loadingElement = document.querySelector('.animate-spin')
+          return !loadingElement
+        },
+        { timeout: 10000 }
+      )
+    } catch (error) {
+      console.log('Loading indicator wait timeout - continuing anyway')
+    }
+
+    // 認証によるリダイレクトをチェック（複数回チェック）
+    let retryCount = 0
+    const maxRetries = 3
+    while (retryCount < maxRetries) {
+      await this.page.waitForTimeout(2000) // 認証チェックの時間を与える
+      const currentUrl = this.page.url()
+
+      if (!currentUrl.includes('/auth/login')) {
+        break // ログインページではない場合は続行
+      }
+
+      retryCount++
+      if (retryCount === maxRetries) {
+        throw new Error('Redirected to login page. Authentication may have failed.')
+      }
+
+      console.log(`Still on login page, retry ${retryCount}/${maxRetries}`)
+      await this.page.waitForTimeout(2000)
+    }
+
+    // フォームが表示されるのを待機
+    try {
+      await this.page.waitForSelector('input[name="title"]', {
+        state: 'visible',
+        timeout: 10000,
+      })
+    } catch (error) {
+      // もし要素が見つからない場合、ページの状態を出力
+      console.error('Failed to find title input. Current URL:', this.page.url())
+
+      // ページのHTMLを出力してデバッグ
+      const bodyText = await this.page.locator('body').innerText()
+      console.error('Page body text:', bodyText.substring(0, 500))
+
+      throw error
+    }
+
+    // Mobile SafariとWebKitの場合は追加の待機時間
+    if (isMobileSafari || isWebKit) {
+      await this.page.waitForTimeout(3000)
+
+      // ローディング状態が解除されるまで待機
+      await this.page.waitForFunction(
+        () => {
+          const loadingElement = document.querySelector(
+            '[data-testid="loading"], .loading, .animate-spin'
+          )
+          return !loadingElement || (loadingElement as HTMLElement).style.display === 'none'
+        },
+        { timeout: 30000 }
+      )
+    }
 
     // ステップ1: 基本情報
-    await this.page.getByLabel('タイトル').fill(postData.title)
-    await this.page.locator('textarea[name="content"]').fill(postData.content)
+    // Mobile Safariの場合はより具体的なセレクターを使用
+    if (isMobileSafari) {
+      await this.page.waitForSelector(
+        'input[name="title"], input[id="title"], [aria-label="タイトル"]',
+        {
+          state: 'visible',
+          timeout: 20000,
+        }
+      )
+      const titleInput = await this.page
+        .locator('input[name="title"], input[id="title"], [aria-label="タイトル"]')
+        .first()
+      await titleInput.fill(postData.title)
+
+      await this.page.waitForSelector('textarea[name="content"], textarea[id="content"]', {
+        state: 'visible',
+        timeout: 20000,
+      })
+      const contentTextarea = await this.page
+        .locator('textarea[name="content"], textarea[id="content"]')
+        .first()
+      await contentTextarea.fill(postData.content)
+    } else {
+      await this.page.locator('input[name="title"]').fill(postData.title)
+      await this.page.locator('textarea[name="content"]').fill(postData.content)
+    }
 
     if (postData.cosmeticName) {
-      await this.page.getByLabel('使用したコスメ名').fill(postData.cosmeticName)
+      if (isMobileSafari) {
+        await this.page.waitForSelector(
+          'input[name="cosmeticName"], input[id="cosmeticName"], [aria-label="使用したコスメ名"]',
+          {
+            state: 'visible',
+            timeout: 20000,
+          }
+        )
+        const cosmeticInput = await this.page
+          .locator(
+            'input[name="cosmeticName"], input[id="cosmeticName"], [aria-label="使用したコスメ名"]'
+          )
+          .first()
+        await cosmeticInput.fill(postData.cosmeticName)
+      } else {
+        await this.page.locator('input[name="cosmeticName"]').fill(postData.cosmeticName)
+      }
     }
 
     if (postData.cosmeticCategory) {
-      await this.page.getByLabel('コスメカテゴリ').selectOption(postData.cosmeticCategory)
+      if (isMobileSafari) {
+        await this.page.waitForSelector(
+          'select[name="cosmeticCategory"], select[id="cosmeticCategory"]',
+          {
+            state: 'visible',
+            timeout: 20000,
+          }
+        )
+        const categorySelect = await this.page
+          .locator('select[name="cosmeticCategory"], select[id="cosmeticCategory"]')
+          .first()
+        await categorySelect.selectOption(postData.cosmeticCategory)
+      } else {
+        await this.page
+          .locator('select[name="cosmeticCategory"]')
+          .selectOption(postData.cosmeticCategory)
+      }
     }
 
     // 最後のステップまで進む
@@ -114,17 +255,30 @@ export class PostHelper {
     cosmeticName?: string
     cosmeticCategory?: string
   }) {
-    await this.page.goto('/posts/new')
+    const isMobileSafari = await this.isMobileSafari()
+    const isWebKit = await this.isWebKit()
 
-    await this.page.getByLabel('タイトル').fill(postData.title)
+    await this.page.goto('/posts/new', {
+      waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
+      timeout: isWebKit ? 30000 : 15000,
+    })
+
+    // Mobile SafariとWebKitの場合は追加の待機時間
+    if (isMobileSafari || isWebKit) {
+      await this.page.waitForTimeout(3000)
+    }
+
+    await this.page.locator('input[name="title"]').fill(postData.title)
     await this.page.locator('textarea[name="content"]').fill(postData.content)
 
     if (postData.cosmeticName) {
-      await this.page.getByLabel('使用したコスメ名').fill(postData.cosmeticName)
+      await this.page.locator('input[name="cosmeticName"]').fill(postData.cosmeticName)
     }
 
     if (postData.cosmeticCategory) {
-      await this.page.getByLabel('コスメカテゴリ').selectOption(postData.cosmeticCategory)
+      await this.page
+        .locator('select[name="cosmeticCategory"]')
+        .selectOption(postData.cosmeticCategory)
     }
 
     // save-draft-buttonが見つからない場合は、フォームがステップ形式のため
@@ -155,10 +309,21 @@ export class PostHelper {
       category?: string
     }
   ) {
-    await this.page.goto(`/posts/${postId}/edit`)
+    const isMobileSafari = await this.isMobileSafari()
+    const isWebKit = await this.isWebKit()
+
+    await this.page.goto(`/posts/${postId}/edit`, {
+      waitUntil: isWebKit ? 'networkidle' : 'domcontentloaded',
+      timeout: isWebKit ? 30000 : 15000,
+    })
+
+    // Mobile SafariとWebKitの場合は追加の待機時間
+    if (isMobileSafari || isWebKit) {
+      await this.page.waitForTimeout(3000)
+    }
 
     if (newData.title) {
-      await this.page.getByLabel('タイトル').fill(newData.title)
+      await this.page.locator('input[name="title"]').fill(newData.title)
     }
 
     if (newData.content) {
@@ -166,7 +331,7 @@ export class PostHelper {
     }
 
     if (newData.category) {
-      await this.page.getByLabel('コスメカテゴリ').selectOption(newData.category)
+      await this.page.locator('select[name="cosmeticCategory"]').selectOption(newData.category)
     }
 
     await this.page.getByRole('button', { name: '更新' }).click()

@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env.local' })
 const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
 
@@ -15,6 +16,7 @@ async function main() {
       emailVerified: true, // メール認証済みに設定
       failedLoginAttempts: 0, // ログイン失敗回数をリセット
       lockedUntil: null, // アカウントロックを解除
+      isActive: true, // アクティブ状態に設定
     },
     create: {
       userName: 'demo_user',
@@ -23,6 +25,7 @@ async function main() {
       skinType: 'normal',
       role: 'USER',
       emailVerified: true, // メール認証済みに設定
+      isActive: true, // アクティブ状態に設定
     },
   })
 
@@ -36,6 +39,7 @@ async function main() {
       emailVerified: true,
       failedLoginAttempts: 0,
       lockedUntil: null,
+      isActive: true,
     },
     create: {
       userName: 'admin',
@@ -43,6 +47,7 @@ async function main() {
       passwordHash: hashedPassword, // 同じパスワード (demo1234) を使用
       role: 'SUPER_ADMIN',
       emailVerified: true,
+      isActive: true,
     },
   })
 

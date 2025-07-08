@@ -33,7 +33,9 @@ export async function adaptResponseWithCookie(
     return response
   }
 
-  const responseData = await response.json()
+  // Clone the response to avoid "Body is unusable" error
+  const clonedResponse = response.clone()
+  const responseData = await clonedResponse.json()
   const newResponse = NextResponse.json(responseData, {
     status: response.status,
     headers: response.headers,

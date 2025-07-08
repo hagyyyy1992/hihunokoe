@@ -421,7 +421,7 @@ git rebase -i HEAD~3
 
 ### Mock Data & Admin Panel
 
-- Demo users available for testing (password: `demo123`)
+- Demo users available for testing (password: `demo1234`)
 - Mock mode enables offline development
 - Controlled by `USE_MOCK_DATA` environment variable
 - Admin panel accessible at `/admin` with role-based permissions

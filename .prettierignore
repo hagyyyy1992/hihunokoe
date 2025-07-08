@@ -48,3 +48,7 @@ prisma/migrations/
 public/sw.js
 public/sw.js.map
 public/workbox-*
+
+# Test results
+test-results.json
+test-results.log

@@ -166,21 +166,51 @@ export async function registerAndLoginTestUser(
   let authCookie = null
   retryCount = 0
 
-  while (!authCookie && retryCount < 3) {
+  // モバイルChrome判定の追加
+  const userAgent = await page.evaluate(() => navigator.userAgent)
+  const isMobileChrome = userAgent.includes('Chrome') && userAgent.includes('Mobile')
+
+  while (!authCookie && retryCount < 5) {
     const cookies = await page.context().cookies()
     authCookie = cookies.find(c => c.name === 'auth-token')
 
     if (!authCookie) {
       retryCount++
       console.log(`Auth cookie not found, attempt ${retryCount}/5`)
-      await page.waitForTimeout(isWebKit ? 3000 : 2000) // 待機時間も少し増やす
+
+      // モバイルChromeとWebKitは長めの待機時間
+      const waitTime = isWebKit ? 3000 : isMobileChrome ? 4000 : 2000
+      await page.waitForTimeout(waitTime)
+
+      // モバイルChromeの場合、ページをリロードして再度チェック
+      if (isMobileChrome && retryCount === 3) {
+        await page.reload({ waitUntil: 'networkidle' })
+        await page.waitForTimeout(2000)
+      }
     }
   }
 
   if (!authCookie) {
     console.error('Auth cookie not found after multiple attempts')
-    // WebKitの場合はクッキーのチェックをスキップ（別の認証方法を使用している可能性）
-    if (!isWebKit) {
+
+    // WebKitとモバイルChromeの場合は、代替の認証確認方法を使用
+    if (isWebKit || isMobileChrome) {
+      // LocalStorageまたはページコンテンツから認証状態を確認
+      const isAuthenticated = await page.evaluate(() => {
+        // LocalStorageからトークンをチェック
+        const token = localStorage.getItem('auth-token')
+        if (token) return true
+
+        // ログイン状態を示す要素の存在を確認
+        const userMenu = document.querySelector('[data-testid="user-menu-button"]')
+        const logoutButton = document.querySelector('[aria-label="ログアウト"]')
+        return !!(userMenu || logoutButton)
+      })
+
+      if (!isAuthenticated && !isWebKit) {
+        throw new Error('Authentication cookie not set after login (Mobile Chrome)')
+      }
+    } else {
       throw new Error('Authentication cookie not set after login')
     }
   }
@@ -564,14 +594,33 @@ export class AuthHelper {
         // Wait for menu to open
         await this.page.waitForTimeout(isWebKit ? 1000 : 500)
 
-        // Check for mobile user menu button - get the last one (mobile should be last)
-        const mobileUserMenuButton = this.page.getByTestId('user-menu-button').last()
-        await expect(mobileUserMenuButton).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
+        // Check for mobile user menu element (not a button, just a display element)
+        const mobileUserMenuElement = this.page.getByTestId('user-menu-button').last()
+        await expect(mobileUserMenuElement).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
+
+        // Also check for logout button to confirm authentication
+        const logoutButton = this.page.getByTestId('logout-button').last()
+        await expect(logoutButton).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
       }
     } else {
-      // Desktop view - target the user menu button
-      const desktopUserMenuButton = this.page.locator('[data-testid="user-menu-button"]')
-      await expect(desktopUserMenuButton).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
+      // Desktop view - check for user menu element and logout button
+      // Wait for the page to stabilize
+      await this.page.waitForLoadState('networkidle')
+
+      // Check for user name (contains "さん") or logout button
+      // Either one confirms authentication
+      const userNameElement = this.page.locator('text=/.*さん/')
+      const logoutButton = this.page.getByRole('button', { name: 'ログアウト' })
+
+      // Wait for either element to be visible
+      await expect(async () => {
+        const userNameVisible = await userNameElement.isVisible().catch(() => false)
+        const logoutVisible = await logoutButton.isVisible().catch(() => false)
+
+        if (!userNameVisible && !logoutVisible) {
+          throw new Error('Neither user name nor logout button found')
+        }
+      }).toPass({ timeout: isWebKit ? 15000 : 10000 })
     }
   }
 

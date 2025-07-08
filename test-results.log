@@ -1,0 +1,705 @@
+
+> hihunokoe@0.1.0 test:e2e
+> playwright test
+
+🚀 Running global setup for E2E tests...
+✅ Database connection verified
+✅ Rate limiter reset
+⚠️  Demo user login failed, but continuing...
+✅ Global setup completed
+
+Running 280 tests using 1 worker
+
+
+Running 280 tests using 1 worker
+
+[1A[2K[1/280] [chromium] › e2e/auth/basic-auth.spec.ts:4:7 › 基本的な認証フロー › 登録ページが正しく表示される
+  ✓  1 [chromium] › e2e/auth/basic-auth.spec.ts:4:7 › 基本的な認証フロー › 登録ページが正しく表示される (1.2s)
+[1A[2K[2/280] [chromium] › e2e/auth/basic-auth.spec.ts:19:7 › 基本的な認証フロー › ログインページが正しく表示される
+  ✓  2 [chromium] › e2e/auth/basic-auth.spec.ts:19:7 › 基本的な認証フロー › ログインページが正しく表示される (862ms)
+[1A[2K[3/280] [chromium] › e2e/auth/basic-auth.spec.ts:32:7 › 基本的な認証フロー › フォーム入力が正常に動作する
+  ✓  3 [chromium] › e2e/auth/basic-auth.spec.ts:32:7 › 基本的な認証フロー › フォーム入力が正常に動作する (881ms)
+[1A[2K[4/280] [chromium] › e2e/auth/basic-auth.spec.ts:58:7 › 基本的な認証フロー › バリデーションエラーが表示される
+  ✓  4 [chromium] › e2e/auth/basic-auth.spec.ts:58:7 › 基本的な認証フロー › バリデーションエラーが表示される (346ms)
+[1A[2K[5/280] [chromium] › e2e/auth/basic-auth.spec.ts:69:7 › 基本的な認証フロー › ナビゲーションリンクが機能する
+  ✓  5 [chromium] › e2e/auth/basic-auth.spec.ts:69:7 › 基本的な認証フロー › ナビゲーションリンクが機能する (1.2s)
+[1A[2K[6/280] [chromium] › e2e/auth/login.spec.ts:25:7 › ログイン › 正常なログインができる
+[1A[2K[chromium] › e2e/auth/login.spec.ts:25:7 › ログイン › 正常なログインができる
+Login verification attempt 1/3. Current URL: http://localhost:3000/auth/login
+
+Login verification attempt 1/3. Current URL: http://localhost:3000/auth/login
+[1A[2KLogin verification attempt 2/3. Current URL: http://localhost:3000/auth/login
+
+Login verification attempt 2/3. Current URL: http://localhost:3000/auth/login
+[1A[2KLogin verification attempt 3/3. Current URL: http://localhost:3000/auth/login
+
+Login verification attempt 3/3. Current URL: http://localhost:3000/auth/login
+[1A[2K  1) [chromium] › e2e/auth/login.spec.ts:25:7 › ログイン › 正常なログインができる ─────────────────────────────────
+
+    Error: Still on login page, not logged in
+
+       at helpers/auth-helpers.ts:567
+
+      565 |     const currentUrl = this.page.url()
+      566 |     if (currentUrl.includes('/auth/login')) {
+    > 567 |       throw new Error('Still on login page, not logged in')
+          |             ^
+      568 |     }
+      569 |
+      570 |     if (isMobile) {
+        at AuthHelper.expectToBeLoggedIn (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/auth-helpers.ts:567:13)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/auth/login.spec.ts:65:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-正常なログインができる-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-正常なログインができる-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-ログイン-正常なログインができる-chromium/error-context.md
+
+
+  ✘  6 [chromium] › e2e/auth/login.spec.ts:25:7 › ログイン › 正常なログインができる (10.7s)
+[1A[2K[7/280] [chromium] › e2e/auth/login.spec.ts:68:7 › ログイン › 無効な認証情報でログインが失敗する
+  ✓  7 [chromium] › e2e/auth/login.spec.ts:68:7 › ログイン › 無効な認証情報でログインが失敗する (3.1s)
+[1A[2K[8/280] [chromium] › e2e/auth/login.spec.ts:74:7 › ログイン › 空のフィールドでバリデーションエラーが表示される
+  ✓  8 [chromium] › e2e/auth/login.spec.ts:74:7 › ログイン › 空のフィールドでバリデーションエラーが表示される (891ms)
+[1A[2K[9/280] [chromium] › e2e/auth/login.spec.ts:91:7 › ログイン › 無効なメールアドレス形式でエラーが表示される
+  ✓  9 [chromium] › e2e/auth/login.spec.ts:91:7 › ログイン › 無効なメールアドレス形式でエラーが表示される (934ms)
+[1A[2K[10/280] [chromium] › e2e/auth/login.spec.ts:107:7 › ログイン › ログイン成功後にリダイレクトされる
+[1A[2K  2) [chromium] › e2e/auth/login.spec.ts:107:7 › ログイン › ログイン成功後にリダイレクトされる ──────────────────────────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m
+
+    Locator: locator(':root')
+    Expected pattern: [32m/\/home/[39m
+    Received string:  [31m"http://localhost:3000/auth/login"[39m
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m  - waiting for locator(':root')[22m
+    [2m    9 × locator resolved to <html lang="ja">…</html>[22m
+    [2m      - unexpected value "http://localhost:3000/auth/login"[22m
+
+
+      137 |
+      138 |     // 元々アクセスしようとしたページにリダイレクトされる
+    > 139 |     await expect(page).toHaveURL(/\/home/)
+          |                        ^
+      140 |   })
+      141 |
+      142 |   test('Remember me 機能のテスト', async ({ page, context }) => {
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/auth/login.spec.ts:139:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログイン成功後にリダイレクトされる-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログイン成功後にリダイレクトされる-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-ログイン-ログイン成功後にリダイレクトされる-chromium/error-context.md
+
+
+  ✘  10 [chromium] › e2e/auth/login.spec.ts:107:7 › ログイン › ログイン成功後にリダイレクトされる (8.3s)
+[1A[2K[11/280] [chromium] › e2e/auth/login.spec.ts:142:7 › ログイン › Remember me 機能のテスト
+[1A[2K  3) [chromium] › e2e/auth/login.spec.ts:142:7 › ログイン › Remember me 機能のテスト ─────────────────────────
+
+    TimeoutError: page.waitForURL: Timeout 15000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/home" until "load"
+    ============================================================
+
+      162 |
+      163 |     // ログイン成功を待つ - ホームページへのリダイレクトを確認
+    > 164 |     await page.waitForURL('/home', { timeout: 15000 })
+          |                ^
+      165 |
+      166 |     // ページが完全に読み込まれるまで待機
+      167 |     await page.waitForLoadState('networkidle')
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/auth/login.spec.ts:164:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-Remember-me-機能のテスト-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-Remember-me-機能のテスト-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-ログイン-Remember-me-機能のテスト-chromium/error-context.md
+
+
+  ✘  11 [chromium] › e2e/auth/login.spec.ts:142:7 › ログイン › Remember me 機能のテスト (16.4s)
+[1A[2K[12/280] [chromium] › e2e/auth/login.spec.ts:190:7 › ログイン › パスワードリセットリンクが機能する
+  ✓  12 [chromium] › e2e/auth/login.spec.ts:190:7 › ログイン › パスワードリセットリンクが機能する (1.6s)
+[1A[2K[13/280] [chromium] › e2e/auth/login.spec.ts:209:7 › ログイン › 新規登録リンクが機能する
+  ✓  13 [chromium] › e2e/auth/login.spec.ts:209:7 › ログイン › 新規登録リンクが機能する (995ms)
+[1A[2K[14/280] [chromium] › e2e/auth/login.spec.ts:226:7 › ログイン › ログイン試行回数制限のテスト
+[1A[2K  4) [chromium] › e2e/auth/login.spec.ts:226:7 › ログイン › ログイン試行回数制限のテスト ─────────────────────────────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m
+
+    Locator: locator('[data-testid="error-message"]')
+    Expected string: [32m"[7mメールアドレスまたはパスワードが間違っ[27mています"[39m
+    Received string: [31m"[7mログイン試行回数が多すぎるため、アカウントがロックされ[27mています"[39m
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-testid="error-message"]')[22m
+    [2m    9 × locator resolved to <div data-testid="error-message" class="p-3 rounded-md text-sm bg-red-50 text-red-700 border border-red-200">ログイン試行回数が多すぎるため、アカウントがロックされています</div>[22m
+    [2m      - unexpected value "ログイン試行回数が多すぎるため、アカウントがロックされています"[22m
+
+
+       at helpers/auth-helpers.ts:717
+
+      715 |     }
+      716 |
+    > 717 |     await expect(this.page.locator('[data-testid="error-message"]')).toContainText(message)
+          |                                                                      ^
+      718 |   }
+      719 |
+      720 |   async expectSuccessMessage(message: string) {
+        at AuthHelper.expectErrorMessage (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/auth-helpers.ts:717:70)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/auth/login.spec.ts:235:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログイン試行回数制限のテスト-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログイン試行回数制限のテスト-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-ログイン-ログイン試行回数制限のテスト-chromium/error-context.md
+
+
+  ✘  14 [chromium] › e2e/auth/login.spec.ts:226:7 › ログイン › ログイン試行回数制限のテスト (8.1s)
+[1A[2K[15/280] [chromium] › e2e/auth/login.spec.ts:240:7 › ログイン › ログアウト機能が正常に動作する
+[1A[2K  5) [chromium] › e2e/auth/login.spec.ts:240:7 › ログイン › ログアウト機能が正常に動作する ────────────────────────────
+
+    Error: [31mTimed out 10000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m
+
+    Locator: locator(':root')
+    Expected string: [32m"http://localhost:3000/[7mhome[27m"[39m
+    Received string: [31m"http://localhost:3000/[7mauth/login[27m"[39m
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 10000ms[22m
+    [2m  - waiting for locator(':root')[22m
+    [2m    14 × locator resolved to <html lang="ja">…</html>[22m
+    [2m       - unexpected value "http://localhost:3000/auth/login"[22m
+
+
+      249 |
+      250 |     // ログイン成功を待つ（タイムアウトを延長）
+    > 251 |     await expect(page).toHaveURL('/home', { timeout: 10000 })
+          |                        ^
+      252 |
+      253 |     // ログイン状態を確認
+      254 |     await authHelper.expectToBeLoggedIn()
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/auth/login.spec.ts:251:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログアウト機能が正常に動作する-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-ログイン-ログアウト機能が正常に動作する-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-ログイン-ログアウト機能が正常に動作する-chromium/error-context.md
+
+
+  ✘  15 [chromium] › e2e/auth/login.spec.ts:240:7 › ログイン › ログアウト機能が正常に動作する (11.2s)
+[1A[2K[16/280] [chromium] › e2e/auth/password-reset.spec.ts:24:9 › パスワードリセット › パスワードリセット要求 › 有効なメールアドレスでリセットメール送信が成功する
+[1A[2K[2m[WebServer] [22mMailHog email error: Error: connect ECONNREFUSED 127.0.0.1:1031
+[2m[WebServer] [22m    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:1031) {
+[2m[WebServer] [22m  errno: [33m-61[39m,
+[2m[WebServer] [22m  code: [32m'ESOCKET'[39m,
+[2m[WebServer] [22m  syscall: [32m'connect'[39m,
+[2m[WebServer] [22m  address: [32m'127.0.0.1'[39m,
+[2m[WebServer] [22m  port: [33m1031[39m,
+[2m[WebServer] [22m  command: [32m'CONN'[39m
+[2m[WebServer] [22m}
+
+[2m[WebServer] [22mMailHog email error: Error: connect ECONNREFUSED 127.0.0.1:1031
+[2m[WebServer] [22m    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:1031) {
+[2m[WebServer] [22m  errno: [33m-61[39m,
+[2m[WebServer] [22m  code: [32m'ESOCKET'[39m,
+[2m[WebServer] [22m  syscall: [32m'connect'[39m,
+[2m[WebServer] [22m  address: [32m'127.0.0.1'[39m,
+[2m[WebServer] [22m  port: [33m1031[39m,
+[2m[WebServer] [22m  command: [32m'CONN'[39m
+[2m[WebServer] [22m}
+[1A[2K[2m[WebServer] [22mFailed to send password reset email: Error: Failed to send email via MailHog
+[2m[WebServer] [22m    at sendEmail (src/lib/email/email.ts:53:12)
+[2m[WebServer] [22m    at async sendPasswordResetEmail (src/lib/auth/password-reset.ts:42:2)
+[2m[WebServer] [22m    at async EmailServiceImpl.sendPasswordResetEmail (api/src/interface-adapters/services/EmailServiceImpl.ts:14:4)
+[2m[WebServer] [22m    at async ForgotPasswordUseCase.execute (api/src/usecases/auth/ForgotPasswordUseCase.ts:56:6)
+[2m[WebServer] [22m    at async AuthController.forgotPassword (api/src/framework/controllers/AuthController.ts:145:21)
+[2m[WebServer] [22m[0m [90m 51 |[39m     } [36mcatch[39m (error) {[0m
+[2m[WebServer] [22m[0m [90m 52 |[39m       console[33m.[39merror([32m'MailHog email error:'[39m[33m,[39m error)[0m
+[2m[WebServer] [22m[0m[31m[1m>[22m[39m[90m 53 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'Failed to send email via MailHog'[39m)[0m
+[2m[WebServer] [22m[0m [90m    |[39m            [31m[1m^[22m[39m[0m
+[2m[WebServer] [22m[0m [90m 54 |[39m     }[0m
+[2m[WebServer] [22m[0m [90m 55 |[39m   } [36melse[39m {[0m
+[2m[WebServer] [22m[0m [90m 56 |[39m     [90m// 本番環境ではResendを使用[39m[0m
+
+[2m[WebServer] [22mFailed to send password reset email: Error: Failed to send email via MailHog
+[2m[WebServer] [22m    at sendEmail (src/lib/email/email.ts:53:12)
+[2m[WebServer] [22m    at async sendPasswordResetEmail (src/lib/auth/password-reset.ts:42:2)
+[2m[WebServer] [22m    at async EmailServiceImpl.sendPasswordResetEmail (api/src/interface-adapters/services/EmailServiceImpl.ts:14:4)
+[2m[WebServer] [22m    at async ForgotPasswordUseCase.execute (api/src/usecases/auth/ForgotPasswordUseCase.ts:56:6)
+[2m[WebServer] [22m    at async AuthController.forgotPassword (api/src/framework/controllers/AuthController.ts:145:21)
+[2m[WebServer] [22m[0m [90m 51 |[39m     } [36mcatch[39m (error) {[0m
+[2m[WebServer] [22m[0m [90m 52 |[39m       console[33m.[39merror([32m'MailHog email error:'[39m[33m,[39m error)[0m
+[2m[WebServer] [22m[0m[31m[1m>[22m[39m[90m 53 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'Failed to send email via MailHog'[39m)[0m
+[2m[WebServer] [22m[0m [90m    |[39m            [31m[1m^[22m[39m[0m
+[2m[WebServer] [22m[0m [90m 54 |[39m     }[0m
+[2m[WebServer] [22m[0m [90m 55 |[39m   } [36melse[39m {[0m
+[2m[WebServer] [22m[0m [90m 56 |[39m     [90m// 本番環境ではResendを使用[39m[0m
+  ✓  16 [chromium] › e2e/auth/password-reset.spec.ts:24:9 › パスワードリセット › パスワードリセット要求 › 有効なメールアドレスでリセットメール送信が成功する (4.8s)
+[1A[2K[17/280] [chromium] › e2e/auth/password-reset.spec.ts:57:9 › パスワードリセット › パスワードリセット要求 › 存在しないメールアドレスでも同じ成功メッセージを表示する（セキュリティ対策）
+  ✓  17 [chromium] › e2e/auth/password-reset.spec.ts:57:9 › パスワードリセット › パスワードリセット要求 › 存在しないメールアドレスでも同じ成功メッセージを表示する（セキュリティ対策） (993ms)
+[1A[2K[18/280] [chromium] › e2e/auth/password-reset.spec.ts:88:9 › パスワードリセット › パスワードリセット要求 › 無効なメールアドレス形式でHTML5バリデーションが動作する
+  ✓  18 [chromium] › e2e/auth/password-reset.spec.ts:88:9 › パスワードリセット › パスワードリセット要求 › 無効なメールアドレス形式でHTML5バリデーションが動作する (880ms)
+[1A[2K[19/280] [chromium] › e2e/auth/password-reset.spec.ts:103:9 › パスワードリセット › パスワードリセット要求 › 空のメールアドレスでHTML5バリデーションが動作する
+  ✓  19 [chromium] › e2e/auth/password-reset.spec.ts:103:9 › パスワードリセット › パスワードリセット要求 › 空のメールアドレスでHTML5バリデーションが動作する (865ms)
+[1A[2K[20/280] [chromium] › e2e/auth/password-reset.spec.ts:117:9 › パスワードリセット › パスワードリセット要求 › ローディング状態が適切に表示される
+  ✓  20 [chromium] › e2e/auth/password-reset.spec.ts:117:9 › パスワードリセット › パスワードリセット要求 › ローディング状態が適切に表示される (980ms)
+[1A[2K[21/280] [chromium] › e2e/auth/password-reset.spec.ts:133:9 › パスワードリセット › パスワードリセット要求 › ログインページへのリンクが機能する
+  ✓  21 [chromium] › e2e/auth/password-reset.spec.ts:133:9 › パスワードリセット › パスワードリセット要求 › ログインページへのリンクが機能する (999ms)
+[1A[2K[22/280] [chromium] › e2e/auth/password-reset.spec.ts:145:9 › パスワードリセット › パスワードリセット実行 › 無効なトークンでエラーメッセージが表示される
+  ✓  22 [chromium] › e2e/auth/password-reset.spec.ts:145:9 › パスワードリセット › パスワードリセット実行 › 無効なトークンでエラーメッセージが表示される (2.2s)
+[1A[2K[23/280] [chromium] › e2e/auth/password-reset.spec.ts:156:9 › パスワードリセット › パスワードリセット実行 › トークンなしでエラーメッセージが表示される
+  ✓  23 [chromium] › e2e/auth/password-reset.spec.ts:156:9 › パスワードリセット › パスワードリセット実行 › トークンなしでエラーメッセージが表示される (905ms)
+[1A[2K[24/280] [chromium] › e2e/auth/password-reset.spec.ts:167:9 › パスワードリセット › パスワードリセット実行 › ログインページへのリンクが機能する
+  ✓  24 [chromium] › e2e/auth/password-reset.spec.ts:167:9 › パスワードリセット › パスワードリセット実行 › ログインページへのリンクが機能する (1.1s)
+[1A[2K[25/280] [chromium] › e2e/auth/password-reset.spec.ts:179:9 › パスワードリセット › UIとユーザビリティ › フォームのレイアウトとスタイルが適切に表示される
+  ✓  25 [chromium] › e2e/auth/password-reset.spec.ts:179:9 › パスワードリセット › UIとユーザビリティ › フォームのレイアウトとスタイルが適切に表示される (830ms)
+[1A[2K[26/280] [chromium] › e2e/auth/password-reset.spec.ts:194:9 › パスワードリセット › UIとユーザビリティ › レスポンシブデザインが動作する
+  ✓  26 [chromium] › e2e/auth/password-reset.spec.ts:194:9 › パスワードリセット › UIとユーザビリティ › レスポンシブデザインが動作する (835ms)
+[1A[2K[27/280] [chromium] › e2e/auth/rate-limiting.spec.ts:40:9 › レート制限 › パスワードリセット要求のレート制限 › 3回のリクエスト後にレート制限が適用される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:40:9 › レート制限 › パスワードリセット要求のレート制限 › 3回のリクエスト後にレート制限が適用される
+1回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+1回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+[1A[2K2回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+2回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+[1A[2K3回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+3回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+[1A[2K4回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+4回目のメッセージ: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+  ✓  27 [chromium] › e2e/auth/rate-limiting.spec.ts:40:9 › レート制限 › パスワードリセット要求のレート制限 › 3回のリクエスト後にレート制限が適用される (3.0s)
+[1A[2K[28/280] [chromium] › e2e/auth/rate-limiting.spec.ts:100:9 › レート制限 › パスワードリセット要求のレート制限 › レート制限はIPアドレスベースで適用される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:100:9 › レート制限 › パスワードリセット要求のレート制限 › レート制限はIPアドレスベースで適用される
+レート制限が適用されませんでしたが、他のテストの影響の可能性があります: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+レート制限が適用されませんでしたが、他のテストの影響の可能性があります: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+  ✓  28 [chromium] › e2e/auth/rate-limiting.spec.ts:100:9 › レート制限 › パスワードリセット要求のレート制限 › レート制限はIPアドレスベースで適用される (3.2s)
+[1A[2K[29/280] [chromium] › e2e/auth/rate-limiting.spec.ts:159:9 › レート制限 › パスワードリセット要求のレート制限 › 無効なメールアドレスでもレート制限が適用される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:159:9 › レート制限 › パスワードリセット要求のレート制限 › 無効なメールアドレスでもレート制限が適用される
+レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります
+
+レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります
+  ✓  29 [chromium] › e2e/auth/rate-limiting.spec.ts:159:9 › レート制限 › パスワードリセット要求のレート制限 › 無効なメールアドレスでもレート制限が適用される (3.1s)
+[1A[2K[30/280] [chromium] › e2e/auth/rate-limiting.spec.ts:206:9 › レート制限 › パスワードリセット実行のレート制限 › 有効なトークンでのレート制限テスト
+  ✓  30 [chromium] › e2e/auth/rate-limiting.spec.ts:206:9 › レート制限 › パスワードリセット実行のレート制限 › 有効なトークンでのレート制限テスト (3.3s)
+[1A[2K[31/280] [chromium] › e2e/auth/rate-limiting.spec.ts:229:9 › レート制限 › レート制限のユーザーエクスペリエンス › レート制限メッセージが適切に表示される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:229:9 › レート制限 › レート制限のユーザーエクスペリエンス › レート制限メッセージが適切に表示される
+レート制限メッセージが表示されませんでしたが、他のテストの影響の可能性があります
+
+レート制限メッセージが表示されませんでしたが、他のテストの影響の可能性があります
+  ✓  31 [chromium] › e2e/auth/rate-limiting.spec.ts:229:9 › レート制限 › レート制限のユーザーエクスペリエンス › レート制限メッセージが適切に表示される (3.1s)
+[1A[2K[32/280] [chromium] › e2e/auth/rate-limiting.spec.ts:274:9 › レート制限 › レート制限のユーザーエクスペリエンス › レート制限中でもフォームは操作可能である
+  ✓  32 [chromium] › e2e/auth/rate-limiting.spec.ts:274:9 › レート制限 › レート制限のユーザーエクスペリエンス › レート制限中でもフォームは操作可能である (3.2s)
+[1A[2K[33/280] [chromium] › e2e/auth/rate-limiting.spec.ts:313:9 › レート制限 › レート制限の境界値テスト › 正確に3回まで許可され、4回目で制限される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:313:9 › レート制限 › レート制限の境界値テスト › 正確に3回まで許可され、4回目で制限される
+レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります
+
+レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります
+  ✓  33 [chromium] › e2e/auth/rate-limiting.spec.ts:313:9 › レート制限 › レート制限の境界値テスト › 正確に3回まで許可され、4回目で制限される (3.1s)
+[1A[2K[34/280] [chromium] › e2e/auth/rate-limiting.spec.ts:358:9 › レート制限 › レート制限の境界値テスト › ページリロード後でもレート制限が維持される
+[1A[2K[chromium] › e2e/auth/rate-limiting.spec.ts:358:9 › レート制限 › レート制限の境界値テスト › ページリロード後でもレート制限が維持される
+ページリロード後でもレート制限が維持されていませんでした、他のテストの影響の可能性があります: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+
+ページリロード後でもレート制限が維持されていませんでした、他のテストの影響の可能性があります: パスワードリセットメールを送信しました。メールボックスをご確認ください。
+  ✓  34 [chromium] › e2e/auth/rate-limiting.spec.ts:358:9 › レート制限 › レート制限の境界値テスト › ページリロード後でもレート制限が維持される (3.3s)
+[1A[2K[35/280] [chromium] › e2e/auth/registration.spec.ts:12:7 › ユーザー登録 › 正常なユーザー登録ができる
+  ✓  35 [chromium] › e2e/auth/registration.spec.ts:12:7 › ユーザー登録 › 正常なユーザー登録ができる (778ms)
+[1A[2K[36/280] [chromium] › e2e/auth/registration.spec.ts:34:7 › ユーザー登録 › バリデーションエラーが正しく表示される
+  ✓  36 [chromium] › e2e/auth/registration.spec.ts:34:7 › ユーザー登録 › バリデーションエラーが正しく表示される (347ms)
+[1A[2K[37/280] [chromium] › e2e/auth/registration.spec.ts:53:7 › ユーザー登録 › 無効なメールアドレスでエラーが表示される
+  ✓  37 [chromium] › e2e/auth/registration.spec.ts:53:7 › ユーザー登録 › 無効なメールアドレスでエラーが表示される (385ms)
+[1A[2K[38/280] [chromium] › e2e/auth/registration.spec.ts:71:7 › ユーザー登録 › 短すぎるパスワードでエラーが表示される
+  ✓  38 [chromium] › e2e/auth/registration.spec.ts:71:7 › ユーザー登録 › 短すぎるパスワードでエラーが表示される (4.7s)
+[1A[2K[39/280] [chromium] › e2e/auth/registration.spec.ts:81:7 › ユーザー登録 › 既存のメールアドレスで登録しようとするとエラーが表示される
+  ✓  39 [chromium] › e2e/auth/registration.spec.ts:81:7 › ユーザー登録 › 既存のメールアドレスで登録しようとするとエラーが表示される (3.4s)
+[1A[2K[40/280] [chromium] › e2e/auth/registration.spec.ts:106:7 › ユーザー登録 › 必須フィールドの動的バリデーション
+  ✓  40 [chromium] › e2e/auth/registration.spec.ts:106:7 › ユーザー登録 › 必須フィールドの動的バリデーション (310ms)
+[1A[2K[41/280] [chromium] › e2e/auth/registration.spec.ts:126:7 › ユーザー登録 › パスワードフィールドが正常に動作する
+  ✓  41 [chromium] › e2e/auth/registration.spec.ts:126:7 › ユーザー登録 › パスワードフィールドが正常に動作する (348ms)
+[1A[2K[42/280] [chromium] › e2e/auth/registration.spec.ts:137:7 › ユーザー登録 › 肌タイプ選択が正常に動作する
+  ✓  42 [chromium] › e2e/auth/registration.spec.ts:137:7 › ユーザー登録 › 肌タイプ選択が正常に動作する (299ms)
+[1A[2K[43/280] [chromium] › e2e/posts/create-post.spec.ts:22:7 › 投稿作成 › 正常な投稿作成ができる
+[1A[2K  6) [chromium] › e2e/posts/create-post.spec.ts:22:7 › 投稿作成 › 正常な投稿作成ができる ──────────────────────────
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/create-post.spec.ts:23:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-正常な投稿作成ができる-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-正常な投稿作成ができる-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-create-post-投稿作成-正常な投稿作成ができる-chromium/error-context.md
+
+
+  ✘  43 [chromium] › e2e/posts/create-post.spec.ts:22:7 › 投稿作成 › 正常な投稿作成ができる (1.0m)
+[1A[2K[44/280] [chromium] › e2e/posts/create-post.spec.ts:36:7 › 投稿作成 › 必須フィールドのバリデーション
+[1A[2K  7) [chromium] › e2e/posts/create-post.spec.ts:36:7 › 投稿作成 › 必須フィールドのバリデーション ──────────────────────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeDisabled[2m()[22m
+
+    Locator: getByRole('button', { name: '次へ' })
+    Expected: disabled
+    Received: <element(s) not found>
+    Call log:
+    [2m  - Expect "toBeDisabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: '次へ' })[22m
+
+
+      41 |
+      42 |     // 必須フィールドが空の場合、次へボタンが無効化されていることを確認
+    > 43 |     await expect(nextButton).toBeDisabled()
+         |                              ^
+      44 |
+      45 |     // タイトルだけ入力した場合
+      46 |     await page.getByLabel('タイトル').fill('テストタイトル')
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/create-post.spec.ts:43:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-必須フィールドのバリデーション-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-必須フィールドのバリデーション-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-create-post-投稿作成-必須フィールドのバリデーション-chromium/error-context.md
+
+
+  ✘  44 [chromium] › e2e/posts/create-post.spec.ts:36:7 › 投稿作成 › 必須フィールドのバリデーション (12.9s)
+[1A[2K[45/280] [chromium] › e2e/posts/create-post.spec.ts:58:7 › 投稿作成 › カテゴリ選択が正常に動作する
+[1A[2K  8) [chromium] › e2e/posts/create-post.spec.ts:58:7 › 投稿作成 › カテゴリ選択が正常に動作する ───────────────────────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m
+
+    Locator: getByLabel('コスメカテゴリ').locator('option[value="toner"]')
+    Expected string: [32m"化粧水"[39m
+    Received: <element(s) not found>
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByLabel('コスメカテゴリ').locator('option[value="toner"]')[22m
+
+
+      62 |
+      63 |     // 各カテゴリオプションが存在することを確認
+    > 64 |     await expect(categorySelect.locator('option[value="toner"]')).toContainText('化粧水')
+         |                                                                   ^
+      65 |     await expect(categorySelect.locator('option[value="serum"]')).toContainText('美容液')
+      66 |     await expect(categorySelect.locator('option[value="cream"]')).toContainText('クリーム')
+      67 |     await expect(categorySelect.locator('option[value="foundation"]')).toContainText(
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/create-post.spec.ts:64:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-カテゴリ選択が正常に動作する-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-カテゴリ選択が正常に動作する-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-create-post-投稿作成-カテゴリ選択が正常に動作する-chromium/error-context.md
+
+
+  ✘  45 [chromium] › e2e/posts/create-post.spec.ts:58:7 › 投稿作成 › カテゴリ選択が正常に動作する (12.8s)
+[1A[2K[46/280] [chromium] › e2e/posts/create-post.spec.ts:77:7 › 投稿作成 › ムード選択が正常に動作する
+[1A[2K  9) [chromium] › e2e/posts/create-post.spec.ts:77:7 › 投稿作成 › ムード選択が正常に動作する ────────────────────────
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+      79 |
+      80 |     // 必須フィールドを入力
+    > 81 |     await page.getByLabel('タイトル').fill('テストタイトル')
+         |                                   ^
+      82 |     await page.getByLabel('使用したコスメ名').fill('テストコスメ')
+      83 |     await page.locator('textarea[name="content"]').fill('テスト内容')
+      84 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/create-post.spec.ts:81:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-ムード選択が正常に動作する-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-create-post-投稿作成-ムード選択が正常に動作する-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-create-post-投稿作成-ムード選択が正常に動作する-chromium/error-context.md
+
+
+  ✘  46 [chromium] › e2e/posts/create-post.spec.ts:77:7 › 投稿作成 › ムード選択が正常に動作する (1.0m)
+[1A[2K[47/280] [chromium] › e2e/posts/filter-posts.spec.ts:7:7 › 投稿検索・フィルタリング › カテゴリフィルタが正常に動作する
+[1A[2K[chromium] › e2e/posts/filter-posts.spec.ts:7:7 › 投稿検索・フィルタリング › カテゴリフィルタが正常に動作する
+Initial post count: 2
+
+Initial post count: 2
+[1A[2KFiltered post count: 0
+
+Filtered post count: 0
+  ✓  47 [chromium] › e2e/posts/filter-posts.spec.ts:7:7 › 投稿検索・フィルタリング › カテゴリフィルタが正常に動作する (4.6s)
+[1A[2K[48/280] [chromium] › e2e/posts/view-post.spec.ts:26:7 › 投稿閲覧 › 投稿詳細が正しく表示される
+[1A[2K  10) [chromium] › e2e/posts/view-post.spec.ts:26:7 › 投稿閲覧 › 投稿詳細が正しく表示される ─────────────────────────
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+       9 |   let postId: string
+      10 |
+    > 11 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      12 |     authHelper = new AuthHelper(page)
+      13 |     postHelper = new PostHelper(page)
+      14 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:11:8
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:23:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-投稿詳細が正しく表示される-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-投稿詳細が正しく表示される-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-view-post-投稿閲覧-投稿詳細が正しく表示される-chromium/error-context.md
+
+
+  ✘  48 [chromium] › e2e/posts/view-post.spec.ts:26:7 › 投稿閲覧 › 投稿詳細が正しく表示される (1.0m)
+[1A[2K[49/280] [chromium] › e2e/posts/view-post.spec.ts:41:7 › 投稿閲覧 › 共感機能が正常に動作する
+[1A[2K  11) [chromium] › e2e/posts/view-post.spec.ts:41:7 › 投稿閲覧 › 共感機能が正常に動作する ──────────────────────────
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+       9 |   let postId: string
+      10 |
+    > 11 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      12 |     authHelper = new AuthHelper(page)
+      13 |     postHelper = new PostHelper(page)
+      14 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:11:8
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:23:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-共感機能が正常に動作する-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-共感機能が正常に動作する-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-view-post-投稿閲覧-共感機能が正常に動作する-chromium/error-context.md
+
+
+  ✘  49 [chromium] › e2e/posts/view-post.spec.ts:41:7 › 投稿閲覧 › 共感機能が正常に動作する (1.0m)
+[1A[2K[50/280] [chromium] › e2e/posts/view-post.spec.ts:61:7 › 投稿閲覧 › コメント機能が正常に動作する
+[1A[2K  12) [chromium] › e2e/posts/view-post.spec.ts:61:7 › 投稿閲覧 › コメント機能が正常に動作する ────────────────────────
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+       9 |   let postId: string
+      10 |
+    > 11 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      12 |     authHelper = new AuthHelper(page)
+      13 |     postHelper = new PostHelper(page)
+      14 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:11:8
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:23:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-コメント機能が正常に動作する-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-コメント機能が正常に動作する-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-view-post-投稿閲覧-コメント機能が正常に動作する-chromium/error-context.md
+
+
+  ✘  50 [chromium] › e2e/posts/view-post.spec.ts:61:7 › 投稿閲覧 › コメント機能が正常に動作する (1.0m)
+[1A[2K[51/280] [chromium] › e2e/posts/view-post.spec.ts:76:7 › 投稿閲覧 › コメントのバリデーション
+[1A[2K  13) [chromium] › e2e/posts/view-post.spec.ts:76:7 › 投稿閲覧 › コメントのバリデーション ──────────────────────────
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+       9 |   let postId: string
+      10 |
+    > 11 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      12 |     authHelper = new AuthHelper(page)
+      13 |     postHelper = new PostHelper(page)
+      14 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:11:8
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:23:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-コメントのバリデーション-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-コメントのバリデーション-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-view-post-投稿閲覧-コメントのバリデーション-chromium/error-context.md
+
+
+  ✘  51 [chromium] › e2e/posts/view-post.spec.ts:76:7 › 投稿閲覧 › コメントのバリデーション (1.0m)
+[1A[2K[52/280] [chromium] › e2e/posts/view-post.spec.ts:97:7 › 投稿閲覧 › 関連投稿が表示される
+[1A[2K  14) [chromium] › e2e/posts/view-post.spec.ts:97:7 › 投稿閲覧 › 関連投稿が表示される ────────────────────────────
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+       9 |   let postId: string
+      10 |
+    > 11 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      12 |     authHelper = new AuthHelper(page)
+      13 |     postHelper = new PostHelper(page)
+      14 |
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:11:8
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('タイトル')[22m
+
+
+       at helpers/post-helpers.ts:74
+
+      72 |       await contentTextarea.fill(postData.content)
+      73 |     } else {
+    > 74 |       await this.page.getByLabel('タイトル').fill(postData.title)
+         |                                          ^
+      75 |       await this.page.locator('textarea[name="content"]').fill(postData.content)
+      76 |     }
+      77 |
+        at PostHelper.createPost (/Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/helpers/post-helpers.ts:74:42)
+        at /Users/hagiharakeiichi/work/my-app/worktree/hihunokoe/feature/clean-arc/e2e/posts/view-post.spec.ts:23:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-関連投稿が表示される-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/posts-view-post-投稿閲覧-関連投稿が表示される-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/posts-view-post-投稿閲覧-関連投稿が表示される-chromium/error-context.md
+
+
+  ✘  52 [chromium] › e2e/posts/view-post.spec.ts:97:7 › 投稿閲覧 › 関連投稿が表示される (1.0m)
+[1A[2K[53/280] [chromium] › e2e/posts/view-post.spec.ts:122:7 › 投稿閲覧 › ゲストユーザーでも投稿を閲覧できる

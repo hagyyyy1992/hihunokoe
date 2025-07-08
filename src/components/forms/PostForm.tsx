@@ -288,6 +288,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               placeholder="例: ○○クリームを敏感肌で試してみました"
               showPlaceholderHint
               data-testid="post-title-input"
+              aria-label="タイトル"
             />
 
             <Input
@@ -299,6 +300,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               onChange={handleInputChange}
               placeholder="例: ○○ブランド モイスチャークリーム"
               showPlaceholderHint
+              aria-label="使用したコスメ名"
             />
 
             <div className="form-group">
@@ -696,6 +698,24 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                   </select>
                 </div>
               </div>
+            </div>
+
+            {/* 内容 */}
+            <div className="form-group">
+              <label htmlFor="content" className="form-label">
+                内容
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                value={formData.content}
+                onChange={handleInputChange}
+                rows={5}
+                className="textarea"
+                placeholder="使用感や効果について詳しく教えてください"
+                aria-label="内容"
+              />
             </div>
 
             {/* 総合的な感想 */}
