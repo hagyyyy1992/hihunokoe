@@ -43,26 +43,6 @@ test.describe('ログイン', () => {
       console.log('Already logged out or logout failed:', error)
     }
 
-    // APIレスポンスを監視
-    page.on('response', response => {
-      if (response.url().includes('/api/')) {
-        console.log(`[TEST] API call: ${response.url()} - Status: ${response.status()}`)
-        if (
-          response.url().includes('/api/auth/login') ||
-          response.url().includes('/api/v2/auth/me')
-        ) {
-          response
-            .text()
-            .then(text => {
-              console.log(`[TEST] Response body from ${response.url()}:`, text)
-            })
-            .catch(err => {
-              console.log('[TEST] Failed to read response:', err)
-            })
-        }
-      }
-    })
-
     // ログイン
     await authHelper.login(demoUser.email, demoUser.password)
 
