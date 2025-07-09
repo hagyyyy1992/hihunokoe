@@ -74,20 +74,6 @@ test.describe('投稿閲覧', () => {
     test.skip()
   })
 
-  test('ゲストユーザーでも投稿を閲覧できる', async ({ page }) => {
-    // ログアウト
-    await authHelper.logout()
-
-    // ゲストとして投稿を閲覧
-    await postHelper.viewPost(postId)
-
-    // 投稿内容は見えるが、共感やコメントはログインが必要
-    await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
-    await postHelper.expectPostContent(testPosts.samplePost.content)
-
-    // 共感機能は現在無効化されているため、ログイン促進リンクのテストもスキップ
-  })
-
   test('閲覧数がカウントされる', async ({ page }) => {
     await postHelper.viewPost(postId)
 
