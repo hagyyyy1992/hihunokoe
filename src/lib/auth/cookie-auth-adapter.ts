@@ -3,31 +3,35 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Adapts cookie-based authentication to bearer token format for clean architecture
  */
-export function adaptCookieToBearer(request: Request): Request {
+export function adaptCookieToBearer(request: Request): NextRequest {
   // NextRequestに変換
   const nextRequest = request as NextRequest
   const token = nextRequest.cookies?.get('auth-token')?.value
 
   if (!token) {
-    return request
+    return nextRequest
   }
 
   // リクエストヘッダーをクローン
   const headers = new Headers(request.headers)
   headers.set('Authorization', `Bearer ${token}`)
 
-  // 新しいRequestオブジェクトを作成
-  return new Request(request.url, {
+  // NextRequestとして新しいリクエストを作成
+  // NextRequestのコンストラクタを使用して、cookiesなどの情報を保持
+  const newRequest = new NextRequest(request.url, {
     method: request.method,
     headers,
     body: request.body,
-    mode: request.mode,
-    credentials: request.credentials,
-    cache: request.cache,
-    redirect: request.redirect,
-    referrer: request.referrer,
-    integrity: request.integrity,
+    // @ts-expect-error - NextRequestの内部プロパティ
+    cookies: nextRequest.cookies,
+    // @ts-expect-error - NextRequestの内部プロパティ
+    geo: nextRequest.geo,
+    // @ts-expect-error - NextRequestの内部プロパティ
+    ip: nextRequest.ip,
+    nextUrl: nextRequest.nextUrl,
   })
+
+  return newRequest
 }
 
 /**

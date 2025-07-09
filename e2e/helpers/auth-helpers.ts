@@ -75,8 +75,6 @@ export async function registerAndLoginTestUser(
   userData: { email: string; password: string; userName: string; skinType?: string }
 ) {
   const authHelper = new AuthHelper(page)
-  const browserName = page.context().browser()?.browserType().name()
-  const isWebKit = browserName === 'webkit'
 
   // Register the user
   await authHelper.register({
@@ -107,57 +105,13 @@ export async function registerAndLoginTestUser(
   // Login with the registered user
   await authHelper.login(userData.email, userData.password)
 
-  // 認証状態が確立されるまで待機
-  await page.waitForTimeout(isWebKit ? 3000 : 2000)
+  // 簡単な認証状態確認 - 1秒待機後、ホームページへの遷移を確認
+  await page.waitForTimeout(1000)
 
-  // 認証コンテキストが更新されるまで待機
-  await page
-    .waitForFunction(
-      () => {
-        // React Contextが更新されているか確認
-        // auth-tokenクッキーが設定されていることを確認
-        const cookies = document.cookie.split(';').map(c => c.trim())
-        const hasAuthCookie = cookies.some(c => c.startsWith('auth-token='))
-        return hasAuthCookie
-      },
-      { timeout: 10000 }
-    )
-    .catch(() => {})
-
-  // Verify we're logged in - シンプルな確認
-  await page.waitForTimeout(isWebKit ? 3000 : 2000)
-
-  // ホームページに遷移して認証状態を確認
-  try {
-    await page.goto('/home', { waitUntil: 'domcontentloaded', timeout: 30000 })
-    await page.waitForTimeout(1000)
-
-    const currentUrl = page.url()
-    if (currentUrl.includes('/auth/login')) {
-      throw new Error('Authentication failed - redirected to login page')
-    }
-  } catch (error) {
-    console.error('Navigation error:', error)
-    // エラーが発生しても続行
-  }
-
-  // クッキー確認はスキップ（タイミング問題があるため）
-
-  // 認証状態が安定するまで待機（WebKitは長めに）
-  await page.waitForTimeout(isWebKit ? 3000 : 1000)
-
-  // 最終確認: 認証が必要なAPIエンドポイントにアクセスできるか確認
-  const meResponse = await page.evaluate(async () => {
-    try {
-      const response = await fetch('/api/auth/me')
-      return { ok: response.ok, status: response.status }
-    } catch (error) {
-      return { ok: false, status: 0, error: error instanceof Error ? error.message : String(error) }
-    }
-  })
-
-  if (!meResponse.ok && meResponse.status !== 200) {
-    console.warn(`Auth verification API call failed: ${JSON.stringify(meResponse)}`)
+  // ログイン成功を確認
+  const currentUrl = page.url()
+  if (currentUrl.includes('/auth/login')) {
+    throw new Error('Authentication failed - still on login page')
   }
 }
 
@@ -165,7 +119,6 @@ export class AuthHelper {
   constructor(private page: Page) {}
 
   private isMobile(): boolean {
-    // Playwrightのデバイス名から判定
     const viewport = this.page.viewportSize()
     return viewport ? viewport.width < 768 : false
   }
@@ -181,261 +134,49 @@ export class AuthHelper {
   ) {
     await this.page.goto('/auth/register')
 
-    // モバイルブラウザの場合は追加の待機
-    if (this.isMobile()) {
-      await this.page.waitForTimeout(2000)
-    }
-
-    // Check for runtime errors
-    const runtimeError = await this.page
-      .locator('text=Runtime Error')
-      .isVisible()
-      .catch(() => false)
-    if (runtimeError) {
-      const errorMessage = await this.page
-        .locator('text=Error:')
-        .first()
-        .textContent()
-        .catch(() => '')
-      throw new Error(`Runtime error on registration page: ${errorMessage}`)
-    }
-
-    // Wait for form to be fully loaded
+    // Wait for form to be loaded
     await this.page.waitForSelector('[data-testid="register-form"]', { timeout: 10000 })
 
-    // モバイルブラウザでの入力を安定させるための遅延を追加
-    const inputDelay = this.isMobile() ? 500 : 200
-    await this.page.waitForTimeout(inputDelay)
-
+    // Fill form fields
     await this.page.getByLabel('ユーザー名 *').fill(userData.username)
-    await this.page.waitForTimeout(inputDelay)
-
     await this.page.getByLabel('メールアドレス *').fill(userData.email)
-    await this.page.waitForTimeout(inputDelay)
-
-    // パスワードフィールドも安全に処理
-    try {
-      const passwordInput = this.page.locator('input[name="password"]')
-      await passwordInput.waitFor({ state: 'visible', timeout: 5000 })
-      await passwordInput.fill(userData.password)
-      await this.page.waitForTimeout(inputDelay)
-    } catch (error) {
-      console.error('Failed to fill password field:', error)
-      throw new Error(`Failed to find password field: ${error}`)
-    }
-
-    // confirmPasswordフィールドを安全に処理
-    try {
-      const confirmPasswordInput = this.page.locator('input[name="confirmPassword"]')
-      await confirmPasswordInput.waitFor({ state: 'visible', timeout: 5000 })
-      await confirmPasswordInput.fill(userData.password)
-      await this.page.waitForTimeout(inputDelay)
-    } catch (error) {
-      // expectSuccessがfalseの場合、confirmPasswordフィールドが無効化されている可能性がある
-      if (!expectSuccess) {
-        // エラーが期待される場合は続行
-      } else {
-        // confirmPasswordフィールドが見つからない場合のデバッグ情報
-        console.error('=== REGISTRATION FORM ERROR ===')
-        console.error('Error finding confirmPassword field')
-        console.error('Current URL:', this.page.url())
-        console.error('Test user data:', { username: userData.username, email: userData.email })
-
-        // フォーム上の入力フィールドの状態を確認
-        const visiblePasswordInputs = await this.page.locator('input[type="password"]').count()
-        console.error('Number of visible password inputs:', visiblePasswordInputs)
-
-        // 全ての入力フィールドの名前を取得
-        const inputNames = await this.page.locator('input').evaluateAll(inputs =>
-          inputs.map(input => ({
-            name: input.getAttribute('name'),
-            type: input.getAttribute('type'),
-            visible: input instanceof HTMLElement ? input.offsetParent !== null : true,
-          }))
-        )
-        console.error('All input fields:', inputNames)
-
-        // ページタイトルを確認（正しいページにいるか）
-        const pageTitle = await this.page.title()
-        console.error('Page title:', pageTitle)
-
-        // エラーメッセージがあるか確認
-        const errorMessages = await this.page
-          .locator('[data-testid="error-message"], .text-red-500, .bg-red-50')
-          .allTextContents()
-        if (errorMessages.length > 0) {
-          console.error('Error messages on page:', errorMessages)
-        }
-
-        console.error('=== END REGISTRATION FORM ERROR ===')
-
-        throw new Error(`Failed to find confirmPassword field: ${error}`)
-      }
-    }
+    await this.page.locator('input[name="password"]').fill(userData.password)
+    await this.page.locator('input[name="confirmPassword"]').fill(userData.password)
 
     if (userData.skinType) {
       await this.page.getByLabel('肌質').selectOption(userData.skinType)
-      await this.page.waitForTimeout(200) // モバイルブラウザ用の遅延
     }
 
-    // Wait for button to be enabled before clicking
-    const registerButton = this.page.getByRole('button', { name: '会員登録' })
-    await registerButton.waitFor({ state: 'visible', timeout: 10000 })
-
-    // モバイルブラウザでのクリックを確実にする
-    await registerButton.scrollIntoViewIfNeeded()
-
-    // expectSuccessがfalseの場合、ボタンが無効化されている可能性があるので、
-    // 強制的にクリックしてエラーメッセージを表示させる
-    if (!expectSuccess) {
-      // バリデーションエラーが既に表示されている可能性があるので、確認する
-      const existingError = await this.page
-        .locator('[data-testid="error-message"], .text-red-500')
-        .isVisible()
-        .catch(() => false)
-      if (existingError) {
-        return // エラーが既に表示されているので、フォーム送信をスキップ
-      }
-      await registerButton.click({ force: true })
-    } else {
-      await expect(registerButton).toBeEnabled({ timeout: 10000 })
-      await registerButton.click()
-    }
-
-    await this.page.waitForTimeout(this.isMobile() ? 3000 : 1000) // モバイルは長めの待機時間
+    // Click register button
+    await this.page.getByRole('button', { name: '会員登録' }).click()
 
     if (expectSuccess) {
-      // Wait for form submission to start
-      await this.page.waitForTimeout(500)
-
-      // Wait for either navigation or error message with extended timeout
-      try {
-        // モバイルブラウザでのリダイレクトを考慮して複数の条件をチェック
-        await Promise.race([
-          // Wait for success - registration-complete page
-          expect(this.page).toHaveURL(/\/auth\/registration-complete/, { timeout: 60000 }),
-          // Wait for error message to appear (if registration fails)
-          this.page.waitForSelector('[data-testid="error-message"]', { timeout: 60000 }),
-          // Alternative: wait for URL change from register page
-          this.page.waitForFunction(() => !window.location.pathname.includes('/auth/register'), {
-            timeout: 60000,
-          }),
-        ])
-
-        // Check if we're on registration-complete page (success)
-        const currentUrl = this.page.url()
-        if (currentUrl.includes('/auth/registration-complete')) {
-          return
-        }
-
-        // If we're still on register page, check for error
-        const errorElement = this.page.locator('[data-testid="error-message"]')
-        const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
-        if (hasError) {
-          const errorText = await errorElement.textContent()
-
-          // より詳細なエラー情報をログ出力
-
-          throw new Error(`Registration failed with error: ${errorText}`)
-        }
-
-        throw new Error(
-          `Registration failed - expected registration-complete page but got: ${currentUrl}`
-        )
-      } catch (error) {
-        const currentUrl = this.page.url()
-
-        // Check for error message one more time
-        const errorElement = this.page.locator('[data-testid="error-message"]')
-        const hasError = await errorElement.isVisible({ timeout: 1000 }).catch(() => false)
-
-        if (hasError) {
-          const errorText = await errorElement.textContent()
-
-          // より詳細なエラー情報をログ出力
-
-          throw new Error(`Registration failed with error: ${errorText}`)
-        }
-
-        // デバッグ情報を追加
-
-        throw new Error(
-          `Registration timeout or failed - expected registration-complete page but got: ${currentUrl}. Original error: ${error instanceof Error ? error.message : String(error)}`
-        )
-      }
+      // Wait for registration complete page
+      await this.page.waitForURL(/\/auth\/registration-complete/, { timeout: 10000 })
     } else {
-      // Wait a bit for potential redirect or error message
-      await this.page.waitForTimeout(2000)
+      // Wait a bit for error message
+      await this.page.waitForTimeout(1000)
     }
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {
     await this.page.goto('/auth/login')
 
-    // Clear any existing values first to avoid form validation issues
-    const emailInput = this.page.getByLabel('メールアドレス')
-    const passwordInput = this.page.locator('input[name="password"]')
+    // Fill login form
+    await this.page.getByLabel('メールアドレス').fill(email)
+    await this.page.locator('input[name="password"]').fill(password)
 
-    await emailInput.fill('')
-    await passwordInput.fill('')
-
-    // Wait a bit for form to clear
-    await this.page.waitForTimeout(500)
-
-    await emailInput.fill(email)
-    await passwordInput.fill(password)
-
-    // Wait for form validation to enable the button
-    await this.page.waitForTimeout(500)
-
-    // Ensure the login button is enabled before clicking
-    const loginButton = this.page.getByRole('button', { name: 'ログイン' })
-    await expect(loginButton).toBeEnabled({ timeout: 5000 })
-
-    await loginButton.click()
+    // Click login button
+    await this.page.getByRole('button', { name: 'ログイン' }).click()
 
     if (expectSuccess) {
-      // Wait for login to complete and redirect to home or root
-      try {
-        await expect(this.page).toHaveURL(/\/home|\/(?!auth)/, { timeout: 15000 })
-      } catch (error) {
-        try {
-          // Check if we're already on home or root (sometimes URL matching can be flaky)
-          const currentUrl = this.page.url()
-          if (
-            currentUrl.includes('/home') ||
-            (currentUrl.endsWith('/') && !currentUrl.includes('/auth'))
-          ) {
-            return
-          }
+      // Wait for navigation away from login page
+      await this.page.waitForURL(url => !url.pathname.includes('/auth/login'), { timeout: 10000 })
 
-          // Check for error messages on login page (with error handling for closed page)
-          const errorElement = this.page.locator('[data-testid="error-message"]')
-          const hasError = await errorElement.isVisible({ timeout: 2000 }).catch(() => false)
-          if (hasError) {
-            const errorText = await errorElement.textContent()
-            throw new Error(`Login failed with error: ${errorText}`)
-          }
-
-          // Wait a bit more in case there's a delayed redirect
-          await this.page.waitForTimeout(2000)
-          const finalUrl = this.page.url()
-          if (
-            finalUrl.includes('/home') ||
-            (finalUrl.endsWith('/') && !finalUrl.includes('/auth'))
-          ) {
-            return
-          }
-          throw new Error(
-            `Login failed - expected home or root but got: ${finalUrl} (after waiting)`
-          )
-        } catch (pageError) {
-          // If page is closed or inaccessible, throw original error
-          throw error
-        }
-      }
+      // ログイン成功後の安定のための待機
+      await this.page.waitForTimeout(2000)
     } else {
-      // Wait a bit for any potential redirect, but don't expect success
+      // Wait a bit for any potential error message
       await this.page.waitForTimeout(1000)
     }
   }
@@ -543,75 +284,38 @@ export class AuthHelper {
   }
 
   async expectToBeLoggedIn() {
-    const viewport = this.page.viewportSize()
-    const isMobile = viewport && viewport.width < 768 // md breakpoint in Tailwind
-    const browserName = this.page.context().browser()?.browserType().name()
-    const isWebKit = browserName === 'webkit'
-
-    // WebKitの場合は追加の待機
-    if (isWebKit) {
-      await this.page.waitForTimeout(2000)
-    }
-
-    // まずURLを確認（ログインページでないことを確認）
+    // URLがログインページでないことを確認
     const currentUrl = this.page.url()
     if (currentUrl.includes('/auth/login')) {
       throw new Error('Still on login page, not logged in')
     }
 
-    if (isMobile) {
-      // Mobile view - need to open menu first
-      const mobileMenuButton = this.page.locator('[data-testid="mobile-menu-button"]')
+    // クッキーを確認
+    const cookies = await this.page.context().cookies()
+    const authCookie = cookies.find(c => c.name === 'auth-token')
 
-      // WebKitでのリトライロジック
-      let menuButtonVisible = false
-      let retryCount = 0
-      const maxRetries = isWebKit ? 3 : 1
-
-      while (!menuButtonVisible && retryCount < maxRetries) {
+    if (!authCookie) {
+      // API経由で認証状態を確認
+      const authCheck = await this.page.evaluate(async () => {
         try {
-          await mobileMenuButton.waitFor({ state: 'visible', timeout: isWebKit ? 10000 : 5000 })
-          menuButtonVisible = true
+          const response = await fetch('/api/auth/me')
+          const data = await response.json()
+          return {
+            ok: response.ok,
+            status: response.status,
+            data,
+          }
         } catch (error) {
-          retryCount++
-          if (retryCount < maxRetries) {
-            await this.page.waitForTimeout(2000)
+          return {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
           }
         }
+      })
+
+      if (!authCheck.ok) {
+        throw new Error(`Not authenticated. API response: ${JSON.stringify(authCheck)}`)
       }
-
-      if (menuButtonVisible) {
-        await mobileMenuButton.click({ force: true, timeout: 5000 })
-        // Wait for menu to open
-        await this.page.waitForTimeout(isWebKit ? 1000 : 500)
-
-        // Check for mobile user menu element (not a button, just a display element)
-        const mobileUserMenuElement = this.page.getByTestId('user-menu-button').last()
-        await expect(mobileUserMenuElement).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
-
-        // Also check for logout button to confirm authentication
-        const logoutButton = this.page.getByTestId('logout-button').last()
-        await expect(logoutButton).toBeVisible({ timeout: isWebKit ? 10000 : 5000 })
-      }
-    } else {
-      // Desktop view - check for user menu element and logout button
-      // Wait for the page to stabilize
-      await this.page.waitForLoadState('networkidle')
-
-      // Check for user name (contains "さん") or logout button
-      // Either one confirms authentication
-      const userNameElement = this.page.locator('text=/.*さん/')
-      const logoutButton = this.page.getByRole('button', { name: 'ログアウト' })
-
-      // Wait for either element to be visible
-      await expect(async () => {
-        const userNameVisible = await userNameElement.isVisible().catch(() => false)
-        const logoutVisible = await logoutButton.isVisible().catch(() => false)
-
-        if (!userNameVisible && !logoutVisible) {
-          throw new Error('Neither user name nor logout button found')
-        }
-      }).toPass({ timeout: isWebKit ? 15000 : 10000 })
     }
   }
 

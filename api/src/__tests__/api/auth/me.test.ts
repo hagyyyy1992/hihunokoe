@@ -1,74 +1,3 @@
-// Mock route-legacy import
-jest.mock('@/app/api/auth/me/route-legacy', () => ({
-  GET: jest.fn().mockImplementation(async request => {
-    const token = request.cookies?.get?.('auth-token')?.value
-
-    if (!token) {
-      return new Response(JSON.stringify({ error: '認証が必要です' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (token === 'invalid-token') {
-      return new Response(JSON.stringify({ error: 'トークンが無効です' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (token === 'not-found-token') {
-      return new Response(JSON.stringify({ error: 'ユーザーが見つかりません' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (token === 'not-verified-token') {
-      return new Response(
-        JSON.stringify({
-          error: 'メールアドレスの確認が必要です',
-          code: 'EMAIL_NOT_VERIFIED',
-        }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    if (token === 'error-token') {
-      return new Response(JSON.stringify({ error: 'ユーザー情報の取得に失敗しました' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (token === '') {
-      return new Response(JSON.stringify({ error: '認証が必要です' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    return new Response(
-      JSON.stringify({
-        user: {
-          id: '1',
-          username: 'testuser',
-          email: 'test@example.com',
-          skinType: 'oily',
-          isEmailVerified: true,
-        },
-      }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
-  }),
-}))
-
 // Mock the cookie adapter
 jest.mock('@/lib/auth/cookie-auth-adapter', () => ({
   adaptCookieToBearer: jest.fn(request => {
@@ -147,6 +76,7 @@ jest.mock('@api/framework/controllers/AuthController', () => {
           // Default valid token response
           return new Response(
             JSON.stringify({
+              success: true,
               user: {
                 id: '1',
                 username: 'testuser',
@@ -204,12 +134,12 @@ describe('/api/auth/me', () => {
 
       expect(response.status).toBe(200)
       const data = await response.json()
+      expect(data.success).toBe(true)
       expect(data.user).toEqual({
         id: '1',
         username: 'testuser',
         email: 'test@example.com',
-        skinType: 'oily',
-        isEmailVerified: true,
+        emailVerified: true,
       })
     })
 
@@ -241,7 +171,7 @@ describe('/api/auth/me', () => {
     })
 
     it('メール認証が未完了の場合、403エラーを返す', async () => {
-      const request = createRequest({ 'auth-token': 'not-verified-token' })
+      const request = createRequest({ 'auth-token': 'unverified-token' })
       const response = await GET(request)
 
       expect(response.status).toBe(403)
