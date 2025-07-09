@@ -180,6 +180,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const nextStep = () => {
+    // 現在のステップのバリデーションをチェック
+    if (!isStepValid(currentStep)) {
+      // バリデーションエラーを表示
+      setError('入力内容に問題があります。文字数制限を確認してください。')
+      return
+    }
+
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
       // ステップ変更後、ページトップにスクロール
@@ -217,19 +224,28 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        const isValid =
-          formData.title.trim() &&
-          formData.cosmeticName.trim() &&
-          formData.content.trim() &&
-          formData.cosmeticCategory
+        const titleValid = formData.title.trim() && formData.title.trim().length <= 100
+        const cosmeticNameValid =
+          formData.cosmeticName.trim() && formData.cosmeticName.trim().length <= 100
+        const contentValid = formData.content.trim() && formData.content.trim().length <= 2000
+        const categoryValid = !!formData.cosmeticCategory
+
+        const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
 
         // デバッグ用：バリデーション状態をログ出力
         if (process.env.NODE_ENV === 'development') {
           console.log('Step 1 validation:', {
             title: formData.title.trim(),
+            titleLength: formData.title.trim().length,
+            titleValid,
             cosmeticName: formData.cosmeticName.trim(),
+            cosmeticNameLength: formData.cosmeticName.trim().length,
+            cosmeticNameValid,
             content: formData.content.trim(),
+            contentLength: formData.content.trim().length,
+            contentValid,
             cosmeticCategory: formData.cosmeticCategory,
+            categoryValid,
             isValid,
           })
         }
@@ -319,6 +335,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               showPlaceholderHint
               data-testid="post-title-input"
               aria-label="タイトル"
+              maxLength={100}
               onInvalid={e => {
                 const element = e.target as HTMLInputElement
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -335,6 +352,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               placeholder="例: ○○ブランド モイスチャークリーム"
               showPlaceholderHint
               aria-label="使用したコスメ名"
+              maxLength={100}
             />
 
             <div className="form-group">
@@ -381,6 +399,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
                 data-testid="post-content-textarea"
+                maxLength={2000}
                 onInvalid={e => {
                   // バリデーションエラー時に要素を表示領域にスクロール
                   const element = e.target as HTMLTextAreaElement
