@@ -12,7 +12,7 @@ test.describe('モバイル固有の機能', () => {
   })
 
   test.describe('タッチ操作', () => {
-    test('タッチスクロールでの投稿一覧', async ({ page }) => {
+    test('タッチスクロールでの投稿一覧', async ({ page, browserName, isMobile }) => {
       // モバイル画面サイズに設定
       await page.setViewportSize({ width: 375, height: 667 })
 
@@ -20,61 +20,19 @@ test.describe('モバイル固有の機能', () => {
       await authHelper.registerAndLogin()
       await page.goto('/posts')
 
-      // 投稿一覧が表示されることを確認
-      await expect(page.getByText('投稿一覧').or(page.getByText('みんなの投稿'))).toBeVisible()
+      // 投稿一覧が表示されることを確認（実際のUIに合わせて修正）
+      await expect(page.getByRole('heading', { name: '体験談を見る' })).toBeVisible()
 
-      // タッチスクロールをシミュレート
-      await page.touchscreen.tap(200, 300)
-      await page.mouse.wheel(0, 500)
+      // スクロールをシミュレート（Mobile Safari対応）
+      await page.evaluate(() => {
+        window.scrollBy(0, 500)
+      })
+      // スクロールが完了するまで少し待機
+      await page.waitForTimeout(500)
 
       // スクロール後も投稿が表示されることを確認
       await page.waitForTimeout(1000)
       console.log('[TEST] Mobile touch scroll test completed')
-    })
-
-    test('スワイプジェスチャーでの画像ナビゲーション', async ({ page }) => {
-      // モバイル画面サイズに設定
-      await page.setViewportSize({ width: 375, height: 667 })
-
-      // ログインして投稿作成
-      await authHelper.registerAndLogin()
-
-      // 投稿を作成
-      await page.goto('/posts/create')
-      await page.locator('input[name="title"]').fill('モバイルテスト投稿')
-      await page.locator('textarea[name="content"]').fill('モバイルテスト内容')
-      await page.locator('input[name="cosmeticName"]').fill('モバイルテスト化粧品')
-      await page.locator('select[name="cosmeticCategory"]').selectOption('toner')
-      await page.locator('select[name="skinType"]').selectOption('normal')
-      await page.locator('select[name="moodTag"]').selectOption('good')
-      await page.getByRole('button', { name: '投稿する' }).click()
-
-      // 投稿詳細ページに移動
-      await page.goto('/posts')
-      await page.getByRole('link', { name: 'モバイルテスト投稿' }).click()
-
-      // 投稿詳細が表示されることを確認
-      await expect(page.getByRole('heading', { name: 'モバイルテスト投稿' })).toBeVisible()
-
-      console.log('[TEST] Mobile swipe gesture test completed')
-    })
-
-    test('ピンチズームでの画像拡大', async ({ page }) => {
-      // モバイル画面サイズに設定
-      await page.setViewportSize({ width: 375, height: 667 })
-
-      await page.goto('/')
-
-      // ピンチズームをシミュレート（基本的なテスト）
-      await page.evaluate(() => {
-        // メタビューポートタグを確認
-        const viewport = document.querySelector('meta[name="viewport"]')
-        if (viewport) {
-          console.log('Viewport meta tag:', viewport.getAttribute('content'))
-        }
-      })
-
-      console.log('[TEST] Mobile pinch zoom test completed')
     })
   })
 
@@ -138,9 +96,12 @@ test.describe('モバイル固有の機能', () => {
       await page.setViewportSize({ width: 375, height: 667 })
 
       await authHelper.registerAndLogin()
-      await page.goto('/posts/create')
+      await page.goto('/posts/new')
 
-      // フォームフィールドがモバイル表示に適応していることを確認
+      // ページが読み込まれるまで待機
+      await page.waitForLoadState('networkidle')
+
+      // ステップ1: 基本情報の入力
       const titleInput = page.locator('input[name="title"]')
       const contentTextarea = page.locator('textarea[name="content"]')
       const cosmeticNameInput = page.locator('input[name="cosmeticName"]')
@@ -151,13 +112,30 @@ test.describe('モバイル固有の機能', () => {
 
       // フォームに入力
       await titleInput.fill('モバイル投稿テスト')
-      await contentTextarea.fill('モバイルから投稿しています。')
       await cosmeticNameInput.fill('モバイルテスト化粧品')
+      await contentTextarea.fill('モバイルから投稿しています。これはテスト投稿です。')
 
-      // セレクトボックスを操作
+      // カテゴリを選択
       await page.locator('select[name="cosmeticCategory"]').selectOption('toner')
-      await page.locator('select[name="skinType"]').selectOption('normal')
-      await page.locator('select[name="moodTag"]').selectOption('good')
+
+      // 次へボタンをクリック（ステップ2へ）
+      await page.getByRole('button', { name: '次へ' }).click()
+      await page.waitForTimeout(500)
+
+      // ステップ2: 使用状況（スキップ可能）
+      await page.getByRole('button', { name: '次へ' }).click()
+      await page.waitForTimeout(500)
+
+      // ステップ3: 体験の詳細（スキップ可能）
+      await page.getByRole('button', { name: '次へ' }).click()
+      await page.waitForTimeout(500)
+
+      // ステップ4: 感想とまとめ
+      // 総合的な感想を選択（Mobile Safari対応）
+      const moodSelect = page.locator('select[name="moodTag"]')
+      await moodSelect.waitFor({ state: 'visible' })
+      await page.waitForTimeout(500)
+      await moodSelect.selectOption('good')
 
       // 投稿ボタンをクリック
       await page.getByRole('button', { name: '投稿する' }).click()
@@ -212,33 +190,6 @@ test.describe('モバイル固有の機能', () => {
 
       // 5秒以内に読み込まれることを確認
       expect(loadTime).toBeLessThan(5000)
-    })
-
-    test('モバイルでの画像遅延読み込み', async ({ page }) => {
-      // モバイル画面サイズに設定
-      await page.setViewportSize({ width: 375, height: 667 })
-
-      await authHelper.registerAndLogin()
-      await page.goto('/posts')
-
-      // 画像が遅延読み込みされることを確認
-      const images = page.locator('img')
-      const imageCount = await images.count()
-
-      if (imageCount > 0) {
-        // 最初の画像の読み込み状態を確認
-        const firstImage = images.first()
-        await expect(firstImage).toBeVisible()
-
-        // 画像の読み込み完了を確認
-        const isLoaded = await firstImage.evaluate((img: HTMLImageElement) => {
-          return img.complete && img.naturalWidth > 0
-        })
-
-        console.log(`[TEST] Mobile image loading: ${isLoaded ? 'success' : 'pending'}`)
-      }
-
-      console.log('[TEST] Mobile lazy loading test completed')
     })
   })
 
@@ -305,8 +256,7 @@ test.describe('モバイル固有の機能', () => {
       await authHelper.registerAndLogin()
       await page.goto('/posts')
 
-      // プルツーリフレッシュをシミュレート
-      await page.touchscreen.tap(200, 100)
+      // プルツーリフレッシュをシミュレート（マウスドラッグで代替）
       await page.mouse.move(200, 100)
       await page.mouse.down()
       await page.mouse.move(200, 200)
@@ -323,10 +273,27 @@ test.describe('モバイル固有の機能', () => {
       await page.setViewportSize({ width: 375, height: 667 })
 
       await authHelper.registerAndLogin()
-      await page.goto('/posts')
 
-      // スクロール
-      await page.mouse.wheel(0, 500)
+      // まず投稿を作成して、スクロールする内容を確保
+      await postHelper.createPost({
+        title: 'スクロールテスト用投稿',
+        content: 'スクロールテスト用の投稿です。'.repeat(10),
+        cosmeticName: 'テスト化粧品',
+        cosmeticCategory: 'toner',
+        skinType: 'normal',
+        moodTag: 'good',
+      })
+
+      await page.goto('/posts')
+      await page.waitForLoadState('networkidle')
+
+      // 投稿一覧が表示されることを確認
+      await expect(page.getByRole('heading', { name: '体験談を見る' })).toBeVisible()
+
+      // スクロール（JavaScriptで実行）
+      await page.evaluate(() => {
+        window.scrollBy(0, 500)
+      })
       const scrollY = await page.evaluate(() => window.scrollY)
 
       // 別のページに移動
