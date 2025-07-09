@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 重要な指示
+
+**常に日本語で会話する** - このプロジェクトでは、Claude Codeはユーザーとのすべての対話を日本語で行うこと。
+
 ## Project Overview
 
 Hihunokoe is a comprehensive cosmetics experience sharing service built with Next.js 15 and TypeScript. The application allows users to share authentic cosmetic experiences, discover products that might suit their skin type and preferences, and includes a complete admin panel for content moderation and user management.
