@@ -2,11 +2,13 @@ import { NextRequest } from 'next/server'
 import { ProfileController } from '@api/framework/controllers/ProfileController'
 import { GetProfileUseCase } from '@api/usecases/profile/interactor'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { adaptCookieToBearer } from '@/lib/auth/cookie-auth-adapter'
 
 const userRepository = new UserRepositoryImpl()
 const profileUseCase = new GetProfileUseCase(userRepository)
 const profileController = new ProfileController(profileUseCase)
 
-export async function PUT(request: NextRequest) {
-  return profileController.updateProfile(request)
+export async function PUT(request: Request) {
+  const adaptedRequest = adaptCookieToBearer(request)
+  return profileController.updateProfile(adaptedRequest as NextRequest)
 }

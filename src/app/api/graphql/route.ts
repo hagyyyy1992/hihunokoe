@@ -3,8 +3,11 @@ import { ApolloServer } from '@apollo/server'
 import { NextRequest } from 'next/server'
 import { typeDefs } from '@/graphql/schema'
 import { resolvers } from '@/graphql/resolvers'
-import { VerifyTokenUseCase } from '@api/usecases/auth/VerifyTokenUseCase'
+import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
+import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
 
@@ -45,11 +48,19 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
     try {
       const userRepository = new UserRepositoryImpl()
+      const authSessionRepository = new AuthSessionRepositoryImpl()
+      const passwordHashService = new PasswordHashServiceImpl()
       const tokenService = new TokenServiceImpl()
 
-      const verifyTokenUseCase = new VerifyTokenUseCase(userRepository, tokenService)
+      const authenticationUseCase = new AuthenticationUseCase(
+        userRepository,
+        authSessionRepository,
+        passwordHashService,
+        tokenService
+      )
 
-      const { user } = await verifyTokenUseCase.execute({ token })
+      const input: VerifyTokenInputPort = { token }
+      const { user } = await authenticationUseCase.verifyToken(input)
       return { userId: user?.id || null }
     } catch {
       return { userId: null }

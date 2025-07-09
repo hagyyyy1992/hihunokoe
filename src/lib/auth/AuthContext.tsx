@@ -40,24 +40,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const checkAuth = async () => {
+    setLoading(true)
+    const token = localStorage.getItem('token')
+
     try {
+      // クッキーベースの認証を優先し、localStorageのトークンもサポート
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      // localStorageにトークンがある場合はヘッダーに追加
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch('/api/auth/me', {
-        credentials: 'same-origin',
+        method: 'GET',
+        headers,
+        credentials: 'same-origin', // クッキーを送信
       })
+
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
       } else {
-        // Auth failed - explicitly set user to null
+        // Auth failed
         setUser(null)
-        // トークンも削除
-        localStorage.removeItem('token')
+        // localStorageにトークンがある場合は削除
+        if (token) {
+          localStorage.removeItem('token')
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      // Network error or other issue - set user to null
+      // Network error or other issue
       setUser(null)
-      localStorage.removeItem('token')
+      if (token) {
+        localStorage.removeItem('token')
+      }
     } finally {
       setLoading(false)
     }
@@ -119,10 +139,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin',
-      })
+      const token = localStorage.getItem('token')
+      if (token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        })
+      }
       setUser(null)
       // トークンも削除
       localStorage.removeItem('token')
@@ -137,10 +164,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (profileData: UpdateProfileData) => {
     setLoading(true)
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      throw new Error('認証が必要です')
+    }
+
     try {
       const response = await fetch('/api/profile/update', {
         method: 'PUT',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(profileData),

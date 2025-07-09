@@ -1,19 +1,34 @@
-import { CreateCommentUseCase } from '@api/usecases/comments/CreateCommentUseCase'
-import { GetCommentsWithPaginationUseCase } from '@api/usecases/comments/GetCommentsWithPaginationUseCase'
+import {
+  CommentManagementUseCase,
+  CommentRetrievalUseCase,
+} from '@api/usecases/comments/interactor'
+import type {
+  CreateCommentInputPort,
+  GetCommentsWithPaginationInputPort,
+} from '@api/usecases/comments/input-port'
 import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLCommentController {
-  private commentRepository: CommentRepositoryImpl
-  private postRepository: PostRepositoryImpl
-  private userRepository: UserRepositoryImpl
+  private commentManagementUseCase: CommentManagementUseCase
+  private commentRetrievalUseCase: CommentRetrievalUseCase
 
   constructor() {
-    this.commentRepository = new CommentRepositoryImpl()
-    this.postRepository = new PostRepositoryImpl()
-    this.userRepository = new UserRepositoryImpl()
+    const commentRepository = new CommentRepositoryImpl()
+    const postRepository = new PostRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
+    const rateLimitService = new RateLimitServiceImpl()
+
+    this.commentManagementUseCase = new CommentManagementUseCase(
+      commentRepository,
+      postRepository,
+      userRepository,
+      rateLimitService
+    )
+    this.commentRetrievalUseCase = new CommentRetrievalUseCase(commentRepository)
   }
 
   async createComment(
@@ -30,18 +45,14 @@ export class GraphQLCommentController {
       throw new Error('Authentication required')
     }
 
-    const createCommentUseCase = new CreateCommentUseCase(
-      this.commentRepository,
-      this.postRepository,
-      this.userRepository
-    )
+    const input: CreateCommentInputPort = {
+      postId: args.input.postId,
+      userId: context.userId,
+      content: args.input.content,
+    }
 
     try {
-      const { comment } = await createCommentUseCase.execute({
-        postId: args.input.postId,
-        userId: context.userId,
-        content: args.input.content,
-      })
+      const { comment } = await this.commentManagementUseCase.createComment(input)
 
       return comment
     } catch (error) {
@@ -57,31 +68,27 @@ export class GraphQLCommentController {
     },
     context: GraphQLContext
   ) {
-    const getCommentsUseCase = new GetCommentsWithPaginationUseCase(
-      this.commentRepository,
-      this.postRepository,
-      this.userRepository
-    )
-
     const limit = args.first || 10
     const page = args.after ? Math.floor(parseInt(args.after) / limit) + 1 : 1
 
+    const input: GetCommentsWithPaginationInputPort = {
+      postId: args.postId,
+      page,
+      limit,
+      userId: context.userId || undefined,
+    }
+
     try {
-      const { comments } = await getCommentsUseCase.execute({
-        postId: args.postId,
-        page,
-        limit,
-        userId: context.userId || undefined,
-      })
+      const { comments } = await this.commentRetrievalUseCase.getCommentsWithPagination(input)
 
       // Convert to GraphQL Connection format
-      const edges = comments.map((commentWithUser, index) => ({
+      const edges = comments.map((commentWithUser: any, index: number) => ({
         cursor: ((page - 1) * limit + index + 1).toString(),
         node: {
           ...commentWithUser.comment,
           user: commentWithUser.user,
           replies:
-            commentWithUser.replies?.map(reply => ({
+            commentWithUser.replies?.map((reply: any) => ({
               ...reply.comment,
               user: reply.user,
             })) || [],

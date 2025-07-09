@@ -6,7 +6,21 @@ import { NextRequest, NextResponse } from 'next/server'
 export function adaptCookieToBearer(request: Request): NextRequest {
   // NextRequestに変換
   const nextRequest = request as NextRequest
+
+  // 既存のAuthorizationヘッダーをチェック
+  const existingAuthHeader = request.headers.get('Authorization')
+  if (existingAuthHeader) {
+    console.log('[adaptCookieToBearer] Existing Authorization header found')
+    // 既存のAuthorizationヘッダーがある場合は、そのまま返す
+    return nextRequest
+  }
+
+  // Cookieからトークンを取得
   const token = nextRequest.cookies?.get('auth-token')?.value
+  console.log(
+    '[adaptCookieToBearer] Cookie auth-token:',
+    token ? token.substring(0, 20) + '...' : 'not found'
+  )
 
   if (!token) {
     return nextRequest
@@ -16,19 +30,14 @@ export function adaptCookieToBearer(request: Request): NextRequest {
   const headers = new Headers(request.headers)
   headers.set('Authorization', `Bearer ${token}`)
 
-  // NextRequestとして新しいリクエストを作成
-  // NextRequestのコンストラクタを使用して、cookiesなどの情報を保持
-  const newRequest = new NextRequest(request.url, {
+  console.log('[adaptCookieToBearer] Setting Authorization header with token')
+
+  // 新しいリクエストを作成
+  const newUrl = new URL(request.url)
+  const newRequest = new NextRequest(newUrl, {
     method: request.method,
     headers,
     body: request.body,
-    // @ts-expect-error - NextRequestの内部プロパティ
-    cookies: nextRequest.cookies,
-    // @ts-expect-error - NextRequestの内部プロパティ
-    geo: nextRequest.geo,
-    // @ts-expect-error - NextRequestの内部プロパティ
-    ip: nextRequest.ip,
-    nextUrl: nextRequest.nextUrl,
   })
 
   return newRequest

@@ -162,12 +162,19 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   }
 
   async getCurrentUser(input: GetCurrentUserInputPort): Promise<GetCurrentUserOutputPort> {
-    const session = await this.authSessionRepository.findByToken(input.token)
-    if (!session || session.isExpired()) {
+    // JWTトークンを検証
+    let decoded: any
+    try {
+      decoded = await this.tokenService.verifyToken(input.token)
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Token has expired') {
+        throw new TokenExpiredError()
+      }
       throw new InvalidTokenError()
     }
 
-    const user = await this.userRepository.findById(session.userId)
+    // ユーザーを取得
+    const user = await this.userRepository.findById(decoded.userId)
     if (!user || !user.active || user.deletedAt) {
       throw new AccountInactiveError()
     }

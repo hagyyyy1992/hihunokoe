@@ -7,14 +7,19 @@ const httpLink = createHttpLink({
 })
 
 const authLink = setContext((_, { headers }) => {
-  // クッキーから認証トークンを取得
+  // localStorageから認証トークンを取得
   let token = null
   if (typeof window !== 'undefined') {
-    // ブラウザ環境でクッキーから取得
-    const cookies = document.cookie.split(';')
-    const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth-token='))
-    if (authCookie) {
-      token = authCookie.split('=')[1]
+    // ブラウザ環境でlocalStorageから取得
+    token = localStorage.getItem('token')
+
+    // Fallback: クッキーからも試みる
+    if (!token) {
+      const cookies = document.cookie.split(';')
+      const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth-token='))
+      if (authCookie) {
+        token = authCookie.split('=')[1]
+      }
     }
   }
 

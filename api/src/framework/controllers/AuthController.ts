@@ -28,6 +28,8 @@ import {
   AccountLockedError,
   AccountInactiveError,
   EmailNotVerifiedError,
+  InvalidTokenError,
+  TokenExpiredError,
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AuthController {
@@ -252,13 +254,13 @@ export class AuthController {
         message: result.message,
       })
     } catch (error) {
+      if (error instanceof InvalidTokenError) {
+        return NextResponse.json(
+          { error: 'Invalid or expired verification token' },
+          { status: 400 }
+        )
+      }
       if (error instanceof Error) {
-        if (error.message === 'Invalid or expired verification token') {
-          return NextResponse.json(
-            { error: 'Invalid or expired verification token' },
-            { status: 400 }
-          )
-        }
         if (error.message === 'User not found') {
           return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
         }
@@ -299,14 +301,15 @@ export class AuthController {
       const authHeader = request.headers.get('Authorization')
       const token = authHeader?.replace('Bearer ', '')
 
-      // E2E環境でのデバッグログ
-      if (process.env.NODE_ENV === 'test') {
-        console.log('getCurrentUser - Authorization header:', authHeader)
-        console.log(
-          'getCurrentUser - Token extracted:',
-          token ? token.substring(0, 20) + '...' : 'null'
-        )
-      }
+      // デバッグログ
+      console.log(
+        '[AuthController.getCurrentUser] Authorization header:',
+        authHeader ? authHeader.substring(0, 30) + '...' : 'null'
+      )
+      console.log(
+        '[AuthController.getCurrentUser] Token extracted:',
+        token ? token.substring(0, 20) + '...' : 'null'
+      )
 
       if (!token) {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
@@ -320,16 +323,22 @@ export class AuthController {
         user: result.user,
       })
     } catch (error) {
+      console.error('[AuthController.getCurrentUser] Error:', error)
+      console.error('[AuthController.getCurrentUser] Error type:', error?.constructor?.name)
+      console.error(
+        '[AuthController.getCurrentUser] Error message:',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
+
+      if (error instanceof InvalidTokenError || error instanceof TokenExpiredError) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
       if (error instanceof Error) {
-        if (error.message === 'Invalid or expired token' || error.message === 'Session expired') {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
         if (error.message === 'User not found' || error.message === 'Account is inactive') {
           return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
       }
 
-      console.error('Get current user error:', error)
       return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
     }
   }

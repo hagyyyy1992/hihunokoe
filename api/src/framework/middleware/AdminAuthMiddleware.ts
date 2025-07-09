@@ -1,25 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { VerifyTokenUseCase } from '@api/usecases/auth/VerifyTokenUseCase'
+import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
+import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { User } from '@api/domain/entities/User'
 
 export interface AuthenticatedRequest extends NextRequest {
-  user?: User
+  user?: { id: string; email: string; userName: string; role: string; emailVerified: boolean }
 }
 
 export class AdminAuthMiddleware {
-  private userRepository: UserRepositoryImpl
+  private authenticationUseCase: AuthenticationUseCase
   private tokenService: TokenServiceImpl
 
   constructor() {
-    this.userRepository = new UserRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
+    const authSessionRepository = new AuthSessionRepositoryImpl()
+    const passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
+
+    this.authenticationUseCase = new AuthenticationUseCase(
+      userRepository,
+      authSessionRepository,
+      passwordHashService,
+      this.tokenService
+    )
   }
 
-  async authenticate(
-    request: NextRequest
-  ): Promise<{ user: User | null; response?: NextResponse }> {
+  async authenticate(request: NextRequest): Promise<{
+    user: {
+      id: string
+      email: string
+      userName: string
+      role: string
+      emailVerified: boolean
+    } | null
+    response?: NextResponse
+  }> {
     try {
       // Get token from Authorization header
       const authHeader = request.headers.get('Authorization')
@@ -51,8 +70,8 @@ export class AdminAuthMiddleware {
       }
 
       // Verify token
-      const verifyTokenUseCase = new VerifyTokenUseCase(this.userRepository, this.tokenService)
-      const { user, isValid } = await verifyTokenUseCase.execute({ token })
+      const input: VerifyTokenInputPort = { token }
+      const { user, isValid } = await this.authenticationUseCase.verifyToken(input)
 
       if (!isValid || !user) {
         return {
@@ -72,7 +91,15 @@ export class AdminAuthMiddleware {
         }
       }
 
-      return { user }
+      return {
+        user: user as {
+          id: string
+          email: string
+          userName: string
+          role: string
+          emailVerified: boolean
+        },
+      }
     } catch (error) {
       console.error('Admin auth middleware error:', error)
       return {
@@ -82,11 +109,11 @@ export class AdminAuthMiddleware {
     }
   }
 
-  isAdmin(user: User): boolean {
+  isAdmin(user: { role: string }): boolean {
     return user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
   }
 
-  isSuperAdmin(user: User): boolean {
+  isSuperAdmin(user: { role: string }): boolean {
     return user.role === 'SUPER_ADMIN'
   }
 }

@@ -2,7 +2,7 @@
 // The DeleteAccountUseCase now requires authentication (token + password) and doesn't support direct user ID deletion.
 // These tests should be moved to the appropriate use case or admin functionality test files.
 
-import { DeleteAccountUseCase } from '@api/usecases/auth/DeleteAccountUseCase'
+// import removed - DeleteAccountUseCase has been migrated to interactor pattern
 
 describe('DeleteAccountUseCase - Legacy Test File', () => {
   it('should be migrated to proper use case tests', () => {

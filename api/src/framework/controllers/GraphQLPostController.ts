@@ -1,9 +1,12 @@
 import { NextRequest } from 'next/server'
-import { GetPostUseCase } from '@api/usecases/posts/GetPostUseCase'
-import { GetPostsUseCase } from '@api/usecases/posts/GetPostsUseCase'
-import { CreatePostUseCase } from '@api/usecases/posts/CreatePostUseCase'
-import { UpdatePostUseCase } from '@api/usecases/posts/UpdatePostUseCase'
-import { DeletePostUseCase } from '@api/usecases/posts/DeletePostUseCase'
+import { PostRetrievalUseCase, PostManagementUseCase } from '@api/usecases/posts/interactor'
+import type {
+  GetPostInputPort,
+  GetPostsInputPort,
+  CreatePostInputPort,
+  UpdatePostInputPort,
+  DeletePostInputPort,
+} from '@api/usecases/posts/input-port'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
@@ -11,27 +14,31 @@ import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/Comm
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLPostController {
-  private postRepository: PostRepositoryImpl
-  private userRepository: UserRepositoryImpl
-  private empathyRepository: EmpathyRepositoryImpl
-  private commentRepository: CommentRepositoryImpl
+  private postRetrievalUseCase: PostRetrievalUseCase
+  private postManagementUseCase: PostManagementUseCase
 
   constructor() {
-    this.postRepository = new PostRepositoryImpl()
-    this.userRepository = new UserRepositoryImpl()
-    this.empathyRepository = new EmpathyRepositoryImpl()
-    this.commentRepository = new CommentRepositoryImpl()
+    const postRepository = new PostRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
+    const empathyRepository = new EmpathyRepositoryImpl()
+    const commentRepository = new CommentRepositoryImpl()
+
+    this.postRetrievalUseCase = new PostRetrievalUseCase(
+      postRepository,
+      empathyRepository,
+      commentRepository
+    )
+    this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
   }
 
   async getPost(args: { id: string }, context: GraphQLContext) {
-    const getPostUseCase = new GetPostUseCase(this.postRepository)
+    const input: GetPostInputPort = {
+      postId: args.id,
+      userId: context.userId || undefined,
+    }
 
     try {
-      const { post } = await getPostUseCase.execute({
-        postId: args.id,
-        requestUserId: context.userId || undefined,
-      })
-
+      const { post } = await this.postRetrievalUseCase.getPost(input)
       return post
     } catch (error) {
       throw new Error((error as Error).message)
@@ -52,30 +59,23 @@ export class GraphQLPostController {
     },
     context: GraphQLContext
   ) {
-    const getPostsUseCase = new GetPostsUseCase(this.postRepository)
-
     // Convert GraphQL args to use case input
     const limit = args.first || 10
     const skip = args.after ? parseInt(args.after) : 0
 
-    const filters: any = {}
-    if (args.filter) {
-      if (args.filter.skinType) filters.skinType = args.filter.skinType
-      if (args.filter.cosmeticCategory) filters.category = args.filter.cosmeticCategory
-      if (args.filter.search) filters.search = args.filter.search
+    const input: GetPostsInputPort = {
+      page: Math.floor(skip / limit) + 1,
+      limit,
+      category: args.filter?.cosmeticCategory,
+      search: args.filter?.search,
+      sortBy: (args.orderBy === 'popular' ? 'empathyCount' : 'createdAt') as
+        | 'createdAt'
+        | 'empathyCount',
+      userId: context.userId || undefined,
     }
 
-    const orderBy = args.orderBy || 'createdAt'
-
     try {
-      const { posts, totalCount } = await getPostsUseCase.execute({
-        page: Math.floor(skip / limit) + 1,
-        limit,
-        category: filters?.category,
-        search: filters?.search,
-        sortBy: orderBy as 'recent' | 'popular',
-        userId: filters?.userId,
-      })
+      const { posts, total } = await this.postRetrievalUseCase.getPosts(input)
 
       // Convert to GraphQL Connection format
       const edges = posts.map((post, index) => ({
@@ -94,7 +94,7 @@ export class GraphQLPostController {
           startCursor: edges[0]?.cursor,
           endCursor: edges[edges.length - 1]?.cursor,
         },
-        totalCount,
+        totalCount: total,
       }
     } catch (error) {
       throw new Error((error as Error).message)
@@ -120,23 +120,22 @@ export class GraphQLPostController {
       throw new Error('Authentication required')
     }
 
-    const createPostUseCase = new CreatePostUseCase(this.postRepository, this.userRepository)
+    const input: CreatePostInputPort = {
+      userId: context.userId,
+      title: args.input.title,
+      content: args.input.content,
+      productName: args.input.cosmeticName,
+      brandName: undefined,
+      imageUrl: undefined,
+      category: args.input.cosmeticCategory,
+      skinType: args.input.skinType,
+      moodTag: args.input.moodTag,
+      usageSituation: args.input.usageSituation,
+      experienceDetails: args.input.experienceDetails,
+    }
 
     try {
-      const { post } = await createPostUseCase.execute({
-        userId: context.userId,
-        title: args.input.title,
-        content: args.input.content,
-        productName: args.input.cosmeticName,
-        brandName: undefined,
-        imageUrl: undefined,
-        category: args.input.cosmeticCategory,
-        skinType: args.input.skinType,
-        moodTag: args.input.moodTag,
-        usageSituation: args.input.usageSituation,
-        experienceDetails: args.input.experienceDetails,
-      })
-
+      const { post } = await this.postManagementUseCase.createPost(input)
       return post
     } catch (error) {
       throw new Error((error as Error).message)
@@ -163,24 +162,23 @@ export class GraphQLPostController {
       throw new Error('Authentication required')
     }
 
-    const updatePostUseCase = new UpdatePostUseCase(this.postRepository)
+    const input: UpdatePostInputPort = {
+      postId: args.id,
+      userId: context.userId,
+      title: args.input.title,
+      content: args.input.content,
+      productName: args.input.cosmeticName,
+      brandName: undefined,
+      imageUrl: undefined,
+      category: args.input.cosmeticCategory,
+      skinType: args.input.skinType,
+      moodTag: args.input.moodTag,
+      usageSituation: args.input.usageSituation,
+      experienceDetails: args.input.experienceDetails,
+    }
 
     try {
-      const { post } = await updatePostUseCase.execute({
-        postId: args.id,
-        userId: context.userId,
-        title: args.input.title,
-        content: args.input.content,
-        productName: args.input.cosmeticName,
-        brandName: undefined,
-        imageUrl: undefined,
-        category: args.input.cosmeticCategory,
-        skinType: args.input.skinType,
-        moodTag: args.input.moodTag,
-        usageSituation: args.input.usageSituation,
-        experienceDetails: args.input.experienceDetails,
-      })
-
+      const { post } = await this.postManagementUseCase.updatePost(input)
       return post
     } catch (error) {
       throw new Error((error as Error).message)
@@ -192,14 +190,13 @@ export class GraphQLPostController {
       throw new Error('Authentication required')
     }
 
-    const deletePostUseCase = new DeletePostUseCase(this.postRepository)
+    const input: DeletePostInputPort = {
+      postId: args.id,
+      userId: context.userId,
+    }
 
     try {
-      await deletePostUseCase.execute({
-        postId: args.id,
-        userId: context.userId,
-      })
-
+      await this.postManagementUseCase.deletePost(input)
       return { success: true }
     } catch (error) {
       throw new Error((error as Error).message)
