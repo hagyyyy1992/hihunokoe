@@ -25,22 +25,24 @@ jobs:
         run: |
           echo "Checking if CI should run..."
 
-          # Get the latest commit message
-          LATEST_COMMIT=$(git log -1 --format=%s)
-          echo "Latest commit: $LATEST_COMMIT"
+          # Get all commits in this PR
+          COMMITS=$(git log --format=%s origin/main..HEAD 2>/dev/null || git log --format=%s -10)
+          echo "Commits in this PR:"
+          echo "$COMMITS"
+          echo ""
 
-          # Check if the latest commit message contains [ci] trigger
-          if echo "$LATEST_COMMIT" | grep -q '\[ci\]'; then
+          # Check if any commit message contains [ci] trigger
+          if echo "$COMMITS" | grep -q '\[ci\]'; then
             echo "should-run=true" >> $GITHUB_OUTPUT
-            echo "✅ CI will run - found [ci] in latest commit message"
+            echo "✅ CI will run - found [ci] in one or more commit messages"
           else
             echo "should-run=false" >> $GITHUB_OUTPUT
-            echo "⏭️ CI skipped - add [ci] to commit message to run CI"
+            echo "⏭️ CI skipped - add [ci] to any commit message to run CI"
+            echo ""
+            echo "To run CI, either:"
+            echo "1. Add a new commit with [ci] in the message"
+            echo "2. Or amend your latest commit: git commit --amend -m \"your message [ci]\""
           fi
-
-          echo ""
-          echo "All commits in this PR:"
-          git log --format="%h %s" origin/main..HEAD
 
   # Show skip message when CI is not triggered
   skip-message:
