@@ -290,8 +290,10 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await expect(page.locator('h3:has-text("使用状況（任意）")')).toBeVisible()
 
       // ステップ2: 使用状況を入力
-      await page.getByTestId('skin-type-select').waitFor({ state: 'visible' })
-      await page.getByTestId('skin-type-select').selectOption('normal')
+      // skin-type-selectの要素を確認
+      const skinTypeSelect = page.getByTestId('skin-type-select')
+      await skinTypeSelect.waitFor({ state: 'visible', timeout: 10000 })
+      await skinTypeSelect.selectOption('normal')
 
       // 次へボタンをクリックしてステップ3に進む
       await page.getByRole('button', { name: '次へ' }).click()
@@ -306,8 +308,9 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await expect(page.locator('h3:has-text("感想とまとめ")')).toBeVisible()
 
       // ステップ4: 総合的な感想を入力
-      await page.getByTestId('mood-tag-select').waitFor({ state: 'visible' })
-      await page.getByTestId('mood-tag-select').selectOption('good')
+      const moodTagSelect = page.getByTestId('mood-tag-select')
+      await moodTagSelect.waitFor({ state: 'visible', timeout: 10000 })
+      await moodTagSelect.selectOption('good')
 
       // 投稿ボタンを複数回クリック（重複送信防止のテスト）
       const submitButton = page.getByRole('button', { name: '投稿する' })
