@@ -148,7 +148,7 @@ export default function Header() {
                   className="text-gray-700 text-sm truncate max-w-20"
                   data-testid="user-menu-button"
                 >
-                  {user.userName}さん
+                  {user.userName || 'ユーザー'}さん
                 </span>
                 <Link
                   href="/profile"
@@ -249,7 +249,7 @@ export default function Header() {
                       className="px-3 py-1.5 text-sm text-gray-600 truncate"
                       data-testid="user-menu-button"
                     >
-                      {user.userName}さん
+                      {user.userName || 'ユーザー'}さん
                     </div>
                     <Link
                       href="/profile"
