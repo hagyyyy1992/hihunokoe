@@ -304,12 +304,21 @@ test.describe('エラーハンドリング', () => {
       // ステップが進まないことを確認（文字数制限エラーのため）
       // まずページのURLが投稿作成ページのままであることを確認
       expect(page.url()).toContain('/posts/new')
-      
+
       // エラーメッセージが表示されるか、またはステップ1にまだいることを確認
-      const isStillOnStep1 = await page.locator('h3:has-text("基本情報")').isVisible().catch(() => false)
-      const hasErrorMessage = await page.getByTestId('error-message').isVisible().catch(() => false)
-      const hasValidationError = await page.getByText('文字数が制限を超えています').isVisible().catch(() => false)
-      
+      const isStillOnStep1 = await page
+        .locator('h3:has-text("基本情報")')
+        .isVisible()
+        .catch(() => false)
+      const hasErrorMessage = await page
+        .getByTestId('error-message')
+        .isVisible()
+        .catch(() => false)
+      const hasValidationError = await page
+        .getByText('文字数が制限を超えています')
+        .isVisible()
+        .catch(() => false)
+
       const isErrorHandled = isStillOnStep1 || hasErrorMessage || hasValidationError
       expect(isErrorHandled).toBe(true)
 
