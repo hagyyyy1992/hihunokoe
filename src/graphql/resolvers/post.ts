@@ -1,7 +1,9 @@
 import { GraphQLContext } from '@/graphql/context'
 import { GraphQLPostController } from '@api/framework/controllers/GraphQLPostController'
+import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 
 const postController = new GraphQLPostController()
+const userRepository = new UserRepositoryImpl()
 
 export const postResolvers = {
   Query: {
@@ -136,9 +138,22 @@ export const postResolvers = {
   Post: {
     // Field resolvers for Post type
     user: async (parent: { userId: string }) => {
-      // TODO: Implement user loading for posts
-      // For now, return basic structure to avoid GraphQL errors
-      return { id: parent.userId, displayName: 'Unknown User' }
+      try {
+        const user = await userRepository.findById(parent.userId)
+        if (!user) {
+          return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
+        }
+        return {
+          id: user.id,
+          displayName: user.userName, // Use userName as displayName for now
+          userName: user.userName,
+          profileImageUrl: null,
+          bio: null,
+        }
+      } catch (error) {
+        console.error('Error loading user for post:', error)
+        return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
+      }
     },
 
     empathies: async (parent: { id: string }) => {
