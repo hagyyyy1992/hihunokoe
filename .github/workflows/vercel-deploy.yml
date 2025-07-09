@@ -27,7 +27,7 @@ jobs:
         id: check
         run: |
           echo "Checking if Vercel deploy should run..."
-          
+
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "deploy-type=production" >> $GITHUB_OUTPUT
@@ -107,16 +107,16 @@ jobs:
           script: |
             const url = '${{ steps.deploy.outputs.url }}';
             const comment = `🚀 **Vercel Preview Deployment**
-            
+
             ✅ Preview deployed successfully!
-            
+
             **Preview URL**: ${url}
-            
+
             This preview was deployed because the commit message contains \`[ci]\`.
-            
+
             ---
             💡 **Tip**: To deploy previews for future PRs, include \`[ci]\` in your commit message.`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -135,18 +135,18 @@ jobs:
         with:
           script: |
             const comment = `⏭️ **Vercel Preview Deployment Skipped**
-            
+
             Preview deployment was skipped for this PR.
-            
+
             **To enable preview deployment:**
             - Add \`[ci]\` to any commit message in this PR
             - Example: \`feat: add new feature [ci]\`
-            
+
             **Note**: Production deployments always run when merged to main branch.
-            
+
             ---
             🏗️ **Current status**: Only basic checks are running for this PR.`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
