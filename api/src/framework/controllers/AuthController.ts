@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { LoginUseCase } from '@api/usecases/auth/LoginUseCase'
-import { RegisterUseCase } from '@api/usecases/auth/RegisterUseCase'
-import { ForgotPasswordUseCase } from '@api/usecases/auth/ForgotPasswordUseCase'
-import { ResetPasswordUseCase } from '@api/usecases/auth/ResetPasswordUseCase'
-import { VerifyEmailUseCase } from '@api/usecases/auth/VerifyEmailUseCase'
-import { LogoutUseCase } from '@api/usecases/auth/LogoutUseCase'
-import { GetCurrentUserUseCase } from '@api/usecases/auth/GetCurrentUserUseCase'
-import { DeleteAccountUseCase } from '@api/usecases/auth/DeleteAccountUseCase'
-import { ResendVerificationEmailUseCase } from '@api/usecases/auth/ResendVerificationEmailUseCase'
-import { VerifyPasswordResetTokenUseCase } from '@api/usecases/auth/VerifyPasswordResetTokenUseCase'
+import {
+  AuthenticationUseCase,
+  PasswordManagementUseCase,
+  EmailVerificationUseCase,
+  AccountManagementUseCase,
+} from '@api/usecases/auth/interactor'
+import type {
+  LoginInputPort,
+  RegisterInputPort,
+  ForgotPasswordInputPort,
+  ResetPasswordInputPort,
+  VerifyEmailInputPort,
+  LogoutInputPort,
+  GetCurrentUserInputPort,
+  DeleteAccountInputPort,
+  ResendVerificationEmailInputPort,
+  VerifyPasswordResetTokenInputPort,
+  VerifyTokenInputPort,
+} from '@api/usecases/auth/input-port'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
@@ -22,18 +31,40 @@ import {
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AuthController {
-  private userRepository: UserRepositoryImpl
-  private authSessionRepository: AuthSessionRepositoryImpl
-  private passwordHashService: PasswordHashServiceImpl
-  private tokenService: TokenServiceImpl
-  private emailService: EmailServiceImpl
+  private authenticationUseCase: AuthenticationUseCase
+  private passwordManagementUseCase: PasswordManagementUseCase
+  private emailVerificationUseCase: EmailVerificationUseCase
+  private accountManagementUseCase: AccountManagementUseCase
 
   constructor() {
-    this.userRepository = new UserRepositoryImpl()
-    this.authSessionRepository = new AuthSessionRepositoryImpl()
-    this.passwordHashService = new PasswordHashServiceImpl()
-    this.tokenService = new TokenServiceImpl()
-    this.emailService = new EmailServiceImpl()
+    const userRepository = new UserRepositoryImpl()
+    const authSessionRepository = new AuthSessionRepositoryImpl()
+    const passwordHashService = new PasswordHashServiceImpl()
+    const tokenService = new TokenServiceImpl()
+    const emailService = new EmailServiceImpl()
+
+    this.authenticationUseCase = new AuthenticationUseCase(
+      userRepository,
+      authSessionRepository,
+      passwordHashService,
+      tokenService
+    )
+    this.passwordManagementUseCase = new PasswordManagementUseCase(
+      userRepository,
+      passwordHashService,
+      tokenService,
+      emailService
+    )
+    this.emailVerificationUseCase = new EmailVerificationUseCase(
+      userRepository,
+      tokenService,
+      emailService
+    )
+    this.accountManagementUseCase = new AccountManagementUseCase(
+      userRepository,
+      authSessionRepository,
+      passwordHashService
+    )
   }
 
   async login(request: NextRequest): Promise<NextResponse> {
@@ -45,14 +76,8 @@ export class AuthController {
         return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
       }
 
-      const loginUseCase = new LoginUseCase(
-        this.userRepository,
-        this.authSessionRepository,
-        this.passwordHashService,
-        this.tokenService
-      )
-
-      const result = await loginUseCase.execute({ email, password })
+      const inputPort: LoginInputPort = { email, password }
+      const result = await this.authenticationUseCase.login(inputPort)
 
       return NextResponse.json(
         {
@@ -99,20 +124,15 @@ export class AuthController {
         )
       }
 
-      const registerUseCase = new RegisterUseCase(
-        this.userRepository,
-        this.passwordHashService,
-        this.tokenService,
-        this.emailService
-      )
-
-      const result = await registerUseCase.execute({ email, username: userName, password })
+      const inputPort: RegisterInputPort = { email, userName, password }
+      const result = await this.authenticationUseCase.register(inputPort)
 
       return NextResponse.json({
         success: true,
         message:
+          result.message ||
           'アカウントが作成されました。メールアドレスを確認してアカウントを有効化してください。',
-        userId: result.id,
+        userId: result.user.id,
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -147,16 +167,11 @@ export class AuthController {
         return NextResponse.json({ error: 'メールアドレスは必須です' }, { status: 400 })
       }
 
-      const forgotPasswordUseCase = new ForgotPasswordUseCase(
-        this.userRepository,
-        this.emailService,
-        this.tokenService
-      )
-
-      const result = await forgotPasswordUseCase.execute({ email })
+      const inputPort: ForgotPasswordInputPort = { email }
+      const result = await this.passwordManagementUseCase.forgotPassword(inputPort)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: result.message,
       })
     } catch (error) {
@@ -184,15 +199,11 @@ export class AuthController {
         return NextResponse.json({ error: 'トークンとパスワードは必須です' }, { status: 400 })
       }
 
-      const resetPasswordUseCase = new ResetPasswordUseCase(
-        this.userRepository,
-        this.passwordHashService
-      )
-
-      const result = await resetPasswordUseCase.execute({ token, password })
+      const inputPort: ResetPasswordInputPort = { token, newPassword: password }
+      const result = await this.passwordManagementUseCase.resetPassword(inputPort)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: result.message,
       })
     } catch (error) {
@@ -233,12 +244,11 @@ export class AuthController {
         return NextResponse.json({ error: 'トークンは必須です' }, { status: 400 })
       }
 
-      const verifyEmailUseCase = new VerifyEmailUseCase(this.userRepository, this.tokenService)
-
-      const result = await verifyEmailUseCase.execute({ token })
+      const inputPort: VerifyEmailInputPort = { token }
+      const result = await this.emailVerificationUseCase.verifyEmail(inputPort)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: result.message,
       })
     } catch (error) {
@@ -271,12 +281,11 @@ export class AuthController {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
       }
 
-      const logoutUseCase = new LogoutUseCase(this.authSessionRepository)
-
-      const result = await logoutUseCase.execute({ token })
+      const inputPort: LogoutInputPort = { token }
+      const result = await this.authenticationUseCase.logout(inputPort)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: result.message,
       })
     } catch (error) {
@@ -303,13 +312,8 @@ export class AuthController {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
       }
 
-      const getCurrentUserUseCase = new GetCurrentUserUseCase(
-        this.userRepository,
-        this.authSessionRepository,
-        this.tokenService
-      )
-
-      const result = await getCurrentUserUseCase.execute({ token })
+      const inputPort: GetCurrentUserInputPort = { token }
+      const result = await this.authenticationUseCase.getCurrentUser(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -346,17 +350,15 @@ export class AuthController {
         return NextResponse.json({ error: 'Password is required' }, { status: 400 })
       }
 
-      const deleteAccountUseCase = new DeleteAccountUseCase(
-        this.userRepository,
-        this.passwordHashService,
-        this.authSessionRepository,
-        this.tokenService
-      )
+      // First verify the token and get user info
+      const tokenService = new TokenServiceImpl()
+      const decoded = await tokenService.verifyToken(token)
 
-      const result = await deleteAccountUseCase.execute({ token, password })
+      const inputPort: DeleteAccountInputPort = { userId: decoded.userId, password }
+      const result = await this.accountManagementUseCase.deleteAccount(inputPort)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: result.message,
       })
     } catch (error) {
@@ -392,22 +394,8 @@ export class AuthController {
         )
       }
 
-      // リクエストから動的にベースURLを取得
-      const host = request.headers.get('host')
-      const protocol = request.headers.get('x-forwarded-proto') || 'http'
-      const baseUrl = host ? `${protocol}://${host}` : undefined
-
-      const resendVerificationUseCase = new ResendVerificationEmailUseCase(
-        this.userRepository,
-        this.emailService,
-        this.tokenService
-      )
-
-      const result = await resendVerificationUseCase.execute({ email, baseUrl })
-
-      if (!result.success) {
-        return NextResponse.json({ error: result.message }, { status: 400 })
-      }
+      const inputPort: ResendVerificationEmailInputPort = { email }
+      const result = await this.emailVerificationUseCase.resendVerificationEmail(inputPort)
 
       return NextResponse.json({ message: result.message })
     } catch (error) {
@@ -425,23 +413,19 @@ export class AuthController {
         return NextResponse.json({ success: false, message: 'トークンが必要です' }, { status: 400 })
       }
 
-      const verifyTokenUseCase = new VerifyPasswordResetTokenUseCase(
-        this.userRepository,
-        this.tokenService
-      )
+      const inputPort: VerifyPasswordResetTokenInputPort = { token }
+      const result = await this.passwordManagementUseCase.verifyPasswordResetToken(inputPort)
 
-      const result = await verifyTokenUseCase.execute({ token })
-
-      if (result.success) {
+      if (result.isValid) {
         return NextResponse.json({
           success: true,
-          message: result.message,
+          message: 'トークンは有効です',
         })
       } else {
         return NextResponse.json(
           {
             success: false,
-            message: result.message,
+            message: 'トークンが無効です',
           },
           { status: 400 }
         )

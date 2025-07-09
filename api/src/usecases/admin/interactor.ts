@@ -19,6 +19,8 @@ import {
   IAdminPostManagementUseCase,
   IAdminDashboardUseCase,
   AdminLoginInputPort,
+  AdminLogoutInputPort,
+  GetCurrentAdminInputPort,
   ActivateUserInputPort,
   SuspendUserInputPort,
   GetAdminUsersInputPort,
@@ -123,6 +125,30 @@ export class AdminAuthenticationUseCase implements IAdminAuthenticationUseCase {
       token,
       user,
     }
+  }
+
+  async adminLogout(inputData: AdminLogoutInputPort): Promise<void> {
+    const { adminUserId } = inputData
+
+    // Delete all sessions for the admin user
+    await this.authSessionRepository.deleteByUserId(adminUserId)
+  }
+
+  async getCurrentAdmin(inputData: GetCurrentAdminInputPort): Promise<{ user: User }> {
+    const { adminUserId } = inputData
+
+    // Find admin user
+    const user = await this.userRepository.findById(adminUserId)
+    if (!user) {
+      throw new Error('管理者が見つかりません')
+    }
+
+    // Verify admin role
+    if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
+      throw new Error('権限がありません')
+    }
+
+    return { user }
   }
 }
 
@@ -349,8 +375,8 @@ export class AdminUserManagementUseCase implements IAdminUserManagementUseCase {
 
 export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
   constructor(
-    private userRepository: UserRepository,
     private postRepository: PostRepository,
+    private userRepository: UserRepository,
     private adminLogRepository: AdminLogRepository
   ) {}
 

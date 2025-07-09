@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { CreatePostUseCase } from '@api/usecases/posts/CreatePostUseCase'
-import { GetPostUseCase } from '@api/usecases/posts/GetPostUseCase'
-import { GetPostsUseCase } from '@api/usecases/posts/GetPostsUseCase'
-import { UpdatePostUseCase } from '@api/usecases/posts/UpdatePostUseCase'
-import { DeletePostUseCase } from '@api/usecases/posts/DeletePostUseCase'
-import { AddEmpathyUseCase } from '@api/usecases/posts/AddEmpathyUseCase'
-import { RemoveEmpathyUseCase } from '@api/usecases/posts/RemoveEmpathyUseCase'
-import { GetEmpathyStatusUseCase } from '@api/usecases/posts/GetEmpathyStatusUseCase'
+import {
+  PostManagementUseCase,
+  PostRetrievalUseCase,
+  EmpathyManagementUseCase,
+} from '@api/usecases/posts/interactor'
+import type {
+  CreatePostInputPort,
+  UpdatePostInputPort,
+  DeletePostInputPort,
+  GetPostInputPort,
+  GetPostsInputPort,
+  AddEmpathyInputPort,
+  RemoveEmpathyInputPort,
+  GetEmpathyStatusInputPort,
+} from '@api/usecases/posts/input-port'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
@@ -15,23 +22,42 @@ import { isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
 
 export class PostController {
-  private postRepository: PostRepositoryImpl
-  private userRepository: UserRepositoryImpl
-  private empathyRepository: EmpathyRepositoryImpl
+  private postManagementUseCase: PostManagementUseCase
+  private postRetrievalUseCase: PostRetrievalUseCase
+  private empathyManagementUseCase: EmpathyManagementUseCase
   private tokenService: TokenServiceImpl
 
   constructor() {
-    this.postRepository = new PostRepositoryImpl()
-    this.userRepository = new UserRepositoryImpl()
-    this.empathyRepository = new EmpathyRepositoryImpl()
+    const postRepository = new PostRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
+    const empathyRepository = new EmpathyRepositoryImpl()
+    const commentRepository =
+      new (require('@api/interface-adapters/repositories/CommentRepositoryImpl').CommentRepositoryImpl)()
     this.tokenService = new TokenServiceImpl()
+
+    this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
+    this.postRetrievalUseCase = new PostRetrievalUseCase(
+      postRepository,
+      empathyRepository,
+      commentRepository
+    )
+    this.empathyManagementUseCase = new EmpathyManagementUseCase(
+      postRepository,
+      userRepository,
+      empathyRepository
+    )
   }
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
     const authHeader = request.headers.get('Authorization')
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '')
-      return await this.tokenService.verifyAuthToken(token)
+      try {
+        const decoded = await this.tokenService.verifyToken(token)
+        return decoded.userId
+      } catch {
+        return null
+      }
     }
     const cookieHeader = request.headers.get('cookie')
     if (cookieHeader) {
@@ -39,7 +65,12 @@ export class PostController {
       const authCookie = cookies.find(c => c.startsWith('auth-token='))
       if (authCookie) {
         const token = authCookie.split('=')[1]
-        return await this.tokenService.verifyAuthToken(token)
+        try {
+          const decoded = await this.tokenService.verifyToken(token)
+          return decoded.userId
+        } catch {
+          return null
+        }
       }
     }
 
@@ -66,9 +97,7 @@ export class PostController {
         category = cosmeticCategory,
       } = body
 
-      const createPostUseCase = new CreatePostUseCase(this.postRepository, this.userRepository)
-
-      const result = await createPostUseCase.execute({
+      const input: CreatePostInputPort = {
         userId,
         title,
         content,
@@ -76,7 +105,9 @@ export class PostController {
         brandName,
         imageUrl,
         category,
-      })
+      }
+
+      const result = await this.postManagementUseCase.createPost(input)
 
       return NextResponse.json({
         post: result.post,
@@ -102,12 +133,12 @@ export class PostController {
       const postId = context.params.id
       const userId = await this.getUserIdFromRequest(request)
 
-      const getPostUseCase = new GetPostUseCase(this.postRepository)
-
-      const result = await getPostUseCase.execute({
+      const input: GetPostInputPort = {
         postId,
-        requestUserId: userId || undefined,
-      })
+        userId: userId || undefined,
+      }
+
+      const result = await this.postRetrievalUseCase.getPost(input)
 
       return NextResponse.json({
         post: result.post,
@@ -131,27 +162,28 @@ export class PostController {
       const limit = parseInt(url.searchParams.get('limit') || '10')
       const category = url.searchParams.get('category') || undefined
       const search = url.searchParams.get('search') || undefined
-      const sortBy = (url.searchParams.get('sortBy') as 'recent' | 'popular') || 'recent'
+      const sortByParam = url.searchParams.get('sortBy') || 'recent'
+      const sortBy = sortByParam === 'popular' ? 'empathyCount' : 'createdAt'
       const userId = await this.getUserIdFromRequest(request)
 
-      const getPostsUseCase = new GetPostsUseCase(this.postRepository)
-
-      const result = await getPostsUseCase.execute({
+      const input: GetPostsInputPort = {
         page,
         limit,
         category,
         search,
-        sortBy,
+        sortBy: sortBy as 'createdAt' | 'empathyCount',
         userId: userId || undefined,
-      })
+      }
+
+      const result = await this.postRetrievalUseCase.getPosts(input)
 
       return NextResponse.json({
         posts: result.posts,
         pagination: {
-          page: result.currentPage,
-          limit,
-          total: result.totalCount,
-          pages: result.totalPages,
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          pages: Math.ceil(result.total / result.limit),
         },
       })
     } catch (error) {
@@ -191,9 +223,7 @@ export class PostController {
         category = cosmeticCategory,
       } = body
 
-      const updatePostUseCase = new UpdatePostUseCase(this.postRepository)
-
-      const result = await updatePostUseCase.execute({
+      const input: UpdatePostInputPort = {
         postId,
         userId,
         title,
@@ -202,7 +232,9 @@ export class PostController {
         brandName,
         imageUrl,
         category,
-      })
+      }
+
+      const result = await this.postManagementUseCase.updatePost(input)
 
       return NextResponse.json({
         post: result.post,
@@ -238,9 +270,9 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
-      const deletePostUseCase = new DeletePostUseCase(this.postRepository)
+      const input: DeletePostInputPort = { postId, userId }
 
-      await deletePostUseCase.execute({ postId, userId })
+      await this.postManagementUseCase.deletePost(input)
 
       return NextResponse.json({
         message: '投稿が削除されました',
@@ -272,20 +304,17 @@ export class PostController {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
 
-      const addEmpathyUseCase = new AddEmpathyUseCase(
-        this.empathyRepository,
-        this.postRepository,
-        this.userRepository
-      )
-
       const body = await request.json()
       const { empathyType } = body
 
-      const result = await addEmpathyUseCase.execute({ postId, userId, empathyType })
+      const input: AddEmpathyInputPort = { postId, userId }
+
+      const result = await this.empathyManagementUseCase.addEmpathy(input)
 
       return NextResponse.json({
-        success: result.success,
-        empathyCount: result.empathyCount,
+        success: true,
+        empathy: result.empathy,
+        message: result.message,
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -317,16 +346,13 @@ export class PostController {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
 
-      const removeEmpathyUseCase = new RemoveEmpathyUseCase(
-        this.empathyRepository,
-        this.postRepository
-      )
+      const input: RemoveEmpathyInputPort = { postId, userId }
 
-      const result = await removeEmpathyUseCase.execute({ postId, userId })
+      const result = await this.empathyManagementUseCase.removeEmpathy(input)
 
       return NextResponse.json({
-        success: result.success,
-        empathyCount: result.empathyCount,
+        success: true,
+        message: result.message,
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -356,12 +382,12 @@ export class PostController {
       }
 
       const userId = await this.getUserIdFromRequest(request)
-      const getPostUseCase = new GetPostUseCase(this.postRepository)
-
-      const result = await getPostUseCase.execute({
+      const input: GetPostInputPort = {
         postId,
-        requestUserId: userId || undefined,
-      })
+        userId: userId || undefined,
+      }
+
+      const result = await this.postRetrievalUseCase.getPost(input)
 
       return NextResponse.json({
         success: true,
@@ -406,9 +432,7 @@ export class PostController {
         category = cosmeticCategory,
       } = body
 
-      const updatePostUseCase = new UpdatePostUseCase(this.postRepository)
-
-      const result = await updatePostUseCase.execute({
+      const input: UpdatePostInputPort = {
         postId,
         userId,
         title,
@@ -417,7 +441,9 @@ export class PostController {
         brandName,
         imageUrl,
         category,
-      })
+      }
+
+      const result = await this.postManagementUseCase.updatePost(input)
 
       return NextResponse.json({
         post: result.post,
@@ -455,9 +481,9 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
-      const deletePostUseCase = new DeletePostUseCase(this.postRepository)
+      const input: DeletePostInputPort = { postId, userId }
 
-      await deletePostUseCase.execute({ postId, userId })
+      await this.postManagementUseCase.deletePost(input)
 
       return NextResponse.json({
         success: true,
@@ -544,16 +570,11 @@ export class PostController {
         })
       }
 
-      const addEmpathyUseCase = new AddEmpathyUseCase(
-        this.empathyRepository,
-        this.postRepository,
-        this.userRepository
-      )
-
-      const result = await addEmpathyUseCase.execute({ postId, userId, empathyType })
+      const input: AddEmpathyInputPort = { postId, userId }
+      const result = await this.empathyManagementUseCase.addEmpathy(input)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         empathy: {
           id: result.empathy.id,
           postId: result.empathy.postId,
@@ -561,8 +582,8 @@ export class PostController {
           empathyType: result.empathy.empathyType,
           createdAt: result.empathy.createdAt,
         },
-        totalCount: result.empathyCount,
-        message: '共感を追加しました',
+        totalCount: 1,
+        message: result.message || '共感を追加しました',
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -632,17 +653,14 @@ export class PostController {
       }
 
       // Database mode
-      const removeEmpathyUseCase = new RemoveEmpathyUseCase(
-        this.empathyRepository,
-        this.postRepository
-      )
+      const input: RemoveEmpathyInputPort = { postId, userId }
 
-      const result = await removeEmpathyUseCase.execute({ postId, userId })
+      const result = await this.empathyManagementUseCase.removeEmpathy(input)
 
       return NextResponse.json({
-        success: result.success,
-        empathyCount: result.empathyCount,
-        message: '共感を削除しました',
+        success: true,
+        totalCount: 0,
+        message: result.message || '共感を削除しました',
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -671,11 +689,14 @@ export class PostController {
         return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
       }
 
-      // For now, return mock status - this should be implemented with a proper use case
+      const input: GetEmpathyStatusInputPort = { postId, userId }
+
+      const result = await this.empathyManagementUseCase.getEmpathyStatus(input)
+
       return NextResponse.json({
-        hasEmpathized: false,
+        hasEmpathized: result.hasEmpathy,
         empathyType: null,
-        totalCount: 0,
+        totalCount: result.empathyCount,
       })
     } catch (error) {
       console.error('Get empathy status error:', error)
@@ -723,18 +744,14 @@ export class PostController {
       }
 
       // Database mode
-      const getEmpathyStatusUseCase = new GetEmpathyStatusUseCase(
-        this.empathyRepository,
-        this.postRepository,
-        this.userRepository
-      )
+      const input: GetEmpathyStatusInputPort = { postId, userId }
 
-      const result = await getEmpathyStatusUseCase.execute({ postId, userId })
+      const result = await this.empathyManagementUseCase.getEmpathyStatus(input)
 
       return NextResponse.json({
-        hasEmpathized: result.hasEmpathized,
-        empathyType: result.empathyType,
-        totalCount: result.totalCount,
+        hasEmpathized: result.hasEmpathy,
+        empathyType: null,
+        totalCount: result.empathyCount,
       })
     } catch (error) {
       if (error instanceof Error) {

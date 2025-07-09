@@ -111,24 +111,25 @@ export class CommentManagementUseCase implements ICommentManagementUseCase {
       throw new Error('返信は1000文字以内で入力してください')
     }
 
-    // 投稿の存在確認
-    const post = await this.postRepository.findById(input.postId)
-    if (!post) {
-      throw new Error('投稿が見つかりませんでした')
-    }
-
-    if (!post.isPublished) {
-      throw new Error('この投稿にはコメントできません')
-    }
-
     // 親コメントの存在確認
     const parentComment = await this.commentRepository.findById(input.parentCommentId)
     if (!parentComment) {
       throw new Error('返信先のコメントが見つかりませんでした')
     }
 
-    if (parentComment.postId !== input.postId) {
-      throw new Error('無効な返信です')
+    // 2階層までのチェック
+    if (parentComment.parentCommentId) {
+      throw new Error('返信は2階層までしか投稿できません')
+    }
+
+    // 投稿の存在確認
+    const post = await this.postRepository.findById(parentComment.postId)
+    if (!post) {
+      throw new Error('投稿が見つかりませんでした')
+    }
+
+    if (!post.isPublished) {
+      throw new Error('この投稿にはコメントできません')
     }
 
     // ユーザーの存在確認
@@ -143,7 +144,7 @@ export class CommentManagementUseCase implements ICommentManagementUseCase {
 
     // 返信作成
     const comment = await this.commentRepository.create(
-      input.postId,
+      parentComment.postId,
       input.userId,
       input.content.trim(),
       input.parentCommentId

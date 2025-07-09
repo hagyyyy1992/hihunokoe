@@ -38,7 +38,7 @@ import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
 import * as tokenServiceModule from '@api/interface-adapters/services/TokenServiceImpl'
 
 // Get the mocked functions
-const mockVerifyAuthToken = (tokenServiceModule as any).__mockVerifyAuthToken
+const mockVerifyToken = (tokenServiceModule as any).__mockVerifyToken
 
 const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedFunction<
   typeof prismaModule.isDatabaseAvailable
@@ -92,7 +92,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     mockIsDatabaseAvailable.mockReturnValue(false)
 
     // Setup default authentication mock
-    mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+    mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
     // Reset mock data arrays to initial state
     MOCK_POSTS.length = 0
@@ -143,7 +143,7 @@ describe('/api/posts/empathy (query parameter)', () => {
   describe('GET', () => {
     it('認証されていない場合、401エラーを返す', async () => {
       // Override the default authentication mock to return null (unauthenticated)
-      mockVerifyAuthToken.mockResolvedValue(null)
+      mockVerifyToken.mockResolvedValue(null)
 
       const request = createRequest('550e8400-e29b-41d4-a716-446655440001')
 
@@ -155,7 +155,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('ユーザーの共感状態を取得できる（モックモード）', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440012')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440012' })
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -174,7 +174,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('投稿が存在しない場合、404エラーを返す', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440099',
@@ -191,7 +191,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('無効なIDの場合、400エラーを返す', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const request = createRequest('invalid-id', 'GET', null, 'valid-token')
 
@@ -216,11 +216,11 @@ describe('/api/posts/empathy (query parameter)', () => {
 
   describe('POST', () => {
     beforeEach(() => {
-      mockVerifyAuthToken.mockReset()
+      mockVerifyToken.mockReset()
     })
 
     it('共感を追加できる（モックモード）', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const empathyData = {
         empathyType: 'interested',
@@ -246,7 +246,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('既に共感済みの場合、400エラーを返す（モックモード）', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440012') // 既に共感済みのユーザー
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440012' }) // 既に共感済みのユーザー
 
       const empathyData = {
         empathyType: 'helpful',
@@ -281,7 +281,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('無効なempathyTypeの場合、400エラーを返す', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const empathyData = {
         empathyType: 'invalid_type',
@@ -303,7 +303,7 @@ describe('/api/posts/empathy (query parameter)', () => {
 
     it.skip('データベースモードで共感を追加できる', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001', status: 'published' }
       const mockUser = { id: mockUser1.id, isActive: true, deletedAt: null }
@@ -344,11 +344,11 @@ describe('/api/posts/empathy (query parameter)', () => {
 
   describe('DELETE', () => {
     beforeEach(() => {
-      mockVerifyAuthToken.mockReset()
+      mockVerifyToken.mockReset()
     })
 
     it('共感を削除できる（モックモード）', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440012') // 共感済みのユーザー
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440012' }) // 共感済みのユーザー
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -367,7 +367,7 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it('共感が存在しない場合、404エラーを返す（モックモード）', async () => {
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011') // 共感していないユーザー
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' }) // 共感していないユーザー
 
       const request = createRequest(
         '550e8400-e29b-41d4-a716-446655440001',
@@ -395,7 +395,7 @@ describe('/api/posts/empathy (query parameter)', () => {
 
     it.skip('データベースモードで共感を削除できる', async () => {
       mockIsDatabaseAvailable.mockReturnValue(true)
-      mockVerifyAuthToken.mockResolvedValue('550e8400-e29b-41d4-a716-446655440011')
+      mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 
       const mockPost = { id: '550e8400-e29b-41d4-a716-446655440001', status: 'published' }
       const mockEmpathy = {

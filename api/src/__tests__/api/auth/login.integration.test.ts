@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/auth/login/route'
-import { LoginUseCase } from '@api/usecases/auth/LoginUseCase'
+import {
+  AuthenticationUseCase,
+  PasswordManagementUseCase,
+  EmailVerificationUseCase,
+  AccountManagementUseCase,
+} from '@api/usecases/auth/interactor'
 import {
   InvalidCredentialsError,
   EmailNotVerifiedError,
@@ -8,8 +13,8 @@ import {
   AccountInactiveError,
 } from '@api/domain/exceptions/AuthenticationError'
 
-// Mock the entire LoginUseCase module
-jest.mock('@api/usecases/auth/LoginUseCase')
+// Mock the entire AuthenticationUseCase module
+jest.mock('@api/usecases/auth/interactor')
 
 // Mock all the repository and service implementations
 jest.mock('@api/interface-adapters/repositories/UserRepositoryImpl')
@@ -19,19 +24,33 @@ jest.mock('@api/interface-adapters/services/TokenServiceImpl')
 jest.mock('@api/interface-adapters/services/EmailServiceImpl')
 
 describe('/api/auth/login (integration test)', () => {
-  let mockLoginUseCaseExecute: jest.Mock
+  let mockAuthenticationUseCase: jest.Mocked<AuthenticationUseCase>
 
   beforeEach(() => {
     jest.clearAllMocks()
 
-    // Setup the mock for LoginUseCase
-    mockLoginUseCaseExecute = jest.fn()
-    ;(LoginUseCase as jest.MockedClass<typeof LoginUseCase>).mockImplementation(
-      () =>
-        ({
-          execute: mockLoginUseCaseExecute,
-        }) as any
+    // Setup the mock for AuthenticationUseCase
+    mockAuthenticationUseCase = {
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      getCurrentUser: jest.fn(),
+      verifyToken: jest.fn(),
+    } as any
+    ;(AuthenticationUseCase as jest.MockedClass<typeof AuthenticationUseCase>).mockImplementation(
+      () => mockAuthenticationUseCase
     )
+
+    // Mock other use cases
+    ;(
+      PasswordManagementUseCase as jest.MockedClass<typeof PasswordManagementUseCase>
+    ).mockImplementation(() => ({}) as any)
+    ;(
+      EmailVerificationUseCase as jest.MockedClass<typeof EmailVerificationUseCase>
+    ).mockImplementation(() => ({}) as any)
+    ;(
+      AccountManagementUseCase as jest.MockedClass<typeof AccountManagementUseCase>
+    ).mockImplementation(() => ({}) as any)
   })
 
   const createRequest = (body: any) => {
@@ -49,13 +68,13 @@ describe('/api/auth/login (integration test)', () => {
       const mockUser = {
         id: '1',
         email: 'test@example.com',
-        username: 'testuser',
+        userName: 'testuser',
         role: 'USER' as const,
         emailVerified: true,
       }
       const mockToken = 'mock-jwt-token'
 
-      mockLoginUseCaseExecute.mockResolvedValue({
+      mockAuthenticationUseCase.login.mockResolvedValue({
         token: mockToken,
         user: mockUser,
       })
@@ -68,20 +87,26 @@ describe('/api/auth/login (integration test)', () => {
       const response = await POST(request)
       const data = await response.json()
 
+      // Debug logging
+      if (response.status !== 200) {
+        console.log('Response status:', response.status)
+        console.log('Response data:', data)
+      }
+
       expect(response.status).toBe(200)
       expect(data).toEqual({
         success: true,
         token: mockToken,
         user: mockUser,
       })
-      expect(mockLoginUseCaseExecute).toHaveBeenCalledWith({
+      expect(mockAuthenticationUseCase.login).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
       })
     })
 
     it('メール認証が未完了の場合、403エラーを返す', async () => {
-      mockLoginUseCaseExecute.mockRejectedValue(new EmailNotVerifiedError())
+      mockAuthenticationUseCase.login.mockRejectedValue(new EmailNotVerifiedError())
 
       const request = createRequest({
         email: 'test@example.com',
@@ -98,7 +123,7 @@ describe('/api/auth/login (integration test)', () => {
     })
 
     it('認証情報が無効な場合、401エラーを返す', async () => {
-      mockLoginUseCaseExecute.mockRejectedValue(new InvalidCredentialsError())
+      mockAuthenticationUseCase.login.mockRejectedValue(new InvalidCredentialsError())
 
       const request = createRequest({
         email: 'test@example.com',
@@ -113,7 +138,7 @@ describe('/api/auth/login (integration test)', () => {
     })
 
     it('アカウントがロックされている場合、423エラーを返す', async () => {
-      mockLoginUseCaseExecute.mockRejectedValue(new AccountLockedError())
+      mockAuthenticationUseCase.login.mockRejectedValue(new AccountLockedError())
 
       const request = createRequest({
         email: 'test@example.com',
@@ -128,7 +153,7 @@ describe('/api/auth/login (integration test)', () => {
     })
 
     it('アカウントが無効な場合、403エラーを返す', async () => {
-      mockLoginUseCaseExecute.mockRejectedValue(new AccountInactiveError())
+      mockAuthenticationUseCase.login.mockRejectedValue(new AccountInactiveError())
 
       const request = createRequest({
         email: 'test@example.com',
@@ -153,7 +178,7 @@ describe('/api/auth/login (integration test)', () => {
 
       expect(response.status).toBe(400)
       expect(data.error).toBe('Email and password are required')
-      expect(mockLoginUseCaseExecute).not.toHaveBeenCalled()
+      expect(mockAuthenticationUseCase.login).not.toHaveBeenCalled()
     })
 
     it('emailが欠如している場合、バリデーションエラーを返す', async () => {
@@ -181,7 +206,7 @@ describe('/api/auth/login (integration test)', () => {
     })
 
     it('サーバーエラーが発生した場合、500エラーを返す', async () => {
-      mockLoginUseCaseExecute.mockRejectedValue(new Error('Database error'))
+      mockAuthenticationUseCase.login.mockRejectedValue(new Error('Database error'))
 
       const request = createRequest({
         email: 'test@example.com',

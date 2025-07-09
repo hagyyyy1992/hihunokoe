@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { AdminLoginUseCase } from '@api/usecases/admin/AdminLoginUseCase'
-import { GetDashboardStatsUseCase } from '@api/usecases/admin/GetDashboardStatsUseCase'
-import { GetAdminUsersUseCase } from '@api/usecases/admin/GetAdminUsersUseCase'
+import {
+  AdminAuthenticationUseCase,
+  AdminUserManagementUseCase,
+  AdminPostManagementUseCase,
+  AdminDashboardUseCase,
+} from '@api/usecases/admin/interactor'
+import type {
+  AdminLoginInputPort,
+  ActivateUserInputPort,
+  SuspendUserInputPort,
+  GetAdminUsersInputPort,
+  ExportUsersInputPort,
+  AdminDeletePostInputPort,
+  PublishPostInputPort,
+  UnpublishPostInputPort,
+  GetAdminPostsInputPort,
+  GetDashboardStatsInputPort,
+  AdminLogoutInputPort,
+  GetCurrentAdminInputPort,
+} from '@api/usecases/admin/input-port'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
 import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
 import { AdminLogRepositoryImpl } from '@api/interface-adapters/repositories/AdminLogRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
@@ -19,25 +35,47 @@ import {
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AdminController {
-  private userRepository: UserRepositoryImpl
-  private postRepository: PostRepositoryImpl
-  private empathyRepository: EmpathyRepositoryImpl
-  private authSessionRepository: AuthSessionRepositoryImpl
-  private adminLogRepository: AdminLogRepositoryImpl
-  private passwordHashService: PasswordHashServiceImpl
+  private adminAuthenticationUseCase: AdminAuthenticationUseCase
+  private adminUserManagementUseCase: AdminUserManagementUseCase
+  private adminPostManagementUseCase: AdminPostManagementUseCase
+  private adminDashboardUseCase: AdminDashboardUseCase
   private tokenService: TokenServiceImpl
 
   constructor() {
-    this.userRepository = new UserRepositoryImpl()
-    this.postRepository = new PostRepositoryImpl()
-    this.empathyRepository = new EmpathyRepositoryImpl()
-    this.authSessionRepository = new AuthSessionRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
+    const postRepository = new PostRepositoryImpl()
+    const authSessionRepository = new AuthSessionRepositoryImpl()
+    const passwordHashService = new PasswordHashServiceImpl()
+    this.tokenService = new TokenServiceImpl()
+    const commentRepository =
+      new (require('@api/interface-adapters/repositories/CommentRepositoryImpl').CommentRepositoryImpl)()
+
     if (!prisma) {
       throw new Error('Prisma client is not initialized')
     }
-    this.adminLogRepository = new AdminLogRepositoryImpl(prisma)
-    this.passwordHashService = new PasswordHashServiceImpl()
-    this.tokenService = new TokenServiceImpl()
+    const adminLogRepository = new AdminLogRepositoryImpl(prisma)
+
+    this.adminAuthenticationUseCase = new AdminAuthenticationUseCase(
+      userRepository,
+      authSessionRepository,
+      passwordHashService,
+      this.tokenService,
+      adminLogRepository
+    )
+    this.adminUserManagementUseCase = new AdminUserManagementUseCase(
+      userRepository,
+      adminLogRepository
+    )
+    this.adminPostManagementUseCase = new AdminPostManagementUseCase(
+      postRepository,
+      userRepository,
+      adminLogRepository
+    )
+    this.adminDashboardUseCase = new AdminDashboardUseCase(
+      userRepository,
+      postRepository,
+      commentRepository
+    )
   }
 
   private async getAdminUserFromRequest(request: NextRequest): Promise<string | null> {
@@ -54,18 +92,12 @@ export class AdminController {
       return null
     }
 
-    const userId = await this.tokenService.verifyAuthToken(token)
-    if (!userId) {
+    try {
+      const decoded = await this.tokenService.verifyToken(token)
+      return decoded.userId
+    } catch {
       return null
     }
-
-    // Verify user is admin
-    const user = await this.userRepository.findById(userId)
-    if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN)) {
-      return null
-    }
-
-    return userId
   }
 
   async login(request: NextRequest): Promise<NextResponse> {
@@ -77,20 +109,13 @@ export class AdminController {
         return NextResponse.json({ error: 'メールアドレスとパスワードが必要です' }, { status: 400 })
       }
 
-      const adminLoginUseCase = new AdminLoginUseCase(
-        this.userRepository,
-        this.authSessionRepository,
-        this.passwordHashService,
-        this.tokenService,
-        this.adminLogRepository
-      )
-
       // Get IP address and user agent
       const ipAddress =
         request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
       const userAgent = request.headers.get('user-agent') || 'unknown'
 
-      const result = await adminLoginUseCase.execute({ email, password, ipAddress, userAgent })
+      const inputPort: AdminLoginInputPort = { email, password, ipAddress, userAgent }
+      const result = await this.adminAuthenticationUseCase.adminLogin(inputPort)
 
       // Set admin cookie
       const response = NextResponse.json({
@@ -147,13 +172,8 @@ export class AdminController {
         return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
       }
 
-      const getDashboardStatsUseCase = new GetDashboardStatsUseCase(
-        this.userRepository,
-        this.postRepository,
-        this.empathyRepository
-      )
-
-      const result = await getDashboardStatsUseCase.execute()
+      const inputPort: GetDashboardStatsInputPort = { adminUserId }
+      const result = await this.adminDashboardUseCase.getDashboardStats(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -176,18 +196,19 @@ export class AdminController {
       const page = parseInt(url.searchParams.get('page') || '1')
       const limit = parseInt(url.searchParams.get('limit') || '20')
       const search = url.searchParams.get('search') || undefined
-      const status = (url.searchParams.get('status') as 'all' | 'active' | 'inactive') || 'all'
+      const status =
+        (url.searchParams.get('status') as 'all' | 'active' | 'suspended' | 'deleted') || 'all'
       const role = url.searchParams.get('role') || undefined
 
-      const getAdminUsersUseCase = new GetAdminUsersUseCase(this.userRepository)
-
-      const result = await getAdminUsersUseCase.execute({
+      const inputPort: GetAdminUsersInputPort = {
+        adminUserId,
         page,
         limit,
         search,
         status,
-        role,
-      })
+        role: role as UserRole | undefined,
+      }
+      const result = await this.adminUserManagementUseCase.getAdminUsers(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -202,9 +223,9 @@ export class AdminController {
           updatedAt: user.updatedAt,
           deletedAt: user.deletedAt,
         })),
-        totalCount: result.totalCount,
-        currentPage: result.currentPage,
-        totalPages: result.totalPages,
+        totalCount: result.total,
+        currentPage: result.page,
+        totalPages: Math.ceil(result.total / result.limit),
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -230,8 +251,11 @@ export class AdminController {
 
       const userId = context.params.id
 
-      // Update user to active
-      await this.userRepository.update(userId, { active: true })
+      const inputPort: ActivateUserInputPort = {
+        adminUserId,
+        targetUserId: userId,
+      }
+      await this.adminUserManagementUseCase.activateUser(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -255,8 +279,11 @@ export class AdminController {
 
       const userId = context.params.id
 
-      // Update user to inactive
-      await this.userRepository.update(userId, { active: false })
+      const inputPort: SuspendUserInputPort = {
+        adminUserId,
+        targetUserId: userId,
+      }
+      await this.adminUserManagementUseCase.suspendUser(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -281,19 +308,21 @@ export class AdminController {
       const search = url.searchParams.get('search') || undefined
       const status = url.searchParams.get('status') || undefined
 
-      const result = await this.postRepository.findMany({
-        offset: (page - 1) * limit,
+      const inputPort: GetAdminPostsInputPort = {
+        adminUserId,
+        page,
         limit,
         search,
-        publishedOnly: status === 'published' ? true : false,
-      })
+        status: status as 'all' | 'published' | 'unpublished' | undefined,
+      }
+      const result = await this.adminPostManagementUseCase.getAdminPosts(inputPort)
 
       return NextResponse.json({
         success: true,
         posts: result.posts,
-        totalCount: result.totalCount,
+        totalCount: result.total,
         currentPage: page,
-        totalPages: Math.ceil(result.totalCount / limit),
+        totalPages: Math.ceil(result.total / limit),
       })
     } catch (error) {
       console.error('Get posts error:', error)
@@ -313,7 +342,11 @@ export class AdminController {
 
       const postId = context.params.id
 
-      await this.postRepository.update(postId, { isPublished: true })
+      const inputPort: PublishPostInputPort = {
+        adminUserId,
+        postId,
+      }
+      await this.adminPostManagementUseCase.publishPost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -337,7 +370,11 @@ export class AdminController {
 
       const postId = context.params.id
 
-      await this.postRepository.update(postId, { isPublished: false })
+      const inputPort: UnpublishPostInputPort = {
+        adminUserId,
+        postId,
+      }
+      await this.adminPostManagementUseCase.unpublishPost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -361,7 +398,11 @@ export class AdminController {
 
       const postId = context.params.id
 
-      await this.postRepository.delete(postId)
+      const inputPort: AdminDeletePostInputPort = {
+        adminUserId,
+        postId,
+      }
+      await this.adminPostManagementUseCase.deletePost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -380,32 +421,16 @@ export class AdminController {
         return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
       }
 
-      // Get all users
-      const result = await this.userRepository.findMany({
-        offset: 0,
-        limit: 10000, // Large limit to get all users
-      })
+      const inputPort: ExportUsersInputPort = {
+        adminUserId,
+        format: 'csv',
+      }
+      const result = await this.adminUserManagementUseCase.exportUsers(inputPort)
 
-      // Generate CSV
-      const headers = ['ID', 'ユーザー名', 'メールアドレス', 'ロール', 'ステータス', '作成日']
-      const csvData = [
-        headers.join(','),
-        ...result.users.map(user =>
-          [
-            user.id,
-            user.userName,
-            user.email,
-            user.role,
-            user.isActive ? '有効' : '無効',
-            user.createdAt.toISOString().split('T')[0],
-          ].join(',')
-        ),
-      ].join('\n')
-
-      return new NextResponse(csvData, {
+      return new NextResponse(result.data as string, {
         headers: {
-          'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': 'attachment; filename="users.csv"',
+          'Content-Type': result.contentType,
+          'Content-Disposition': `attachment; filename="${result.filename}"`,
         },
       })
     } catch (error) {
@@ -414,6 +439,60 @@ export class AdminController {
         { error: 'ユーザーデータのエクスポートに失敗しました' },
         { status: 500 }
       )
+    }
+  }
+
+  async logout(request: NextRequest): Promise<NextResponse> {
+    try {
+      const adminUserId = await this.getAdminUserFromRequest(request)
+      if (!adminUserId) {
+        return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
+      }
+
+      const inputPort: AdminLogoutInputPort = {
+        adminUserId,
+      }
+      await this.adminAuthenticationUseCase.adminLogout(inputPort)
+
+      const response = NextResponse.json({
+        success: true,
+        message: 'ログアウトしました',
+      })
+
+      // Clear admin cookie
+      response.cookies.delete('admin-auth-token')
+
+      return response
+    } catch (error) {
+      console.error('Admin logout error:', error)
+      return NextResponse.json({ error: 'ログアウトに失敗しました' }, { status: 500 })
+    }
+  }
+
+  async getCurrentAdmin(request: NextRequest): Promise<NextResponse> {
+    try {
+      const adminUserId = await this.getAdminUserFromRequest(request)
+      if (!adminUserId) {
+        return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
+      }
+
+      const inputPort: GetCurrentAdminInputPort = {
+        adminUserId,
+      }
+      const result = await this.adminAuthenticationUseCase.getCurrentAdmin(inputPort)
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: result.user.id,
+          userName: result.user.userName,
+          email: result.user.email,
+          role: result.user.role,
+        },
+      })
+    } catch (error) {
+      console.error('Get current admin error:', error)
+      return NextResponse.json({ error: '管理者情報の取得に失敗しました' }, { status: 500 })
     }
   }
 }

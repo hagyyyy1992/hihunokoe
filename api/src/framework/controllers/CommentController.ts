@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { CreateCommentUseCase } from '@api/usecases/comments/CreateCommentUseCase'
-import { CreateReplyUseCase } from '@api/usecases/comments/CreateReplyUseCase'
-import { UpdateCommentUseCase } from '@api/usecases/comments/UpdateCommentUseCase'
-import { DeleteCommentUseCase } from '@api/usecases/comments/DeleteCommentUseCase'
-import { GetCommentUseCase } from '@api/usecases/comments/GetCommentUseCase'
-import { GetCommentsUseCase } from '@api/usecases/comments/GetCommentsUseCase'
-import { GetCommentsWithPaginationUseCase } from '@api/usecases/comments/GetCommentsWithPaginationUseCase'
+import {
+  CommentManagementUseCase,
+  CommentRetrievalUseCase,
+} from '@api/usecases/comments/interactor'
+import type {
+  CreateCommentInputPort,
+  CreateReplyInputPort,
+  UpdateCommentInputPort,
+  DeleteCommentInputPort,
+  GetCommentInputPort,
+  GetCommentsInputPort,
+  GetCommentsWithPaginationInputPort,
+} from '@api/usecases/comments/input-port'
 import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
@@ -14,18 +20,24 @@ import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimit
 import { CommentPresenter } from '@api/framework/presenters/CommentPresenter'
 
 export class CommentController {
-  private commentRepository: CommentRepositoryImpl
-  private postRepository: PostRepositoryImpl
-  private userRepository: UserRepositoryImpl
+  private commentManagementUseCase: CommentManagementUseCase
+  private commentRetrievalUseCase: CommentRetrievalUseCase
   private tokenService: TokenServiceImpl
-  private rateLimitService: RateLimitServiceImpl
 
   constructor() {
-    this.commentRepository = new CommentRepositoryImpl()
-    this.postRepository = new PostRepositoryImpl()
-    this.userRepository = new UserRepositoryImpl()
+    const commentRepository = new CommentRepositoryImpl()
+    const postRepository = new PostRepositoryImpl()
+    const userRepository = new UserRepositoryImpl()
     this.tokenService = new TokenServiceImpl()
-    this.rateLimitService = new RateLimitServiceImpl()
+    const rateLimitService = new RateLimitServiceImpl()
+
+    this.commentManagementUseCase = new CommentManagementUseCase(
+      commentRepository,
+      postRepository,
+      userRepository,
+      rateLimitService
+    )
+    this.commentRetrievalUseCase = new CommentRetrievalUseCase(commentRepository)
   }
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
@@ -33,7 +45,12 @@ export class CommentController {
     const authHeader = request.headers.get('Authorization')
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '')
-      return await this.tokenService.verifyAuthToken(token)
+      try {
+        const decoded = await this.tokenService.verifyToken(token)
+        return decoded.userId
+      } catch {
+        return null
+      }
     }
 
     // Then try cookie-based authentication (for legacy compatibility)
@@ -43,7 +60,12 @@ export class CommentController {
       const authCookie = cookies.find(c => c.startsWith('auth-token='))
       if (authCookie) {
         const token = authCookie.split('=')[1]
-        return await this.tokenService.verifyAuthToken(token)
+        try {
+          const decoded = await this.tokenService.verifyToken(token)
+          return decoded.userId
+        } catch {
+          return null
+        }
       }
     }
 
@@ -67,18 +89,13 @@ export class CommentController {
       const body = await request.json()
       const { content } = body
 
-      const createCommentUseCase = new CreateCommentUseCase(
-        this.commentRepository,
-        this.postRepository,
-        this.userRepository,
-        this.rateLimitService
-      )
-
-      const result = await createCommentUseCase.execute({
+      const input: CreateCommentInputPort = {
         postId,
         userId,
         content,
-      })
+      }
+
+      const result = await this.commentManagementUseCase.createComment(input)
 
       return NextResponse.json({
         success: true,
@@ -129,21 +146,17 @@ export class CommentController {
       const body = await request.json()
       const { content } = body
 
-      const createReplyUseCase = new CreateReplyUseCase(
-        this.commentRepository,
-        this.postRepository,
-        this.userRepository
-      )
-
-      const result = await createReplyUseCase.execute({
+      const input: CreateReplyInputPort = {
         parentCommentId,
         userId,
         content,
-      })
+      }
+
+      const result = await this.commentManagementUseCase.createReply(input)
 
       return NextResponse.json({
         success: true,
-        comment: result.reply,
+        comment: result.comment,
         message: '返信を投稿しました',
       })
     } catch (error) {
@@ -190,13 +203,13 @@ export class CommentController {
       const body = await request.json()
       const { content } = body
 
-      const updateCommentUseCase = new UpdateCommentUseCase(this.commentRepository)
-
-      const result = await updateCommentUseCase.execute({
+      const input: UpdateCommentInputPort = {
         commentId,
         userId,
         content,
-      })
+      }
+
+      const result = await this.commentManagementUseCase.updateComment(input)
 
       return NextResponse.json({
         success: true,
@@ -239,15 +252,15 @@ export class CommentController {
 
       const commentId = context.params.id
 
-      const deleteCommentUseCase = new DeleteCommentUseCase(this.commentRepository)
-
-      const result = await deleteCommentUseCase.execute({
+      const input: DeleteCommentInputPort = {
         commentId,
         userId,
-      })
+      }
+
+      const result = await this.commentManagementUseCase.deleteComment(input)
 
       return NextResponse.json({
-        success: result.success,
+        success: true,
         message: 'コメントを削除しました',
       })
     } catch (error) {
@@ -276,12 +289,12 @@ export class CommentController {
       const userId = await this.getUserIdFromRequest(request)
       const commentId = context.params.id
 
-      const getCommentUseCase = new GetCommentUseCase(this.commentRepository)
-
-      const result = await getCommentUseCase.execute({
+      const input: GetCommentInputPort = {
         commentId,
         userId: userId || undefined,
-      })
+      }
+
+      const result = await this.commentRetrievalUseCase.getComment(input)
 
       return NextResponse.json({
         success: true,
@@ -312,12 +325,12 @@ export class CommentController {
         return NextResponse.json({ error: '投稿IDが指定されていません' }, { status: 400 })
       }
 
-      const getCommentsUseCase = new GetCommentsUseCase(this.commentRepository, this.postRepository)
-
-      const result = await getCommentsUseCase.execute({
+      const input: GetCommentsInputPort = {
         postId,
         userId: userId || undefined,
-      })
+      }
+
+      const result = await this.commentRetrievalUseCase.getComments(input)
 
       return NextResponse.json({
         success: true,
@@ -350,31 +363,37 @@ export class CommentController {
         return NextResponse.json({ error: '投稿IDが指定されていません' }, { status: 400 })
       }
 
-      const getCommentsUseCase = new GetCommentsWithPaginationUseCase(
-        this.commentRepository,
-        this.postRepository,
-        this.userRepository
-      )
-
-      const result = await getCommentsUseCase.execute({
+      const input: GetCommentsWithPaginationInputPort = {
         postId,
         page,
         limit,
         userId: userId || undefined,
-      })
+      }
+
+      const result = await this.commentRetrievalUseCase.getCommentsWithPagination(input)
 
       // Presenterを使用してレスポンスを整形
-      const formattedComments = result.comments.map(({ comment, user, replies }) => {
-        const formattedReplies = replies?.map(reply => ({
-          comment: reply.comment,
-          user: reply.user,
+      const formattedComments = result.comments.map((comment: any) => {
+        const formattedReplies = comment.replies?.map((reply: any) => ({
+          comment: reply,
+          user: comment.user,
         }))
-        return CommentPresenter.toResponse(comment, user, userId || undefined, formattedReplies)
+        return CommentPresenter.toResponse(
+          comment,
+          comment.user,
+          userId || undefined,
+          formattedReplies
+        )
       })
 
       return NextResponse.json({
         comments: formattedComments,
-        pagination: result.pagination,
+        pagination: {
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          hasNext: result.hasNext,
+        },
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -402,31 +421,37 @@ export class CommentController {
       const page = parseInt(url.searchParams.get('page') || '1', 10)
       const limit = parseInt(url.searchParams.get('limit') || '10', 10)
 
-      const getCommentsUseCase = new GetCommentsWithPaginationUseCase(
-        this.commentRepository,
-        this.postRepository,
-        this.userRepository
-      )
-
-      const result = await getCommentsUseCase.execute({
+      const input: GetCommentsWithPaginationInputPort = {
         postId,
         page,
         limit,
         userId: userId || undefined,
-      })
+      }
+
+      const result = await this.commentRetrievalUseCase.getCommentsWithPagination(input)
 
       // Presenterを使用してレスポンスを整形
-      const formattedComments = result.comments.map(({ comment, user, replies }) => {
-        const formattedReplies = replies?.map(reply => ({
-          comment: reply.comment,
-          user: reply.user,
+      const formattedComments = result.comments.map((comment: any) => {
+        const formattedReplies = comment.replies?.map((reply: any) => ({
+          comment: reply,
+          user: comment.user,
         }))
-        return CommentPresenter.toResponse(comment, user, userId || undefined, formattedReplies)
+        return CommentPresenter.toResponse(
+          comment,
+          comment.user,
+          userId || undefined,
+          formattedReplies
+        )
       })
 
       return NextResponse.json({
         comments: formattedComments,
-        pagination: result.pagination,
+        pagination: {
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          hasNext: result.hasNext,
+        },
       })
     } catch (error) {
       if (error instanceof Error) {
@@ -457,18 +482,13 @@ export class CommentController {
       const body = await request.json()
       const { content } = body
 
-      const createCommentUseCase = new CreateCommentUseCase(
-        this.commentRepository,
-        this.postRepository,
-        this.userRepository,
-        this.rateLimitService
-      )
-
-      const result = await createCommentUseCase.execute({
+      const input: CreateCommentInputPort = {
         postId,
         userId,
         content,
-      })
+      }
+
+      const result = await this.commentManagementUseCase.createComment(input)
 
       return NextResponse.json(
         {

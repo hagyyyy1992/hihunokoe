@@ -25,7 +25,6 @@ export type CreateCommentInputPort = {
 }
 
 export type CreateReplyInputPort = {
-  postId: string
   parentCommentId: string
   userId: string
   content: string

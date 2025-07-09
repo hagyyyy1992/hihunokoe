@@ -15,6 +15,8 @@ import {
 // Admin Authentication
 export abstract class IAdminAuthenticationUseCase {
   abstract adminLogin(inputPort: AdminLoginInputPort): Promise<AdminLoginOutputPort>
+  abstract adminLogout(inputPort: AdminLogoutInputPort): Promise<void>
+  abstract getCurrentAdmin(inputPort: GetCurrentAdminInputPort): Promise<{ user: User }>
 }
 
 export type AdminLoginInputPort = {
@@ -22,6 +24,14 @@ export type AdminLoginInputPort = {
   password: string
   ipAddress?: string
   userAgent?: string
+}
+
+export type AdminLogoutInputPort = {
+  adminUserId: string
+}
+
+export type GetCurrentAdminInputPort = {
+  adminUserId: string
 }
 
 // Admin User Management
@@ -53,6 +63,7 @@ export type GetAdminUsersInputPort = {
   limit?: number
   search?: string
   status?: 'active' | 'suspended' | 'deleted' | 'all'
+  role?: string
 }
 
 export type ExportUsersInputPort = {
