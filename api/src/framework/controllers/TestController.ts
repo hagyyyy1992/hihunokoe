@@ -128,4 +128,54 @@ export class TestController {
       return NextResponse.json({ error: 'Email verification failed' }, { status: 500 })
     }
   }
+
+  async getVerificationToken(request: NextRequest): Promise<NextResponse> {
+    const envCheck = this.checkTestEnvironment()
+    if (envCheck) return envCheck
+
+    try {
+      const body = await request.json()
+      const { email } = body
+
+      if (!email) {
+        return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+      }
+
+      console.log(`[TEST] Looking for user with email: ${email}`)
+      const user = await this.userRepository.findByEmail(email)
+      if (!user) {
+        console.log(`[TEST] User not found for email: ${email}`)
+
+        // 全てのユーザーを確認してデバッグ
+        const allUsers = await this.userRepository.findAll()
+        console.log(`[TEST] All users in database: ${allUsers.length}`)
+        allUsers.forEach(u => {
+          console.log(
+            `[TEST] User: ${u.id}, email: ${u.email}, hasToken: ${!!u.emailVerificationToken}`
+          )
+        })
+
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+
+      console.log(
+        `[TEST] User found: ${user.id}, emailVerified: ${user.emailVerified}, hasToken: ${!!user.emailVerificationToken}`
+      )
+      console.log(`[TEST] Token value: ${user.emailVerificationToken?.substring(0, 10)}...`)
+
+      if (!user.emailVerificationToken) {
+        console.log(`[TEST] No verification token found for user: ${user.id}`)
+        return NextResponse.json({ error: 'No verification token found' }, { status: 404 })
+      }
+
+      console.log(`[TEST] Returning token for user: ${user.id}`)
+      return NextResponse.json({
+        success: true,
+        token: user.emailVerificationToken,
+      })
+    } catch (error) {
+      console.error('Get verification token error:', error)
+      return NextResponse.json({ error: 'Failed to get verification token' }, { status: 500 })
+    }
+  }
 }

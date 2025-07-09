@@ -50,6 +50,12 @@ export function createTestUser() {
   }
 }
 
+// AuthHelperクラスのregisterAndLoginメソッドのラッパー関数
+export async function registerAndLogin(page: Page) {
+  const authHelper = new AuthHelper(page)
+  return await authHelper.registerAndLogin()
+}
+
 export async function cleanupTestUser(email: string) {
   // テストユーザーのクリーンアップ
   const port = process.env.PORT || '3000'
@@ -475,5 +481,122 @@ export class AuthHelper {
 
     // Wait for success message
     await this.page.waitForSelector('.bg-green-50', { timeout: 10000 })
+  }
+
+  async generateUniqueUser() {
+    // テスト用の一意なユーザーデータを生成
+    const timestamp = Date.now()
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    return {
+      email: `test-${timestamp}-${randomSuffix}@example.com`,
+      password: 'test12345',
+      userName: `testuser-${timestamp}-${randomSuffix}`,
+      skinType: 'normal',
+    }
+  }
+
+  async registerAndLogin() {
+    const userData = await this.generateUniqueUser()
+
+    try {
+      // ユーザー登録
+      await this.register({
+        username: userData.userName,
+        email: userData.email,
+        password: userData.password,
+        skinType: userData.skinType,
+      })
+
+      // データベースへの保存が完了するまで待機
+      await this.page.waitForTimeout(2000)
+
+      // メール認証をテスト用に実行
+      await this.verifyEmail(userData.email)
+
+      // ログイン
+      await this.login(userData.email, userData.password)
+
+      // 認証状態を確認
+      await this.expectToBeLoggedIn()
+
+      return userData
+    } catch (error) {
+      console.error('Failed to register and login:', error)
+      throw error
+    }
+  }
+
+  async verifyEmail(email: string) {
+    // テスト用のメール認証API呼び出し
+    const port = process.env.PORT || '3000'
+    try {
+      const response = await fetch(`http://localhost:${port}/api/test/verify-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        console.error(`Failed to verify email for ${email}: ${response.status}`)
+      }
+    } catch (error) {
+      console.error(`Error verifying email for ${email}:`, error)
+    }
+  }
+
+  async getVerificationToken(email: string): Promise<string> {
+    // テスト用の認証トークン取得API呼び出し
+    const port = process.env.PORT || '3000'
+
+    // 少し待機してからトークン取得を試行
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(`http://localhost:${port}/api/test/get-verification-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.log(`[TEST] API Error ${response.status}: ${errorText}`)
+          if (attempt === 3) {
+            throw new Error(
+              `Failed to get verification token for ${email}: ${response.status} - ${errorText}`
+            )
+          }
+          console.log(`Attempt ${attempt} failed, retrying...`)
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          continue
+        }
+
+        const data = await response.json()
+        if (!data.token) {
+          if (attempt === 3) {
+            throw new Error(`No token received for ${email}`)
+          }
+          console.log(`No token in response, retrying...`)
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          continue
+        }
+
+        return data.token
+      } catch (error) {
+        if (attempt === 3) {
+          console.error(`Error getting verification token for ${email}:`, error)
+          throw error
+        }
+        console.log(`Attempt ${attempt} failed, retrying...`)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+
+    throw new Error(`Failed to get verification token after 3 attempts`)
   }
 }

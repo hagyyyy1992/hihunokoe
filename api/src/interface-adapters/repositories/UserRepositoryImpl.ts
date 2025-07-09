@@ -287,6 +287,17 @@ export class UserRepositoryImpl implements UserRepository {
     })
   }
 
+  // Test-specific method
+  async findAll(): Promise<User[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return users.map(user => this.toDomainUser(user))
+  }
+
   private toDomainUser(
     prismaUser: PrismaUser & { failedLoginAttempts?: number; lockedUntil?: Date | null }
   ): User {

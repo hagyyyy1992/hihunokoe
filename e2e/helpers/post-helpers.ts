@@ -8,6 +8,7 @@ export class PostHelper {
     content: string
     cosmeticName?: string
     cosmeticCategory?: string
+    skinType?: string
     moodTag?: string
     tags?: string[]
   }) {
@@ -50,8 +51,17 @@ export class PostHelper {
         .selectOption(postData.cosmeticCategory)
     }
 
-    // 各ステップを進む
-    for (let i = 0; i < 3; i++) {
+    // 次のステップに進む
+    await this.page.getByRole('button', { name: '次へ' }).click()
+    await this.page.waitForTimeout(500)
+
+    // ステップ2: 肌タイプを設定
+    if (postData.skinType) {
+      await this.page.selectOption('[name="skinType"]', postData.skinType)
+    }
+
+    // 残りのステップを進む
+    for (let i = 0; i < 2; i++) {
       const nextButton = this.page.getByRole('button', { name: '次へ' })
       await nextButton.click()
       await this.page.waitForTimeout(500)
