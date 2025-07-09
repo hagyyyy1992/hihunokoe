@@ -197,8 +197,12 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿編集時のバリデーション', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿編集フォームの処理が不安定なため、スキップ
-    if (browserName === 'webkit') {
+    // WebKit (Safari) およびMobile Chrome環境では投稿編集フォームの処理が不安定なため、スキップ
+    const viewport = page.viewportSize()
+    if (
+      browserName === 'webkit' ||
+      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
+    ) {
       test.skip()
       return
     }

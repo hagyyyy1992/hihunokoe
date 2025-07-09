@@ -301,9 +301,7 @@ test.describe('検索・フィルタリング機能', () => {
     const viewport = page.viewportSize()
     if (
       browserName === 'webkit' ||
-      (browserName === 'chromium' &&
-        viewport?.width &&
-        viewport.width <= 768)
+      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
     ) {
       test.skip()
       return
