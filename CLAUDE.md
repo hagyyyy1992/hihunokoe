@@ -678,6 +678,34 @@ Claude Codeは以下の状況でも**必ず**チェックを実行：
 
 **例外は一切認めない。ユーザーが明示的に「チェックをスキップして」と指示した場合のみスキップ可能。**
 
+### CI実行条件
+
+GitHub ActionsのCIは以下の条件で実行されます：
+
+1. **Pull Request (PR)**: コミットメッセージに `[ci]` が含まれている場合のみ実行
+
+   - 例: `feat: 新機能を追加 [ci]`
+   - 例: `fix: バグ修正 [ci]`
+   - CIをスキップしたい場合は、`[ci]` を含めない
+
+2. **mainブランチへのプッシュ**: 常に実行（条件なし）
+
+   - マージやプッシュ時は自動的に全てのCIチェックが実行される
+   - プロダクション品質を保証するため、スキップ不可
+
+3. **CI実行を促すメッセージ**
+
+   - PRでCIがスキップされた場合、以下のメッセージが表示されます：
+
+   ```
+   ⏭️ CI checks were skipped for this PR
+
+   To run CI checks, include [ci] in your commit message:
+     Example: 'feat: add new feature [ci]'
+
+   Note: CI always runs on merges to main branch
+   ```
+
 ### プルリクエスト作成時のCIチェック対応
 
 Claude Codeは、プルリクエスト作成を依頼された際、**必ず**以下の手順を実行すること：
