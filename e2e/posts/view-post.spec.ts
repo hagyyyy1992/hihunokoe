@@ -38,21 +38,6 @@ test.describe('投稿閲覧', () => {
     // カテゴリを確認（タグは削除されたため、スキップ）
   })
 
-  test('関連投稿が表示される', async ({ page }) => {
-    // 同じカテゴリの別の投稿を作成
-    await postHelper.createPost({
-      title: '関連投稿のテスト',
-      content: '関連投稿の内容です',
-      cosmeticName: testPosts.samplePost.cosmeticName,
-      cosmeticCategory: testPosts.samplePost.cosmeticCategory,
-    })
-
-    await postHelper.viewPost(postId)
-
-    // 関連投稿機能は現在未実装のため、スキップ
-    test.skip()
-  })
-
   test('投稿編集権限のテスト', async ({ page }) => {
     await postHelper.viewPost(postId)
 
