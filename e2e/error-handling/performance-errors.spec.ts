@@ -285,7 +285,22 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await expect(page.locator('h3:has-text("使用状況（任意）")')).toBeVisible()
 
       // ステップ2: 使用状況を入力
+      await page.getByTestId('skin-type-select').waitFor({ state: 'visible' })
       await page.getByTestId('skin-type-select').selectOption('normal')
+
+      // 次へボタンをクリックしてステップ3に進む
+      await page.getByRole('button', { name: '次へ' }).click()
+
+      // ステップ3が表示されるまで待機
+      await expect(page.locator('h3:has-text("体験の詳細（任意）")')).toBeVisible()
+
+      // ステップ3: 体験の詳細をスキップして次へ
+      await page.getByRole('button', { name: '次へ' }).click()
+
+      // ステップ4が表示されるまで待機
+      await expect(page.locator('h3:has-text("感想とまとめ")')).toBeVisible()
+
+      // ステップ4: 総合的な感想を入力
       await page.getByTestId('mood-tag-select').selectOption('good')
 
       // 投稿ボタンを複数回クリック（重複送信防止のテスト）
