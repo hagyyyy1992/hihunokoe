@@ -9,6 +9,7 @@ async function main() {
 
   // デモユーザーの作成
   const hashedPassword = await bcrypt.hash('demo1234', 12)
+  const adminHashedPassword = await bcrypt.hash('admin123', 12)
 
   const demoUser = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
@@ -40,11 +41,12 @@ async function main() {
       failedLoginAttempts: 0,
       lockedUntil: null,
       isActive: true,
+      passwordHash: adminHashedPassword, // パスワードも更新
     },
     create: {
       userName: 'admin',
       email: 'admin@example.com',
-      passwordHash: hashedPassword, // 同じパスワード (demo1234) を使用
+      passwordHash: adminHashedPassword, // 管理者用パスワード (admin123) を使用
       role: 'SUPER_ADMIN',
       emailVerified: true,
       isActive: true,
@@ -65,7 +67,7 @@ async function main() {
     create: {
       adminName: 'admin',
       email: 'admin@example.com',
-      passwordHash: hashedPassword,
+      passwordHash: adminHashedPassword,
       role: 'SUPER_ADMIN',
       isActive: true,
     },

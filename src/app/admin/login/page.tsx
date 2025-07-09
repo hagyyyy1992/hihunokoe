@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('admin@example.com')
-  const [password, setPassword] = useState('demo1234')
+  const [password, setPassword] = useState('admin123')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()

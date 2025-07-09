@@ -134,6 +134,8 @@ export class AdminController {
       }
 
       console.error('Admin login error:', error)
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+      console.error('Error message:', error instanceof Error ? error.message : String(error))
       return NextResponse.json({ error: 'ログインに失敗しました' }, { status: 500 })
     }
   }

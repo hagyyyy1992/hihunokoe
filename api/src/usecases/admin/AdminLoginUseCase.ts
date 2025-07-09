@@ -101,14 +101,25 @@ export class AdminLoginUseCase {
     )
     await this.authSessionRepository.create(session)
 
-    // Log admin login action
-    await this.adminLogRepository.create({
-      adminUserId: user.id,
-      action: 'ADMIN_LOGIN',
-      details: { email: user.email },
-      ipAddress: inputData.ipAddress,
-      userAgent: inputData.userAgent,
-    })
+    // Log admin login action (skip for now due to foreign key constraint)
+    // TODO: Implement proper admin logging after AdminUser table migration
+    // Temporarily disabled due to foreign key constraint issue
+    // AdminLog requires adminUserId to exist in AdminUser table
+    // but we're using User table for authentication
+    /*
+    try {
+      await this.adminLogRepository.create({
+        adminUserId: user.id,
+        action: 'ADMIN_LOGIN',
+        details: { email: user.email },
+        ipAddress: inputData.ipAddress,
+        userAgent: inputData.userAgent,
+      })
+    } catch (error) {
+      // Log the error but don't fail the login process
+      console.warn('Failed to create admin log:', error)
+    }
+    */
 
     return {
       token,

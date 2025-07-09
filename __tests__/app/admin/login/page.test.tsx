@@ -92,7 +92,7 @@ describe('AdminLoginPage', () => {
     const passwordInput = screen.getByLabelText('パスワード') as HTMLInputElement
 
     expect(emailInput.value).toBe('admin@example.com')
-    expect(passwordInput.value).toBe('demo1234')
+    expect(passwordInput.value).toBe('admin123')
   })
 
   it('updates input values when typing', () => {
@@ -134,7 +134,7 @@ describe('AdminLoginPage', () => {
         },
         body: JSON.stringify({
           email: 'admin@example.com',
-          password: 'demo1234',
+          password: 'admin123',
         }),
       })
     })

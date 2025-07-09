@@ -48,7 +48,7 @@ export default function UserManagement() {
   const [actionType, setActionType] = useState<'activate' | 'suspend' | null>(null)
 
   const filterUsers = useCallback(() => {
-    let filtered = users
+    let filtered = Array.isArray(users) ? users : []
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -79,7 +79,8 @@ export default function UserManagement() {
 
       if (response.ok) {
         const data = await response.json()
-        setUsers(data)
+        console.log('Users API response:', data)
+        setUsers(data.users || data)
       } else if (response.status === 401) {
         console.error('認証されていません。ログインしてください。')
         // 必要に応じてログインページにリダイレクト
@@ -206,92 +207,93 @@ export default function UserManagement() {
 
           {/* ユーザー一覧 - モバイル用カード表示 */}
           <div className="block lg:hidden space-y-3">
-            {filteredUsers.map(user => (
-              <Card key={user.id}>
-                <CardContent className="p-3 pt-4">
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <h3 className="font-semibold text-base truncate">{user.userName}</h3>
-                      <Badge
-                        variant={user.isActive ? 'default' : 'secondary'}
-                        className="ml-2 flex-shrink-0 text-xs"
-                      >
-                        {user.isActive ? 'アクティブ' : '停歂中'}
-                      </Badge>
+            {Array.isArray(filteredUsers) &&
+              filteredUsers.map(user => (
+                <Card key={user.id}>
+                  <CardContent className="p-3 pt-4">
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h3 className="font-semibold text-base truncate">{user.userName}</h3>
+                        <Badge
+                          variant={user.isActive ? 'default' : 'secondary'}
+                          className="ml-2 flex-shrink-0 text-xs"
+                        >
+                          {user.isActive ? 'アクティブ' : '停歂中'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-gray-600 truncate">{user.email}</p>
                     </div>
-                    <p className="text-xs text-gray-600 truncate">{user.email}</p>
-                  </div>
 
-                  <div className="space-y-1 mb-3 text-xs">
-                    <div className="flex items-center">
-                      <span className="text-gray-500 w-16">ロール:</span>
-                      <Badge
-                        variant={
-                          user.role === 'SUPER_ADMIN'
-                            ? 'destructive'
+                    <div className="space-y-1 mb-3 text-xs">
+                      <div className="flex items-center">
+                        <span className="text-gray-500 w-16">ロール:</span>
+                        <Badge
+                          variant={
+                            user.role === 'SUPER_ADMIN'
+                              ? 'destructive'
+                              : user.role === 'ADMIN'
+                                ? 'default'
+                                : 'secondary'
+                          }
+                          className="text-xs"
+                        >
+                          {user.role === 'SUPER_ADMIN'
+                            ? 'スーパー'
                             : user.role === 'ADMIN'
-                              ? 'default'
-                              : 'secondary'
-                        }
-                        className="text-xs"
-                      >
-                        {user.role === 'SUPER_ADMIN'
-                          ? 'スーパー'
-                          : user.role === 'ADMIN'
-                            ? '管理者'
-                            : 'ユーザー'}
-                      </Badge>
+                              ? '管理者'
+                              : 'ユーザー'}
+                        </Badge>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-500 w-16">肌タイプ:</span>
+                        <span>{user.skinType || '-'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-500 w-16">投稿数:</span>
+                        <span>{user.postCount}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-500 w-16">登録日:</span>
+                        <span>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</span>
+                      </div>
                     </div>
-                    <div className="flex">
-                      <span className="text-gray-500 w-16">肌タイプ:</span>
-                      <span>{user.skinType || '-'}</span>
-                    </div>
-                    <div className="flex">
-                      <span className="text-gray-500 w-16">投稿数:</span>
-                      <span>{user.postCount}</span>
-                    </div>
-                    <div className="flex">
-                      <span className="text-gray-500 w-16">登録日:</span>
-                      <span>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</span>
-                    </div>
-                  </div>
 
-                  <div className="flex gap-1.5">
-                    <Button size="sm" variant="outline" className="h-8 px-2 flex-1 text-xs">
-                      <Eye className="h-3 w-3 mr-0.5" />
-                      詳細
-                    </Button>
-                    {user.isActive ? (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="h-8 px-2 flex-1 text-xs"
-                        onClick={() => {
-                          setSelectedUser(user)
-                          setActionType('suspend')
-                        }}
-                      >
-                        <UserX className="h-3 w-3 mr-0.5" />
-                        停止
+                    <div className="flex gap-1.5">
+                      <Button size="sm" variant="outline" className="h-8 px-2 flex-1 text-xs">
+                        <Eye className="h-3 w-3 mr-0.5" />
+                        詳細
                       </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="h-8 px-2 flex-1 text-xs"
-                        onClick={() => {
-                          setSelectedUser(user)
-                          setActionType('activate')
-                        }}
-                      >
-                        <UserCheck className="h-3 w-3 mr-0.5" />
-                        復活
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {user.isActive ? (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-8 px-2 flex-1 text-xs"
+                          onClick={() => {
+                            setSelectedUser(user)
+                            setActionType('suspend')
+                          }}
+                        >
+                          <UserX className="h-3 w-3 mr-0.5" />
+                          停止
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="h-8 px-2 flex-1 text-xs"
+                          onClick={() => {
+                            setSelectedUser(user)
+                            setActionType('activate')
+                          }}
+                        >
+                          <UserCheck className="h-3 w-3 mr-0.5" />
+                          復活
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
 
           {/* ユーザー一覧テーブル - デスクトップ表示 */}
@@ -310,72 +312,73 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.userName}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          user.role === 'SUPER_ADMIN'
-                            ? 'destructive'
+                {Array.isArray(filteredUsers) &&
+                  filteredUsers.map(user => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.userName}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            user.role === 'SUPER_ADMIN'
+                              ? 'destructive'
+                              : user.role === 'ADMIN'
+                                ? 'default'
+                                : 'secondary'
+                          }
+                        >
+                          {user.role === 'SUPER_ADMIN'
+                            ? 'スーパー管理者'
                             : user.role === 'ADMIN'
-                              ? 'default'
-                              : 'secondary'
-                        }
-                      >
-                        {user.role === 'SUPER_ADMIN'
-                          ? 'スーパー管理者'
-                          : user.role === 'ADMIN'
-                            ? '管理者'
-                            : 'ユーザー'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{user.skinType || '-'}</TableCell>
-                    <TableCell>{user.postCount}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                        {user.isActive ? 'アクティブ' : '停止中'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {user.isActive ? (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              setSelectedUser(user)
-                              setActionType('suspend')
-                            }}
-                          >
-                            <UserX className="h-4 w-4" />
+                              ? '管理者'
+                              : 'ユーザー'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{user.skinType || '-'}</TableCell>
+                      <TableCell>{user.postCount}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.isActive ? 'default' : 'secondary'}>
+                          {user.isActive ? 'アクティブ' : '停止中'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-4 w-4" />
                           </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => {
-                              setSelectedUser(user)
-                              setActionType('activate')
-                            }}
-                          >
-                            <UserCheck className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          {user.isActive ? (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setActionType('suspend')
+                              }}
+                            >
+                              <UserX className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setActionType('activate')
+                              }}
+                            >
+                              <UserCheck className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>
 
-          {filteredUsers.length === 0 && (
+          {Array.isArray(filteredUsers) && filteredUsers.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               該当するユーザーが見つかりませんでした
             </div>
