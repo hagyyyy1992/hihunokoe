@@ -16,6 +16,9 @@ WORKTREE_SUFFIX="_${WORKTREE_NAME}"
 if [ "$WORKTREE_NAME" = "usaka" ] || [ "$WORKTREE_NAME" = "hihunokoe" ]; then
     WORKTREE_NAME="dev"
     WORKTREE_SUFFIX=""
+else
+    # worktree名をクリーンアップ（スラッシュをアンダースコアに変換）
+    WORKTREE_NAME=$(echo "$WORKTREE_NAME" | sed 's/\//_/g')
 fi
 
 # デフォルトポート設定
@@ -62,8 +65,15 @@ case "$1" in
             MAILHOG_WEB_PORT=$(find_available_port $DEFAULT_MAILHOG_WEB_PORT)
         fi
 
-        # .env.local ファイルを作成/更新
-        cat > .env.local << EOF
+        # データベース名を決定
+        if [ "$WORKTREE_NAME" = "dev" ]; then
+            DB_NAME="hihunokoe_dev"
+        else
+            DB_NAME="hihunokoe_${WORKTREE_NAME}"
+        fi
+
+        # .env ファイルを作成/更新
+        cat > .env << EOF
 # Worktree: ${WORKTREE_NAME}
 # 自動生成された環境変数
 
@@ -76,14 +86,19 @@ MAILHOG_SMTP_PORT=${MAILHOG_SMTP_PORT}
 MAILHOG_WEB_PORT=${MAILHOG_WEB_PORT}
 
 # アプリケーション設定
-DATABASE_URL=postgresql://postgres:password@localhost:${DB_PORT}/hihunokoe_${WORKTREE_NAME}
+DATABASE_URL=postgresql://postgres:password@localhost:${DB_PORT}/${DB_NAME}
+DIRECT_URL=postgresql://postgres:password@localhost:${DB_PORT}/${DB_NAME}
 NEXT_PUBLIC_API_URL=http://localhost:${APP_PORT}
 MAILHOG_HOST=localhost
 MAILHOG_PORT=${MAILHOG_SMTP_PORT}
 MAILHOG_WEB_URL=http://localhost:${MAILHOG_WEB_PORT}
+
+# その他の設定
+JWT_SECRET=your-jwt-secret-for-development
+USE_MOCK_DATA=false
 EOF
 
-        echo -e "${GREEN}環境変数ファイル (.env.local) を作成しました${NC}"
+        echo -e "${GREEN}環境変数ファイル (.env) を作成しました${NC}"
         echo ""
         echo "割り当てられたポート:"
         echo -e "  Next.js App:     ${GREEN}http://localhost:${APP_PORT}${NC}"
@@ -95,7 +110,7 @@ EOF
 
         # Docker Compose 起動
         echo "Docker Compose を起動します..."
-        docker-compose --env-file .env.local up -d
+        docker-compose up -d
         
         # データベースの準備を待つ
         echo "データベースの準備を待っています..."
@@ -103,7 +118,7 @@ EOF
         
         # データベースのマイグレーション実行
         echo "データベースマイグレーションを実行します..."
-        DATABASE_URL="postgresql://postgres:password@localhost:${DB_PORT}/hihunokoe_${WORKTREE_NAME}" npx prisma migrate deploy
+        npm run db:migrate
         
         # シードデータ投入（オプション）
         if [ "$2" == "--seed" ]; then
@@ -122,22 +137,22 @@ EOF
         
     "down")
         echo "Docker Compose を停止します..."
-        docker-compose --env-file .env.local down
+        docker-compose down
         echo -e "${GREEN}開発環境を停止しました${NC}"
         ;;
         
     "clean")
         echo "Docker Compose を停止し、ボリュームを削除します..."
-        docker-compose --env-file .env.local down -v
+        docker-compose down -v
         echo -e "${GREEN}開発環境をクリーンアップしました${NC}"
         ;;
         
     "logs")
-        docker-compose --env-file .env.local logs -f
+        docker-compose logs -f
         ;;
         
     "status")
-        docker-compose --env-file .env.local ps
+        docker-compose ps
         ;;
         
     *)
