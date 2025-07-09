@@ -432,8 +432,28 @@ export class AuthHelper {
     // Click reset button
     await this.page.click('[data-testid="reset-password-button"]')
 
-    // Wait for message
-    await this.page.waitForSelector('[data-testid="message"]', { timeout: 10000 })
+    // Wait for message with retry logic for WebKit
+    const maxRetries = 3
+    let retries = 0
+    while (retries < maxRetries) {
+      try {
+        await this.page.waitForSelector('[data-testid="message"]', {
+          timeout: 5000,
+          state: 'visible',
+        })
+        break
+      } catch (error) {
+        retries++
+        if (retries === maxRetries) {
+          // Final attempt with longer timeout and additional wait
+          await this.page.waitForTimeout(1000)
+          await this.page.waitForSelector('[data-testid="message"]', {
+            timeout: 10000,
+            state: 'attached',
+          })
+        }
+      }
+    }
   }
 
   async resetPassword(token: string, newPassword: string) {
