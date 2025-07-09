@@ -46,8 +46,10 @@ export default function HomePage() {
           const allPosts = data.posts || []
 
           // 自分の投稿と他ユーザーの投稿を分ける
-          const myPosts = allPosts.filter((post: Post) => post.user.id === user?.id)
-          const others = allPosts.filter((post: Post) => post.user.id !== user?.id)
+          const myPosts = user ? allPosts.filter((post: Post) => post.user?.id === user.id) : []
+          const others = user
+            ? allPosts.filter((post: Post) => post.user?.id !== user.id)
+            : allPosts
 
           setUserPosts(myPosts.slice(0, 5)) // 最新5件
           setOtherPosts(others.slice(0, 5)) // 最新5件
@@ -190,9 +192,9 @@ export default function HomePage() {
                       </div>
                       <div
                         className="text-xs sm:text-sm text-gray-600 mt-1 truncate"
-                        title={post.user.userName}
+                        title={post.user?.userName || '投稿者'}
                       >
-                        by {post.user.userName}
+                        by {post.user?.userName || '投稿者'}
                       </div>
                       <div className="text-xs sm:text-sm text-gray-600 truncate">
                         コスメ: {post.cosmeticName}

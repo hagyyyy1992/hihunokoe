@@ -394,12 +394,14 @@ export default function PostDetailPage() {
               <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-apple-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-apple-600 font-medium text-xs sm:text-sm">
-                    {('displayName' in currentPost.user
-                      ? currentPost.user.displayName
-                      : currentPost.user.userName
-                    )
-                      ?.charAt(0)
-                      .toUpperCase()}
+                    {currentPost.user
+                      ? ('displayName' in currentPost.user
+                          ? currentPost.user.displayName
+                          : currentPost.user.userName
+                        )
+                          ?.charAt(0)
+                          .toUpperCase() || 'U'
+                      : 'U'}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -407,16 +409,20 @@ export default function PostDetailPage() {
                     className="font-medium text-gray-900 text-sm sm:text-base truncate"
                     data-testid="post-author"
                     title={
-                      'displayName' in currentPost.user
-                        ? currentPost.user.displayName
-                        : currentPost.user.userName
+                      currentPost.user
+                        ? ('displayName' in currentPost.user
+                            ? currentPost.user.displayName
+                            : currentPost.user.userName) || 'Unknown User'
+                        : 'Unknown User'
                     }
                   >
-                    {'displayName' in currentPost.user
-                      ? currentPost.user.displayName
-                      : currentPost.user.userName}
+                    {currentPost.user
+                      ? ('displayName' in currentPost.user
+                          ? currentPost.user.displayName
+                          : currentPost.user.userName) || 'Unknown User'
+                      : 'Unknown User'}
                   </p>
-                  {'bio' in currentPost.user && currentPost.user.bio && (
+                  {currentPost.user && 'bio' in currentPost.user && currentPost.user.bio && (
                     <p className="text-xs text-gray-500 truncate" title={currentPost.user.bio}>
                       {currentPost.user.bio}
                     </p>
@@ -671,7 +677,7 @@ export default function PostDetailPage() {
           {/* アクション */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 sm:pt-6 border-t space-y-3 sm:space-y-0">
             {/* 編集・削除ボタン（投稿者のみ表示） */}
-            {user && user.id === currentPost.user.id && (
+            {user && currentPost.user && user.id === currentPost.user.id && (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
                   href={`/posts/${currentPost.id}/edit`}
@@ -717,17 +723,19 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-500 order-first sm:order-last">
-              <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-                <span data-testid="comment-count">0 コメント</span>
-              </div>
+              {user && false && (
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  <span data-testid="comment-count">0 コメント</span>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -748,26 +756,14 @@ export default function PostDetailPage() {
             </div>
 
             {/* 共感ボタン（スタブ実装） */}
-            <div className="flex items-center space-x-3">
-              {user ? (
-                <button
-                  data-testid="empathy-button"
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-not-allowed opacity-50"
-                  disabled
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                  <span>共感する</span>
-                </button>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+            {user && false && (
+              <div className="flex items-center space-x-3">
+                {user ? (
+                  <button
+                    data-testid="empathy-button"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-not-allowed opacity-50"
+                    disabled
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -776,24 +772,42 @@ export default function PostDetailPage() {
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                       />
                     </svg>
-                    <span>0 共感</span>
+                    <span>共感する</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                      <span>0 共感</span>
+                    </div>
+                    <Link
+                      href="/auth/login"
+                      className="text-sm text-green-600 hover:text-green-700 underline"
+                    >
+                      ログインして共感
+                    </Link>
                   </div>
-                  <Link
-                    href="/auth/login"
-                    className="text-sm text-green-600 hover:text-green-700 underline"
-                  >
-                    ログインして共感
-                  </Link>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </article>
 
-        {/* コメントセクション（スタブ実装） */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
-          <h3 className="text-lg font-semibold mb-4">コメント</h3>
-          {user ? (
+        {user && false && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <h3 className="text-lg font-semibold mb-4">コメント</h3>
             <div>
               <div className="mb-4">
                 <textarea
@@ -813,7 +827,6 @@ export default function PostDetailPage() {
               </div>
               <p className="text-gray-500 text-sm">コメント機能は現在準備中です。</p>
             </div>
-          ) : (
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
               <Link
@@ -823,17 +836,19 @@ export default function PostDetailPage() {
                 ログインする
               </Link>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 関連投稿セクション（スタブ実装） */}
-        <div
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8"
-          data-testid="related-posts"
-        >
-          <h3 className="text-lg font-semibold mb-4">関連する投稿</h3>
-          <p className="text-gray-500">関連投稿機能は開発中です。</p>
-        </div>
+        {user && false && (
+          <div
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8"
+            data-testid="related-posts"
+          >
+            <h3 className="text-lg font-semibold mb-4">関連する投稿</h3>
+            <p className="text-gray-500">関連投稿機能は開発中です。</p>
+          </div>
+        )}
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (

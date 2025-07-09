@@ -158,13 +158,13 @@ jobs:
         run: |
           echo "CI Trigger Status: ${{ needs.check-ci-trigger.outputs.should-run }}"
           echo "Lint & Type Check: ${{ needs.lint-and-typecheck.result }}"
-          
+
           # Lint and type check must always pass
           if [[ "${{ needs.lint-and-typecheck.result }}" != "success" ]]; then
             echo "❌ Lint & Type Check failed"
             exit 1
           fi
-          
+
           # If CI was triggered, check build and test results
           if [[ "${{ needs.check-ci-trigger.outputs.should-run }}" == "true" ]]; then
             echo "Build Test: ${{ needs.build-test.result }}"
@@ -180,7 +180,7 @@ jobs:
           else
             echo "✅ Basic checks passed (CI skipped for build/test)"
           fi
-          
+
           echo "🌐 Vercel Preview Deployment will be available for testing"
 
   # Optional: Preview deployment verification

@@ -6,16 +6,60 @@ import {
   FindPostsFilter,
   FindPostsResult,
 } from '@api/domain/repositories/PostRepository'
-import { prisma } from '@/lib/prisma'
+import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Post as PrismaPost } from '@prisma/client'
+import { MOCK_POSTS } from '@/lib/mock-data'
 
 export class PostRepositoryImpl implements PostRepository {
   async findById(id: string): Promise<Post | null> {
+    if (!isDatabaseAvailable()) {
+      // Mock mode
+      const mockPost = MOCK_POSTS.find(p => p.id === id)
+      if (!mockPost) return null
+
+      return new Post(
+        mockPost.id,
+        mockPost.userId,
+        mockPost.title,
+        mockPost.content,
+        mockPost.cosmeticName,
+        null, // brandName
+        null, // imageUrl
+        mockPost.cosmeticCategory,
+        mockPost.status === 'published',
+        mockPost.publishedAt,
+        mockPost.status,
+        mockPost.cosmeticName,
+        mockPost.cosmeticCategory,
+        mockPost.skinType,
+        mockPost.moodTag,
+        mockPost.viewCount || 0,
+        mockPost.empathyCount || 0,
+        mockPost._count?.comments || 0,
+        mockPost.createdAt,
+        mockPost.updatedAt,
+        mockPost.usageSituation,
+        mockPost.experienceDetails,
+        mockPost.user
+          ? {
+              id: mockPost.user.id,
+              userName: mockPost.user.userName,
+            }
+          : null
+      )
+    }
+
     if (!prisma) throw new Error('Database connection not available')
 
     const prismaPost = await prisma.post.findUnique({
       where: { id },
       include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
         _count: {
           select: {
             empathies: true,
@@ -30,6 +74,84 @@ export class PostRepositoryImpl implements PostRepository {
   }
 
   async findMany(filter: FindPostsFilter): Promise<FindPostsResult> {
+    if (!isDatabaseAvailable()) {
+      // Mock mode
+      let filteredPosts = [...MOCK_POSTS]
+
+      if (filter.publishedOnly) {
+        filteredPosts = filteredPosts.filter(p => p.status === 'published')
+      }
+
+      if (filter.userId) {
+        filteredPosts = filteredPosts.filter(p => p.userId === filter.userId)
+      }
+
+      if (filter.category) {
+        filteredPosts = filteredPosts.filter(p => p.cosmeticCategory === filter.category)
+      }
+
+      if (filter.search) {
+        const searchLower = filter.search.toLowerCase()
+        filteredPosts = filteredPosts.filter(
+          p =>
+            p.title.toLowerCase().includes(searchLower) ||
+            p.content.toLowerCase().includes(searchLower) ||
+            p.cosmeticName.toLowerCase().includes(searchLower)
+        )
+      }
+
+      // Sort
+      if (filter.sortBy === 'popular') {
+        filteredPosts.sort((a, b) => (b.empathyCount || 0) - (a.empathyCount || 0))
+      } else {
+        filteredPosts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      }
+
+      // Pagination
+      const totalCount = filteredPosts.length
+      const paginatedPosts = filteredPosts.slice(filter.offset, filter.offset + filter.limit)
+
+      // Convert to domain entities
+      const posts = paginatedPosts.map(
+        mockPost =>
+          new Post(
+            mockPost.id,
+            mockPost.userId,
+            mockPost.title,
+            mockPost.content,
+            mockPost.cosmeticName,
+            null, // brandName
+            null, // imageUrl
+            mockPost.cosmeticCategory,
+            mockPost.status === 'published',
+            mockPost.publishedAt,
+            mockPost.status,
+            mockPost.cosmeticName,
+            mockPost.cosmeticCategory,
+            mockPost.skinType,
+            mockPost.moodTag,
+            mockPost.viewCount || 0,
+            mockPost.empathyCount || 0,
+            mockPost._count?.comments || 0,
+            mockPost.createdAt,
+            mockPost.updatedAt,
+            mockPost.usageSituation,
+            mockPost.experienceDetails,
+            mockPost.user
+              ? {
+                  id: mockPost.user.id,
+                  userName: mockPost.user.userName,
+                }
+              : null
+          )
+      )
+
+      return {
+        posts,
+        totalCount,
+      }
+    }
+
     if (!prisma) throw new Error('Database connection not available')
 
     const where: any = {}
@@ -69,6 +191,12 @@ export class PostRepositoryImpl implements PostRepository {
         skip: filter.offset,
         take: filter.limit,
         include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
           _count: {
             select: {
               empathies: true,
@@ -104,6 +232,12 @@ export class PostRepositoryImpl implements PostRepository {
         publishedAt: data.isPublished ? new Date() : null,
       },
       include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
         _count: {
           select: {
             empathies: true,
@@ -137,6 +271,12 @@ export class PostRepositoryImpl implements PostRepository {
       where: { id },
       data: updateData,
       include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
         _count: {
           select: {
             empathies: true,
@@ -184,6 +324,12 @@ export class PostRepositoryImpl implements PostRepository {
     const posts = await prisma.post.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
         _count: {
           select: {
             empathies: true,
@@ -204,6 +350,12 @@ export class PostRepositoryImpl implements PostRepository {
       orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
         _count: {
           select: {
             empathies: true,
@@ -250,6 +402,10 @@ export class PostRepositoryImpl implements PostRepository {
 
   private toDomainPost(
     prismaPost: PrismaPost & {
+      user?: {
+        id: string
+        userName: string
+      }
       _count: {
         empathies: number
         comments: number
@@ -278,7 +434,8 @@ export class PostRepositoryImpl implements PostRepository {
       prismaPost.createdAt,
       prismaPost.updatedAt,
       prismaPost.usageSituation,
-      prismaPost.experienceDetails
+      prismaPost.experienceDetails,
+      prismaPost.user || null
     )
   }
 }

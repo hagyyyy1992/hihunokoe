@@ -21,7 +21,11 @@ export class Post {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly usageSituation?: any | null,
-    public readonly experienceDetails?: any | null
+    public readonly experienceDetails?: any | null,
+    public readonly user?: {
+      id: string
+      userName: string
+    } | null
   ) {}
 
   get isValid(): boolean {
