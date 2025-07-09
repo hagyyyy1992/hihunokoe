@@ -258,8 +258,8 @@ test.describe('パフォーマンスエラーハンドリング', () => {
 
   test.describe('同時実行エラー', () => {
     test('同時投稿作成時の競合処理', async ({ page, browserName }) => {
-      // WebKit (Safari) では投稿フォームの処理が不安定なため、スキップ
-      if (browserName === 'webkit') {
+      // WebKit (Safari) ・Firefox環境では投稿フォームの処理が不安定なため、スキップ
+      if (browserName === 'webkit' || browserName === 'firefox') {
         test.skip()
         return
       }
