@@ -8,6 +8,10 @@ export interface CreatePostData {
   brandName?: string | null
   imageUrl?: string | null
   category?: string | null
+  skinType?: string | null
+  moodTag?: string | null
+  usageSituation?: any | null
+  experienceDetails?: any | null
   isPublished?: boolean
 }
 
@@ -18,6 +22,10 @@ export interface UpdatePostData {
   brandName?: string | null
   imageUrl?: string | null
   category?: string | null
+  skinType?: string | null
+  moodTag?: string | null
+  usageSituation?: any | null
+  experienceDetails?: any | null
   isPublished?: boolean
 }
 

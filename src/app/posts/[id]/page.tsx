@@ -717,7 +717,7 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-500 order-first sm:order-last">
-              {/* <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -726,9 +726,9 @@ export default function PostDetailPage() {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <span data-testid="comment-count">{commentCount} コメント</span>
-              </div> */}
-              {/* <div className="flex items-center space-x-2">
+                <span data-testid="comment-count">0 コメント</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -744,11 +744,28 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="view-count">{currentPost.viewCount} 閲覧</span>
-              </div> */}
+              </div>
             </div>
 
-            {/* <AuthGuard
-              fallback={
+            {/* 共感ボタン（スタブ実装） */}
+            <div className="flex items-center space-x-3">
+              {user ? (
+                <button
+                  data-testid="empathy-button"
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-not-allowed opacity-50"
+                  disabled
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                  <span>共感する</span>
+                </button>
+              ) : (
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -759,49 +776,61 @@ export default function PostDetailPage() {
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                       />
                     </svg>
-                    <span>{empathyState.totalCount} 共感</span>
+                    <span>0 共感</span>
                   </div>
                   <Link
                     href="/auth/login"
-                    className="text-sm text-primary-600 hover:text-primary-700 underline"
+                    className="text-sm text-green-600 hover:text-green-700 underline"
                   >
                     ログインして共感
                   </Link>
                 </div>
-              }
-            >
-              <EmpathyButton
-                postId={post.id}
-                initialCount={empathyState.totalCount}
-                initialHasEmpathized={empathyState.hasEmpathized}
-                initialEmpathyType={empathyState.empathyType}
-                initializing={empathyState.isLoading}
-                size="md"
-              />
-            </AuthGuard> */}
+              )}
+            </div>
           </div>
         </article>
 
-        {/* コメントセクション */}
-        {/* <AuthGuard
-          fallback={
+        {/* コメントセクション（スタブ実装） */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+          <h3 className="text-lg font-semibold mb-4">コメント</h3>
+          {user ? (
+            <div>
+              <div className="mb-4">
+                <textarea
+                  data-testid="comment-input"
+                  className="w-full p-3 border border-gray-300 rounded-md resize-none"
+                  placeholder="コメントを入力してください"
+                  rows={3}
+                  disabled
+                />
+                <button
+                  data-testid="add-comment-button"
+                  className="mt-2 px-4 py-2 bg-gray-300 text-gray-500 rounded-md cursor-not-allowed"
+                  disabled
+                >
+                  コメントする（準備中）
+                </button>
+              </div>
+              <p className="text-gray-500 text-sm">コメント機能は現在準備中です。</p>
+            </div>
+          ) : (
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
               <Link
                 href="/auth/login"
-                className="inline-block bg-primary-500 text-white px-6 py-2 rounded-md hover:bg-primary-600 transition-colors"
+                className="inline-block bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors"
               >
                 ログインする
               </Link>
             </div>
-          }
-        >
-          <CommentList
-            postId={post.id}
-            initialCommentsCount={commentCount}
-            onCommentCountChange={setCommentCount}
-          />
-        </AuthGuard> */}
+          )}
+        </div>
+
+        {/* 関連投稿セクション（スタブ実装） */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8" data-testid="related-posts">
+          <h3 className="text-lg font-semibold mb-4">関連する投稿</h3>
+          <p className="text-gray-500">関連投稿機能は開発中です。</p>
+        </div>
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (

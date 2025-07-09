@@ -10,6 +10,10 @@ export interface CreatePostInputData {
   brandName?: string
   imageUrl?: string
   category?: string
+  skinType?: string
+  moodTag?: string
+  usageSituation?: any
+  experienceDetails?: any
 }
 
 export interface CreatePostOutputData {
@@ -23,7 +27,19 @@ export class CreatePostUseCase {
   ) {}
 
   async execute(inputData: CreatePostInputData): Promise<CreatePostOutputData> {
-    const { userId, title, content, productName, brandName, imageUrl, category } = inputData
+    const {
+      userId,
+      title,
+      content,
+      productName,
+      brandName,
+      imageUrl,
+      category,
+      skinType,
+      moodTag,
+      usageSituation,
+      experienceDetails,
+    } = inputData
 
     // Validate user exists and is active
     const user = await this.userRepository.findById(userId)
@@ -61,7 +77,11 @@ export class CreatePostUseCase {
       brandName: brandName?.trim() || null,
       imageUrl: imageUrl?.trim() || null,
       category: category?.trim() || null,
-      isPublished: false, // Posts start as drafts
+      skinType: skinType?.trim() || null,
+      moodTag: moodTag?.trim() || null,
+      usageSituation: usageSituation || null,
+      experienceDetails: experienceDetails || null,
+      isPublished: true, // Published immediately in current implementation
     })
 
     return { post }

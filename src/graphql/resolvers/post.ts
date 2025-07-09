@@ -42,10 +42,12 @@ export const postResolvers = {
         input: {
           title: string
           content: string
-          productName?: string
-          brandName?: string
-          imageUrl?: string
-          category?: string
+          cosmeticName: string
+          cosmeticCategory?: string
+          skinType?: string
+          usageSituation?: any
+          experienceDetails?: any
+          moodTag?: string
         }
       },
       context: GraphQLContext
@@ -63,10 +65,12 @@ export const postResolvers = {
         input: {
           title?: string
           content?: string
-          productName?: string
-          brandName?: string
-          imageUrl?: string
-          category?: string
+          cosmeticName?: string
+          cosmeticCategory?: string
+          skinType?: string
+          usageSituation?: any
+          experienceDetails?: any
+          moodTag?: string
         }
       },
       context: GraphQLContext

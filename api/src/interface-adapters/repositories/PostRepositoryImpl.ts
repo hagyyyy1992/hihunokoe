@@ -96,6 +96,10 @@ export class PostRepositoryImpl implements PostRepository {
         content: data.content,
         cosmeticName: data.productName || '',
         cosmeticCategory: data.category || null,
+        skinType: data.skinType || null,
+        moodTag: data.moodTag || null,
+        usageSituation: data.usageSituation || null,
+        experienceDetails: data.experienceDetails || null,
         status: data.isPublished ? 'published' : 'draft',
         publishedAt: data.isPublished ? new Date() : null,
       },
@@ -120,6 +124,10 @@ export class PostRepositoryImpl implements PostRepository {
     if (data.content !== undefined) updateData.content = data.content
     if (data.productName !== undefined) updateData.cosmeticName = data.productName
     if (data.category !== undefined) updateData.cosmeticCategory = data.category
+    if (data.skinType !== undefined) updateData.skinType = data.skinType
+    if (data.moodTag !== undefined) updateData.moodTag = data.moodTag
+    if (data.usageSituation !== undefined) updateData.usageSituation = data.usageSituation
+    if (data.experienceDetails !== undefined) updateData.experienceDetails = data.experienceDetails
     if (data.isPublished !== undefined) {
       updateData.status = data.isPublished ? 'published' : 'draft'
       updateData.publishedAt = data.isPublished ? new Date() : null
@@ -268,7 +276,9 @@ export class PostRepositoryImpl implements PostRepository {
       prismaPost._count.empathies,
       prismaPost._count.comments,
       prismaPost.createdAt,
-      prismaPost.updatedAt
+      prismaPost.updatedAt,
+      prismaPost.usageSituation,
+      prismaPost.experienceDetails
     )
   }
 }

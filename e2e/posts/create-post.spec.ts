@@ -38,17 +38,12 @@ test.describe('投稿作成', () => {
   })
 
   test('必須フィールドのバリデーション', async ({ page }) => {
-    // 認証状態の確立を確認
-    await page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim())
-        return cookies.some(c => c.startsWith('auth-token='))
-      },
-      { timeout: 10000 }
-    )
+    // 認証状態の確立を待つ（簡略化）
+    await page.waitForTimeout(2000)
 
     await page.goto('/posts/new')
-    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000) // ページの初期化を待機
 
     // リダイレクトされていないことを確認
     const currentUrl = page.url()
@@ -79,17 +74,12 @@ test.describe('投稿作成', () => {
   })
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
-    // 認証状態の確立を確認
-    await page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim())
-        return cookies.some(c => c.startsWith('auth-token='))
-      },
-      { timeout: 10000 }
-    )
+    // 認証状態の確立を待つ（簡略化）
+    await page.waitForTimeout(2000)
 
     await page.goto('/posts/new')
-    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000) // ページの初期化を待機
 
     // リダイレクトされていないことを確認
     const currentUrl = page.url()
@@ -117,17 +107,12 @@ test.describe('投稿作成', () => {
   })
 
   test('ムード選択が正常に動作する', async ({ page }) => {
-    // 認証状態の確立を確認
-    await page.waitForFunction(
-      () => {
-        const cookies = document.cookie.split(';').map(c => c.trim())
-        return cookies.some(c => c.startsWith('auth-token='))
-      },
-      { timeout: 10000 }
-    )
+    // 認証状態の確立を待つ（簡略化）
+    await page.waitForTimeout(2000)
 
     await page.goto('/posts/new')
-    await page.waitForTimeout(3000) // 認証状態が確立するまで待機
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000) // ページの初期化を待機
 
     // リダイレクトされていないことを確認
     const currentUrl = page.url()

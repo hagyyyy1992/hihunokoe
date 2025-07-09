@@ -10,6 +10,10 @@ export interface UpdatePostInputData {
   brandName?: string
   imageUrl?: string
   category?: string
+  skinType?: string
+  moodTag?: string
+  usageSituation?: any
+  experienceDetails?: any
 }
 
 export interface UpdatePostOutputData {
@@ -20,7 +24,20 @@ export class UpdatePostUseCase {
   constructor(private postRepository: PostRepository) {}
 
   async execute(inputData: UpdatePostInputData): Promise<UpdatePostOutputData> {
-    const { postId, userId, title, content, productName, brandName, imageUrl, category } = inputData
+    const {
+      postId,
+      userId,
+      title,
+      content,
+      productName,
+      brandName,
+      imageUrl,
+      category,
+      skinType,
+      moodTag,
+      usageSituation,
+      experienceDetails,
+    } = inputData
 
     const post = await this.postRepository.findById(postId)
 
@@ -60,6 +77,10 @@ export class UpdatePostUseCase {
     if (brandName !== undefined) updateData.brandName = brandName?.trim() || null
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl?.trim() || null
     if (category !== undefined) updateData.category = category?.trim() || null
+    if (skinType !== undefined) updateData.skinType = skinType?.trim() || null
+    if (moodTag !== undefined) updateData.moodTag = moodTag?.trim() || null
+    if (usageSituation !== undefined) updateData.usageSituation = usageSituation || null
+    if (experienceDetails !== undefined) updateData.experienceDetails = experienceDetails || null
 
     const updatedPost = await this.postRepository.update(postId, updateData)
 

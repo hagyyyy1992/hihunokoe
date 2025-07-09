@@ -19,7 +19,9 @@ export class Post {
     public readonly empathyCount: number,
     public readonly commentCount: number,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
+    public readonly usageSituation?: any | null,
+    public readonly experienceDetails?: any | null
   ) {}
 
   get isValid(): boolean {

@@ -106,10 +106,12 @@ export class GraphQLPostController {
       input: {
         title: string
         content: string
-        productName?: string
-        brandName?: string
-        imageUrl?: string
-        category?: string
+        cosmeticName: string
+        cosmeticCategory?: string
+        skinType?: string
+        usageSituation?: any
+        experienceDetails?: any
+        moodTag?: string
       }
     },
     context: GraphQLContext
@@ -125,10 +127,14 @@ export class GraphQLPostController {
         userId: context.userId,
         title: args.input.title,
         content: args.input.content,
-        productName: args.input.productName,
-        brandName: args.input.brandName,
-        imageUrl: args.input.imageUrl,
-        category: args.input.category,
+        productName: args.input.cosmeticName,
+        brandName: undefined,
+        imageUrl: undefined,
+        category: args.input.cosmeticCategory,
+        skinType: args.input.skinType,
+        moodTag: args.input.moodTag,
+        usageSituation: args.input.usageSituation,
+        experienceDetails: args.input.experienceDetails,
       })
 
       return post
@@ -143,10 +149,12 @@ export class GraphQLPostController {
       input: {
         title?: string
         content?: string
-        productName?: string
-        brandName?: string
-        imageUrl?: string
-        category?: string
+        cosmeticName?: string
+        cosmeticCategory?: string
+        skinType?: string
+        usageSituation?: any
+        experienceDetails?: any
+        moodTag?: string
       }
     },
     context: GraphQLContext
@@ -163,10 +171,14 @@ export class GraphQLPostController {
         userId: context.userId,
         title: args.input.title,
         content: args.input.content,
-        productName: args.input.productName,
-        brandName: args.input.brandName,
-        imageUrl: args.input.imageUrl,
-        category: args.input.category,
+        productName: args.input.cosmeticName,
+        brandName: undefined,
+        imageUrl: undefined,
+        category: args.input.cosmeticCategory,
+        skinType: args.input.skinType,
+        moodTag: args.input.moodTag,
+        usageSituation: args.input.usageSituation,
+        experienceDetails: args.input.experienceDetails,
       })
 
       return post
