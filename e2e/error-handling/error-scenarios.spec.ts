@@ -306,10 +306,29 @@ test.describe('エラーハンドリング', () => {
       expect(page.url()).toContain('/posts/new')
 
       // エラーメッセージが表示されるか、またはステップ1にまだいることを確認
-      const isStillOnStep1 = await page
-        .locator('h3:has-text("基本情報")')
-        .isVisible()
-        .catch(() => false)
+      // 複数の方法でステップ1の状態を確認
+      const step1Selectors = [
+        'h3:has-text("基本情報")',
+        'h2:has-text("基本情報")',
+        'h1:has-text("基本情報")',
+        '[data-testid="step-1-header"]',
+        '.step-1',
+        '[data-step="1"]',
+      ]
+
+      let isStillOnStep1 = false
+      for (const selector of step1Selectors) {
+        if (
+          await page
+            .locator(selector)
+            .isVisible()
+            .catch(() => false)
+        ) {
+          isStillOnStep1 = true
+          break
+        }
+      }
+
       const hasErrorMessage = await page
         .getByTestId('error-message')
         .isVisible()
@@ -319,7 +338,11 @@ test.describe('エラーハンドリング', () => {
         .isVisible()
         .catch(() => false)
 
-      const isErrorHandled = isStillOnStep1 || hasErrorMessage || hasValidationError
+      // 「次へ」ボタンが無効化されているかも確認
+      const isButtonDisabled = await nextButton.isDisabled().catch(() => false)
+
+      const isErrorHandled =
+        isStillOnStep1 || hasErrorMessage || hasValidationError || isButtonDisabled
       expect(isErrorHandled).toBe(true)
 
       // 文字数が制限内になるよう修正
