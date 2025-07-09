@@ -1,0 +1,155 @@
+name: Vercel Deploy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: vercel-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-deploy-trigger:
+    name: Check Deploy Trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      deploy-type: ${{ steps.check.outputs.deploy-type }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if deploy should run
+        id: check
+        run: |
+          echo "Checking if Vercel deploy should run..."
+          
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "deploy-type=production" >> $GITHUB_OUTPUT
+            echo "✅ Production deploy will run (main branch push)"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # Get all commits in this PR
+            COMMITS=$(git log --format=%s origin/main..HEAD 2>/dev/null || git log --format=%s -10)
+            echo "Commits in this PR:"
+            echo "$COMMITS"
+            echo ""
+            
+            # Check if any commit message contains [ci] trigger
+            if echo "$COMMITS" | grep -q '\[ci\]'; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "deploy-type=preview" >> $GITHUB_OUTPUT
+              echo "✅ Preview deploy will run - found [ci] in commit message"
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+              echo "deploy-type=none" >> $GITHUB_OUTPUT
+              echo "⏭️ Vercel deploy skipped - add [ci] to commit message to enable preview deploy"
+            fi
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "deploy-type=none" >> $GITHUB_OUTPUT
+            echo "⏭️ Vercel deploy skipped - unknown trigger"
+          fi
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: [check-deploy-trigger]
+    if: needs.check-deploy-trigger.outputs.should-deploy == 'true'
+    environment: ${{ needs.check-deploy-trigger.outputs.deploy-type }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Generate GraphQL types
+        run: npm run codegen
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=${{ needs.check-deploy-trigger.outputs.deploy-type }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build ${{ needs.check-deploy-trigger.outputs.deploy-type == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        run: |
+          if [[ "${{ needs.check-deploy-trigger.outputs.deploy-type }}" == "production" ]]; then
+            URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          else
+            URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          fi
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $URL"
+
+      - name: Comment PR with deployment URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const comment = `🚀 **Vercel Preview Deployment**
+            
+            ✅ Preview deployed successfully!
+            
+            **Preview URL**: ${url}
+            
+            This preview was deployed because the commit message contains \`[ci]\`.
+            
+            ---
+            💡 **Tip**: To deploy previews for future PRs, include \`[ci]\` in your commit message.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  skip-deploy:
+    name: Deploy Skipped
+    runs-on: ubuntu-latest
+    needs: [check-deploy-trigger]
+    if: needs.check-deploy-trigger.outputs.should-deploy != 'true' && github.event_name == 'pull_request'
+    steps:
+      - name: Comment PR with skip message
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `⏭️ **Vercel Preview Deployment Skipped**
+            
+            Preview deployment was skipped for this PR.
+            
+            **To enable preview deployment:**
+            - Add \`[ci]\` to any commit message in this PR
+            - Example: \`feat: add new feature [ci]\`
+            
+            **Note**: Production deployments always run when merged to main branch.
+            
+            ---
+            🏗️ **Current status**: Only basic checks are running for this PR.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

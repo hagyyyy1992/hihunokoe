@@ -409,6 +409,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 value={formData.skinType}
                 onChange={handleInputChange}
                 className="select"
+                data-testid="skin-type-select"
               >
                 <option value="">選択してください</option>
                 <option value="normal">普通肌</option>
@@ -764,6 +765,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 }}
                 onFocus={() => {}}
                 className="select"
+                data-testid="mood-tag-select"
               >
                 <option value="">選択してください</option>
                 <option value="disappointed">ちょっと残念</option>
