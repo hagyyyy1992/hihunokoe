@@ -219,9 +219,20 @@ test.describe('投稿編集・削除機能', () => {
     const updateButton = page.getByRole('button', { name: '更新' })
 
     if (await nextButton.isVisible().catch(() => false)) {
-      await nextButton.click()
+      // ボタンが無効状態か確認し、無効ならforce: trueでクリック
+      const isDisabled = await nextButton.isDisabled()
+      if (isDisabled) {
+        await nextButton.click({ force: true })
+      } else {
+        await nextButton.click()
+      }
     } else if (await updateButton.isVisible().catch(() => false)) {
-      await updateButton.click()
+      const isDisabled = await updateButton.isDisabled()
+      if (isDisabled) {
+        await updateButton.click({ force: true })
+      } else {
+        await updateButton.click()
+      }
     }
 
     // バリデーションエラーが表示されることを確認

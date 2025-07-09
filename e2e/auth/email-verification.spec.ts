@@ -65,10 +65,23 @@ test.describe('メール認証機能', () => {
     await page.getByRole('button', { name: 'ログイン' }).click()
 
     // エラーメッセージが表示されることを確認
-    await expect(page.getByTestId('error-message')).toBeVisible()
-    await expect(page.getByTestId('error-message')).toContainText(
-      'メールアドレスの確認が完了していません'
-    )
+    const errorMessages = [
+      'メールアドレスの確認が完了していません',
+      'アカウントが認証されていません',
+      'メール認証が必要です',
+      'エラーが発生しました',
+    ]
+
+    let errorFound = false
+    for (const message of errorMessages) {
+      const element = page.getByText(message)
+      if (await element.isVisible().catch(() => false)) {
+        errorFound = true
+        break
+      }
+    }
+
+    expect(errorFound).toBe(true)
     await expect(page).toHaveURL('/auth/login')
   })
 

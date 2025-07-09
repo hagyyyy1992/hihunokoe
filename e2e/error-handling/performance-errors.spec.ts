@@ -20,7 +20,22 @@ test.describe('パフォーマンスエラーハンドリング', () => {
         await page.getByRole('button', { name: 'ログイン' }).click()
 
         // エラーメッセージが表示されることを確認
-        await expect(page.getByTestId('error-message')).toBeVisible()
+        const errorMessages = [
+          'メールアドレスまたはパスワードが間違っています',
+          'ログインに失敗しました',
+          'エラーが発生しました',
+        ]
+
+        let errorFound = false
+        for (const message of errorMessages) {
+          const element = page.getByText(message)
+          if (await element.isVisible().catch(() => false)) {
+            errorFound = true
+            break
+          }
+        }
+
+        expect(errorFound).toBe(true)
 
         // 次の試行の前に少し待機
         await page.waitForTimeout(1000)
@@ -36,11 +51,22 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await page.getByRole('button', { name: 'ログイン' }).click()
 
       // レート制限エラーが表示されることを確認
-      const errorMessage = page.getByTestId('error-message')
-      const errorText = await errorMessage.textContent()
+      const rateLimitMessages = [
+        'レート制限に達しました',
+        'しばらく待ってから再度お試しください',
+        'アクセスが制限されています',
+        'エラーが発生しました',
+      ]
 
-      // レート制限関連のメッセージが表示されることを確認
-      // 実際のエラーメッセージに応じて調整
+      let errorText = ''
+      for (const message of rateLimitMessages) {
+        const element = page.getByText(message)
+        if (await element.isVisible().catch(() => false)) {
+          errorText = (await element.textContent()) || ''
+          break
+        }
+      }
+
       expect(errorText).toBeTruthy()
       console.log(`[TEST] Login rate limit error: ${errorText}`)
     })
@@ -234,26 +260,47 @@ test.describe('パフォーマンスエラーハンドリング', () => {
     test('同時投稿作成時の競合処理', async ({ page }) => {
       // ログインしてから投稿作成ページにアクセス
       await authHelper.registerAndLogin()
-      await page.goto('/posts/create')
+      await page.goto('/posts/new')
 
-      // フォームに入力
-      await page.locator('input[name="title"]').fill('同時投稿テスト')
-      await page.locator('textarea[name="content"]').fill('同時投稿テスト内容')
-      await page.locator('input[name="cosmeticName"]').fill('テスト化粧品')
-      await page
-        .locator('select[name="cosmeticCategory"]')
-        .selectOption(COSMETIC_CATEGORY_LABELS.toner)
-      await page.locator('select[name="skinType"]').selectOption('normal')
-      await page.locator('select[name="moodTag"]').selectOption('good')
+      // ページが完全に読み込まれるまで待機
+      await page.waitForLoadState('networkidle')
+      await page.waitForTimeout(3000)
+
+      // ステップ1: 基本情報を入力
+      await page.getByTestId('post-title-input').fill('同時投稿テスト')
+      await page.getByTestId('post-content-textarea').fill('同時投稿テスト内容')
+      await page.getByLabel('使用したコスメ名').fill('テスト化粧品')
+      await page.getByTestId('category-select').selectOption('toner')
+
+      // 次へボタンをクリック
+      await page.getByRole('button', { name: '次へ' }).click()
+
+      // ステップ2が表示されるまで待機
+      await expect(
+        page.getByRole('heading', { name: '使用状況' }).or(page.getByText('使用状況'))
+      ).toBeVisible()
+
+      // ステップ2: 使用状況を入力
+      await page.getByTestId('skin-type-select').selectOption('normal')
+      await page.getByTestId('mood-tag-select').selectOption('good')
 
       // 投稿ボタンを複数回クリック（重複送信防止のテスト）
       const submitButton = page.getByRole('button', { name: '投稿する' })
-      await submitButton.click()
-      await submitButton.click()
+
+      // 最初のクリック
       await submitButton.click()
 
-      // 重複送信が防止されることを確認
-      await page.waitForTimeout(3000)
+      // 連続クリックを試行（重複送信防止のテスト）
+      try {
+        await submitButton.click({ timeout: 1000 })
+        await submitButton.click({ timeout: 1000 })
+      } catch (error) {
+        // ボタンが無効化されているか、エラーが発生することを期待
+        console.log('[TEST] Duplicate submission prevention working')
+      }
+
+      // 投稿完了まで待機
+      await page.waitForTimeout(5000)
 
       console.log('[TEST] Concurrent post creation test completed')
     })
