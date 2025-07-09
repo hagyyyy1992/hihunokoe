@@ -271,10 +271,8 @@ test.describe('エラーハンドリング', () => {
       await page.waitForLoadState('networkidle')
       await page.waitForTimeout(3000)
 
-      // まずステップ1で基本情報が表示されることを確認（より包括的なチェック）
-      await expect(
-        page.getByRole('heading', { name: '基本情報' }).or(page.getByText('基本情報'))
-      ).toBeVisible()
+      // まずステップ1で基本情報が表示されることを確認
+      await expect(page.getByRole('heading', { name: '基本情報' })).toBeVisible()
 
       // 文字数制限を超える値を入力
       const longTitle = 'あ'.repeat(201) // 200文字制限を超える
@@ -294,9 +292,8 @@ test.describe('エラーハンドリング', () => {
       await nextButton.click()
 
       // ステップが進まないことを確認（文字数制限エラーのため）
-      await expect(
-        page.getByRole('heading', { name: '基本情報' }).or(page.getByText('基本情報'))
-      ).toBeVisible()
+      // ステップ1にまだいることを確認（基本情報のh3要素）
+      await expect(page.locator('h3:has-text("基本情報")')).toBeVisible()
 
       // 文字数が制限内になるよう修正
       await page.getByTestId('post-title-input').fill('正常なタイトル')
@@ -308,9 +305,7 @@ test.describe('エラーハンドリング', () => {
 
       // 次のステップに進めることを確認
       await nextButton.click()
-      await expect(
-        page.getByRole('heading', { name: '使用状況' }).or(page.getByText('使用状況'))
-      ).toBeVisible()
+      await expect(page.getByRole('heading', { name: '使用状況' })).toBeVisible()
     })
   })
 
