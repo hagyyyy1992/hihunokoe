@@ -287,7 +287,7 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await page.getByRole('button', { name: '次へ' }).click()
 
       // ステップ2が表示されるまで待機
-      await expect(page.locator('h3:has-text("使用状況（任意）")')).toBeVisible()
+      await expect(page.getByRole('heading', { name: '使用状況（任意）' })).toBeVisible()
 
       // ステップ2: 使用状況を入力
       // skin-type-selectの要素を確認

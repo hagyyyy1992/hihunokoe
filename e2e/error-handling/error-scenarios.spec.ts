@@ -420,7 +420,7 @@ test.describe('エラーハンドリング', () => {
 
       // 次のステップに進めることを確認
       await nextButton.click()
-      await expect(page.getByRole('heading', { name: '使用状況' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: '使用状況（任意）' })).toBeVisible()
     })
   })
 
