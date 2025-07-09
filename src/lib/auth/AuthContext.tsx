@@ -25,7 +25,7 @@ interface UpdateProfileData {
   skinType?: string | null
   birthDate?: string | null
   gender?: string | null
-  allergies?: string[] | null
+  allergies?: string[]
   allergiesOther?: string | null
 }
 

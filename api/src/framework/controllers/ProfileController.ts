@@ -24,6 +24,7 @@ export class ProfileController {
       const userId = await this.getUserIdFromRequest(request)
       if (!userId) return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
       const body = await request.json()
+      console.log('Profile update request body:', body)
       const { userName, skinType, birthDate, gender, allergies, allergiesOther, profileImageUrl } =
         body
       const result = await this.profileUseCase.updateProfile({

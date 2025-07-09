@@ -23,13 +23,27 @@ const server = new ApolloServer<GraphQLContext>({
 
 const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(server, {
   context: async (req): Promise<GraphQLContext> => {
+    // Authorizationヘッダーから取得を試みる
     const authHeader = req.headers.get('authorization')
+    let token: string | null = null
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { userId: null }
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    } else {
+      // ヘッダーにない場合はクッキーから取得
+      const cookieHeader = req.headers.get('cookie')
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(';')
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth-token='))
+        if (authCookie) {
+          token = authCookie.split('=')[1]
+        }
+      }
     }
 
-    const token = authHeader.substring(7)
+    if (!token) {
+      return { userId: null }
+    }
 
     try {
       const userRepository = new UserRepositoryImpl()

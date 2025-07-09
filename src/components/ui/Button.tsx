@@ -50,6 +50,7 @@ const Button = memo(
             baseClasses,
             variantClasses[variant],
             sizeClasses[size],
+            'cursor-pointer',
             loading && 'opacity-50 cursor-not-allowed',
             className
           )}

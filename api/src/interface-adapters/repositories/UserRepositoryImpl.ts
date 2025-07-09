@@ -91,6 +91,7 @@ export class UserRepositoryImpl implements UserRepository {
 
     if (data.email !== undefined) updateData.email = data.email
     if (data.username !== undefined) updateData.userName = data.username
+    if (data.userName !== undefined) updateData.userName = data.userName
     if (data.passwordHash !== undefined) updateData.passwordHash = data.passwordHash
     if (data.emailVerified !== undefined) updateData.emailVerified = data.emailVerified
     if (data.emailVerificationToken !== undefined)
@@ -105,6 +106,15 @@ export class UserRepositoryImpl implements UserRepository {
     if (data.lockedUntil !== undefined) updateData.lockedUntil = data.lockedUntil
     if (data.failedLoginAttempts !== undefined)
       updateData.failedLoginAttempts = data.failedLoginAttempts
+    // プロフィールフィールドの追加
+    if (data.skinType !== undefined) updateData.skinType = data.skinType
+    if (data.birthDate !== undefined) updateData.birthDate = data.birthDate
+    if (data.gender !== undefined) updateData.gender = data.gender
+    // allergiesは配列型なので、nullの場合は空の配列を設定
+    if (data.allergies !== undefined) {
+      updateData.allergies = data.allergies === null ? [] : data.allergies
+    }
+    if (data.allergiesOther !== undefined) updateData.allergiesOther = data.allergiesOther
 
     if (!prisma) throw new Error('Database connection not available')
 
@@ -292,7 +302,7 @@ export class UserRepositoryImpl implements UserRepository {
       prismaUser.gender,
       prismaUser.skinType,
       prismaUser.skinTypeOther,
-      prismaUser.allergies?.join(',') || null, // Convert array to string
+      prismaUser.allergies || null, // Keep as array
       prismaUser.allergiesOther,
       prismaUser.emailVerified,
       prismaUser.emailVerificationToken,

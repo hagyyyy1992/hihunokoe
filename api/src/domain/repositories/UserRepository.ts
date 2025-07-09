@@ -28,6 +28,13 @@ export interface UpdateUserData {
   role?: UserRole
   active?: boolean
   deletedAt?: Date | null
+  // プロフィールフィールド
+  skinType?: string | null
+  birthDate?: Date | null
+  gender?: string | null
+  allergies?: string[] | null
+  allergiesOther?: string | null
+  userName?: string
 }
 
 export interface FindUsersFilter {

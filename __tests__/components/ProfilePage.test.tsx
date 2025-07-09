@@ -11,18 +11,18 @@ jest.mock('../../src/lib/auth/AuthContext', () => ({
 // Mock the router
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
 }))
 
 // Import the mocked modules
 import { useAuth } from '../../src/lib/auth/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 // Mock the auth hook
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+const mockUseSearchParams = useSearchParams as jest.MockedFunction<typeof useSearchParams>
 
-// Mock the updateProfile function
-const mockUpdateProfile = jest.fn()
 const mockRouterPush = jest.fn()
 
 describe('ProfilePage Component', () => {
@@ -33,7 +33,7 @@ describe('ProfilePage Component', () => {
     mockUseAuth.mockReturnValue({
       user: { ...mockUser },
       loading: false,
-      updateProfile: mockUpdateProfile,
+      updateProfile: jest.fn(),
       login: jest.fn(),
       logout: jest.fn(),
       register: jest.fn(),
@@ -49,7 +49,17 @@ describe('ProfilePage Component', () => {
       prefetch: jest.fn(),
     } as any)
 
-    mockUpdateProfile.mockResolvedValue(undefined)
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockReturnValue(null),
+      has: jest.fn().mockReturnValue(false),
+      getAll: jest.fn().mockReturnValue([]),
+      keys: jest.fn().mockReturnValue([]),
+      values: jest.fn().mockReturnValue([]),
+      entries: jest.fn().mockReturnValue([]),
+      forEach: jest.fn(),
+      toString: jest.fn().mockReturnValue(''),
+      [Symbol.iterator]: jest.fn(),
+    } as any)
   })
 
   afterEach(() => {
@@ -79,7 +89,7 @@ describe('ProfilePage Component', () => {
     mockUseAuth.mockReturnValue({
       user: null,
       loading: false,
-      updateProfile: mockUpdateProfile,
+      updateProfile: jest.fn(),
       login: jest.fn(),
       logout: jest.fn(),
       register: jest.fn(),
@@ -95,7 +105,7 @@ describe('ProfilePage Component', () => {
     mockUseAuth.mockReturnValue({
       user: null,
       loading: true,
-      updateProfile: mockUpdateProfile,
+      updateProfile: jest.fn(),
       login: jest.fn(),
       logout: jest.fn(),
       register: jest.fn(),
@@ -107,143 +117,70 @@ describe('ProfilePage Component', () => {
     expect(screen.getByText('読み込み中...')).toBeInTheDocument()
   })
 
-  it('編集モードに切り替わる', async () => {
+  it('編集ボタンをクリックすると編集ページに遷移する', async () => {
     const user = createUser()
     render(<ProfilePage />)
 
     // 編集ボタンをクリック
     await user.click(screen.getByTestId('edit-profile-button'))
 
-    // フォームが表示されていることを確認
-    expect(screen.getByTestId('username-input')).toBeInTheDocument()
-    expect(screen.getByTestId('skin-type-select')).toBeInTheDocument()
-
-    // 保存ボタンとキャンセルボタンが表示されていることを確認
-    expect(screen.getByTestId('save-profile-button')).toBeInTheDocument()
-    expect(screen.getByTestId('cancel-edit-button')).toBeInTheDocument()
+    // ルーターのpushが呼ばれることを確認
+    expect(mockRouterPush).toHaveBeenCalledWith('/profile/edit')
   })
 
-  it('フォームの入力値を変更できる', async () => {
-    const user = createUser()
-    render(<ProfilePage />)
-
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
-
-    // ユーザー名を変更
-    const usernameInput = screen.getByTestId('username-input')
-    await user.clear(usernameInput)
-    await user.type(usernameInput, 'newusername')
-
-    // 肌タイプを変更
-    const skinTypeSelect = screen.getByTestId('skin-type-select')
-    await user.selectOptions(skinTypeSelect, 'dry')
-
-    // 入力値が変更されていることを確認
-    expect(usernameInput).toHaveValue('newusername')
-    expect(skinTypeSelect).toHaveValue('dry')
-  })
-
-  it('プロフィールを正常に更新する', async () => {
-    const user = createUser()
-    render(<ProfilePage />)
-
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
-
-    // ユーザー名を変更
-    const usernameInput = screen.getByTestId('username-input')
-    await user.clear(usernameInput)
-    await user.type(usernameInput, 'newusername')
-
-    // 保存ボタンをクリック
-    await user.click(screen.getByTestId('save-profile-button'))
-
-    // updateProfileが呼ばれたことを確認
-    expect(mockUpdateProfile).toHaveBeenCalledWith({
-      userName: 'newusername',
-      skinType: mockUser.skinType,
-      birthDate: '',
-      gender: '',
-      allergies: [],
-      allergiesOther: '',
+  it('肌タイプが設定されている場合、バッジで表示される', () => {
+    mockUseAuth.mockReturnValue({
+      user: { ...mockUser, skinType: 'dry' },
+      loading: false,
+      updateProfile: jest.fn(),
+      login: jest.fn(),
+      logout: jest.fn(),
+      register: jest.fn(),
+      refreshAuth: jest.fn(),
     })
 
-    // 成功メッセージが表示されることを確認
-    await waitFor(() => {
-      expect(screen.getByText('プロフィールを更新しました')).toBeInTheDocument()
+    render(<ProfilePage />)
+
+    // 肌タイプバッジが表示されていることを確認（複数の要素があるため、getAllByTextを使用）
+    const skinTypeElements = screen.getAllByText('乾燥肌')
+    expect(skinTypeElements).toHaveLength(2) // バッジと基本情報セクションの2箇所
+    expect(skinTypeElements[0]).toHaveClass('badge') // 最初の要素はバッジ
+  })
+
+  it('基本情報が正しく表示される', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        ...mockUser,
+        birthDate: new Date('1990-01-01'),
+        gender: 'female',
+        allergies: ['fragrance', 'alcohol'],
+        allergiesOther: 'ビタミンC誘導体',
+      },
+      loading: false,
+      updateProfile: jest.fn(),
+      login: jest.fn(),
+      logout: jest.fn(),
+      register: jest.fn(),
+      refreshAuth: jest.fn(),
     })
 
-    // 編集モードが終了していることを確認
-    expect(screen.queryByTestId('username-input')).not.toBeInTheDocument()
-  })
-
-  it('バリデーションエラーを表示する', async () => {
-    const user = createUser()
     render(<ProfilePage />)
 
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
+    // メールアドレスが表示されていることを確認
+    expect(screen.getByText('test@example.com')).toBeInTheDocument()
 
-    // ユーザー名を短すぎる値に変更
-    const usernameInput = screen.getByTestId('username-input')
-    await user.clear(usernameInput)
-    await user.type(usernameInput, 'ab')
+    // 肌タイプが表示されていることを確認（複数の要素があるため、getAllByTextを使用）
+    const skinTypeElements = screen.getAllByText('普通肌')
+    expect(skinTypeElements).toHaveLength(2) // バッジと基本情報セクションの2箇所
 
-    // 保存ボタンをクリック
-    await user.click(screen.getByTestId('save-profile-button'))
+    // 生年月日が表示されていることを確認
+    expect(screen.getByText('1990/1/1')).toBeInTheDocument()
 
-    // バリデーションエラーが表示されることを確認
-    expect(screen.getByText('ユーザー名は3文字以上で入力してください')).toBeInTheDocument()
+    // 性別が表示されていることを確認
+    expect(screen.getByText('女性')).toBeInTheDocument()
 
-    // updateProfileが呼ばれていないことを確認
-    expect(mockUpdateProfile).not.toHaveBeenCalled()
-  })
-
-  it('プロフィール更新に失敗した場合、エラーメッセージを表示する', async () => {
-    // updateProfileがエラーを返すようにモック
-    mockUpdateProfile.mockRejectedValue(new Error('更新に失敗しました'))
-
-    const user = createUser()
-    render(<ProfilePage />)
-
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
-
-    // ユーザー名を変更
-    const usernameInput = screen.getByTestId('username-input')
-    await user.clear(usernameInput)
-    await user.type(usernameInput, 'newusername')
-
-    // 保存ボタンをクリック
-    await user.click(screen.getByTestId('save-profile-button'))
-
-    // エラーメッセージが表示されることを確認
-    await waitFor(() => {
-      expect(screen.getByText('更新に失敗しました')).toBeInTheDocument()
-    })
-  })
-
-  it('キャンセルボタンをクリックすると編集モードが終了する', async () => {
-    const user = createUser()
-    render(<ProfilePage />)
-
-    // 編集モードに切り替え
-    await user.click(screen.getByTestId('edit-profile-button'))
-
-    // ユーザー名を変更
-    const usernameInput = screen.getByTestId('username-input')
-    await user.clear(usernameInput)
-    await user.type(usernameInput, 'newusername')
-
-    // キャンセルボタンをクリック
-    await user.click(screen.getByTestId('cancel-edit-button'))
-
-    // 編集モードが終了していることを確認
-    expect(screen.queryByTestId('username-input')).not.toBeInTheDocument()
-
-    // updateProfileが呼ばれていないことを確認
-    expect(mockUpdateProfile).not.toHaveBeenCalled()
+    // アレルギーが表示されていることを確認
+    expect(screen.getByText('香料、アルコール、ビタミンC誘導体')).toBeInTheDocument()
   })
 
   it('アカウント削除ボタンが表示され、クリックすると削除ページに遷移する', async () => {

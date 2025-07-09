@@ -37,7 +37,7 @@ export async function loginUser(
   return loginTestUser(page, email, password)
 }
 
-export async function createTestUser() {
+export function createTestUser() {
   // テスト用の一意なユーザーデータを生成
   // タイムスタンプにランダムな要素を追加して衝突を避ける
   const timestamp = Date.now()

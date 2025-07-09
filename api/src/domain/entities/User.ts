@@ -11,7 +11,7 @@ export class User {
     public readonly gender: string | null,
     public readonly skinType: string | null,
     public readonly skinTypeOther: string | null,
-    public readonly allergies: string | null,
+    public readonly allergies: string[] | null,
     public readonly allergiesOther: string | null,
     public readonly emailVerified: boolean,
     public readonly emailVerificationToken: string | null,

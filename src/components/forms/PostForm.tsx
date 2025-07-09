@@ -71,6 +71,25 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
   }, [currentStep])
 
+  // エンターキーでステップ移動を処理
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target as HTMLElement
+      const isTextarea = target.tagName === 'TEXTAREA'
+      const isSubmitButton = target.getAttribute('data-testid') === 'publish-button'
+
+      // テキストエリアと投稿ボタン以外でEnterキーが押された場合
+      if (!isTextarea && !isSubmitButton) {
+        e.preventDefault()
+
+        // 現在のステップが4未満で、バリデーションが通る場合は次のステップへ
+        if (currentStep < 4 && isStepValid(currentStep)) {
+          nextStep()
+        }
+      }
+    }
+  }
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -79,18 +98,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       ...prev,
       [name]: value,
     }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Enterキーでのフォーム送信を防ぐ（テキストエリアと投稿ボタン以外）
-    if (e.key === 'Enter' && e.target instanceof HTMLElement) {
-      const isTextarea = e.target.tagName === 'TEXTAREA'
-      const isSubmitButton = e.target.getAttribute('data-testid') === 'publish-button'
-
-      if (!isTextarea && !isSubmitButton) {
-        e.preventDefault()
-      }
-    }
   }
 
   const handleNestedChange = (
@@ -175,6 +182,8 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const nextStep = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
+      // ステップ変更後、ページトップにスクロール
+      window.scrollTo(0, 0)
       // ステップ変更後、フォーカスをリセットして意図しないサブミットを防ぐ
       setTimeout(() => {
         // 投稿ボタンへのフォーカスを防ぐ
@@ -198,7 +207,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1)
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+      // ステップ変更後、ページトップにスクロール
+      window.scrollTo(0, 0)
+    }
   }
 
   const isStepValid = (step: number) => {
@@ -289,6 +302,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               showPlaceholderHint
               data-testid="post-title-input"
               aria-label="タイトル"
+              onInvalid={e => {
+                const element = e.target as HTMLInputElement
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }}
             />
 
             <Input
@@ -345,6 +362,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
                 data-testid="post-content-textarea"
+                onInvalid={e => {
+                  // バリデーションエラー時に要素を表示領域にスクロール
+                  const element = e.target as HTMLTextAreaElement
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }}
               />
             </div>
           </div>
@@ -589,16 +611,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ステップ4: 感想とまとめ */}
         {currentStep === 4 && (
-          <div
-            className="space-y-4 sm:space-y-6"
-            onKeyDown={e => {
-              // ステップ4内でEnterキーによるサブミットを完全に防ぐ
-              if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'BUTTON') {
-                e.preventDefault()
-                e.stopPropagation()
-              }
-            }}
-          >
+          <div className="space-y-4 sm:space-y-6">
             <h3 className="text-base sm:text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
             <p className="text-xs sm:text-sm text-gray-600">
               使用後の肌状態や総合的な感想を教えてください。
