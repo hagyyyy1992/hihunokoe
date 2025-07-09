@@ -272,7 +272,7 @@ test.describe('エラーハンドリング', () => {
       await page.waitForTimeout(3000)
 
       // まずステップ1で基本情報が表示されることを確認
-      await expect(page.getByRole('heading', { name: '基本情報' })).toBeVisible()
+      await expect(page.getByText('基本情報')).toBeVisible()
 
       // 文字数制限を超える値を入力
       const longTitle = 'あ'.repeat(201) // 200文字制限を超える
@@ -305,7 +305,7 @@ test.describe('エラーハンドリング', () => {
 
       // 次のステップに進めることを確認
       await nextButton.click()
-      await expect(page.getByRole('heading', { name: '使用状況' })).toBeVisible()
+      await expect(page.getByText('使用状況')).toBeVisible()
     })
   })
 

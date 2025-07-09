@@ -217,7 +217,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        return formData.title && formData.cosmeticName && formData.content
+        return (
+          formData.title && formData.cosmeticName && formData.content && formData.cosmeticCategory
+        )
       case 2:
         return true // オプショナル
       case 3:
@@ -322,7 +324,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
             <div className="form-group">
               <label htmlFor="cosmeticCategory" className="form-label">
-                コスメカテゴリ
+                コスメカテゴリ <span className="text-red-500 ml-1">*</span>
               </label>
               <select
                 id="cosmeticCategory"
@@ -331,8 +333,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 onChange={handleInputChange}
                 className="select"
                 data-testid="category-select"
+                required
               >
                 <option value="">選択してください</option>
+                <option value="skincare">スキンケア</option>
                 <option value="toner">化粧水</option>
                 <option value="serum">美容液</option>
                 <option value="emulsion">乳液</option>
