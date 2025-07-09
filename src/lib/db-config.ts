@@ -56,8 +56,6 @@ export const DB_CONFIG = {
 // Log current database configuration
 if (typeof window === 'undefined') {
   const config = DB_CONFIG.getConnectionInfo()
-  console.log(`🗄️  Database: ${config.type} (${config.environment})`)
   if (config.url !== 'Mock Data') {
-    console.log(`📍 URL: ${config.url}`)
   }
 }

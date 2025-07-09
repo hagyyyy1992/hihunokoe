@@ -18,10 +18,6 @@ const TEST_QUERY = gql`
 export default function TestGraphQLPage() {
   const { data, loading, error } = useQuery(TEST_QUERY)
 
-  console.log('GraphQL Test - Loading:', loading)
-  console.log('GraphQL Test - Data:', data)
-  console.log('GraphQL Test - Error:', error)
-
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">GraphQL テストページ</h1>

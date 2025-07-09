@@ -44,7 +44,6 @@ export default function AdminDashboard() {
       }
 
       const data = await response.json()
-      console.log('Dashboard stats response:', data)
       setStats(data.stats || data)
     } catch (error) {
       setError(error instanceof Error ? error.message : '不明なエラーが発生しました')

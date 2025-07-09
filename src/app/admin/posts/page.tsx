@@ -75,7 +75,6 @@ export default function PostModeration() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Posts API response:', data)
         setPosts(data.posts || data)
       }
     } catch (error) {

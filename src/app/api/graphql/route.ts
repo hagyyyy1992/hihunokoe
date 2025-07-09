@@ -14,9 +14,7 @@ const server = new ApolloServer<GraphQLContext>({
   introspection: true,
   plugins: [
     {
-      async serverWillStart() {
-        console.log('GraphQL Server starting...')
-      },
+      async serverWillStart() {},
     },
   ],
 })

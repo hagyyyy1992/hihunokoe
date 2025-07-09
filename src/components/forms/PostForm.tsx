@@ -741,12 +741,9 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 name="moodTag"
                 value={formData.moodTag}
                 onChange={e => {
-                  console.log('moodTag select changed:', e.target.value)
                   handleInputChange(e)
                 }}
-                onFocus={() => {
-                  console.log('moodTag select focused')
-                }}
+                onFocus={() => {}}
                 className="select"
               >
                 <option value="">選択してください</option>

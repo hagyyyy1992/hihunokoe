@@ -347,11 +347,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         where: { id },
       })
       if (anyUser) {
-        console.log('[AUTH] User exists but not active:', {
-          id: anyUser.id,
-          isActive: anyUser.isActive,
-          deletedAt: anyUser.deletedAt,
-        })
       }
       throw new Error('ユーザーが見つかりません')
     }
@@ -377,7 +372,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         updateError instanceof Prisma.PrismaClientKnownRequestError &&
         updateError.code === 'P2025'
       ) {
-        console.log(`User ${id} already deleted or not found, treating as success`)
         return true
       }
       throw updateError

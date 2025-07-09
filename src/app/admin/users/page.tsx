@@ -79,7 +79,6 @@ export default function UserManagement() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Users API response:', data)
         setUsers(data.users || data)
       } else if (response.status === 401) {
         console.error('認証されていません。ログインしてください。')

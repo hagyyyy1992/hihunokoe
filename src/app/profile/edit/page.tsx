@@ -95,7 +95,6 @@ export default function ProfileEditPage() {
         allergiesOther: formData.allergiesOther || null,
       }
 
-      console.log('Submitting profile data:', submitData)
       await updateProfile(submitData)
 
       // プロフィールページにメッセージ付きでリダイレクト

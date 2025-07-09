@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       if (response.ok) {
         const data = await response.json()
-        console.log('Auth check response:', data) // デバッグログ追加
         setUser(data.user)
       } else {
         // Auth failed - explicitly set user to null
@@ -76,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'same-origin',
       })
       const data = await response.json()
-      console.log('Login response data:', data) // デバッグログ追加
 
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました')
@@ -85,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user)
       // GraphQL用にトークンをlocalStorageに保存
       if (data.token) {
-        console.log('Saving token to localStorage:', data.token) // デバッグログ追加
         localStorage.setItem('token', data.token)
       } else {
         console.warn('No token in login response!') // デバッグログ追加
