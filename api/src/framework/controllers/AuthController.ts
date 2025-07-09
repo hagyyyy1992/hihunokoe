@@ -75,7 +75,7 @@ export class AuthController {
       if (error instanceof EmailNotVerifiedError) {
         return NextResponse.json(
           {
-            error: 'Please verify your email before logging in',
+            error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
             emailVerificationRequired: true,
           },
           { status: 403 }
@@ -83,7 +83,7 @@ export class AuthController {
       }
 
       console.error('Login error:', error)
-      return NextResponse.json({ error: 'An error occurred during login' }, { status: 500 })
+      return NextResponse.json({ error: 'ログイン中にエラーが発生しました' }, { status: 500 })
     }
   }
 
@@ -102,19 +102,27 @@ export class AuthController {
       const registerUseCase = new RegisterUseCase(
         this.userRepository,
         this.passwordHashService,
-        this.tokenService
+        this.tokenService,
+        this.emailService
       )
 
       const result = await registerUseCase.execute({ email, username: userName, password })
 
       return NextResponse.json({
         success: true,
-        message: 'Registration successful. Please check your email to verify your account.',
+        message:
+          'アカウントが作成されました。メールアドレスを確認してアカウントを有効化してください。',
         userId: result.id,
       })
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'ユーザー名またはメールアドレスが既に使用されています') {
+          return NextResponse.json({ error: error.message }, { status: 409 })
+        }
+        if (error.message.includes('このメールアドレスは既に登録されています')) {
+          return NextResponse.json({ error: error.message }, { status: 409 })
+        }
+        if (error.message.includes('このユーザー名は既に使用されています')) {
           return NextResponse.json({ error: error.message }, { status: 409 })
         }
         if (error.message.includes('無効なメールアドレス形式です')) {
@@ -159,6 +167,7 @@ export class AuthController {
       }
 
       console.error('Forgot password error:', error)
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       return NextResponse.json(
         { error: 'パスワードリセットの処理中にエラーが発生しました' },
         { status: 500 }
@@ -177,8 +186,7 @@ export class AuthController {
 
       const resetPasswordUseCase = new ResetPasswordUseCase(
         this.userRepository,
-        this.passwordHashService,
-        this.tokenService
+        this.passwordHashService
       )
 
       const result = await resetPasswordUseCase.execute({ token, password })
@@ -210,8 +218,16 @@ export class AuthController {
 
   async verifyEmail(request: NextRequest): Promise<NextResponse> {
     try {
-      const body = await request.json()
-      const { token } = body
+      // Handle both GET (query params) and POST (body) requests
+      let token: string | null = null
+
+      if (request.method === 'GET') {
+        const { searchParams } = new URL(request.url)
+        token = searchParams.get('token')
+      } else {
+        const body = await request.json()
+        token = body.token
+      }
 
       if (!token) {
         return NextResponse.json({ error: 'トークンは必須です' }, { status: 400 })

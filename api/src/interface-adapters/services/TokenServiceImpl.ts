@@ -65,18 +65,22 @@ export class TokenServiceImpl implements TokenService {
   }
 
   async generatePasswordResetToken(userId: string): Promise<string> {
-    // In the existing system, password reset tokens are stored in the database
-    // For now, we'll return the userId as the token (to be stored in the database)
-    // The actual token generation should be handled by the repository
-    return userId
+    // Generate a random token for password reset
+    const token = this.generateRandomToken()
+
+    // Note: The token should be saved to the database by the use case
+    // This service only generates the token
+    return token
   }
 
   async verifyPasswordResetToken(token: string): Promise<string | null> {
     // This should verify against the database
-    // For now, we'll assume the token is valid if it's a valid UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (uuidRegex.test(token)) {
-      return token // Return the userId
+    // The actual verification should be done in the use case
+    // This method is just a placeholder for token format validation
+    if (token && token.length > 0) {
+      // Return a non-null value to indicate the token format is valid
+      // The actual user lookup will be done in the use case
+      return 'valid'
     }
     return null
   }
@@ -88,7 +92,11 @@ export class TokenServiceImpl implements TokenService {
 
   async generateEmailToken(userId: string): Promise<string> {
     // Generate a unique token for email verification
-    return this.generateRandomToken()
+    const token = this.generateRandomToken()
+
+    // Update user with new token - this should be done in the use case
+    // The token generation should be pure, database update is a side effect
+    return token
   }
 
   async generateEmailVerificationToken(userId: string): Promise<string> {
@@ -98,10 +106,8 @@ export class TokenServiceImpl implements TokenService {
 
   async verifyEmailToken(token: string): Promise<string | null> {
     // This should verify against the database
-    // For now, we'll assume the token is valid if it's not empty
-    if (token && token.length > 0) {
-      return 'mock-user-id' // This should be fetched from the database
-    }
+    // For now, return null to indicate that the token verification should be done elsewhere
+    // The actual implementation should be in the repository layer
     return null
   }
 

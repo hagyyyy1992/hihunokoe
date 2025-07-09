@@ -92,7 +92,9 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(403)
-      expect(data.error).toBe('Please verify your email before logging in')
+      expect(data.error).toBe(
+        'メールアドレスの確認が完了していません。確認メールをご確認ください。'
+      )
     })
 
     it('認証情報が無効な場合、401エラーを返す', async () => {
@@ -190,7 +192,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
 
     it('空のリクエストボディで500エラーを返す', async () => {
@@ -206,7 +208,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
 
     it('空白のみのリクエストボディで500エラーを返す', async () => {
@@ -222,7 +224,7 @@ describe('/api/auth/login (integration test)', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
   })
 })

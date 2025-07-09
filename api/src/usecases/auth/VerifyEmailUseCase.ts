@@ -19,16 +19,10 @@ export class VerifyEmailUseCase {
   async execute(inputData: VerifyEmailInputData): Promise<VerifyEmailOutputData> {
     const { token } = inputData
 
-    // Verify email verification token
-    const userId = await this.tokenService.verifyEmailToken(token)
-    if (!userId) {
-      throw new Error('Invalid or expired verification token')
-    }
-
-    // Find user
-    const user = await this.userRepository.findById(userId)
+    // Find user by email verification token
+    const user = await this.userRepository.findByEmailVerificationToken(token)
     if (!user) {
-      throw new Error('User not found')
+      throw new Error('Invalid or expired verification token')
     }
 
     // Check if already verified
@@ -40,7 +34,7 @@ export class VerifyEmailUseCase {
     }
 
     // Update user email verification status
-    await this.userRepository.verifyEmail(userId)
+    await this.userRepository.verifyEmail(user.id)
 
     // Invalidate the verification token
     await this.tokenService.invalidateEmailToken(token)

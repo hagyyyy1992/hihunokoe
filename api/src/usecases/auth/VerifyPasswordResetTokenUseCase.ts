@@ -18,19 +18,26 @@ export class VerifyPasswordResetTokenUseCase {
 
   async execute(input: VerifyPasswordResetTokenInput): Promise<VerifyPasswordResetTokenOutput> {
     try {
-      // トークンを検証
-      const userId = await this.tokenService.verifyPasswordResetToken(input.token)
+      // Find user by password reset token
+      const user = await this.userRepository.findByPasswordResetToken(input.token)
 
-      if (!userId) {
+      if (!user) {
         return {
           success: false,
           message: '無効なトークンまたは期限切れです',
         }
       }
 
-      // ユーザーの存在確認
-      const user = await this.userRepository.findById(userId)
-      if (!user || user.deletedAt) {
+      // トークンの有効期限をチェック
+      if (user.passwordResetExpires && new Date(user.passwordResetExpires) < new Date()) {
+        return {
+          success: false,
+          message: '無効なトークンまたは期限切れです',
+        }
+      }
+
+      // ユーザーがアクティブか確認
+      if (!user.isActive || user.deletedAt) {
         return {
           success: false,
           message: 'トークンが無効です',

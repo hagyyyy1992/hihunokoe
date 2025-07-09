@@ -1,7 +1,5 @@
-import { User } from '@api/domain/entities/User'
 import { UserRepository } from '@api/domain/repositories/UserRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
 
 export interface ResetPasswordInputData {
   token: string
@@ -16,8 +14,7 @@ export interface ResetPasswordOutputData {
 export class ResetPasswordUseCase {
   constructor(
     private userRepository: UserRepository,
-    private passwordHashService: PasswordHashService,
-    private tokenService: TokenService
+    private passwordHashService: PasswordHashService
   ) {}
 
   async execute(inputData: ResetPasswordInputData): Promise<ResetPasswordOutputData> {
@@ -25,19 +22,18 @@ export class ResetPasswordUseCase {
 
     // Validate password
     if (password.length < 8) {
-      throw new Error('Password must be at least 8 characters long')
+      throw new Error('パスワードは8文字以上で入力してください')
     }
 
-    // Verify reset token
-    const userId = await this.tokenService.verifyPasswordResetToken(token)
-    if (!userId) {
+    // Find user by password reset token
+    const user = await this.userRepository.findByPasswordResetToken(token)
+    if (!user) {
       throw new Error('Invalid or expired reset token')
     }
 
-    // Find user
-    const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new Error('User not found')
+    // Check if token is expired
+    if (user.passwordResetExpires && new Date(user.passwordResetExpires) < new Date()) {
+      throw new Error('Invalid or expired reset token')
     }
 
     // Check if user is active
@@ -48,11 +44,12 @@ export class ResetPasswordUseCase {
     // Hash new password
     const hashedPassword = await this.passwordHashService.hash(password)
 
-    // Update user password
-    await this.userRepository.updatePassword(userId, hashedPassword)
-
-    // Invalidate the reset token
-    await this.tokenService.invalidatePasswordResetToken(token)
+    // Update user password and clear reset token
+    await this.userRepository.update(user.id, {
+      passwordHash: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    })
 
     return {
       success: true,

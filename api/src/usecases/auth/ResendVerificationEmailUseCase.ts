@@ -40,6 +40,11 @@ export class ResendVerificationEmailUseCase {
     // 新しい確認トークンを生成
     const verificationToken = await this.tokenService.generateEmailVerificationToken(user.id)
 
+    // トークンをユーザーに保存
+    await this.userRepository.update(user.id, {
+      emailVerificationToken: verificationToken,
+    })
+
     // 確認メールを送信
     try {
       await this.emailService.sendVerificationEmail(

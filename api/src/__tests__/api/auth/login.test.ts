@@ -154,7 +154,9 @@ describe('AuthController - login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(403)
-      expect(data.error).toBe('Please verify your email before logging in')
+      expect(data.error).toBe(
+        'メールアドレスの確認が完了していません。確認メールをご確認ください。'
+      )
     })
   })
 
@@ -171,7 +173,7 @@ describe('AuthController - login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
   })
 
@@ -189,7 +191,7 @@ describe('AuthController - login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
 
     it('無効なJSONで例外を適切に処理する', async () => {
@@ -205,7 +207,7 @@ describe('AuthController - login', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('An error occurred during login')
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
   })
 })

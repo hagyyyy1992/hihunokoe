@@ -20,48 +20,65 @@ export class ForgotPasswordUseCase {
   ) {}
 
   async execute(inputData: ForgotPasswordInputData): Promise<ForgotPasswordOutputData> {
-    const { email } = inputData
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      throw new Error('Invalid email format')
-    }
-
-    // Find user by email
-    const user = await this.userRepository.findByEmail(email)
-
-    // Always return success for security reasons
-    // Even if user doesn't exist, we don't reveal this information
-    if (!user) {
-      return {
-        success: true,
-        message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
-      }
-    }
-
-    // Check if user is active
-    if (!user.isActive || user.deletedAt) {
-      return {
-        success: true,
-        message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
-      }
-    }
-
-    // Generate password reset token
-    const resetToken = await this.tokenService.generatePasswordResetToken(user.id)
-
-    // Send password reset email
     try {
-      await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken)
-    } catch (error) {
-      console.error('Failed to send password reset email:', error)
-      // Don't throw error for security reasons
-    }
+      const { email } = inputData
 
-    return {
-      success: true,
-      message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        throw new Error('Invalid email format')
+      }
+
+      // Find user by email
+      const user = await this.userRepository.findByEmail(email)
+
+      // Always return success for security reasons
+      // Even if user doesn't exist, we don't reveal this information
+      if (!user) {
+        return {
+          success: true,
+          message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
+        }
+      }
+
+      // Check if user is active
+      if (!user.isActive || user.deletedAt) {
+        return {
+          success: true,
+          message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
+        }
+      }
+
+      // Generate password reset token
+      const resetToken = await this.tokenService.generatePasswordResetToken(user.id)
+
+      // Save the token to the database
+      const expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      await this.userRepository.update(user.id, {
+        passwordResetToken: resetToken,
+        passwordResetExpires: expiryDate,
+      })
+
+      // Send password reset email
+      try {
+        await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken)
+      } catch (error) {
+        console.error('Failed to send password reset email:', error)
+        // Don't throw error for security reasons
+      }
+
+      return {
+        success: true,
+        message: 'パスワードリセットメールを送信しました。メールをご確認ください。',
+      }
+    } catch (error) {
+      console.error('ForgotPasswordUseCase error:', error)
+      console.error('Error details:', {
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : 'No stack trace',
+        errorType: error?.constructor?.name || 'Unknown',
+      })
+      throw error
     }
   }
 }
