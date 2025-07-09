@@ -217,9 +217,24 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        return (
-          formData.title && formData.cosmeticName && formData.content && formData.cosmeticCategory
-        )
+        const isValid =
+          formData.title.trim() &&
+          formData.cosmeticName.trim() &&
+          formData.content.trim() &&
+          formData.cosmeticCategory
+
+        // デバッグ用：バリデーション状態をログ出力
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Step 1 validation:', {
+            title: formData.title.trim(),
+            cosmeticName: formData.cosmeticName.trim(),
+            content: formData.content.trim(),
+            cosmeticCategory: formData.cosmeticCategory,
+            isValid,
+          })
+        }
+
+        return isValid
       case 2:
         return true // オプショナル
       case 3:

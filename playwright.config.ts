@@ -78,8 +78,11 @@ export default defineConfig({
       use: {
         ...devices['Pixel 5'],
         // Mobile Chrome専用の設定
-        actionTimeout: 15000,
-        navigationTimeout: 30000,
+        actionTimeout: 20000,
+        navigationTimeout: 40000,
+        launchOptions: {
+          slowMo: 200, // Mobile Chromeでの操作を少し遅くする
+        },
       },
     },
     {

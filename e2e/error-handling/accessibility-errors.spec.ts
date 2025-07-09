@@ -21,37 +21,34 @@ test.describe('アクセシビリティエラーハンドリング', () => {
 
       // Tabキーでフォーカスを移動
       await page.keyboard.press('Tab') // メールアドレスフィールドにフォーカス
-      await page.keyboard.type('test@example.com')
+      await page.keyboard.type('invalid@example.com')
 
       await page.keyboard.press('Tab') // パスワードフィールドにフォーカス
-      await page.keyboard.type('password123')
+      await page.keyboard.type('wrongpassword')
 
       await page.keyboard.press('Tab') // ログインボタンにフォーカス
       await page.keyboard.press('Enter') // ログインボタンをクリック
 
       // エラーメッセージが表示されるまで待機
-      await page.waitForTimeout(2000)
+      await page.waitForSelector('[data-testid="error-message"]', {
+        timeout: 10000,
+        state: 'visible',
+      })
 
       // エラーメッセージが表示されることを確認
-      const errorMessages = [
+      const errorMessage = page.getByTestId('error-message')
+      await expect(errorMessage).toBeVisible()
+
+      // エラーメッセージの内容を確認
+      const errorText = await errorMessage.textContent()
+      const expectedMessages = [
         'メールアドレスまたはパスワードが間違っています',
         'ログインに失敗しました',
         'エラーが発生しました',
       ]
 
-      let errorFound = false
-      for (const message of errorMessages) {
-        const isVisible = await page
-          .getByText(message)
-          .isVisible()
-          .catch(() => false)
-        if (isVisible) {
-          errorFound = true
-          break
-        }
-      }
-
-      expect(errorFound).toBe(true)
+      const hasValidError = expectedMessages.some(msg => errorText?.includes(msg) || false)
+      expect(hasValidError).toBe(true)
 
       // キーボードナビゲーションが正しく動作したことを確認
       console.log('[TEST] Keyboard navigation test completed')
