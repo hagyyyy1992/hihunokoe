@@ -157,13 +157,25 @@ test.describe('投稿作成', () => {
     await page.locator('textarea[name="content"]').fill('テスト内容')
     await page.locator('select[name="cosmeticCategory"]').selectOption('toner')
 
+    // ステップ1のバリデーションが通るまで待機
+    const nextButton = page.getByRole('button', { name: '次へ' })
+    await nextButton.waitFor({ state: 'visible' })
+
+    // バリデーションが通るまで待機（文字数制限チェックがある）
+    await expect(nextButton).toBeEnabled({ timeout: 5000 })
+
     // ステップ4まで進む
     for (let i = 1; i < 4; i++) {
-      const nextButton = page.getByRole('button', { name: '次へ' })
-      await nextButton.waitFor({ state: 'visible' })
-      await expect(nextButton).toBeEnabled()
       await nextButton.click()
       await page.waitForTimeout(1000)
+
+      // 次のステップの「次へ」ボタンを取得（ステップ2、3、4で変わる可能性がある）
+      const currentStepButton = page.getByRole('button', { name: '次へ' })
+      if (i < 3) {
+        // ステップ4では「次へ」ボタンはない
+        await currentStepButton.waitFor({ state: 'visible' })
+        await expect(currentStepButton).toBeEnabled({ timeout: 5000 })
+      }
     }
 
     const moodSelect = page.locator('[name="moodTag"]')
