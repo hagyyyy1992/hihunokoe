@@ -301,6 +301,7 @@ test.describe('パフォーマンスエラーハンドリング', () => {
       await expect(page.locator('h3:has-text("感想とまとめ")')).toBeVisible()
 
       // ステップ4: 総合的な感想を入力
+      await page.getByTestId('mood-tag-select').waitFor({ state: 'visible' })
       await page.getByTestId('mood-tag-select').selectOption('good')
 
       // 投稿ボタンを複数回クリック（重複送信防止のテスト）
