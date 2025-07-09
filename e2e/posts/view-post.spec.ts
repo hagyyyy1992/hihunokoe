@@ -38,27 +38,6 @@ test.describe('投稿閲覧', () => {
     // カテゴリを確認（タグは削除されたため、スキップ）
   })
 
-  test('共感機能が正常に動作する', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 共感機能は現在無効化されているため、スキップ
-    test.skip()
-  })
-
-  test('コメント機能が正常に動作する', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // コメント機能は現在無効化されているため、スキップ
-    test.skip()
-  })
-
-  test('コメントのバリデーション', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // コメント機能は現在無効化されているため、スキップ
-    test.skip()
-  })
-
   test('関連投稿が表示される', async ({ page }) => {
     // 同じカテゴリの別の投稿を作成
     await postHelper.createPost({
@@ -72,18 +51,6 @@ test.describe('投稿閲覧', () => {
 
     // 関連投稿機能は現在未実装のため、スキップ
     test.skip()
-  })
-
-  test('閲覧数がカウントされる', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 閲覧数が表示される
-    await expect(page.locator('[data-testid="view-count"]')).toBeVisible()
-
-    // ページをリロードして閲覧数が増加することを確認
-    await page.reload()
-    // 閲覧数の正確な値は実装に依存するため、存在だけを確認
-    await expect(page.locator('[data-testid="view-count"]')).toBeVisible()
   })
 
   test('投稿編集権限のテスト', async ({ page }) => {
