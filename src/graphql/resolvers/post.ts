@@ -45,8 +45,33 @@ export const postResolvers = {
           cosmeticName: string
           cosmeticCategory?: string
           skinType?: string
-          usageSituation?: any
-          experienceDetails?: any
+          usageSituation?: {
+            season?: string
+            timeOfDay?: string
+            menstrualCycle?: string
+            skinCondition?: string
+            weatherCondition?: string
+          }
+          experienceDetails?: {
+            fragrance?: {
+              type?: string
+              intensity?: string
+              description?: string
+            }
+            texture?: {
+              type?: string
+              spreadability?: string
+              absorption?: string
+              description?: string
+            }
+            afterUse?: {
+              moisture?: string
+              texture?: string
+              comfort?: string
+              duration?: string
+              description?: string
+            }
+          }
           moodTag?: string
         }
       },
@@ -68,8 +93,33 @@ export const postResolvers = {
           cosmeticName?: string
           cosmeticCategory?: string
           skinType?: string
-          usageSituation?: any
-          experienceDetails?: any
+          usageSituation?: {
+            season?: string
+            timeOfDay?: string
+            menstrualCycle?: string
+            skinCondition?: string
+            weatherCondition?: string
+          }
+          experienceDetails?: {
+            fragrance?: {
+              type?: string
+              intensity?: string
+              description?: string
+            }
+            texture?: {
+              type?: string
+              spreadability?: string
+              absorption?: string
+              description?: string
+            }
+            afterUse?: {
+              moisture?: string
+              texture?: string
+              comfort?: string
+              duration?: string
+              description?: string
+            }
+          }
           moodTag?: string
         }
       },

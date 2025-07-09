@@ -827,7 +827,10 @@ export default function PostDetailPage() {
         </div>
 
         {/* 関連投稿セクション（スタブ実装） */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8" data-testid="related-posts">
+        <div
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8"
+          data-testid="related-posts"
+        >
           <h3 className="text-lg font-semibold mb-4">関連する投稿</h3>
           <p className="text-gray-500">関連投稿機能は開発中です。</p>
         </div>
