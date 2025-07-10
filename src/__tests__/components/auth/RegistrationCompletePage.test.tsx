@@ -7,7 +7,7 @@ import {
 } from '../../helpers/rtl-utils'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import { mockApiResponse, setupFetchMock, createMockFetch } from '../../helpers/component-mocks'
-import RegistrationCompletePage from '../../../src/app/auth/registration-complete/page'
+import RegistrationCompletePage from '@/app/auth/registration-complete/page'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -22,7 +22,15 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>
@@ -161,7 +169,9 @@ describe('RegistrationCompletePage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<RegistrationCompletePage />)
@@ -180,7 +190,11 @@ describe('RegistrationCompletePage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: any) => void = () => {}
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void = () => {}
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })

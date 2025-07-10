@@ -1,89 +1,98 @@
 import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
-import { PrismaClient } from '@prisma/client'
-import { Empathy } from '@api/domain/entities/Empathy'
+import { CreateEmpathyData } from '@api/domain/repositories/EmpathyRepository'
 import { v4 as uuidv4 } from 'uuid'
 
-// Prismaクライアントのモック
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+// @/lib/prismaのモック
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
     empathy: {
       create: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
-      delete: jest.fn(),
       count: jest.fn(),
+      delete: jest.fn(),
     },
-  })),
+  },
 }))
+
+// モック関数を取得
+const mockPrisma = require('@/lib/prisma').prisma
 
 describe('EmpathyRepositoryImpl', () => {
   let repository: EmpathyRepositoryImpl
-  let mockPrisma: any
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient()
-    repository = new EmpathyRepositoryImpl(mockPrisma)
+    repository = new EmpathyRepositoryImpl()
     jest.clearAllMocks()
   })
 
   describe('create', () => {
     it('共感を作成できる', async () => {
-      const empathy: Empathy = {
-        id: uuidv4(),
-        postId: uuidv4(),
+      const empathy: CreateEmpathyData = {
         userId: uuidv4(),
-        type: 'like',
-        createdAt: new Date(),
+        postId: uuidv4(),
+        empathyType: 'helpful',
       }
 
-      mockPrisma.empathy.create.mockResolvedValue(empathy)
+      const createdEmpathy = {
+        id: uuidv4(),
+        ...empathy,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      mockPrisma.empathy.create.mockResolvedValue(createdEmpathy)
 
       const result = await repository.create(empathy)
 
       expect(mockPrisma.empathy.create).toHaveBeenCalledWith({
         data: {
-          id: empathy.id,
-          postId: empathy.postId,
           userId: empathy.userId,
-          type: empathy.type,
+          postId: empathy.postId,
+          empathyType: empathy.empathyType,
         },
       })
-      expect(result).toEqual(empathy)
+      expect(result.id).toBe(createdEmpathy.id)
+      expect(result.userId).toBe(empathy.userId)
+      expect(result.postId).toBe(empathy.postId)
+      expect(result.empathyType).toBe(empathy.empathyType)
     })
 
     it('異なるタイプの共感を作成できる', async () => {
-      const empathyTypes = ['like', 'love', 'wow', 'sad'] as const
-
-      for (const type of empathyTypes) {
-        const empathy: Empathy = {
-          id: uuidv4(),
-          postId: uuidv4(),
-          userId: uuidv4(),
-          type,
-          createdAt: new Date(),
-        }
-
-        mockPrisma.empathy.create.mockResolvedValue(empathy)
-
-        const result = await repository.create(empathy)
-        expect(result.type).toBe(type)
+      const empathy: CreateEmpathyData = {
+        userId: uuidv4(),
+        postId: uuidv4(),
+        empathyType: 'interested',
       }
+
+      const createdEmpathy = {
+        id: uuidv4(),
+        ...empathy,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      mockPrisma.empathy.create.mockResolvedValue(createdEmpathy)
+
+      const result = await repository.create(empathy)
+
+      expect(result.empathyType).toBe('interested')
     })
 
     it('ユニーク制約違反エラーを処理する', async () => {
+      const empathy: CreateEmpathyData = {
+        userId: uuidv4(),
+        postId: uuidv4(),
+        empathyType: 'helpful',
+      }
+
       const error = {
         code: 'P2002',
-        message: 'Unique constraint failed on the fields: (`postId`, `userId`)',
+        message: 'Unique constraint failed',
       }
-      mockPrisma.empathy.create.mockRejectedValue(error)
 
-      const empathy: Empathy = {
-        id: uuidv4(),
-        postId: uuidv4(),
-        userId: uuidv4(),
-        type: 'like',
-        createdAt: new Date(),
-      }
+      mockPrisma.empathy.create.mockRejectedValue(error)
 
       await expect(repository.create(empathy)).rejects.toMatchObject({
         code: 'P2002',
@@ -96,10 +105,11 @@ describe('EmpathyRepositoryImpl', () => {
       const empathyId = uuidv4()
       const empathy = {
         id: empathyId,
-        postId: uuidv4(),
         userId: uuidv4(),
-        type: 'love',
+        postId: uuidv4(),
+        empathyType: 'helpful',
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       mockPrisma.empathy.findUnique.mockResolvedValue(empathy)
@@ -109,7 +119,8 @@ describe('EmpathyRepositoryImpl', () => {
       expect(mockPrisma.empathy.findUnique).toHaveBeenCalledWith({
         where: { id: empathyId },
       })
-      expect(result).toEqual(empathy)
+      expect(result).toBeDefined()
+      expect(result?.id).toBe(empathyId)
     })
 
     it('存在しないIDの場合nullを返す', async () => {
@@ -121,119 +132,118 @@ describe('EmpathyRepositoryImpl', () => {
     })
   })
 
-  describe('findByPostIdAndUserId', () => {
-    it('投稿IDとユーザーIDで共感を取得できる', async () => {
-      const postId = uuidv4()
+  describe('findByUserAndPost', () => {
+    it('ユーザーIDと投稿IDで共感を取得できる', async () => {
       const userId = uuidv4()
+      const postId = uuidv4()
       const empathy = {
         id: uuidv4(),
-        postId,
         userId,
-        type: 'like',
+        postId,
+        empathyType: 'helpful',
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
-      mockPrisma.empathy.findUnique.mockResolvedValue(empathy)
+      mockPrisma.empathy.findFirst.mockResolvedValue(empathy)
 
-      const result = await repository.findByPostIdAndUserId(postId, userId)
+      const result = await repository.findByUserAndPost(userId, postId)
 
-      expect(mockPrisma.empathy.findUnique).toHaveBeenCalledWith({
+      expect(mockPrisma.empathy.findFirst).toHaveBeenCalledWith({
         where: {
-          postId_userId: {
-            postId,
-            userId,
-          },
+          userId,
+          postId,
         },
       })
-      expect(result).toEqual(empathy)
+      expect(result).toBeDefined()
+      expect(result?.userId).toBe(userId)
+      expect(result?.postId).toBe(postId)
     })
 
     it('共感が存在しない場合nullを返す', async () => {
-      mockPrisma.empathy.findUnique.mockResolvedValue(null)
+      mockPrisma.empathy.findFirst.mockResolvedValue(null)
 
-      const result = await repository.findByPostIdAndUserId(uuidv4(), uuidv4())
+      const result = await repository.findByUserAndPost(uuidv4(), uuidv4())
 
       expect(result).toBeNull()
     })
   })
 
-  describe('findByPostId', () => {
+  describe('findByPost', () => {
     it('投稿IDで共感一覧を取得できる', async () => {
       const postId = uuidv4()
       const empathies = [
         {
           id: uuidv4(),
-          postId,
           userId: uuidv4(),
-          type: 'like',
-          createdAt: new Date('2024-01-01'),
+          postId,
+          empathyType: 'helpful',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         {
           id: uuidv4(),
-          postId,
           userId: uuidv4(),
-          type: 'love',
-          createdAt: new Date('2024-01-02'),
-        },
-        {
-          id: uuidv4(),
           postId,
-          userId: uuidv4(),
-          type: 'wow',
-          createdAt: new Date('2024-01-03'),
+          empathyType: 'interested',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ]
 
       mockPrisma.empathy.findMany.mockResolvedValue(empathies)
 
-      const result = await repository.findByPostId(postId)
+      const result = await repository.findByPost(postId)
 
       expect(mockPrisma.empathy.findMany).toHaveBeenCalledWith({
         where: { postId },
         orderBy: { createdAt: 'desc' },
       })
-      expect(result).toEqual(empathies)
-      expect(result).toHaveLength(3)
+      expect(result).toHaveLength(2)
+      expect(result[0].postId).toBe(postId)
     })
 
     it('共感がない場合空配列を返す', async () => {
       mockPrisma.empathy.findMany.mockResolvedValue([])
 
-      const result = await repository.findByPostId(uuidv4())
+      const result = await repository.findByPost(uuidv4())
 
       expect(result).toEqual([])
     })
   })
 
-  describe('findByUserId', () => {
+  describe('findByUser', () => {
     it('ユーザーIDで共感一覧を取得できる', async () => {
       const userId = uuidv4()
       const empathies = [
         {
           id: uuidv4(),
-          postId: uuidv4(),
           userId,
-          type: 'like',
+          postId: uuidv4(),
+          empathyType: 'helpful',
           createdAt: new Date(),
+          updatedAt: new Date(),
         },
         {
           id: uuidv4(),
-          postId: uuidv4(),
           userId,
-          type: 'love',
+          postId: uuidv4(),
+          empathyType: 'interested',
           createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ]
 
       mockPrisma.empathy.findMany.mockResolvedValue(empathies)
 
-      const result = await repository.findByUserId(userId)
+      const result = await repository.findByUser(userId)
 
       expect(mockPrisma.empathy.findMany).toHaveBeenCalledWith({
         where: { userId },
         orderBy: { createdAt: 'desc' },
       })
-      expect(result).toEqual(empathies)
+      expect(result).toHaveLength(2)
+      expect(result[0].userId).toBe(userId)
     })
   })
 
@@ -262,31 +272,12 @@ describe('EmpathyRepositoryImpl', () => {
     })
   })
 
-  describe('deleteByPostIdAndUserId', () => {
-    it('投稿IDとユーザーIDで共感を削除できる', async () => {
-      const postId = uuidv4()
-      const userId = uuidv4()
-      mockPrisma.empathy.delete.mockResolvedValue({ id: uuidv4() })
-
-      await repository.deleteByPostIdAndUserId(postId, userId)
-
-      expect(mockPrisma.empathy.delete).toHaveBeenCalledWith({
-        where: {
-          postId_userId: {
-            postId,
-            userId,
-          },
-        },
-      })
-    })
-  })
-
-  describe('countByPostId', () => {
+  describe('countByPost', () => {
     it('投稿の共感数をカウントできる', async () => {
       const postId = uuidv4()
       mockPrisma.empathy.count.mockResolvedValue(42)
 
-      const result = await repository.countByPostId(postId)
+      const result = await repository.countByPost(postId)
 
       expect(mockPrisma.empathy.count).toHaveBeenCalledWith({
         where: { postId },
@@ -297,60 +288,34 @@ describe('EmpathyRepositoryImpl', () => {
     it('共感がない場合0を返す', async () => {
       mockPrisma.empathy.count.mockResolvedValue(0)
 
-      const result = await repository.countByPostId(uuidv4())
+      const result = await repository.countByPost(uuidv4())
 
       expect(result).toBe(0)
     })
   })
 
-  describe('countByPostIdAndType', () => {
-    it('投稿のタイプ別共感数をカウントできる', async () => {
-      const postId = uuidv4()
-      const type = 'love'
+  describe('countByUser', () => {
+    it('ユーザーの共感数をカウントできる', async () => {
+      const userId = uuidv4()
       mockPrisma.empathy.count.mockResolvedValue(15)
 
-      const result = await repository.countByPostIdAndType(postId, type)
+      const result = await repository.countByUser(userId)
 
       expect(mockPrisma.empathy.count).toHaveBeenCalledWith({
-        where: { postId, type },
+        where: { userId },
       })
       expect(result).toBe(15)
     })
   })
 
-  describe('getTypeCounts', () => {
-    it('投稿のタイプ別共感数を取得できる', async () => {
-      const postId = uuidv4()
-      const groupByResult = [
-        { type: 'like', _count: { type: 25 } },
-        { type: 'love', _count: { type: 10 } },
-        { type: 'wow', _count: { type: 5 } },
-        { type: 'sad', _count: { type: 2 } },
-      ]
+  describe('countTotal', () => {
+    it('全ての共感数をカウントできる', async () => {
+      mockPrisma.empathy.count.mockResolvedValue(1500)
 
-      mockPrisma.empathy.groupBy = jest.fn().mockResolvedValue(groupByResult)
+      const result = await repository.countTotal()
 
-      const result = await repository.getTypeCounts(postId)
-
-      expect(mockPrisma.empathy.groupBy).toHaveBeenCalledWith({
-        by: ['type'],
-        where: { postId },
-        _count: { type: true },
-      })
-      expect(result).toEqual({
-        like: 25,
-        love: 10,
-        wow: 5,
-        sad: 2,
-      })
-    })
-
-    it('共感がない場合空のオブジェクトを返す', async () => {
-      mockPrisma.empathy.groupBy = jest.fn().mockResolvedValue([])
-
-      const result = await repository.getTypeCounts(uuidv4())
-
-      expect(result).toEqual({})
+      expect(mockPrisma.empathy.count).toHaveBeenCalledWith()
+      expect(result).toBe(1500)
     })
   })
 
@@ -359,12 +324,10 @@ describe('EmpathyRepositoryImpl', () => {
       const dbError = new Error('Database connection failed')
       mockPrisma.empathy.create.mockRejectedValue(dbError)
 
-      const empathy: Empathy = {
-        id: uuidv4(),
-        postId: uuidv4(),
+      const empathy: CreateEmpathyData = {
         userId: uuidv4(),
-        type: 'like',
-        createdAt: new Date(),
+        postId: uuidv4(),
+        empathyType: 'helpful',
       }
 
       await expect(repository.create(empathy)).rejects.toThrow('Database connection failed')

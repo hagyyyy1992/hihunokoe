@@ -12,7 +12,16 @@ jest.mock('next/navigation', () => ({
 }))
 
 jest.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, className, ...props }: any) => (
+  Button: ({
+    children,
+    onClick,
+    className,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => (
     <button onClick={onClick} className={className} {...props}>
       {children}
     </button>
@@ -20,8 +29,21 @@ jest.mock('@/components/ui/Button', () => ({
 }))
 
 jest.mock('@/components/ui/avatar', () => ({
-  Avatar: ({ children, className }: any) => <div className={className}>{children}</div>,
-  AvatarFallback: ({ children }: any) => <div>{children}</div>,
+  Avatar: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div className={className}>{children}</div>,
+  AvatarFallback: ({
+    children,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div>{children}</div>,
 }))
 
 jest.mock('lucide-react', () => ({
@@ -37,7 +59,16 @@ jest.mock('lucide-react', () => ({
 }))
 
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, onClick, className }: any) {
+  return function MockLink({
+    children,
+    href,
+    onClick,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) {
     return (
       <a href={href} onClick={onClick} className={className}>
         {children}
@@ -82,7 +113,7 @@ describe('AdminLayout', () => {
 
   it('shows loading state initially', () => {
     // Mock fetch to never resolve to simulate loading
-    mockFetch.mockImplementation(() => new Promise(() => {}))
+    mockFetch.mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
 
     render(
       <AdminLayout>

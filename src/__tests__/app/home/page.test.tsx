@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import HomePage from '@/app/home/page'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -16,7 +16,15 @@ jest.mock('@/lib/auth/AuthContext', () => ({
 }))
 
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, ...props }: any) {
+  return function MockLink({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) {
     return (
       <a href={href} {...props}>
         {children}
@@ -134,7 +142,9 @@ describe('HomePage', () => {
     })
     ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Fetch error'))
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
 
     render(<HomePage />)
 

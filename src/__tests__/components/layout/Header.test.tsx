@@ -17,7 +17,16 @@ jest.mock('@/lib/auth/AuthContext', () => ({
 }))
 
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, className, ...props }: any) {
+  return function MockLink({
+    children,
+    href,
+    className,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) {
     return (
       <a href={href} className={className} {...props}>
         {children}

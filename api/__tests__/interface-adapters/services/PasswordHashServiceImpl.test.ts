@@ -1,27 +1,20 @@
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 
-// bcryptのモックを個別に定義
-const mockHash = jest.fn()
-const mockCompare = jest.fn()
+// bcryptjsモジュール全体をモック
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}))
 
-// bcryptモジュール全体をモック
-jest.mock('bcrypt', () => {
-  return {
-    default: {
-      hash: mockHash,
-      compare: mockCompare,
-    },
-    hash: mockHash,
-    compare: mockCompare,
-  }
-})
+// モック関数を取得
+const mockBcrypt = require('bcryptjs')
 
 describe('PasswordHashServiceImpl', () => {
   let passwordHashService: PasswordHashServiceImpl
 
   beforeEach(() => {
-    jest.clearAllMocks()
     passwordHashService = new PasswordHashServiceImpl()
+    jest.clearAllMocks()
   })
 
   describe('hash', () => {
@@ -29,11 +22,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = 'SecurePassword123!'
       const hashedPassword = '$2b$10$abcdefghijklmnopqrstuvwxyz123456'
 
-      mockHash.mockResolvedValue(hashedPassword as never)
+      mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
 
       const result = await passwordHashService.hash(password)
 
-      expect(mockHash).toHaveBeenCalledWith(password, 10)
+      expect(mockBcrypt.hash).toHaveBeenCalledWith(password, 10)
       expect(result).toBe(hashedPassword)
     })
 
@@ -41,11 +34,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = ''
       const hashedPassword = '$2b$10$emptypasswordhash'
 
-      mockHash.mockResolvedValue(hashedPassword as never)
+      mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
 
       const result = await passwordHashService.hash(password)
 
-      expect(mockHash).toHaveBeenCalledWith(password, 10)
+      expect(mockBcrypt.hash).toHaveBeenCalledWith(password, 10)
       expect(result).toBe(hashedPassword)
     })
 
@@ -53,11 +46,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = 'a'.repeat(100)
       const hashedPassword = '$2b$10$longpasswordhash'
 
-      mockHash.mockResolvedValue(hashedPassword as never)
+      mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
 
       const result = await passwordHashService.hash(password)
 
-      expect(mockHash).toHaveBeenCalledWith(password, 10)
+      expect(mockBcrypt.hash).toHaveBeenCalledWith(password, 10)
       expect(result).toBe(hashedPassword)
     })
 
@@ -65,17 +58,17 @@ describe('PasswordHashServiceImpl', () => {
       const password = '!@#$%^&*()_+-=[]{}|;:,.<>?'
       const hashedPassword = '$2b$10$specialcharshash'
 
-      mockHash.mockResolvedValue(hashedPassword as never)
+      mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
 
       const result = await passwordHashService.hash(password)
 
-      expect(mockHash).toHaveBeenCalledWith(password, 10)
+      expect(mockBcrypt.hash).toHaveBeenCalledWith(password, 10)
       expect(result).toBe(hashedPassword)
     })
 
     it('ハッシュ化でエラーが発生した場合、エラーを伝播する', async () => {
       const error = new Error('Hashing failed')
-      mockHash.mockRejectedValue(error)
+      mockBcrypt.hash.mockRejectedValue(error)
 
       await expect(passwordHashService.hash('password')).rejects.toThrow('Hashing failed')
     })
@@ -86,11 +79,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = 'CorrectPassword123'
       const hashedPassword = '$2b$10$correcthash'
 
-      mockCompare.mockResolvedValue(true as never)
+      mockBcrypt.compare.mockResolvedValue(true as never)
 
       const result = await passwordHashService.compare(password, hashedPassword)
 
-      expect(mockCompare).toHaveBeenCalledWith(password, hashedPassword)
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(password, hashedPassword)
       expect(result).toBe(true)
     })
 
@@ -98,11 +91,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = 'WrongPassword123'
       const hashedPassword = '$2b$10$correcthash'
 
-      mockCompare.mockResolvedValue(false as never)
+      mockBcrypt.compare.mockResolvedValue(false as never)
 
       const result = await passwordHashService.compare(password, hashedPassword)
 
-      expect(mockCompare).toHaveBeenCalledWith(password, hashedPassword)
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(password, hashedPassword)
       expect(result).toBe(false)
     })
 
@@ -110,11 +103,11 @@ describe('PasswordHashServiceImpl', () => {
       const password = ''
       const hashedPassword = '$2b$10$emptypasswordhash'
 
-      mockCompare.mockResolvedValue(false as never)
+      mockBcrypt.compare.mockResolvedValue(false as never)
 
       const result = await passwordHashService.compare(password, hashedPassword)
 
-      expect(mockCompare).toHaveBeenCalledWith(password, hashedPassword)
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(password, hashedPassword)
       expect(result).toBe(false)
     })
 
@@ -122,17 +115,17 @@ describe('PasswordHashServiceImpl', () => {
       const password = 'password'
       const invalidHash = 'not-a-valid-hash'
 
-      mockCompare.mockResolvedValue(false as never)
+      mockBcrypt.compare.mockResolvedValue(false as never)
 
       const result = await passwordHashService.compare(password, invalidHash)
 
-      expect(mockCompare).toHaveBeenCalledWith(password, invalidHash)
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(password, invalidHash)
       expect(result).toBe(false)
     })
 
     it('比較でエラーが発生した場合、エラーを伝播する', async () => {
       const error = new Error('Comparison failed')
-      mockCompare.mockRejectedValue(error)
+      mockBcrypt.compare.mockRejectedValue(error)
 
       await expect(passwordHashService.compare('password', '$2b$10$hash')).rejects.toThrow(
         'Comparison failed'
@@ -147,21 +140,23 @@ describe('PasswordHashServiceImpl', () => {
       const hash2 = '$2b$10$hash2zyxwvutsrqponmlkjihgfedcba'
 
       // 最初の呼び出し
-      mockHash.mockResolvedValueOnce(hash1 as never)
+      mockBcrypt.hash.mockResolvedValueOnce(hash1 as never)
       const result1 = await passwordHashService.hash(password)
 
       // 2回目の呼び出し
-      mockHash.mockResolvedValueOnce(hash2 as never)
+      mockBcrypt.hash.mockResolvedValueOnce(hash2 as never)
       const result2 = await passwordHashService.hash(password)
 
       expect(result1).not.toBe(result2)
-      expect(mockHash).toHaveBeenCalledTimes(2)
+      expect(mockBcrypt.hash).toHaveBeenCalledTimes(2)
     })
 
     it('ソルトラウンド数が10であることを確認', async () => {
+      mockBcrypt.hash.mockResolvedValue('$2b$10$testhash')
+
       await passwordHashService.hash('password')
 
-      expect(mockHash).toHaveBeenCalledWith('password', 10)
+      expect(mockBcrypt.hash).toHaveBeenCalledWith('password', 10)
     })
   })
 
@@ -170,7 +165,7 @@ describe('PasswordHashServiceImpl', () => {
       const passwords = ['password1', 'password2', 'password3']
       const hashes = ['$2b$10$hash1', '$2b$10$hash2', '$2b$10$hash3']
 
-      mockHash
+      mockBcrypt.hash
         .mockResolvedValueOnce(hashes[0] as never)
         .mockResolvedValueOnce(hashes[1] as never)
         .mockResolvedValueOnce(hashes[2] as never)
@@ -178,7 +173,7 @@ describe('PasswordHashServiceImpl', () => {
       const results = await Promise.all(passwords.map(pwd => passwordHashService.hash(pwd)))
 
       expect(results).toEqual(hashes)
-      expect(mockHash).toHaveBeenCalledTimes(3)
+      expect(mockBcrypt.hash).toHaveBeenCalledTimes(3)
     })
 
     it('複数のパスワードを同時に比較できる', async () => {
@@ -188,7 +183,7 @@ describe('PasswordHashServiceImpl', () => {
         { password: 'correct3', hash: '$2b$10$hash3', expected: true },
       ]
 
-      mockCompare
+      mockBcrypt.compare
         .mockResolvedValueOnce(true as never)
         .mockResolvedValueOnce(false as never)
         .mockResolvedValueOnce(true as never)
@@ -198,7 +193,7 @@ describe('PasswordHashServiceImpl', () => {
       )
 
       expect(results).toEqual([true, false, true])
-      expect(mockCompare).toHaveBeenCalledTimes(3)
+      expect(mockBcrypt.compare).toHaveBeenCalledTimes(3)
     })
   })
 })

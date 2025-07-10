@@ -6,7 +6,15 @@ import NotFound from '@/app/not-found'
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, ...props }: any) {
+  return function MockLink({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) {
     return (
       <a href={href} {...props}>
         {children}

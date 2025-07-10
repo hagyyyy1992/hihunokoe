@@ -11,7 +11,18 @@ jest.mock('next/navigation', () => ({
 }))
 
 jest.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, disabled, type, className, ...props }: any) => (
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    type,
+    className,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => (
     <button onClick={onClick} disabled={disabled} type={type} className={className} {...props}>
       {children}
     </button>
@@ -19,15 +30,60 @@ jest.mock('@/components/ui/Button', () => ({
 }))
 
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className}>{children}</div>,
-  CardContent: ({ children }: any) => <div>{children}</div>,
-  CardDescription: ({ children }: any) => <p>{children}</p>,
-  CardHeader: ({ children, className }: any) => <div className={className}>{children}</div>,
-  CardTitle: ({ children, className }: any) => <h2 className={className}>{children}</h2>,
+  Card: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div className={className}>{children}</div>,
+  CardContent: ({
+    children,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div>{children}</div>,
+  CardDescription: ({
+    children,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <p>{children}</p>,
+  CardHeader: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div className={className}>{children}</div>,
+  CardTitle: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <h2 className={className}>{children}</h2>,
 }))
 
 jest.mock('@/components/ui/Input', () => ({
-  Input: ({ id, type, value, onChange, required, disabled, ...props }: any) => (
+  Input: ({
+    id,
+    type,
+    value,
+    onChange,
+    required,
+    disabled,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => (
     <input
       id={id}
       type={type}
@@ -41,7 +97,15 @@ jest.mock('@/components/ui/Input', () => ({
 }))
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, htmlFor, className }: any) => (
+  Label: ({
+    children,
+    htmlFor,
+    className,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => (
     <label htmlFor={htmlFor} className={className}>
       {children}
     </label>
@@ -49,8 +113,21 @@ jest.mock('@/components/ui/label', () => ({
 }))
 
 jest.mock('@/components/ui/alert', () => ({
-  Alert: ({ children, variant }: any) => <div data-variant={variant}>{children}</div>,
-  AlertDescription: ({ children }: any) => <div>{children}</div>,
+  Alert: ({
+    children,
+    variant,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div data-variant={variant}>{children}</div>,
+  AlertDescription: ({
+    children,
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => <div>{children}</div>,
 }))
 
 const mockPush = jest.fn()

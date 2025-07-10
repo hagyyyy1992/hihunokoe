@@ -1,6 +1,6 @@
-import { render, screen, createUser, expectElementToBeVisible } from '@tests/helpers/rtl-utils'
+import { render, screen, createUser, expectElementToBeVisible } from '../../helpers/rtl-utils'
 import { Button } from '@/components/ui/Button'
-import { setupComponentTest, cleanupComponentTest } from '@tests/helpers/component-test-setup'
+import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 
 // Mock cn utility
 jest.mock('@/lib/utils', () => ({

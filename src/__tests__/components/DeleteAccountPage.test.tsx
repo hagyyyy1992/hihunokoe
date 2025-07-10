@@ -1,11 +1,9 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { useRouter } from 'next/navigation'
-import DeleteAccountPage from '../../src/app/account/delete/page'
+import DeleteAccountPage from '@/app/account/delete/page'
 
 // モック
 const mockPush = jest.fn()
-const mockUseRouter = jest.fn()
 const mockLogout = jest.fn()
 
 jest.mock('next/navigation', () => ({
@@ -19,7 +17,7 @@ jest.mock('next/navigation', () => ({
   }),
 }))
 
-jest.mock('../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: {
       id: 'test-user-id',

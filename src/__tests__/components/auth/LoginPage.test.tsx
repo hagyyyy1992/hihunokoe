@@ -18,7 +18,7 @@ import {
   createMockFetch,
   mockRouter,
 } from '../../helpers/component-mocks'
-import LoginPage from '../../../src/app/auth/login/page'
+import LoginPage from '@/app/auth/login/page'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -26,7 +26,7 @@ jest.mock('next/navigation', () => ({
 }))
 
 const mockLogin = jest.fn()
-jest.mock('../../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     login: mockLogin,
@@ -41,7 +41,15 @@ jest.mock('../../../src/lib/auth/AuthContext', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>
@@ -272,7 +280,9 @@ describe('LoginPage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
       mockLogin.mockRejectedValueOnce(new Error('Network error'))
 
       render(<LoginPage />)
@@ -296,7 +306,11 @@ describe('LoginPage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: any) => void = () => {}
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void = () => {}
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })

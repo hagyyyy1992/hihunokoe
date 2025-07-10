@@ -4,11 +4,11 @@ import {
   expectElementToBeVisible,
   expectElementToHaveText,
 } from '../../helpers/rtl-utils'
-import { MoodTag } from '../../../src/components/ui/MoodTag'
+import { MoodTag } from '@/components/ui/MoodTag'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 
 // Mock cn utility
-jest.mock('../../../src/lib/utils', () => ({
+jest.mock('@/lib/utils', () => ({
   cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
 }))
 

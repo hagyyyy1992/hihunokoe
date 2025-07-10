@@ -50,7 +50,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
     postController = new PostController()
 
     // ユーザーが存在する設定
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
+    ;(prisma!.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
   })
 
   describe('POST /api/posts - 投稿作成時のカテゴリマッピング', () => {
@@ -79,7 +79,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
           _count: { empathies: 0, comments: 0 },
         }
 
-        ;(prisma.post.create as jest.Mock).mockResolvedValue(mockPost)
+        ;(prisma!.post.create as jest.Mock).mockResolvedValue(mockPost)
 
         const request = new NextRequest('http://localhost:3000/api/posts', {
           method: 'POST',
@@ -126,7 +126,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
         _count: { empathies: 0, comments: 0 },
       }
 
-      ;(prisma.post.create as jest.Mock).mockResolvedValue(mockPost)
+      ;(prisma!.post.create as jest.Mock).mockResolvedValue(mockPost)
 
       const request = new NextRequest('http://localhost:3000/api/posts', {
         method: 'POST',
@@ -174,8 +174,8 @@ describe('投稿カテゴリマッピングのテスト', () => {
         _count: { empathies: 0, comments: 0 },
       }))
 
-      ;(prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
-      ;(prisma.post.count as jest.Mock).mockResolvedValue(mockPosts.length)
+      ;(prisma!.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
+      ;(prisma!.post.count as jest.Mock).mockResolvedValue(mockPosts.length)
 
       const request = new NextRequest('http://localhost:3000/api/posts')
       const response = await postController.getPosts(request)
@@ -216,7 +216,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
         _count: { empathies: 0, comments: 0 },
       }
 
-      ;(prisma.post.findUnique as jest.Mock).mockResolvedValue(mockPost)
+      ;(prisma!.post.findUnique as jest.Mock).mockResolvedValue(mockPost)
 
       const request = new NextRequest('http://localhost:3000/api/posts/test-post-id')
       const response = await postController.getPost(request, { params: { id: 'test-post-id' } })

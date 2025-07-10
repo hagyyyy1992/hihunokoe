@@ -14,7 +14,7 @@ import {
   createMockFetch,
   mockRouter,
 } from '../../helpers/component-mocks'
-import ResetPasswordPage from '../../../src/app/auth/reset-password/page'
+import ResetPasswordPage from '@/app/auth/reset-password/page'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -30,7 +30,15 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>
@@ -86,7 +94,9 @@ describe('ResetPasswordPage', () => {
     })
 
     it('トークン検証エラー時にエラーメッセージが表示される', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<ResetPasswordPage />)
@@ -103,7 +113,11 @@ describe('ResetPasswordPage', () => {
 
     it('トークン検証中にローディング状態が表示される', () => {
       // Don't resolve the promise immediately to test loading state
-      let resolvePromise: (value: any) => void = () => {}
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void = () => {}
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })

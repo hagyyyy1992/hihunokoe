@@ -211,9 +211,15 @@ export const mockConsole = () => {
   const originalConsole = { ...console }
 
   beforeEach(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    jest
+      .spyOn(console, 'log')
+      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+    jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+    jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
   })
 
   afterEach(() => {

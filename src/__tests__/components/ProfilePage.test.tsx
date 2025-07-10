@@ -1,10 +1,10 @@
 import { render, screen, createUser, waitFor } from '../helpers/rtl-utils'
-import ProfilePage from '../../src/app/profile/page'
+import ProfilePage from '@/app/profile/page'
 import { setupComponentTest, cleanupComponentTest } from '../helpers/component-test-setup'
 import { mockUser } from '../helpers/component-mocks'
 
 // Mock the auth context
-jest.mock('../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: jest.fn(),
 }))
 
@@ -15,7 +15,7 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Import the mocked modules
-import { useAuth } from '../../src/lib/auth/AuthContext'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 // Mock the auth hook

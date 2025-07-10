@@ -1,11 +1,11 @@
 import { render, screen, expectElementToBeVisible, waitFor } from '../../helpers/rtl-utils'
-import EmpathyButton from '../../../src/components/ui/EmpathyButton'
+import EmpathyButton from '@/components/ui/EmpathyButton'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 // Mock AuthContext
-jest.mock('../../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     login: jest.fn(),

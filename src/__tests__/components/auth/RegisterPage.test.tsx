@@ -8,7 +8,7 @@ import {
   createMockFetch,
   mockRouter,
 } from '../../helpers/component-mocks'
-import RegisterPage from '../../../src/app/auth/register/page'
+import RegisterPage from '@/app/auth/register/page'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -18,7 +18,15 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>

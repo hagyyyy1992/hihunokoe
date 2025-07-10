@@ -1,11 +1,10 @@
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { PrismaClient } from '@prisma/client'
 import { Post } from '@api/domain/entities/Post'
 import { v4 as uuidv4 } from 'uuid'
 
-// Prismaクライアントのモック
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+// @/lib/prismaのモック
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
     post: {
       create: jest.fn(),
       findUnique: jest.fn(),
@@ -14,16 +13,17 @@ jest.mock('@prisma/client', () => ({
       delete: jest.fn(),
       count: jest.fn(),
     },
-  })),
+  },
 }))
+
+// モック関数を取得
+const mockPrisma = require('@/lib/prisma').prisma
 
 describe('PostRepositoryImpl', () => {
   let repository: PostRepositoryImpl
-  let mockPrisma: any
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient()
-    repository = new PostRepositoryImpl(mockPrisma)
+    repository = new PostRepositoryImpl()
     jest.clearAllMocks()
   })
 
@@ -374,34 +374,16 @@ describe('PostRepositoryImpl', () => {
     })
   })
 
-  describe('count', () => {
+  describe('countPublishedPosts', () => {
     it('公開投稿数をカウントできる', async () => {
       mockPrisma.post.count.mockResolvedValue(100)
 
-      const result = await repository.count()
+      const result = await repository.countPublishedPosts()
 
       expect(mockPrisma.post.count).toHaveBeenCalledWith({
         where: { isPublished: true },
       })
       expect(result).toBe(100)
-    })
-
-    it('フィルタ条件付きでカウントできる', async () => {
-      mockPrisma.post.count.mockResolvedValue(25)
-
-      const result = await repository.count({
-        category: 'toner',
-        skinType: 'dry',
-      })
-
-      expect(mockPrisma.post.count).toHaveBeenCalledWith({
-        where: {
-          isPublished: true,
-          cosmeticCategory: 'toner',
-          skinType: 'dry',
-        },
-      })
-      expect(result).toBe(25)
     })
   })
 

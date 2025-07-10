@@ -6,7 +6,7 @@ import {
   createMockFetch,
   mockRouter,
 } from '../../helpers/component-mocks'
-import VerifyEmailPage from '../../../src/app/auth/verify-email/page'
+import VerifyEmailPage from '@/app/auth/verify-email/page'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -22,7 +22,15 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>
@@ -32,7 +40,7 @@ jest.mock('next/link', () => {
 
 const mockRefreshAuth = jest.fn()
 
-jest.mock('../../../src/lib/auth/AuthContext', () => ({
+jest.mock('@/lib/auth/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     login: jest.fn(),
@@ -70,7 +78,11 @@ describe('VerifyEmailPage', () => {
   describe('初期ローディング状態', () => {
     it('検証中にローディング状態が表示される', () => {
       // Don't resolve the promise immediately to test loading state
-      let resolvePromise: (value: any) => void
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
@@ -175,7 +187,9 @@ describe('VerifyEmailPage', () => {
     })
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<VerifyEmailPage />)
@@ -320,7 +334,11 @@ describe('VerifyEmailPage', () => {
     })
 
     it('ローディング状態のスタイルが正しく適用されている', () => {
-      let resolvePromise: (value: any) => void
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
@@ -390,7 +408,11 @@ describe('VerifyEmailPage', () => {
     })
 
     it('スピナーに適切なaria属性が設定されている', () => {
-      let resolvePromise: (value: any) => void
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })

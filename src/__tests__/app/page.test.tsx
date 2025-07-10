@@ -7,7 +7,15 @@ import { SERVICE_NAME } from '@/lib/constants'
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, ...props }: any) {
+  return function MockLink({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) {
     return (
       <a href={href} {...props}>
         {children}
@@ -17,7 +25,7 @@ jest.mock('next/link', () => {
 })
 
 // Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation((callback, options) => ({
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),

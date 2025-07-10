@@ -1,11 +1,10 @@
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { PrismaClient } from '@prisma/client'
 import { User } from '@api/domain/entities/User'
 import { v4 as uuidv4 } from 'uuid'
 
-// Prismaクライアントのモック
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+// @/lib/prismaのモック
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
     user: {
       create: jest.fn(),
       findUnique: jest.fn(),
@@ -15,16 +14,17 @@ jest.mock('@prisma/client', () => ({
       delete: jest.fn(),
       count: jest.fn(),
     },
-  })),
+  },
 }))
+
+// モック関数を取得
+const mockPrisma = require('@/lib/prisma').prisma
 
 describe('UserRepositoryImpl', () => {
   let repository: UserRepositoryImpl
-  let mockPrisma: any
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient()
-    repository = new UserRepositoryImpl(mockPrisma)
+    repository = new UserRepositoryImpl()
     jest.clearAllMocks()
   })
 
@@ -171,20 +171,17 @@ describe('UserRepositoryImpl', () => {
     })
   })
 
-  describe('findByUserName', () => {
+  describe('findByUsername', () => {
     it('ユーザー名でユーザーを取得できる', async () => {
       const userName = 'testuser'
       const user = createMockUser({ userName })
 
-      mockPrisma.user.findFirst.mockResolvedValue(user)
+      mockPrisma.user.findUnique.mockResolvedValue(user)
 
-      const result = await repository.findByUserName(userName)
+      const result = await repository.findByUsername(userName)
 
-      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
-        where: {
-          userName,
-          deletedAt: null,
-        },
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { userName },
       })
       expect(result).toEqual(user)
     })

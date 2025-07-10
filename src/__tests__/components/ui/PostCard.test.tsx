@@ -3,9 +3,9 @@ import {
   screen,
   expectElementToBeVisible,
   expectElementToHaveText,
-} from '@tests/helpers/rtl-utils'
+} from '../../helpers/rtl-utils'
 import PostCard from '@/components/ui/PostCard'
-import { setupComponentTest, cleanupComponentTest } from '@tests/helpers/component-test-setup'
+import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 
 // Mock date-fns

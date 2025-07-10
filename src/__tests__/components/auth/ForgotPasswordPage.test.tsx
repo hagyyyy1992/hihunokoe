@@ -12,12 +12,20 @@ import {
   waitFor,
 } from '../../helpers/component-test-setup'
 import { mockApiResponse, setupFetchMock, createMockFetch } from '../../helpers/component-mocks'
-import ForgotPasswordPage from '../../../src/app/auth/forgot-password/page'
+import ForgotPasswordPage from '@/app/auth/forgot-password/page'
 
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, ...props }: any) => (
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode
+      href: string
+      [key: string]: unknown
+    }) => (
       <a href={href} {...props}>
         {children}
       </a>
@@ -155,7 +163,9 @@ describe('ForgotPasswordPage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<ForgotPasswordPage />)
@@ -178,7 +188,11 @@ describe('ForgotPasswordPage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: any) => void = () => {}
+      let resolvePromise: (value: {
+        children: React.ReactNode
+        href: string
+        [key: string]: unknown
+      }) => void = () => {}
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
