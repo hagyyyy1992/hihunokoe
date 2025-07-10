@@ -1,5 +1,5 @@
 import { GraphQLContext } from '@/graphql/context'
-import { GraphQLPostController } from '@api/framework/controllers/GraphQLPostController'
+import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 
 const postController = new GraphQLPostController()

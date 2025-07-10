@@ -1,5 +1,5 @@
 import { GraphQLContext } from '@/graphql/context'
-import { GraphQLEmpathyController } from '@api/framework/controllers/GraphQLEmpathyController'
+import { GraphQLEmpathyController } from '@api/framework/graphql/GraphQLEmpathyController'
 
 const empathyController = new GraphQLEmpathyController()
 

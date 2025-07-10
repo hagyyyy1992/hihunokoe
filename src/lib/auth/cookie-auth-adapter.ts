@@ -17,10 +17,6 @@ export function adaptCookieToBearer(request: Request): NextRequest {
 
   // Cookieからトークンを取得
   const token = nextRequest.cookies?.get('auth-token')?.value
-  console.log(
-    '[adaptCookieToBearer] Cookie auth-token:',
-    token ? token.substring(0, 20) + '...' : 'not found'
-  )
 
   if (!token) {
     return nextRequest

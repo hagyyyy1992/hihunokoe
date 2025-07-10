@@ -1,5 +1,5 @@
 import { GraphQLContext } from '@/graphql/context'
-import { GraphQLCommentController } from '@api/framework/controllers/GraphQLCommentController'
+import { GraphQLCommentController } from '@api/framework/graphql/GraphQLCommentController'
 
 const commentController = new GraphQLCommentController()
 

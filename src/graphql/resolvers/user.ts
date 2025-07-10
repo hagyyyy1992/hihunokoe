@@ -1,5 +1,5 @@
 import { GraphQLContext } from '@/graphql/context'
-import { GraphQLUserController } from '@api/framework/controllers/GraphQLUserController'
+import { GraphQLUserController } from '@api/framework/graphql/GraphQLUserController'
 
 const userController = new GraphQLUserController()
 
