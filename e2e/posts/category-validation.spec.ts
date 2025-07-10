@@ -19,97 +19,6 @@ test.describe('投稿カテゴリの検証', () => {
     await page.waitForTimeout(1000)
   })
 
-  // デバッグ用のテストを追加
-  test('投稿作成フローのデバッグ', async ({ page }) => {
-    console.log('Starting post creation debug test')
-
-    await page.goto('/posts/new')
-    console.log('Navigated to /posts/new')
-
-    // ステップ1: 基本情報を入力
-    await page.fill('[data-testid="post-title-input"]', 'デバッグテスト投稿')
-    console.log('Filled title')
-
-    await page.fill('[name="cosmeticName"]', 'デバッグコスメ')
-    console.log('Filled cosmetic name')
-
-    await page.selectOption('[data-testid="category-select"]', 'skincare')
-    console.log('Selected category')
-
-    await page.fill(
-      '[name="content"]',
-      'これはデバッグ用のテスト投稿です。投稿が正常に作成されるかを確認しています。とても詳しい体験談を書いています。長い文章でバリデーションを通過させます。'
-    )
-    console.log('Filled content')
-
-    // ボタンの状態を確認
-    const nextButton = page.locator('button:has-text("次へ")')
-    const isDisabled = await nextButton.isDisabled()
-    console.log('Next button disabled:', isDisabled)
-
-    if (!isDisabled) {
-      console.log('Clicking next button for step 2')
-      await nextButton.click()
-      await page.waitForTimeout(1000)
-
-      console.log('Clicking next button for step 3')
-      await page.click('button:has-text("次へ")')
-      await page.waitForTimeout(1000)
-
-      console.log('Clicking next button for step 4')
-      await page.click('button:has-text("次へ")')
-      await page.waitForTimeout(1000)
-
-      // 投稿ボタンの状態を確認
-      const publishButton = page.locator('[data-testid="publish-button"]')
-      const publishDisabled = await publishButton.isDisabled()
-      console.log('Publish button disabled:', publishDisabled)
-
-      if (!publishDisabled) {
-        console.log('Clicking publish button')
-        await publishButton.click()
-
-        // URLの変化を待つ
-        await page.waitForTimeout(3000)
-        const currentUrl = page.url()
-        console.log('Current URL after publish:', currentUrl)
-
-        // 投稿一覧に移動
-        await page.goto('/posts')
-        await page.waitForTimeout(2000)
-
-        // 投稿カードが存在するかチェック
-        const postCards = await page.locator('[data-testid="post-card"]').count()
-        console.log('Number of post cards found:', postCards)
-
-        if (postCards > 0) {
-          const firstCardText = await page
-            .locator('[data-testid="post-card"]')
-            .first()
-            .textContent()
-          console.log('First post card text:', firstCardText)
-        }
-
-        // デバッグテスト投稿が見つかるかチェック
-        const debugPost = page
-          .locator('[data-testid="post-card"]')
-          .filter({ hasText: 'デバッグテスト投稿' })
-        const debugPostExists = (await debugPost.count()) > 0
-        console.log('Debug post exists:', debugPostExists)
-
-        if (debugPostExists) {
-          console.log('Debug post found successfully!')
-        } else {
-          console.log('Debug post not found in the list')
-        }
-      } else {
-        console.log('Publish button is disabled, cannot proceed')
-      }
-    } else {
-      console.log('Next button is disabled, form validation failed')
-    }
-  })
-
   test('全てのカテゴリオプションが投稿フォームに存在する', async ({ page }) => {
     await page.goto('/posts/new')
     await page.waitForSelector('[data-testid="category-select"]')
@@ -156,11 +65,16 @@ test.describe('投稿カテゴリの検証', () => {
   test('スキンケアカテゴリが正しく表示される', async ({ page }) => {
     await page.goto('/posts/new')
 
-    // ステップ1: 基本情報を入力
-    await page.fill('[data-testid="post-title-input"]', 'スキンケアカテゴリテスト')
+    const uniqueTitle = `スキンケアカテゴリテスト ${Date.now()}`
+
+    // ステップ1: 基本情報を入力（詳しい内容でバリデーションを通過）
+    await page.fill('[data-testid="post-title-input"]', uniqueTitle)
     await page.fill('[name="cosmeticName"]', 'テストコスメ')
     await page.selectOption('[data-testid="category-select"]', 'skincare')
-    await page.fill('[name="content"]', 'スキンケアカテゴリのテスト投稿です')
+    await page.fill(
+      '[name="content"]',
+      'スキンケアカテゴリのテスト投稿です。この商品はとても良かったです。肌に優しく、効果も実感できました。使用感も素晴らしく、リピートしたいと思います。'
+    )
 
     // ステップ2へ進む
     await page.click('button:has-text("次へ")')
@@ -178,14 +92,22 @@ test.describe('投稿カテゴリの検証', () => {
     await page.click('[data-testid="publish-button"]')
     await page.waitForURL('/posts/**')
 
+    // 投稿一覧に移動（リダイレクトを待ってから）
+    await page.waitForTimeout(1000)
+    await page.goto('/posts')
+    await page.waitForTimeout(2000)
+
     // 投稿が作成されたことを確認
-    const postCard = page.locator('[data-testid="post-card"]').filter({
-      hasText: 'スキンケアカテゴリテスト',
-    })
+    const postCard = page
+      .locator('[data-testid="post-card"]')
+      .filter({
+        hasText: uniqueTitle,
+      })
+      .first()
     await expect(postCard).toBeVisible()
 
-    // カテゴリタグが表示されることを確認
-    const categoryTag = postCard.locator('text=スキンケア')
+    // カテゴリタグが表示されることを確認（より具体的なセレクター）
+    const categoryTag = postCard.locator('span').filter({ hasText: 'スキンケア' }).first()
     await expect(categoryTag).toBeVisible()
 
     // スキンケアカテゴリは緑色で表示される
@@ -205,11 +127,14 @@ test.describe('投稿カテゴリの検証', () => {
 
       const title = `${category.label}テスト投稿 ${Date.now()}`
 
-      // ステップ1: 基本情報を入力
+      // ステップ1: 基本情報を入力（詳しい内容でバリデーションを通過）
       await page.fill('[data-testid="post-title-input"]', title)
       await page.fill('[name="cosmeticName"]', `${category.label}製品`)
       await page.selectOption('[data-testid="category-select"]', category.value)
-      await page.fill('[name="content"]', `${category.label}カテゴリのテスト投稿です`)
+      await page.fill(
+        '[name="content"]',
+        `${category.label}カテゴリのテスト投稿です。この製品はとても良かったです。肌に優しく、効果も実感できました。使用感も素晴らしく、リピートしたいと思います。`
+      )
 
       // ステップ2へ進む
       await page.click('button:has-text("次へ")')
@@ -227,6 +152,10 @@ test.describe('投稿カテゴリの検証', () => {
       await page.click('[data-testid="publish-button"]')
       await page.waitForURL('/posts/**')
 
+      // 投稿一覧に移動
+      await page.goto('/posts')
+      await page.waitForTimeout(2000)
+
       // 投稿が作成されたことを確認
       const postCard = page
         .locator('[data-testid="post-card"]')
@@ -236,8 +165,8 @@ test.describe('投稿カテゴリの検証', () => {
         .first()
       await expect(postCard).toBeVisible()
 
-      // カテゴリタグが表示されることを確認
-      const categoryTag = postCard.locator(`text=${category.label}`)
+      // カテゴリタグが表示されることを確認（より具体的なセレクター）
+      const categoryTag = postCard.locator('span').filter({ hasText: category.label }).first()
       await expect(categoryTag).toBeVisible()
 
       // カテゴリによって色が異なることを確認
@@ -256,11 +185,14 @@ test.describe('投稿カテゴリの検証', () => {
 
     const title = `詳細ページカテゴリテスト ${Date.now()}`
 
-    // ステップ1: 基本情報を入力
+    // ステップ1: 基本情報を入力（詳しい内容でバリデーションを通過）
     await page.fill('[data-testid="post-title-input"]', title)
     await page.fill('[name="cosmeticName"]', 'テストコスメ')
     await page.selectOption('[data-testid="category-select"]', 'skincare')
-    await page.fill('[name="content"]', 'カテゴリ表示テスト')
+    await page.fill(
+      '[name="content"]',
+      'カテゴリ表示テストです。この製品はとても良かったです。肌に優しく、効果も実感できました。使用感も素晴らしく、リピートしたいと思います。'
+    )
 
     // ステップ2へ進む
     await page.click('button:has-text("次へ")')
@@ -278,15 +210,27 @@ test.describe('投稿カテゴリの検証', () => {
     await page.click('[data-testid="publish-button"]')
     await page.waitForURL('/posts/**')
 
-    // 作成した投稿をクリック
-    await page.locator('[data-testid="post-card"]').filter({ hasText: title }).click()
+    // 投稿一覧に移動（リダイレクトを待ってから）
+    await page.waitForTimeout(1000)
+    await page.goto('/posts')
+    await page.waitForTimeout(2000)
+
+    // 作成した投稿をクリックして詳細ページに遷移
+    const postCard = page.locator('[data-testid="post-card"]').filter({ hasText: title }).first()
+    await expect(postCard).toBeVisible()
+
+    // 投稿タイトルのリンクをクリック
+    const postTitleLink = postCard.locator('[data-testid="post-title"]')
+    await postTitleLink.click()
+
+    // 詳細ページへの遷移を確認
+    await page.waitForURL(/\/posts\/[a-z0-9-]+$/)
     await page.waitForSelector('[data-testid="post-title"]')
 
     // 詳細ページでカテゴリが表示されることを確認
-    const categoryTag = page
-      .locator('[data-testid="post-category"]')
-      .filter({ hasText: 'スキンケア' })
+    const categoryTag = page.locator('[data-testid="post-category"]')
     await expect(categoryTag).toBeVisible()
+    await expect(categoryTag).toContainText('スキンケア')
     await expect(categoryTag).toHaveClass(/bg-green-100/)
     await expect(categoryTag).toHaveClass(/text-green-800/)
   })
