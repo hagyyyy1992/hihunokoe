@@ -1,5 +1,5 @@
 import { AuthSession } from '@api/domain/entities/AuthSession'
-import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { randomUUID } from 'crypto'
 
 interface StoredSession {
@@ -7,7 +7,7 @@ interface StoredSession {
   isValid: boolean
 }
 
-export class AuthSessionRepositoryImpl implements AuthSessionRepository {
+export class AuthSessionRepositoryImpl implements IAuthSessionRepository {
   private sessions: Map<string, StoredSession> = new Map()
 
   async create(session: AuthSession): Promise<void> {

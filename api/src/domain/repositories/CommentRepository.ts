@@ -1,6 +1,6 @@
 import { Comment } from '@api/domain/entities/Comment'
 
-export interface CommentRepository {
+export interface ICommentRepository {
   create(
     postId: string,
     userId: string,

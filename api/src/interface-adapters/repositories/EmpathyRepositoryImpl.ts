@@ -1,9 +1,9 @@
 import { Empathy } from '@api/domain/entities/Empathy'
-import { EmpathyRepository, CreateEmpathyData } from '@api/domain/repositories/EmpathyRepository'
+import { IEmpathyRepository, CreateEmpathyData } from '@api/domain/repositories/EmpathyRepository'
 import { prisma } from '@/lib/prisma'
 import { Empathy as PrismaEmpathy } from '@prisma/client'
 
-export class EmpathyRepositoryImpl implements EmpathyRepository {
+export class EmpathyRepositoryImpl implements IEmpathyRepository {
   async findById(id: string): Promise<Empathy | null> {
     if (!prisma) throw new Error('Database connection not available')
 

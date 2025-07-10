@@ -1,9 +1,9 @@
 import { Comment } from '@api/domain/entities/Comment'
-import { CommentRepository } from '@api/domain/repositories/CommentRepository'
+import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { prisma } from '@/lib/prisma'
 import { Comment as PrismaComment } from '@prisma/client'
 
-export class CommentRepositoryImpl implements CommentRepository {
+export class CommentRepositoryImpl implements ICommentRepository {
   async create(
     postId: string,
     userId: string,

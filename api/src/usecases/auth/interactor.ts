@@ -1,6 +1,6 @@
 import { User, UserRole } from '@api/domain/entities/User'
-import { UserRepository } from '@api/domain/repositories/UserRepository'
-import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
+import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
 import { EmailService } from '@api/domain/services/EmailService'
@@ -51,8 +51,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   private readonly LOCK_TIME_MINUTES = 30
 
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly authSessionRepository: AuthSessionRepository,
+    private readonly userRepository: IUserRepository,
+    private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService,
     private readonly tokenService: TokenService
   ) {}
@@ -260,7 +260,7 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 
 export class PasswordManagementUseCase implements IPasswordManagementUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     private readonly passwordHashService: PasswordHashService,
     private readonly tokenService: TokenService,
     private readonly emailService?: EmailService
@@ -351,7 +351,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 
 export class EmailVerificationUseCase implements IEmailVerificationUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     private readonly tokenService: TokenService,
     private readonly emailService?: EmailService
   ) {}
@@ -421,8 +421,8 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 
 export class AccountManagementUseCase implements IAccountManagementUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly authSessionRepository: AuthSessionRepository,
+    private readonly userRepository: IUserRepository,
+    private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService
   ) {}
 

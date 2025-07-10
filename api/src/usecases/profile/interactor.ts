@@ -1,4 +1,4 @@
-import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import {
   GetProfileInputPort,
   IProfileUseCase,
@@ -7,7 +7,7 @@ import {
 import { GetProfileOutputPort, UpdateProfileOutputPort } from '@api/usecases/profile/output-port'
 
 export class GetProfileUseCase implements IProfileUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: IUserRepository) {}
 
   async getProfile(inputData: GetProfileInputPort): Promise<GetProfileOutputPort> {
     const { userId } = inputData

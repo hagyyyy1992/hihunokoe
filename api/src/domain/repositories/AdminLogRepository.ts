@@ -10,7 +10,7 @@ export interface AdminLogData {
   createdAt: Date
 }
 
-export interface AdminLogRepository {
+export interface IAdminLogRepository {
   create(data: Omit<AdminLogData, 'id' | 'createdAt'>): Promise<AdminLogData>
   findByAdminUserId(adminUserId: string, limit?: number): Promise<AdminLogData[]>
   findByAction(action: string, limit?: number): Promise<AdminLogData[]>

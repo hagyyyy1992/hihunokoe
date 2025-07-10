@@ -1,6 +1,6 @@
 import { User, UserRole } from '@api/domain/entities/User'
 import {
-  UserRepository,
+  IUserRepository,
   CreateUserData,
   UpdateUserData,
   FindUsersFilter,
@@ -9,7 +9,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { User as PrismaUser } from '@prisma/client'
 
-export class UserRepositoryImpl implements UserRepository {
+export class UserRepositoryImpl implements IUserRepository {
   async findById(id: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
 

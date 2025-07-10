@@ -1,9 +1,9 @@
 import { GetUserInteractor } from '@api/usecases/user/interactor'
-import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { User, UserRole } from '@api/domain/entities/User'
 
 // Create a mock repository that implements all required methods
-class MockUserRepository implements UserRepository {
+class MockUserRepository implements IUserRepository {
   findById = jest.fn()
   findByEmail = jest.fn()
   findByUsername = jest.fn()

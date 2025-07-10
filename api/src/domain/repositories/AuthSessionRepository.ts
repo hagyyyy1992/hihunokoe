@@ -1,6 +1,6 @@
 import { AuthSession } from '@api/domain/entities/AuthSession'
 
-export interface AuthSessionRepository {
+export interface IAuthSessionRepository {
   create(session: AuthSession): Promise<void>
   findByToken(token: string): Promise<AuthSession | null>
   findById(id: string): Promise<AuthSession | null>

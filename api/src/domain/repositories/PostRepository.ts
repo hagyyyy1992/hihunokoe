@@ -47,7 +47,7 @@ export interface FindPostsResult {
   totalCount: number
 }
 
-export interface PostRepository {
+export interface IPostRepository {
   findById(id: string): Promise<Post | null>
   findMany(filter: FindPostsFilter): Promise<FindPostsResult>
   create(data: CreatePostData): Promise<Post>

@@ -1,9 +1,9 @@
 import { User, UserRole } from '@api/domain/entities/User'
-import { UserRepository } from '@api/domain/repositories/UserRepository'
-import { PostRepository } from '@api/domain/repositories/PostRepository'
-import { CommentRepository } from '@api/domain/repositories/CommentRepository'
-import { AuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
-import { AdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
+import { IPostRepository } from '@api/domain/repositories/PostRepository'
+import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
+import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+import { IAdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
@@ -46,11 +46,11 @@ import {
 
 export class AdminAuthenticationUseCase implements IAdminAuthenticationUseCase {
   constructor(
-    private userRepository: UserRepository,
-    private authSessionRepository: AuthSessionRepository,
+    private userRepository: IUserRepository,
+    private authSessionRepository: IAuthSessionRepository,
     private passwordHashService: PasswordHashService,
     private tokenService: TokenService,
-    private adminLogRepository: AdminLogRepository
+    private adminLogRepository: IAdminLogRepository
   ) {}
 
   async adminLogin(inputData: AdminLoginInputPort): Promise<AdminLoginOutputPort> {
@@ -154,8 +154,8 @@ export class AdminAuthenticationUseCase implements IAdminAuthenticationUseCase {
 
 export class AdminUserManagementUseCase implements IAdminUserManagementUseCase {
   constructor(
-    private userRepository: UserRepository,
-    private adminLogRepository: AdminLogRepository
+    private userRepository: IUserRepository,
+    private adminLogRepository: IAdminLogRepository
   ) {}
 
   async activateUser(inputData: ActivateUserInputPort): Promise<ActivateUserOutputPort> {
@@ -375,9 +375,9 @@ export class AdminUserManagementUseCase implements IAdminUserManagementUseCase {
 
 export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
   constructor(
-    private postRepository: PostRepository,
-    private userRepository: UserRepository,
-    private adminLogRepository: AdminLogRepository
+    private postRepository: IPostRepository,
+    private userRepository: IUserRepository,
+    private adminLogRepository: IAdminLogRepository
   ) {}
 
   async deletePost(inputData: AdminDeletePostInputPort): Promise<AdminDeletePostOutputPort> {
@@ -521,9 +521,9 @@ export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
 
 export class AdminDashboardUseCase implements IAdminDashboardUseCase {
   constructor(
-    private userRepository: UserRepository,
-    private postRepository: PostRepository,
-    private commentRepository: CommentRepository
+    private userRepository: IUserRepository,
+    private postRepository: IPostRepository,
+    private commentRepository: ICommentRepository
   ) {}
 
   async getDashboardStats(

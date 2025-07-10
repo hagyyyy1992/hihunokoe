@@ -1,4 +1,4 @@
-import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IGetUserInputPort } from './input-port'
 import { GetUserUseCaseOutput } from './output-port'
 
@@ -7,7 +7,7 @@ export interface GetUserUseCaseInput {
 }
 
 export class GetUserInteractor implements IGetUserInputPort {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(inputPort: GetUserUseCaseInput): Promise<GetUserUseCaseOutput> {
     const user = await this.userRepository.findById(inputPort.userId)

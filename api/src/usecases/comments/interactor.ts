@@ -1,7 +1,7 @@
 import { Comment } from '@api/domain/entities/Comment'
-import { CommentRepository } from '@api/domain/repositories/CommentRepository'
-import { PostRepository } from '@api/domain/repositories/PostRepository'
-import { UserRepository } from '@api/domain/repositories/UserRepository'
+import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
+import { IPostRepository } from '@api/domain/repositories/PostRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { RateLimitService } from '@api/domain/services/RateLimitService'
 import {
   ICommentManagementUseCase,
@@ -26,9 +26,9 @@ import {
 
 export class CommentManagementUseCase implements ICommentManagementUseCase {
   constructor(
-    private commentRepository: CommentRepository,
-    private postRepository: PostRepository,
-    private userRepository: UserRepository,
+    private commentRepository: ICommentRepository,
+    private postRepository: IPostRepository,
+    private userRepository: IUserRepository,
     private rateLimitService?: RateLimitService
   ) {}
 
@@ -216,7 +216,7 @@ export class CommentManagementUseCase implements ICommentManagementUseCase {
 }
 
 export class CommentRetrievalUseCase implements ICommentRetrievalUseCase {
-  constructor(private commentRepository: CommentRepository) {}
+  constructor(private commentRepository: ICommentRepository) {}
 
   async getComment(input: GetCommentInputPort): Promise<GetCommentOutputPort> {
     const comment = await this.commentRepository.findById(input.commentId)

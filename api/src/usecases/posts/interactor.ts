@@ -1,9 +1,9 @@
 import { Post } from '@api/domain/entities/Post'
 import { Empathy } from '@api/domain/entities/Empathy'
-import { PostRepository } from '@api/domain/repositories/PostRepository'
-import { UserRepository } from '@api/domain/repositories/UserRepository'
-import { EmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
-import { CommentRepository } from '@api/domain/repositories/CommentRepository'
+import { IPostRepository } from '@api/domain/repositories/PostRepository'
+import { IUserRepository } from '@api/domain/repositories/UserRepository'
+import { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
+import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { RateLimitService } from '@api/domain/services/RateLimitService'
 import {
   IPostManagementUseCase,
@@ -31,8 +31,8 @@ import {
 
 export class PostManagementUseCase implements IPostManagementUseCase {
   constructor(
-    private postRepository: PostRepository,
-    private userRepository: UserRepository,
+    private postRepository: IPostRepository,
+    private userRepository: IUserRepository,
     private rateLimitService?: RateLimitService
   ) {}
 
@@ -177,9 +177,9 @@ export class PostManagementUseCase implements IPostManagementUseCase {
 
 export class PostRetrievalUseCase implements IPostRetrievalUseCase {
   constructor(
-    private postRepository: PostRepository,
-    private empathyRepository: EmpathyRepository,
-    private commentRepository: CommentRepository
+    private postRepository: IPostRepository,
+    private empathyRepository: IEmpathyRepository,
+    private commentRepository: ICommentRepository
   ) {}
 
   async getPost(input: GetPostInputPort): Promise<GetPostOutputPort> {
@@ -270,9 +270,9 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
 
 export class EmpathyManagementUseCase implements IEmpathyManagementUseCase {
   constructor(
-    private postRepository: PostRepository,
-    private userRepository: UserRepository,
-    private empathyRepository: EmpathyRepository,
+    private postRepository: IPostRepository,
+    private userRepository: IUserRepository,
+    private empathyRepository: IEmpathyRepository,
     private rateLimitService?: RateLimitService
   ) {}
 

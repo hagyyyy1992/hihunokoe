@@ -1,6 +1,6 @@
 import { Post } from '@api/domain/entities/Post'
 import {
-  PostRepository,
+  IPostRepository,
   CreatePostData,
   UpdatePostData,
   FindPostsFilter,
@@ -10,7 +10,7 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Post as PrismaPost } from '@prisma/client'
 import { MOCK_POSTS } from '@/lib/mock-data'
 
-export class PostRepositoryImpl implements PostRepository {
+export class PostRepositoryImpl implements IPostRepository {
   async findById(id: string): Promise<Post | null> {
     if (!isDatabaseAvailable()) {
       // Mock mode

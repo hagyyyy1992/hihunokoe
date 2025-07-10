@@ -6,7 +6,7 @@ export interface CreateEmpathyData {
   empathyType: EmpathyType
 }
 
-export interface EmpathyRepository {
+export interface IEmpathyRepository {
   findById(id: string): Promise<Empathy | null>
   findByUserAndPost(userId: string, postId: string): Promise<Empathy | null>
   findByPost(postId: string): Promise<Empathy[]>
