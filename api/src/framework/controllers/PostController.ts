@@ -161,6 +161,8 @@ export class PostController {
       const page = parseInt(url.searchParams.get('page') || '1')
       const limit = parseInt(url.searchParams.get('limit') || '10')
       const category = url.searchParams.get('category') || undefined
+      const skinType = url.searchParams.get('skinType') || undefined
+      const moodTag = url.searchParams.get('moodTag') || undefined
       const search = url.searchParams.get('search') || undefined
       const sortByParam = url.searchParams.get('sortBy') || 'recent'
       const sortBy = sortByParam === 'popular' ? 'empathyCount' : 'createdAt'
@@ -170,6 +172,8 @@ export class PostController {
         page,
         limit,
         category,
+        skinType,
+        moodTag,
         search,
         sortBy: sortBy as 'createdAt' | 'empathyCount',
         userId: userId || undefined,

@@ -90,6 +90,14 @@ export class PostRepositoryImpl implements PostRepository {
         filteredPosts = filteredPosts.filter(p => p.cosmeticCategory === filter.category)
       }
 
+      if (filter.skinType) {
+        filteredPosts = filteredPosts.filter(p => p.skinType === filter.skinType)
+      }
+
+      if (filter.moodTag) {
+        filteredPosts = filteredPosts.filter(p => p.moodTag === filter.moodTag)
+      }
+
       if (filter.search) {
         const searchLower = filter.search.toLowerCase()
         filteredPosts = filteredPosts.filter(
@@ -160,12 +168,22 @@ export class PostRepositoryImpl implements PostRepository {
       where.status = 'published'
     }
 
+    // userIdフィルタは特定のユーザーの投稿のみを取得する場合に使用
+    // 通常の投稿一覧では使用しない
     if (filter.userId) {
       where.userId = filter.userId
     }
 
     if (filter.category) {
-      where.category = filter.category
+      where.cosmeticCategory = filter.category
+    }
+
+    if (filter.skinType) {
+      where.skinType = filter.skinType
+    }
+
+    if (filter.moodTag) {
+      where.moodTag = filter.moodTag
     }
 
     if (filter.search) {

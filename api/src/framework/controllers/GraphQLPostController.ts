@@ -67,6 +67,8 @@ export class GraphQLPostController {
       page: Math.floor(skip / limit) + 1,
       limit,
       category: args.filter?.cosmeticCategory,
+      skinType: args.filter?.skinType,
+      moodTag: args.filter?.moodTag,
       search: args.filter?.search,
       sortBy: (args.orderBy === 'popular' ? 'empathyCount' : 'createdAt') as
         | 'createdAt'

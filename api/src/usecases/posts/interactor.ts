@@ -219,18 +219,8 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
     const limit = input.limit || 20
     const offset = (page - 1) * limit
 
-    // フィルター条件を構築
-    const filters: any = {}
-    if (input.search) filters.search = input.search
-    if (input.category) filters.category = input.category
-    if (input.skinType) filters.skinType = input.skinType
-    if (input.moodTag) filters.moodTag = input.moodTag
-    if (input.isPublished !== undefined) filters.isPublished = input.isPublished
-
-    // 非ログインユーザーまたは他のユーザーの投稿を見る場合は公開投稿のみ
-    if (!input.userId || filters.userId !== input.userId) {
-      filters.isPublished = true
-    }
+    // 公開投稿のみを取得（全ユーザーの投稿を表示）
+    const isPublished = true
 
     const sortBy = input.sortBy || 'createdAt'
     const sortOrder = input.sortOrder || 'desc'
@@ -240,8 +230,10 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       limit,
       search: input.search,
       category: input.category,
-      publishedOnly: filters.isPublished,
-      userId: input.userId,
+      skinType: input.skinType,
+      moodTag: input.moodTag,
+      publishedOnly: isPublished,
+      // userIdは削除 - 全ユーザーの投稿を取得する
     })
 
     // 各投稿のエンパシー数とコメント数を取得

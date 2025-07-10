@@ -33,6 +33,8 @@ export interface FindPostsFilter {
   offset: number
   limit: number
   category?: string
+  skinType?: string
+  moodTag?: string
   search?: string
   sortBy?: 'recent' | 'popular'
   userId?: string
