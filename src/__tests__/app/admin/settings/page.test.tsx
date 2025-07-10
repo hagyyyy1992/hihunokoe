@@ -54,10 +54,8 @@ describe('AdminSettings', () => {
   it('renders the page title and description', () => {
     render(<AdminSettings />)
 
-    expect(screen.getByTestId('card-title')).toHaveTextContent('システム設定')
-    expect(screen.getByTestId('card-description')).toHaveTextContent(
-      '管理画面とアプリケーションの設定を管理します'
-    )
+    expect(screen.getByRole('heading', { name: 'システム設定' })).toBeInTheDocument()
+    expect(screen.getByText('管理画面とアプリケーションの設定を管理します')).toBeInTheDocument()
   })
 
   it('renders the main heading', () => {

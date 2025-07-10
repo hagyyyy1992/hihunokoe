@@ -49,10 +49,8 @@ describe('ReportsManagement', () => {
   it('renders the page title and description', () => {
     render(<ReportsManagement />)
 
-    expect(screen.getByTestId('card-title')).toHaveTextContent('通報管理')
-    expect(screen.getByTestId('card-description')).toHaveTextContent(
-      'ユーザーからの通報を管理し、適切な対応を行います'
-    )
+    expect(screen.getByRole('heading', { name: '通報管理' })).toBeInTheDocument()
+    expect(screen.getByText('ユーザーからの通報を管理し、適切な対応を行います')).toBeInTheDocument()
   })
 
   it('renders the main heading', () => {
