@@ -79,10 +79,10 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    
+
     // 投稿詳細ページへのリダイレクトを待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-    
+
     // ページの読み込み完了を待つ
     await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(1000) // Firefoxでのナビゲーション安定化のため
@@ -144,10 +144,10 @@ test.describe('投稿カテゴリの検証', () => {
 
       // 投稿を作成
       await page.click('[data-testid="publish-button"]')
-      
+
       // 投稿詳細ページへのリダイレクトを待つ
       await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-      
+
       // ページの読み込み完了を待つ
       await page.waitForLoadState('domcontentloaded')
       await page.waitForTimeout(1000) // ブラウザ間の安定性向上のため
@@ -199,10 +199,10 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    
+
     // 投稿詳細ページへのリダイレクトを待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-    
+
     // ページの読み込み完了を待つ
     await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(1000) // ブラウザ間の安定性向上のため
