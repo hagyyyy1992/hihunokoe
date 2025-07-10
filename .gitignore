@@ -47,7 +47,9 @@ next-env.d.ts
 playwright-report
 test-results
 
-/src/generated/
+# GraphQL generated files should be tracked to avoid CI issues
+# Remove this line to include graphql.ts in Git
+# /src/generated/
 
 # MCP configuration (contains API keys)
 .mcp.json
