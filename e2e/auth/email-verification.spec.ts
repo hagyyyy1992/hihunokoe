@@ -60,8 +60,9 @@ test.describe('メール認証機能', () => {
     await page.locator('input[name="confirmPassword"]').fill(userData.password)
     await page.getByRole('button', { name: '会員登録' }).click()
 
-    // 登録完了ページが表示されることを確認
-    await expect(page.getByText('アカウントが作成されました')).toBeVisible()
+    // 登録完了ページにリダイレクトされることを確認
+    await page.waitForURL('**/auth/registration-complete**')
+    await expect(page.getByText('アカウントが作成されました')).toBeVisible({ timeout: 10000 })
 
     // メール認証なしでログインを試行
     await page.goto('/auth/login')

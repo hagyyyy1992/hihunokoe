@@ -151,6 +151,9 @@ const categoryLabels: Record<string, string> = {
   other: 'その他',
 }
 
+// スキンケアカテゴリの定義
+const skincareCategories = ['toner', 'serum', 'emulsion', 'cream', 'cleanser', 'sunscreen']
+
 const skinTypeLabels: Record<string, string> = {
   normal: '普通肌',
   dry: '乾燥肌',
@@ -455,7 +458,11 @@ export default function PostDetailPage() {
             <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
               {currentPost.cosmeticCategory && (
                 <span
-                  className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800"
+                  className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${
+                    skincareCategories.includes(currentPost.cosmeticCategory)
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}
                   data-testid="post-category"
                 >
                   {categoryLabels[currentPost.cosmeticCategory]}

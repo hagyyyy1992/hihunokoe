@@ -60,7 +60,8 @@
       "Bash(gh pr:*)",
       "Bash(curl:*)",
       "Bash(cp:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(mv:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",

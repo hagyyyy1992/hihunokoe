@@ -90,7 +90,7 @@ describe('PostCard Component', () => {
 
     const categoryTag = screen.getByText('化粧水')
     expectElementToBeVisible(categoryTag)
-    expect(categoryTag).toHaveClass('bg-blue-100', 'text-blue-800')
+    expect(categoryTag).toHaveClass('bg-green-100', 'text-green-800')
   })
 
   it('ムードタグを表示する', () => {

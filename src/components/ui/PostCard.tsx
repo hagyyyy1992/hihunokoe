@@ -47,6 +47,9 @@ const categoryLabels: Record<string, string> = {
   other: 'その他',
 }
 
+// スキンケアカテゴリの定義
+const skincareCategories = ['toner', 'serum', 'emulsion', 'cream', 'cleanser', 'sunscreen']
+
 const skinTypeLabels: Record<string, string> = {
   normal: '普通肌',
   dry: '乾燥肌',
@@ -126,7 +129,13 @@ export default function PostCard({ post }: PostCardProps) {
           </Link>
           <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-2">
             {post.cosmeticCategory && (
-              <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span
+                className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  skincareCategories.includes(post.cosmeticCategory)
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}
+              >
                 {categoryLabels[post.cosmeticCategory]}
               </span>
             )}

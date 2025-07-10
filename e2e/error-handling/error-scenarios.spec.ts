@@ -33,7 +33,7 @@ test.describe('エラーハンドリング', () => {
       await page.locator('input[name="password"]').fill('wrongpassword')
       await page.getByRole('button', { name: 'ログイン' }).click()
 
-      // エラーメッセージが表示されることを確認
+      // エラーメッセージが表示されるまで待機
       const errorMessages = [
         'メールアドレスまたはパスワードが間違っています',
         'ログインに失敗しました',
@@ -41,13 +41,19 @@ test.describe('エラーハンドリング', () => {
       ]
 
       let errorFound = false
-      for (const message of errorMessages) {
-        const element = page.getByText(message)
-        if (await element.isVisible().catch(() => false)) {
-          errorFound = true
-          break
-        }
-      }
+      // 各メッセージを並行して待機
+      await Promise.race([
+        ...errorMessages.map(async message => {
+          try {
+            await page.getByText(message).waitFor({ state: 'visible', timeout: 5000 })
+            errorFound = true
+          } catch {
+            // このメッセージは表示されなかった
+          }
+        }),
+        // タイムアウト用のPromise
+        new Promise(resolve => setTimeout(resolve, 5000)),
+      ])
 
       expect(errorFound).toBe(true)
       await expect(page).toHaveURL('/auth/login')
@@ -64,7 +70,7 @@ test.describe('エラーハンドリング', () => {
       await page.locator('input[name="password"]').fill('password123')
       await page.getByRole('button', { name: 'ログイン' }).click()
 
-      // エラーメッセージが表示されることを確認
+      // エラーメッセージが表示されるまで待機
       const errorMessages = [
         'メールアドレスまたはパスワードが間違っています',
         'ログインに失敗しました',
@@ -72,13 +78,19 @@ test.describe('エラーハンドリング', () => {
       ]
 
       let errorFound = false
-      for (const message of errorMessages) {
-        const element = page.getByText(message)
-        if (await element.isVisible().catch(() => false)) {
-          errorFound = true
-          break
-        }
-      }
+      // 各メッセージを並行して待機
+      await Promise.race([
+        ...errorMessages.map(async message => {
+          try {
+            await page.getByText(message).waitFor({ state: 'visible', timeout: 5000 })
+            errorFound = true
+          } catch {
+            // このメッセージは表示されなかった
+          }
+        }),
+        // タイムアウト用のPromise
+        new Promise(resolve => setTimeout(resolve, 5000)),
+      ])
 
       expect(errorFound).toBe(true)
       await expect(page).toHaveURL('/auth/login')

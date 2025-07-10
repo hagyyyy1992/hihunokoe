@@ -327,7 +327,14 @@ test.describe('投稿編集・削除機能', () => {
 
     // 投稿詳細ページに移動して編集
     await page.goto('/posts')
-    await page.getByRole('link', { name: originalPost.title }).click()
+
+    // 投稿一覧が読み込まれるまで待機
+    await page.waitForLoadState('networkidle')
+
+    // 投稿タイトルが表示されるまで待機
+    const postLink = page.getByRole('link', { name: originalPost.title })
+    await postLink.waitFor({ state: 'visible', timeout: 10000 })
+    await postLink.click()
     await page.getByTestId('edit-post-button').click()
 
     // 内容を変更
