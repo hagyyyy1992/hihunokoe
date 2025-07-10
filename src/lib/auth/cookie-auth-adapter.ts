@@ -10,7 +10,6 @@ export function adaptCookieToBearer(request: Request): NextRequest {
   // 既存のAuthorizationヘッダーをチェック
   const existingAuthHeader = request.headers.get('Authorization')
   if (existingAuthHeader) {
-    console.log('[adaptCookieToBearer] Existing Authorization header found')
     // 既存のAuthorizationヘッダーがある場合は、そのまま返す
     return nextRequest
   }
@@ -25,8 +24,6 @@ export function adaptCookieToBearer(request: Request): NextRequest {
   // リクエストヘッダーをクローン
   const headers = new Headers(request.headers)
   headers.set('Authorization', `Bearer ${token}`)
-
-  console.log('[adaptCookieToBearer] Setting Authorization header with token')
 
   // 新しいリクエストを作成
   const newUrl = new URL(request.url)

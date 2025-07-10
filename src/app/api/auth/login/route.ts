@@ -26,15 +26,9 @@ export async function POST(request: NextRequest) {
         path: '/',
       })
 
-      console.log(
-        '[Login Route] Setting cookie for token:',
-        responseData.token.substring(0, 20) + '...'
-      ) // デバッグログ
-
       // レスポンスデータを返す
       return NextResponse.json(responseData)
     } else {
-      console.log('[Login Route] No token in response data') // デバッグログ
     }
   }
 
