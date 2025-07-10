@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 // import { useState, useEffect, useCallback } from 'react'
 // import { useAuth } from '@/lib/auth/AuthContext'
 // import EmpathyButton from '@/components/ui/EmpathyButton'
@@ -31,24 +32,6 @@ interface Post {
 interface PostCardProps {
   post: Post
 }
-
-const categoryLabels: Record<string, string> = {
-  toner: '化粧水',
-  serum: '美容液',
-  emulsion: '乳液',
-  cream: 'クリーム',
-  cleanser: '洗顔',
-  foundation: 'ファンデーション',
-  concealer: 'コンシーラー',
-  powder: 'フェイスパウダー',
-  eyeshadow: 'アイシャドウ',
-  lipstick: 'リップ',
-  sunscreen: '日焼け止め',
-  other: 'その他',
-}
-
-// スキンケアカテゴリの定義
-const skincareCategories = ['toner', 'serum', 'emulsion', 'cream', 'cleanser', 'sunscreen']
 
 const skinTypeLabels: Record<string, string> = {
   normal: '普通肌',

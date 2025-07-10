@@ -6,6 +6,7 @@ import {
 } from '@tests/helpers/rtl-utils'
 import PostCard from '@/components/ui/PostCard'
 import { setupComponentTest, cleanupComponentTest } from '@tests/helpers/component-test-setup'
+import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 
 // Mock date-fns
 jest.mock('date-fns', () => ({
@@ -89,6 +90,34 @@ describe('PostCard Component', () => {
     render(<PostCard post={mockPost} />)
 
     const categoryTag = screen.getByText('化粧水')
+    expectElementToBeVisible(categoryTag)
+    expect(categoryTag).toHaveClass('bg-green-100', 'text-green-800')
+  })
+
+  it('全てのカテゴリが正しくマッピングされる', () => {
+    Object.entries(categoryLabels).forEach(([key, label]) => {
+      const postWithCategory = { ...mockPost, cosmeticCategory: key }
+      const { unmount } = render(<PostCard post={postWithCategory} />)
+
+      const categoryTag = screen.getByText(label)
+      expectElementToBeVisible(categoryTag)
+
+      // スキンケアカテゴリは緑色、それ以外は青色
+      if (skincareCategories.includes(key)) {
+        expect(categoryTag).toHaveClass('bg-green-100', 'text-green-800')
+      } else {
+        expect(categoryTag).toHaveClass('bg-blue-100', 'text-blue-800')
+      }
+
+      unmount()
+    })
+  })
+
+  it('skincareカテゴリを正しく表示する', () => {
+    const postWithSkincare = { ...mockPost, cosmeticCategory: 'skincare' }
+    render(<PostCard post={postWithSkincare} />)
+
+    const categoryTag = screen.getByText('スキンケア')
     expectElementToBeVisible(categoryTag)
     expect(categoryTag).toHaveClass('bg-green-100', 'text-green-800')
   })
