@@ -4,7 +4,7 @@ import { adaptCookieToBearer } from '@/lib/auth/cookie-auth-adapter'
 
 const authController = new AuthController()
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: Request) {
   const adaptedRequest = adaptCookieToBearer(request)
   return authController.deleteAccount(adaptedRequest as NextRequest)
 }

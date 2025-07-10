@@ -47,7 +47,7 @@ describe('/api/auth/delete-account', () => {
 
     mockDeleteAccount.mockResolvedValue(mockResponse)
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ describe('/api/auth/delete-account', () => {
 
     mockDeleteAccount.mockResolvedValue(mockResponse)
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ describe('/api/auth/delete-account', () => {
 
     mockDeleteAccount.mockResolvedValue(mockResponse)
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ describe('/api/auth/delete-account', () => {
 
     mockDeleteAccount.mockResolvedValue(mockResponse)
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ describe('/api/auth/delete-account', () => {
 
     mockDeleteAccount.mockResolvedValue(mockResponse)
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ describe('/api/auth/delete-account', () => {
   it('サーバーエラーの場合は500を返す', async () => {
     mockDeleteAccount.mockRejectedValue(new Error('Database connection error'))
 
-    const request = new Request('http://localhost:3000/api/auth/delete-account', {
+    const request = new NextRequest('http://localhost:3000/api/auth/delete-account', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
