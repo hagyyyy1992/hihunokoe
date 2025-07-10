@@ -93,7 +93,7 @@ test.describe('投稿カテゴリの検証', () => {
     // 投稿詳細ページへのリダイレクトを完全に待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
     await page.waitForLoadState('networkidle')
-    
+
     // 確実に投稿一覧ページに移動
     await page.goto('/posts', { waitUntil: 'networkidle' })
     await page.waitForSelector('[data-testid="post-card"]')
@@ -116,7 +116,7 @@ test.describe('投稿カテゴリの検証', () => {
     await expect(categoryTag).toHaveClass(/text-green-800/)
   })
 
-  test('各カテゴリで投稿を作成できる', async ({ page }) => {
+  test('各カテゴリで投稿を作成し詳細ページでカテゴリが正しく表示される', async ({ page }) => {
     const categoriesToTest = [
       { value: 'toner', label: '化粧水', isSkincareCategory: true },
       { value: 'foundation', label: 'ファンデーション', isSkincareCategory: false },
@@ -154,23 +154,14 @@ test.describe('投稿カテゴリの検証', () => {
       // 投稿詳細ページへのリダイレクトを完全に待つ
       await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
       await page.waitForLoadState('networkidle')
-      
-      // 確実に投稿一覧ページに移動
-      await page.goto('/posts', { waitUntil: 'networkidle' })
-      await page.waitForSelector('[data-testid="post-card"]')
 
-      // 投稿が作成されたことを確認
-      const postCard = page
-        .locator('[data-testid="post-card"]')
-        .filter({
-          hasText: title,
-        })
-        .first()
-      await expect(postCard).toBeVisible()
+      // 詳細ページで投稿内容を確認
+      await expect(page.locator('[data-testid="post-title"]')).toContainText(title)
 
-      // カテゴリタグが表示されることを確認（より具体的なセレクター）
-      const categoryTag = postCard.locator('span').filter({ hasText: category.label }).first()
+      // 詳細ページでカテゴリタグが表示されることを確認
+      const categoryTag = page.locator('[data-testid="post-category"]')
       await expect(categoryTag).toBeVisible()
+      await expect(categoryTag).toContainText(category.label)
 
       // カテゴリによって色が異なることを確認
       if (category.isSkincareCategory) {
@@ -214,7 +205,7 @@ test.describe('投稿カテゴリの検証', () => {
     // 投稿詳細ページへのリダイレクトを完全に待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
     await page.waitForLoadState('networkidle')
-    
+
     // 確実に投稿一覧ページに移動
     await page.goto('/posts', { waitUntil: 'networkidle' })
     await page.waitForSelector('[data-testid="post-card"]')
