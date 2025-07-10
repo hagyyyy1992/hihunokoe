@@ -59,9 +59,10 @@
       "Bash(npx playwright:*)",
       "Bash(gh pr:*)",
       "Bash(curl:*)",
-      "Bash(cp:*)",
-      "Bash(rmdir:*)",
-      "Bash(mv:*)"
+      "Bash(-b cookies.txt )",
+      "Bash(-H \"Content-Type: application/json\" -v)",
+      "Bash(-v)",
+      "Bash(-b cookies.txt)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
