@@ -1,13 +1,9 @@
 {
   "git": {
     "deploymentEnabled": {
-      "main": false,
+      "main": true,
       "preview": false
     }
-  },
-  "github": {
-    "deploymentEnabled": false,
-    "autoDeployment": false
   },
   "headers": [
     {
