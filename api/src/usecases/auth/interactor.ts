@@ -292,7 +292,8 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 
     // Send password reset email
     if (this.emailService) {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl =
+        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
       await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken, baseUrl)
     }
 
@@ -402,7 +403,8 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 
     // Send verification email
     if (this.emailService) {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl =
+        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
       await this.emailService.sendVerificationEmail(
         user.email,
         user.userName,

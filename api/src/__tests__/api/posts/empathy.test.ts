@@ -302,6 +302,8 @@ describe('/api/posts/empathy (query parameter)', () => {
     })
 
     it.skip('データベースモードで共感を追加できる', async () => {
+      // Clean Architecture移行後にモック構成が複雑化したため、一時的にスキップ
+      // TODO: PostControllerとEmpathyUseCaseのモックを正しく設定する
       mockIsDatabaseAvailable.mockReturnValue(true)
       mockVerifyToken.mockResolvedValue({ userId: '550e8400-e29b-41d4-a716-446655440011' })
 

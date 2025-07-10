@@ -88,7 +88,9 @@ MAILHOG_WEB_PORT=${MAILHOG_WEB_PORT}
 # アプリケーション設定
 DATABASE_URL=postgresql://postgres:password@localhost:${DB_PORT}/${DB_NAME}
 DIRECT_URL=postgresql://postgres:password@localhost:${DB_PORT}/${DB_NAME}
+API_URL=http://localhost:${APP_PORT}
 NEXT_PUBLIC_API_URL=http://localhost:${APP_PORT}
+PORT=${APP_PORT}
 MAILHOG_HOST=localhost
 MAILHOG_PORT=${MAILHOG_SMTP_PORT}
 MAILHOG_WEB_URL=http://localhost:${MAILHOG_WEB_PORT}

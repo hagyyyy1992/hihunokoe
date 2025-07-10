@@ -37,6 +37,7 @@ export class AuthController {
   private passwordManagementUseCase: PasswordManagementUseCase
   private emailVerificationUseCase: EmailVerificationUseCase
   private accountManagementUseCase: AccountManagementUseCase
+  private emailService: EmailServiceImpl
 
   constructor() {
     const userRepository = new UserRepositoryImpl()
@@ -67,6 +68,7 @@ export class AuthController {
       authSessionRepository,
       passwordHashService
     )
+    this.emailService = emailService
   }
 
   async login(request: NextRequest): Promise<NextResponse> {
@@ -128,6 +130,18 @@ export class AuthController {
 
       const inputPort: RegisterInputPort = { email, userName, password }
       const result = await this.authenticationUseCase.register(inputPort)
+
+      // Send verification email after successful registration
+      if (this.emailService && result.user.emailVerificationToken) {
+        const baseUrl =
+          process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+        await this.emailService.sendVerificationEmail(
+          result.user.email,
+          result.user.username,
+          result.user.emailVerificationToken,
+          baseUrl
+        )
+      }
 
       return NextResponse.json({
         success: true,
