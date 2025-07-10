@@ -32,7 +32,7 @@ jest.mock('@/components/ui/Button', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/card', () => ({
+jest.mock('@/components/ui/Card', () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div className={className}>{children}</div>
   ),
@@ -92,7 +92,7 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/alert', () => ({
+jest.mock('@/components/ui/Alert', () => ({
   Alert: ({ children, variant }: { children: React.ReactNode; variant?: string }) => (
     <div data-variant={variant}>{children}</div>
   ),

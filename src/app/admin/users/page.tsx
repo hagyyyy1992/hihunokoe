@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import { SimpleSelect } from '@/components/ui/Select'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/Table'
+} from '@/components/ui/table'
 import {
   AlertDialog,
   AlertDialogAction,

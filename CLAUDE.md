@@ -686,29 +686,18 @@ Claude Codeは以下の状況でも**必ず**チェックを実行：
 
 GitHub ActionsのCIは以下の条件で実行されます：
 
-1. **Pull Request (PR)**: コミットメッセージに `[ci]` が含まれている場合のみ実行
+1. **Pull Request (PR)**: すべてのコミットで自動実行
 
-   - 例: `feat: 新機能を追加 [ci]`
-   - 例: `fix: バグ修正 [ci]`
-   - CIをスキップしたい場合は、`[ci]` を含めない
+   - PRを作成または更新すると自動的にCIが実行される
+   - Build Test、Lint & Type Check、Unit Testsが並列実行
+   - すべてのチェックが成功する必要がある
 
 2. **mainブランチへのプッシュ**: 常に実行（条件なし）
 
    - マージやプッシュ時は自動的に全てのCIチェックが実行される
    - プロダクション品質を保証するため、スキップ不可
 
-3. **CI実行を促すメッセージ**
-
-   - PRでCIがスキップされた場合、以下のメッセージが表示されます：
-
-   ```
-   ⏭️ CI checks were skipped for this PR
-
-   To run CI checks, include [ci] in your commit message:
-     Example: 'feat: add new feature [ci]'
-
-   Note: CI always runs on merges to main branch
-   ```
+**注意**: 現在、コミットメッセージの `[ci]` タグによる制御は実装されていません。
 
 ### プルリクエスト作成時のCIチェック対応
 
