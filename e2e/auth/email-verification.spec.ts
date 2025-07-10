@@ -74,7 +74,7 @@ test.describe('メール認証機能', () => {
     await expect(
       page.getByText('メールアドレスの確認が完了していません。確認メールをご確認ください。')
     ).toBeVisible({ timeout: 10000 })
-    
+
     // URLがログインページのままであることを確認
     await expect(page).toHaveURL('/auth/login')
   })

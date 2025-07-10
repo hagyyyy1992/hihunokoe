@@ -88,7 +88,8 @@ describe('Header', () => {
     expect(screen.getByRole('link', { name: 'ホーム' })).toHaveAttribute('href', '/home')
     expect(screen.getByRole('link', { name: '体験を見る' })).toHaveAttribute('href', '/posts')
     expect(screen.getByRole('link', { name: '体験を投稿' })).toHaveAttribute('href', '/posts/new')
-    expect(screen.getByText('testuserさん')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'プロフィール' })).toHaveAttribute('href', '/profile')
+    expect(screen.getByRole('button', { name: 'ログアウト' })).toBeInTheDocument()
   })
 
   it('applies active styles to current page link', () => {

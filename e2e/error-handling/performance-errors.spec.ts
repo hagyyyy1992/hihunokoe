@@ -16,7 +16,7 @@ test.describe('パフォーマンスエラーハンドリング', () => {
         test.skip()
         return
       }
-      
+
       // 現在の実装ではログインにレート制限がないため、
       // 複数回の失敗ログインが正しく処理されることを確認
       await page.goto('/auth/login')
@@ -28,7 +28,9 @@ test.describe('パフォーマンスエラーハンドリング', () => {
         await page.getByRole('button', { name: 'ログイン' }).click()
 
         // エラーメッセージが表示されることを確認
-        await expect(page.getByText('メールアドレスまたはパスワードが間違っています')).toBeVisible({ timeout: 5000 })
+        await expect(page.getByText('メールアドレスまたはパスワードが間違っています')).toBeVisible({
+          timeout: 5000,
+        })
 
         // 次の試行の前に少し待機
         await page.waitForTimeout(500)

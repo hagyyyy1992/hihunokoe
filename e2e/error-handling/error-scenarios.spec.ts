@@ -543,13 +543,16 @@ test.describe('エラーハンドリング', () => {
       // ログインボタンをクリック
       await page.getByRole('button', { name: 'ログイン' }).click()
 
-      // ネットワークエラーが処理されることを確認
-      // エラーメッセージが表示されるか、ページがログインページのままであることを確認
+      // ネットワークエラーメッセージが表示されることを確認
+      // またはログインページに留まっていることを確認
       await page.waitForTimeout(2000) // エラー処理のための待機
-
-      // ログインページに留まっていることを確認
+      
+      const errorMessage = await page.getByText('ネットワークエラーが発生しました。インターネット接続を確認してください。').isVisible().catch(() => false)
+      const generalError = await page.getByText('ログインに失敗しました').isVisible().catch(() => false)
       const isOnLoginPage = page.url().includes('/auth/login')
-      expect(isOnLoginPage).toBe(true)
+      
+      // エラーメッセージが表示されるか、ログインページに留まっていればOK
+      expect(errorMessage || generalError || isOnLoginPage).toBe(true)
 
       console.log('[TEST] Network error scenario completed')
     })

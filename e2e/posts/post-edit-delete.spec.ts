@@ -178,7 +178,7 @@ test.describe('投稿編集・削除機能', () => {
     }
 
     const postId = await postHelper.createPost(postData)
-    
+
     // 投稿作成後、投稿詳細ページにいることを確認
     await expect(page).toHaveURL(new RegExp(`/posts/${postId}`))
 

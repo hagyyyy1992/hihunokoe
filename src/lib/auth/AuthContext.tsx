@@ -94,7 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
         credentials: 'same-origin',
       })
-      const data = await response.json()
+
+      // レスポンスのJSONパースを試みる
+      let data
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        // JSONパースに失敗した場合（ネットワークエラーなど）
+        throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました')
@@ -107,6 +115,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.warn('No token in login response!') // デバッグログ追加
       }
+    } catch (error) {
+      // ネットワークエラーの場合
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+      }
+      throw error
     } finally {
       setLoading(false)
     }
