@@ -129,6 +129,7 @@ export default function EditPostPage() {
   const validateCosmeticCategory = (category?: string): CosmeticCategory | '' => {
     if (!category) return ''
     const validCategories: CosmeticCategory[] = [
+      'skincare',
       'toner',
       'serum',
       'emulsion',
