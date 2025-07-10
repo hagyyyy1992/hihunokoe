@@ -412,8 +412,8 @@ export default function EditPostPage() {
               onClick={() => setShowDeleteConfirm(false)}
             />
             {/* モーダル本体 */}
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 pointer-events-auto">
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                   投稿を削除しますか？
                 </h3>

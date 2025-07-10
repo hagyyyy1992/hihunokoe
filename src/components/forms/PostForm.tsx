@@ -229,27 +229,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
           formData.cosmeticName.trim() && formData.cosmeticName.trim().length <= 100
         const contentValid = formData.content.trim() && formData.content.trim().length <= 2000
         const categoryValid = !!formData.cosmeticCategory
-
         const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
-
-        // デバッグ用：バリデーション状態をログ出力
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Step 1 validation:', {
-            title: formData.title.trim(),
-            titleLength: formData.title.trim().length,
-            titleValid,
-            cosmeticName: formData.cosmeticName.trim(),
-            cosmeticNameLength: formData.cosmeticName.trim().length,
-            cosmeticNameValid,
-            content: formData.content.trim(),
-            contentLength: formData.content.trim().length,
-            contentValid,
-            cosmeticCategory: formData.cosmeticCategory,
-            categoryValid,
-            isValid,
-          })
-        }
-
         return isValid
       case 2:
         return true // オプショナル
