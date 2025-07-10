@@ -19,6 +19,97 @@ test.describe('投稿カテゴリの検証', () => {
     await page.waitForTimeout(1000)
   })
 
+  // デバッグ用のテストを追加
+  test('投稿作成フローのデバッグ', async ({ page }) => {
+    console.log('Starting post creation debug test')
+
+    await page.goto('/posts/new')
+    console.log('Navigated to /posts/new')
+
+    // ステップ1: 基本情報を入力
+    await page.fill('[data-testid="post-title-input"]', 'デバッグテスト投稿')
+    console.log('Filled title')
+
+    await page.fill('[name="cosmeticName"]', 'デバッグコスメ')
+    console.log('Filled cosmetic name')
+
+    await page.selectOption('[data-testid="category-select"]', 'skincare')
+    console.log('Selected category')
+
+    await page.fill(
+      '[name="content"]',
+      'これはデバッグ用のテスト投稿です。投稿が正常に作成されるかを確認しています。とても詳しい体験談を書いています。長い文章でバリデーションを通過させます。'
+    )
+    console.log('Filled content')
+
+    // ボタンの状態を確認
+    const nextButton = page.locator('button:has-text("次へ")')
+    const isDisabled = await nextButton.isDisabled()
+    console.log('Next button disabled:', isDisabled)
+
+    if (!isDisabled) {
+      console.log('Clicking next button for step 2')
+      await nextButton.click()
+      await page.waitForTimeout(1000)
+
+      console.log('Clicking next button for step 3')
+      await page.click('button:has-text("次へ")')
+      await page.waitForTimeout(1000)
+
+      console.log('Clicking next button for step 4')
+      await page.click('button:has-text("次へ")')
+      await page.waitForTimeout(1000)
+
+      // 投稿ボタンの状態を確認
+      const publishButton = page.locator('[data-testid="publish-button"]')
+      const publishDisabled = await publishButton.isDisabled()
+      console.log('Publish button disabled:', publishDisabled)
+
+      if (!publishDisabled) {
+        console.log('Clicking publish button')
+        await publishButton.click()
+
+        // URLの変化を待つ
+        await page.waitForTimeout(3000)
+        const currentUrl = page.url()
+        console.log('Current URL after publish:', currentUrl)
+
+        // 投稿一覧に移動
+        await page.goto('/posts')
+        await page.waitForTimeout(2000)
+
+        // 投稿カードが存在するかチェック
+        const postCards = await page.locator('[data-testid="post-card"]').count()
+        console.log('Number of post cards found:', postCards)
+
+        if (postCards > 0) {
+          const firstCardText = await page
+            .locator('[data-testid="post-card"]')
+            .first()
+            .textContent()
+          console.log('First post card text:', firstCardText)
+        }
+
+        // デバッグテスト投稿が見つかるかチェック
+        const debugPost = page
+          .locator('[data-testid="post-card"]')
+          .filter({ hasText: 'デバッグテスト投稿' })
+        const debugPostExists = (await debugPost.count()) > 0
+        console.log('Debug post exists:', debugPostExists)
+
+        if (debugPostExists) {
+          console.log('Debug post found successfully!')
+        } else {
+          console.log('Debug post not found in the list')
+        }
+      } else {
+        console.log('Publish button is disabled, cannot proceed')
+      }
+    } else {
+      console.log('Next button is disabled, form validation failed')
+    }
+  })
+
   test('全てのカテゴリオプションが投稿フォームに存在する', async ({ page }) => {
     await page.goto('/posts/new')
     await page.waitForSelector('[data-testid="category-select"]')

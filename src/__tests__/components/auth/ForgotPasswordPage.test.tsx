@@ -207,7 +207,7 @@ describe('ForgotPasswordPage', () => {
 
       expect(submitButton).toBeDisabled()
 
-      resolvePromise(mockApiResponse.success({ message: 'Success' }) as any)
+      resolvePromise(mockApiResponse.success({ message: 'Success' }) as Response)
       await waitFor(100)
 
       expect(submitButton).not.toBeDisabled()

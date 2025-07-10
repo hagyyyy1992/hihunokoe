@@ -2,7 +2,7 @@ import { render, screen, createUser } from '../helpers/rtl-utils'
 import ProfilePage from '@/app/profile/page'
 import { setupComponentTest, cleanupComponentTest } from '../helpers/component-test-setup'
 import { mockUser } from '../helpers/component-mocks'
-import { ReadonlyURLSearchParams } from 'next/navigation'
+import type { ReadonlyURLSearchParams } from 'next/navigation'
 
 // Mock the auth context
 jest.mock('@/lib/auth/AuthContext', () => ({
