@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
+import { categoryLabels } from '@/lib/constants/categories'
 
 interface PostFormData {
   title: string
@@ -352,19 +353,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 required
               >
                 <option value="">選択してください</option>
-                <option value="skincare">スキンケア</option>
-                <option value="toner">化粧水</option>
-                <option value="serum">美容液</option>
-                <option value="emulsion">乳液</option>
-                <option value="cream">クリーム</option>
-                <option value="cleanser">洗顔</option>
-                <option value="foundation">ファンデーション</option>
-                <option value="concealer">コンシーラー</option>
-                <option value="powder">フェイスパウダー</option>
-                <option value="eyeshadow">アイシャドウ</option>
-                <option value="lipstick">リップ</option>
-                <option value="sunscreen">日焼け止め</option>
-                <option value="other">その他</option>
+                {Object.entries(categoryLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -16,7 +16,7 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 認証確認のため投稿一覧ページに移動してからテストを開始
     await page.goto('/posts')
-    await page.waitForTimeout(1000)
+    await page.waitForLoadState('networkidle')
   })
 
   test('全てのカテゴリオプションが投稿フォームに存在する', async ({ page }) => {
@@ -34,22 +34,11 @@ test.describe('投稿カテゴリの検証', () => {
     // 最初のオプションは「選択してください」
     expect(options[0]).toEqual({ value: '', text: '選択してください' })
 
-    // 残りのオプションを確認（PostFormのハードコードされた順序）
-    const expectedOptions = [
-      { value: 'skincare', text: 'スキンケア' },
-      { value: 'toner', text: '化粧水' },
-      { value: 'serum', text: '美容液' },
-      { value: 'emulsion', text: '乳液' },
-      { value: 'cream', text: 'クリーム' },
-      { value: 'cleanser', text: '洗顔' },
-      { value: 'foundation', text: 'ファンデーション' },
-      { value: 'concealer', text: 'コンシーラー' },
-      { value: 'powder', text: 'フェイスパウダー' },
-      { value: 'eyeshadow', text: 'アイシャドウ' },
-      { value: 'lipstick', text: 'リップ' },
-      { value: 'sunscreen', text: '日焼け止め' },
-      { value: 'other', text: 'その他' },
-    ]
+    // 残りのオプションを確認（共通定数から動的に生成）
+    const expectedOptions = Object.entries(categoryLabels).map(([value, text]) => ({
+      value,
+      text,
+    }))
 
     // オプションの数が一致することを確認
     expect(options.slice(1)).toHaveLength(expectedOptions.length)
@@ -90,13 +79,17 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    // 投稿詳細ページへのリダイレクトを完全に待つ
+    
+    // 投稿詳細ページへのリダイレクトを待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-    await page.waitForLoadState('networkidle')
+    
+    // ページの読み込み完了を待つ
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000) // Firefoxでのナビゲーション安定化のため
 
-    // 確実に投稿一覧ページに移動
-    await page.goto('/posts', { waitUntil: 'networkidle' })
-    await page.waitForSelector('[data-testid="post-card"]')
+    // 投稿一覧ページに移動
+    await page.goto('/posts')
+    await page.waitForSelector('[data-testid="post-card"]', { state: 'visible', timeout: 30000 })
 
     // 投稿が作成されたことを確認
     const postCard = page
@@ -151,9 +144,13 @@ test.describe('投稿カテゴリの検証', () => {
 
       // 投稿を作成
       await page.click('[data-testid="publish-button"]')
-      // 投稿詳細ページへのリダイレクトを完全に待つ
+      
+      // 投稿詳細ページへのリダイレクトを待つ
       await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-      await page.waitForLoadState('networkidle')
+      
+      // ページの読み込み完了を待つ
+      await page.waitForLoadState('domcontentloaded')
+      await page.waitForTimeout(1000) // ブラウザ間の安定性向上のため
 
       // 詳細ページで投稿内容を確認
       await expect(page.locator('[data-testid="post-title"]')).toContainText(title)
@@ -202,13 +199,17 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    // 投稿詳細ページへのリダイレクトを完全に待つ
+    
+    // 投稿詳細ページへのリダイレクトを待つ
     await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
-    await page.waitForLoadState('networkidle')
+    
+    // ページの読み込み完了を待つ
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000) // ブラウザ間の安定性向上のため
 
-    // 確実に投稿一覧ページに移動
-    await page.goto('/posts', { waitUntil: 'networkidle' })
-    await page.waitForSelector('[data-testid="post-card"]')
+    // 投稿一覧ページに移動
+    await page.goto('/posts')
+    await page.waitForSelector('[data-testid="post-card"]', { state: 'visible', timeout: 30000 })
 
     // 作成した投稿をクリックして詳細ページに遷移
     const postCard = page.locator('[data-testid="post-card"]').filter({ hasText: title }).first()

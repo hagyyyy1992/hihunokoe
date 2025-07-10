@@ -1,28 +1,16 @@
-// カテゴリーマッピング（英語 -> 日本語）
-export const COSMETIC_CATEGORIES = {
-  toner: 'toner',
-  serum: 'serum',
-  emulsion: 'emulsion',
-  cream: 'cream',
-  cleanser: 'cleanser',
-  foundation: 'foundation',
-  concealer: 'concealer',
-  sunscreen: 'sunscreen',
-  other: 'other',
-} as const
+import { categoryLabels } from '../../src/lib/constants/categories'
 
-// 日本語ラベル
-export const COSMETIC_CATEGORY_LABELS = {
-  toner: '化粧水',
-  serum: '美容液',
-  emulsion: '乳液',
-  cream: 'クリーム',
-  cleanser: '洗顔',
-  foundation: 'ファンデーション',
-  concealer: 'コンシーラー',
-  sunscreen: '日焼け止め',
-  other: 'その他',
-} as const
+// カテゴリーマッピング（英語キー）
+export const COSMETIC_CATEGORIES = Object.keys(categoryLabels).reduce(
+  (acc, key) => {
+    acc[key as keyof typeof categoryLabels] = key
+    return acc
+  },
+  {} as Record<keyof typeof categoryLabels, string>
+)
+
+// 日本語ラベル（共通定数から参照）
+export const COSMETIC_CATEGORY_LABELS = categoryLabels
 
 // 肌タイプマッピング（英語 -> 日本語）
 export const SKIN_TYPES = {
@@ -63,14 +51,14 @@ export const testPosts = {
     title: 'E2Eテスト投稿',
     content: 'これはPlaywrightのE2Eテストで作成された投稿です。',
     cosmeticName: 'テストクリーム',
-    cosmeticCategory: COSMETIC_CATEGORIES.cream,
+    cosmeticCategory: 'cream' as const,
   },
 
   longPost: {
     title: '長文投稿のテスト',
     content: 'この投稿は長い内容のテストです。'.repeat(10),
     cosmeticName: 'テストファンデーション',
-    cosmeticCategory: COSMETIC_CATEGORIES.foundation,
+    cosmeticCategory: 'foundation' as const,
   },
 }
 

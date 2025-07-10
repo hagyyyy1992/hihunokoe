@@ -118,7 +118,7 @@ async function main() {
       content:
         'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
       cosmeticName: 'やさしいクレンジングオイル',
-      cosmeticCategory: 'cleansing',
+      cosmeticCategory: 'cleanser',
       skinType: 'combination',
       moodTag: 'good',
       usageSituation: {

@@ -1,30 +1,18 @@
 // E2Eテスト用の定数定義
 
-// 化粧品カテゴリのマッピング
-export const COSMETIC_CATEGORY_VALUES = {
-  toner: 'toner',
-  serum: 'serum',
-  emulsion: 'emulsion',
-  cream: 'cream',
-  cleanser: 'cleanser',
-  foundation: 'foundation',
-  concealer: 'concealer',
-  sunscreen: 'sunscreen',
-  other: 'other',
-} as const
+import { categoryLabels } from '../../src/lib/constants/categories'
 
-// UIに表示される日本語ラベル
-export const COSMETIC_CATEGORY_LABELS = {
-  toner: '化粧水',
-  serum: '美容液',
-  emulsion: '乳液',
-  cream: 'クリーム',
-  cleanser: '洗顔',
-  foundation: 'ファンデーション',
-  concealer: 'コンシーラー',
-  sunscreen: '日焼け止め',
-  other: 'その他',
-} as const
+// 化粧品カテゴリのマッピング
+export const COSMETIC_CATEGORY_VALUES = Object.keys(categoryLabels).reduce(
+  (acc, key) => {
+    acc[key as keyof typeof categoryLabels] = key
+    return acc
+  },
+  {} as Record<keyof typeof categoryLabels, string>
+)
+
+// UIに表示される日本語ラベル（共通定数から参照）
+export const COSMETIC_CATEGORY_LABELS = categoryLabels
 
 // 肌タイプの値
 export const SKIN_TYPE_VALUES = {
