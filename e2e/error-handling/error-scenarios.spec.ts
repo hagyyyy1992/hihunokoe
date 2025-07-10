@@ -532,17 +532,24 @@ test.describe('エラーハンドリング', () => {
         return
       }
 
-      // ネットワークを無効にする
-      await page.route('**/*', route => route.abort())
-
+      // まずログインページに移動
       await page.goto('/auth/login')
       await page.getByLabel('メールアドレス').fill('test@example.com')
       await page.locator('input[name="password"]').fill('password123')
+
+      // APIリクエストのみを無効にする（ページナビゲーションは許可）
+      await page.route('**/api/**', route => route.abort())
+
+      // ログインボタンをクリック
       await page.getByRole('button', { name: 'ログイン' }).click()
 
       // ネットワークエラーが処理されることを確認
-      // 実際のアプリケーションでは、適切なエラーメッセージが表示される
-      await page.waitForTimeout(5000) // エラー処理のための待機
+      // エラーメッセージが表示されるか、ページがログインページのままであることを確認
+      await page.waitForTimeout(2000) // エラー処理のための待機
+
+      // ログインページに留まっていることを確認
+      const isOnLoginPage = page.url().includes('/auth/login')
+      expect(isOnLoginPage).toBe(true)
 
       console.log('[TEST] Network error scenario completed')
     })

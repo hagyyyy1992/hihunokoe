@@ -185,7 +185,14 @@ test.describe('投稿編集・削除機能', () => {
 
     // 他人の投稿詳細ページに移動
     await page.goto('/posts')
-    await page.getByRole('link', { name: postData.title }).click()
+    
+    // 投稿一覧が読み込まれるのを待つ
+    await page.waitForLoadState('networkidle')
+    
+    // 投稿を探して表示されるのを待つ
+    const postLink = page.getByRole('link', { name: postData.title })
+    await expect(postLink).toBeVisible({ timeout: 30000 })
+    await postLink.click()
 
     // 編集・削除ボタンが表示されないことを確認
     await expect(page.getByTestId('edit-post-button')).not.toBeVisible()

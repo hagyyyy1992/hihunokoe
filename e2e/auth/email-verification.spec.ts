@@ -70,23 +70,12 @@ test.describe('メール認証機能', () => {
     await page.getByRole('button', { name: 'ログイン' }).click()
 
     // エラーメッセージが表示されることを確認
-    const errorMessages = [
-      'メールアドレスの確認が完了していません',
-      'アカウントが認証されていません',
-      'メール認証が必要です',
-      'エラーが発生しました',
-    ]
-
-    let errorFound = false
-    for (const message of errorMessages) {
-      const element = page.getByText(message)
-      if (await element.isVisible().catch(() => false)) {
-        errorFound = true
-        break
-      }
-    }
-
-    expect(errorFound).toBe(true)
+    // APIレスポンスのエラーメッセージを確認
+    await expect(
+      page.getByText('メールアドレスの確認が完了していません。確認メールをご確認ください。')
+    ).toBeVisible({ timeout: 10000 })
+    
+    // URLがログインページのままであることを確認
     await expect(page).toHaveURL('/auth/login')
   })
 
