@@ -1,6 +1,6 @@
 // Test data factory functions for consistent test data across tests
 
-export const createMockUser = (overrides: Partial<any> = {}) => ({
+export const createMockUser = (overrides: Record<string, unknown> = {}) => ({
   id: 'test-user-id',
   userName: 'Test User',
   email: 'test@example.com',
@@ -9,7 +9,7 @@ export const createMockUser = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createMockPost = (overrides: Partial<any> = {}) => ({
+export const createMockPost = (overrides: Record<string, unknown> = {}) => ({
   id: 'test-post-id',
   userId: 'test-user-id',
   title: 'Test Post Title',
@@ -39,7 +39,7 @@ export const createMockPost = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createMockComment = (overrides: Partial<any> = {}) => ({
+export const createMockComment = (overrides: Record<string, unknown> = {}) => ({
   id: 'test-comment-id',
   postId: 'test-post-id',
   userId: 'test-user-id',
@@ -53,7 +53,7 @@ export const createMockComment = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createMockEmpathy = (overrides: Partial<any> = {}) => ({
+export const createMockEmpathy = (overrides: Record<string, unknown> = {}) => ({
   id: 'test-empathy-id',
   postId: 'test-post-id',
   userId: 'test-user-id',
@@ -63,7 +63,7 @@ export const createMockEmpathy = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createValidPostData = (overrides: Partial<any> = {}) => ({
+export const createValidPostData = (overrides: Record<string, unknown> = {}) => ({
   title: 'Test Post Title',
   content: 'Test post content describing the cosmetic experience',
   cosmeticName: 'Test Cosmetic Product',
@@ -100,7 +100,7 @@ export const createValidPostData = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createValidUserRegistrationData = (overrides: Partial<any> = {}) => ({
+export const createValidUserRegistrationData = (overrides: Record<string, unknown> = {}) => ({
   userName: 'Test User',
   email: 'test@example.com',
   password: 'password123',
@@ -108,14 +108,14 @@ export const createValidUserRegistrationData = (overrides: Partial<any> = {}) =>
   ...overrides,
 })
 
-export const createValidLoginData = (overrides: Partial<any> = {}) => ({
+export const createValidLoginData = (overrides: Record<string, unknown> = {}) => ({
   email: 'test@example.com',
   password: 'password123',
   ...overrides,
 })
 
 // Mock Prisma responses
-export const createMockPrismaPostResponse = (overrides: Partial<any> = {}) => ({
+export const createMockPrismaPostResponse = (overrides: Record<string, unknown> = {}) => ({
   ...createMockPost(),
   user: {
     id: 'test-user-id',
@@ -131,7 +131,7 @@ export const createMockPrismaPostResponse = (overrides: Partial<any> = {}) => ({
   ...overrides,
 })
 
-export const createMockPrismaUserResponse = (overrides: Partial<any> = {}) => ({
+export const createMockPrismaUserResponse = (overrides: Record<string, unknown> = {}) => ({
   ...createMockUser(),
   passwordHash: '$2b$12$hashedpassword',
   isActive: true,

@@ -160,7 +160,7 @@ export const mockRouter = {
 
 // Mock pathname and search params
 export const mockPathname = '/'
-export const mockSearchParams = new URLSearchParams()
+export const mockSearchParams = new URLSearchParams() as unknown as URLSearchParams
 
 // Complete AuthContext mock
 export const mockAuthContext = {

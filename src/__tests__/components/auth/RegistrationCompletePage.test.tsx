@@ -129,7 +129,9 @@ describe('RegistrationCompletePage', () => {
 
     it('再送信が成功した場合に成功メッセージが表示される', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: '再送信成功' }) as any)
+      mockFetch.mockResolvedValueOnce(
+        mockApiResponse.success({ message: '再送信成功' }) as Response
+      )
 
       render(<RegistrationCompletePage />)
 
@@ -154,7 +156,7 @@ describe('RegistrationCompletePage', () => {
 
     it('再送信が失敗した場合にエラーメッセージが表示される', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.error('再送信に失敗しました') as any)
+      mockFetch.mockResolvedValueOnce(mockApiResponse.error('再送信に失敗しました') as Response)
 
       render(<RegistrationCompletePage />)
 
@@ -169,9 +171,7 @@ describe('RegistrationCompletePage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<RegistrationCompletePage />)
@@ -190,15 +190,11 @@ describe('RegistrationCompletePage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void = () => {}
+      let _resolvePromise: (value: unknown) => void = () => {}
       const pendingPromise = new Promise(resolve => {
-        resolvePromise = resolve
+        _resolvePromise = resolve
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise as Promise<Response>)
 
       render(<RegistrationCompletePage />)
 
@@ -208,7 +204,7 @@ describe('RegistrationCompletePage', () => {
       expect(screen.getByText('送信中...')).toBeInTheDocument()
       expect(screen.getByText('送信中...')).toBeDisabled()
 
-      resolvePromise(mockApiResponse.success({ message: 'Success' }))
+      _resolvePromise(mockApiResponse.success({ message: 'Success' }))
       await waitFor(() => expect(screen.getByText('確認メールを再送信')).toBeInTheDocument())
 
       expect(screen.getByText('確認メールを再送信')).toBeInTheDocument()

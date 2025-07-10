@@ -50,6 +50,20 @@ export class CommentRepositoryImpl implements CommentRepository {
     return prismaComments.map(comment => this.toDomainComment(comment))
   }
 
+  async findByUserId(userId: string): Promise<Comment[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const prismaComments = await prisma.comment.findMany({
+      where: {
+        userId,
+        isActive: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return prismaComments.map(comment => this.toDomainComment(comment))
+  }
+
   async findRepliesByParentId(parentCommentId: string): Promise<Comment[]> {
     if (!prisma) throw new Error('Database connection not available')
 

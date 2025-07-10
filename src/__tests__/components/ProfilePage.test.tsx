@@ -1,7 +1,8 @@
-import { render, screen, createUser, waitFor } from '../helpers/rtl-utils'
+import { render, screen, createUser } from '../helpers/rtl-utils'
 import ProfilePage from '@/app/profile/page'
 import { setupComponentTest, cleanupComponentTest } from '../helpers/component-test-setup'
 import { mockUser } from '../helpers/component-mocks'
+import { ReadonlyURLSearchParams } from 'next/navigation'
 
 // Mock the auth context
 jest.mock('@/lib/auth/AuthContext', () => ({
@@ -47,7 +48,7 @@ describe('ProfilePage Component', () => {
       forward: jest.fn(),
       refresh: jest.fn(),
       prefetch: jest.fn(),
-    } as any)
+    } as ReturnType<typeof useRouter>)
 
     mockUseSearchParams.mockReturnValue({
       get: jest.fn().mockReturnValue(null),
@@ -58,8 +59,13 @@ describe('ProfilePage Component', () => {
       entries: jest.fn().mockReturnValue([]),
       forEach: jest.fn(),
       toString: jest.fn().mockReturnValue(''),
+      append: jest.fn(),
+      delete: jest.fn(),
+      set: jest.fn(),
+      sort: jest.fn(),
+      size: 0,
       [Symbol.iterator]: jest.fn(),
-    } as any)
+    } as unknown as ReadonlyURLSearchParams)
   })
 
   afterEach(() => {
@@ -84,7 +90,12 @@ describe('ProfilePage Component', () => {
     const mockPush = jest.fn()
     mockUseRouter.mockReturnValue({
       push: mockPush,
-    } as any)
+      replace: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+      prefetch: jest.fn(),
+    } as ReturnType<typeof useRouter>)
 
     mockUseAuth.mockReturnValue({
       user: null,

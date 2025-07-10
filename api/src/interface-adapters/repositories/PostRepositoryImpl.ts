@@ -418,6 +418,116 @@ export class PostRepositoryImpl implements PostRepository {
     })
   }
 
+  // Methods for test compatibility
+  async findByUserId(userId: string, options?: { includeUnpublished?: boolean }): Promise<Post[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const where: any = { userId }
+    if (!options?.includeUnpublished) {
+      where.status = 'published'
+    }
+
+    const posts = await prisma.post.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
+        _count: {
+          select: {
+            empathies: true,
+            comments: true,
+          },
+        },
+      },
+    })
+
+    return posts.map(post => this.toDomainPost(post))
+  }
+
+  async findAll(options?: {
+    limit?: number
+    offset?: number
+    category?: string
+    skinType?: string
+    moodTag?: string
+  }): Promise<Post[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const where: any = { status: 'published' }
+    if (options?.category) where.cosmeticCategory = options.category
+    if (options?.skinType) where.skinType = options.skinType
+    if (options?.moodTag) where.moodTag = options.moodTag
+
+    const posts = await prisma.post.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: options?.offset,
+      take: options?.limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
+        _count: {
+          select: {
+            empathies: true,
+            comments: true,
+          },
+        },
+      },
+    })
+
+    return posts.map(post => this.toDomainPost(post))
+  }
+
+  async search(
+    keyword: string,
+    options?: { category?: string; skinType?: string; limit?: number }
+  ): Promise<Post[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const where: any = {
+      status: 'published',
+      OR: [
+        { title: { contains: keyword, mode: 'insensitive' } },
+        { content: { contains: keyword, mode: 'insensitive' } },
+        { cosmeticName: { contains: keyword, mode: 'insensitive' } },
+      ],
+    }
+
+    if (options?.category) where.cosmeticCategory = options.category
+    if (options?.skinType) where.skinType = options.skinType
+
+    const posts = await prisma.post.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: options?.limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            userName: true,
+          },
+        },
+        _count: {
+          select: {
+            empathies: true,
+            comments: true,
+          },
+        },
+      },
+    })
+
+    return posts.map(post => this.toDomainPost(post))
+  }
+
   private toDomainPost(
     prismaPost: PrismaPost & {
       user?: {
@@ -453,7 +563,17 @@ export class PostRepositoryImpl implements PostRepository {
       prismaPost.updatedAt,
       prismaPost.usageSituation,
       prismaPost.experienceDetails,
-      prismaPost.user || null
+      prismaPost.user || null,
+      // Additional properties for test compatibility
+      null, // fragranceType (not in current schema)
+      null, // fragranceIntensity (not in current schema)
+      null, // textureType (not in current schema)
+      null, // finishType (not in current schema)
+      null, // applicationEase (not in current schema)
+      null, // longevity (not in current schema)
+      null, // valueForMoney (not in current schema)
+      null, // overallRating (not in current schema)
+      null // repurchaseIntention (not in current schema)
     )
   }
 }

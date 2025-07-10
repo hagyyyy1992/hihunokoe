@@ -133,7 +133,7 @@ describe('RegisterPage', () => {
   // ⚡ 最小限のインタラクションテスト（1つだけ）
   describe('基本フォーム機能', () => {
     it('フォーム入力と送信が動作する', async () => {
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: '登録成功' }) as any)
+      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: '登録成功' }) as Response)
 
       render(<RegisterPage />)
 
@@ -208,7 +208,7 @@ describe('RegisterPage', () => {
 
   describe('エラーハンドリング', () => {
     it('API エラー時にエラーメッセージが表示される', async () => {
-      mockFetch.mockResolvedValueOnce(mockApiResponse.error('登録に失敗しました', 400) as any)
+      mockFetch.mockResolvedValueOnce(mockApiResponse.error('登録に失敗しました', 400) as Response)
 
       render(<RegisterPage />)
 
@@ -252,7 +252,7 @@ describe('RegisterPage', () => {
 
   describe('リダイレクト機能', () => {
     it('登録成功時に正しくリダイレクトされる', async () => {
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: '登録成功' }) as any)
+      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: '登録成功' }) as Response)
 
       render(<RegisterPage />)
 

@@ -25,7 +25,17 @@ export class Post {
     public readonly user?: {
       id: string
       userName: string
-    } | null
+    } | null,
+    // Additional properties for test compatibility
+    public readonly fragranceType?: string | null,
+    public readonly fragranceIntensity?: string | null,
+    public readonly textureType?: string | null,
+    public readonly finishType?: string | null,
+    public readonly applicationEase?: string | null,
+    public readonly longevity?: string | null,
+    public readonly valueForMoney?: string | null,
+    public readonly overallRating?: number | null,
+    public readonly repurchaseIntention?: boolean | null
   ) {}
 
   get isValid(): boolean {

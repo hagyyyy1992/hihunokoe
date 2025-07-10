@@ -78,15 +78,10 @@ describe('VerifyEmailPage', () => {
   describe('初期ローディング状態', () => {
     it('検証中にローディング状態が表示される', () => {
       // Don't resolve the promise immediately to test loading state
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void
-      const pendingPromise = new Promise(resolve => {
-        resolvePromise = resolve
+      const pendingPromise = new Promise(() => {
+        // Promise intentionally not resolved to test loading state
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise as Promise<Response>)
 
       render(<VerifyEmailPage />)
 
@@ -106,7 +101,7 @@ describe('VerifyEmailPage', () => {
   describe('メール確認成功', () => {
     it('成功時に成功メッセージが表示される', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -123,7 +118,7 @@ describe('VerifyEmailPage', () => {
 
     it('成功時にrefreshAuthが呼ばれる', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -137,7 +132,7 @@ describe('VerifyEmailPage', () => {
 
     it('成功時に3秒後にホームページにリダイレクトされる', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -154,7 +149,7 @@ describe('VerifyEmailPage', () => {
 
     it('今すぐホームページに移動リンクが正しく設定されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -171,7 +166,7 @@ describe('VerifyEmailPage', () => {
   describe('メール確認失敗', () => {
     it('エラー時にエラーメッセージが表示される', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.error('無効なトークンまたは期限切れです') as any
+        mockApiResponse.error('無効なトークンまたは期限切れです') as Response
       )
 
       render(<VerifyEmailPage />)
@@ -187,9 +182,7 @@ describe('VerifyEmailPage', () => {
     })
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<VerifyEmailPage />)
@@ -206,7 +199,7 @@ describe('VerifyEmailPage', () => {
 
     it('エラー時のナビゲーションリンクが正しく設定されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.error('無効なトークンまたは期限切れです') as any
+        mockApiResponse.error('無効なトークンまたは期限切れです') as Response
       )
 
       render(<VerifyEmailPage />)
@@ -226,7 +219,7 @@ describe('VerifyEmailPage', () => {
   describe('トークンの処理', () => {
     it('有効なトークンでAPI呼び出しが行われる', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -242,7 +235,7 @@ describe('VerifyEmailPage', () => {
 
     it('重複処理を防ぐため一度だけ実行される', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -271,7 +264,7 @@ describe('VerifyEmailPage', () => {
   describe('UI/UXテスト', () => {
     it('適切なスタイルクラスが適用されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -299,7 +292,7 @@ describe('VerifyEmailPage', () => {
 
     it('成功状態のスタイルが正しく適用されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -317,7 +310,7 @@ describe('VerifyEmailPage', () => {
 
     it('エラー状態のスタイルが正しく適用されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.error('無効なトークンまたは期限切れです') as any
+        mockApiResponse.error('無効なトークンまたは期限切れです') as Response
       )
 
       render(<VerifyEmailPage />)
@@ -334,15 +327,10 @@ describe('VerifyEmailPage', () => {
     })
 
     it('ローディング状態のスタイルが正しく適用されている', () => {
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void
-      const pendingPromise = new Promise(resolve => {
-        resolvePromise = resolve
+      const pendingPromise = new Promise(() => {
+        // Promise intentionally not resolved to test loading state
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise as Promise<Response>)
 
       render(<VerifyEmailPage />)
 
@@ -371,7 +359,7 @@ describe('VerifyEmailPage', () => {
 
     it('リンクに適切なtext-colorクラスが適用されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)
@@ -386,7 +374,7 @@ describe('VerifyEmailPage', () => {
 
     it('エラー時のリンクに適切なスタイルが適用されている', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.error('無効なトークンまたは期限切れです') as any
+        mockApiResponse.error('無効なトークンまたは期限切れです') as Response
       )
 
       render(<VerifyEmailPage />)
@@ -408,15 +396,10 @@ describe('VerifyEmailPage', () => {
     })
 
     it('スピナーに適切なaria属性が設定されている', () => {
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void
-      const pendingPromise = new Promise(resolve => {
-        resolvePromise = resolve
+      const pendingPromise = new Promise(() => {
+        // Promise intentionally not resolved to test loading state
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise as Promise<Response>)
 
       render(<VerifyEmailPage />)
 
@@ -428,7 +411,7 @@ describe('VerifyEmailPage', () => {
   describe('状態管理', () => {
     it('処理完了後は再実行されない', async () => {
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       const { rerender } = render(<VerifyEmailPage />)
@@ -448,7 +431,7 @@ describe('VerifyEmailPage', () => {
       // This test verifies that useEffect dependencies are correct
       // by checking that the effect runs when searchParams change
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as any
+        mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
 
       render(<VerifyEmailPage />)

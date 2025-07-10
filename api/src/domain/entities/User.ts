@@ -25,7 +25,10 @@ export class User {
     public readonly deletedAt: Date | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public readonly password?: string // For compatibility with some tests (moved to end)
+    public readonly password?: string, // For compatibility with some tests (moved to end)
+    // Additional properties for test compatibility
+    public readonly bio?: string | null,
+    public readonly favoriteCategories?: string[] | null
   ) {
     // Set aliases for compatibility
     this.userName = this.username

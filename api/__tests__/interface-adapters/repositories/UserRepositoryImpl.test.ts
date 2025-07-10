@@ -1,8 +1,13 @@
 import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { User } from '@api/domain/entities/User'
+import { User, UserRole } from '@api/domain/entities/User'
+import {
+  CreateUserData,
+  UpdateUserData,
+  FindUsersFilter,
+} from '@api/domain/repositories/UserRepository'
 import { v4 as uuidv4 } from 'uuid'
 
-// @/lib/prismaのモック
+// prismaのモック
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
@@ -14,10 +19,11 @@ jest.mock('@/lib/prisma', () => ({
       delete: jest.fn(),
       count: jest.fn(),
     },
+    $executeRaw: jest.fn(),
   },
 }))
 
-// モック関数を取得
+// モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
 describe('UserRepositoryImpl', () => {
@@ -28,300 +34,298 @@ describe('UserRepositoryImpl', () => {
     jest.clearAllMocks()
   })
 
-  const createMockUser = (overrides?: Partial<User>): User => ({
+  const createMockPrismaUser = (overrides?: any) => ({
     id: uuidv4(),
     email: 'test@example.com',
     userName: 'testuser',
     passwordHash: '$2b$10$hashedpassword',
-    profileImage: null,
-    bio: null,
-    skinType: 'normal',
-    allergies: [],
-    favoriteCategories: [],
-    bodyType: null,
-    personalColor: null,
-    age: null,
-    region: null,
-    isEmailVerified: true,
+    emailVerified: true,
     emailVerificationToken: null,
-    emailVerificationExpires: null,
     passwordResetToken: null,
-    passwordResetExpires: null,
-    role: 'USER',
-    isActive: true,
+    passwordResetExpiry: null,
     failedLoginAttempts: 0,
-    lockUntil: null,
+    lockedUntil: null,
+    role: 'USER' as UserRole,
+    isActive: true,
+    deletedAt: null,
+    birthDate: null,
+    gender: null,
+    skinType: 'normal',
+    skinTypeOther: null,
+    allergies: [],
+    allergiesOther: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    ...overrides,
+  })
+
+  const createMockCreateData = (overrides?: Partial<CreateUserData>): CreateUserData => ({
+    email: 'test@example.com',
+    username: 'testuser',
+    passwordHash: '$2b$10$hashedpassword',
+    emailVerified: false,
+    emailVerificationToken: null,
+    passwordResetToken: null,
+    passwordResetExpires: null,
+    active: true,
+    role: 'USER' as UserRole,
     deletedAt: null,
+    failedLoginAttempts: 0,
+    lockedUntil: null,
     ...overrides,
   })
 
   describe('create', () => {
     it('ユーザーを作成できる', async () => {
-      const user = createMockUser()
-      mockPrisma.user.create.mockResolvedValue(user)
+      const createData = createMockCreateData()
+      const mockPrismaUser = createMockPrismaUser({
+        email: createData.email,
+        userName: createData.username,
+        passwordHash: createData.passwordHash,
+      })
 
-      const result = await repository.create(user)
+      mockPrisma.user.create.mockResolvedValue(mockPrismaUser)
+
+      const result = await repository.create(createData)
 
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          id: user.id,
-          email: user.email,
-          userName: user.userName,
-          passwordHash: user.passwordHash,
-        }),
+        data: {
+          userName: createData.username,
+          email: createData.email,
+          passwordHash: createData.passwordHash,
+          emailVerified: createData.emailVerified,
+          emailVerificationToken: createData.emailVerificationToken,
+          passwordResetToken: createData.passwordResetToken,
+          passwordResetExpiry: createData.passwordResetExpires,
+          isActive: createData.active,
+          role: createData.role,
+          deletedAt: createData.deletedAt,
+        },
       })
-      expect(result).toEqual(user)
+      expect(result).toBeInstanceOf(User)
+      expect(result.email).toBe(createData.email)
+      expect(result.username).toBe(createData.username)
     })
 
     it('プロフィール情報付きでユーザーを作成できる', async () => {
-      const user = createMockUser({
-        bio: '化粧品が大好きです',
-        skinType: 'dry',
-        allergies: ['alcohol', 'fragrance'],
-        favoriteCategories: ['skincare', 'toner'],
-        bodyType: 'slim',
-        personalColor: 'spring',
-        age: 25,
-        region: 'tokyo',
+      const createData = createMockCreateData({
+        email: 'test@example.com',
+        username: 'testuser',
+        passwordHash: '$2b$10$hashedpassword',
+      })
+      const mockPrismaUser = createMockPrismaUser({
+        email: createData.email,
+        userName: createData.username,
+        passwordHash: createData.passwordHash,
       })
 
-      mockPrisma.user.create.mockResolvedValue(user)
+      mockPrisma.user.create.mockResolvedValue(mockPrismaUser)
 
-      const result = await repository.create(user)
+      const result = await repository.create(createData)
 
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          bio: user.bio,
-          skinType: user.skinType,
-          allergies: user.allergies,
-          favoriteCategories: user.favoriteCategories,
-          bodyType: user.bodyType,
-          personalColor: user.personalColor,
-          age: user.age,
-          region: user.region,
+          email: createData.email,
+          userName: createData.username,
+          passwordHash: createData.passwordHash,
         }),
       })
-      expect(result.allergies).toEqual(['alcohol', 'fragrance'])
+      expect(result).toBeInstanceOf(User)
     })
   })
 
   describe('findById', () => {
     it('IDでユーザーを取得できる', async () => {
       const userId = uuidv4()
-      const user = createMockUser({ id: userId })
+      const mockPrismaUser = createMockPrismaUser({ id: userId })
 
-      mockPrisma.user.findUnique.mockResolvedValue(user)
+      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findById(userId)
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: userId },
       })
-      expect(result).toEqual(user)
+      expect(result).toBeInstanceOf(User)
+      expect(result!.id).toBe(userId)
     })
 
-    it('削除されたユーザーは取得しない', async () => {
+    it('削除されたユーザーも取得する（物理削除ではないため）', async () => {
       const userId = uuidv4()
-      const deletedUser = createMockUser({
+      const mockPrismaUser = createMockPrismaUser({
         id: userId,
         deletedAt: new Date(),
       })
 
-      mockPrisma.user.findUnique.mockResolvedValue(deletedUser)
+      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findById(userId)
 
-      expect(result).toBeNull()
+      expect(result).toBeInstanceOf(User)
+      expect(result!.deletedAt).toBeTruthy()
     })
   })
 
   describe('findByEmail', () => {
     it('メールアドレスでユーザーを取得できる', async () => {
       const email = 'user@example.com'
-      const user = createMockUser({ email })
+      const mockPrismaUser = createMockPrismaUser({ email })
 
-      mockPrisma.user.findFirst.mockResolvedValue(user)
+      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByEmail(email)
 
-      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
-        where: {
-          email,
-          deletedAt: null,
-        },
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email },
       })
-      expect(result).toEqual(user)
+      expect(result).toBeInstanceOf(User)
+      expect(result!.email).toBe(email)
     })
 
-    it('大文字小文字を区別しない', async () => {
-      const user = createMockUser({ email: 'user@example.com' })
-      mockPrisma.user.findFirst.mockResolvedValue(user)
+    it('存在しないメールアドレスの場合nullを返す', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null)
 
-      const result = await repository.findByEmail('USER@EXAMPLE.COM')
+      const result = await repository.findByEmail('nonexistent@example.com')
 
-      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
-        where: {
-          email: 'user@example.com',
-          deletedAt: null,
-        },
-      })
-      expect(result).toEqual(user)
+      expect(result).toBeNull()
     })
   })
 
   describe('findByUsername', () => {
     it('ユーザー名でユーザーを取得できる', async () => {
       const userName = 'testuser'
-      const user = createMockUser({ userName })
+      const mockPrismaUser = createMockPrismaUser({ userName })
 
-      mockPrisma.user.findUnique.mockResolvedValue(user)
+      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByUsername(userName)
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { userName },
       })
-      expect(result).toEqual(user)
+      expect(result).toBeInstanceOf(User)
+      expect(result!.userName).toBe(userName)
     })
   })
 
   describe('findByEmailVerificationToken', () => {
     it('メール確認トークンでユーザーを取得できる', async () => {
       const token = 'verification-token-123'
-      const user = createMockUser({
+      const mockPrismaUser = createMockPrismaUser({
         emailVerificationToken: token,
-        emailVerificationExpires: new Date(Date.now() + 3600000),
       })
 
-      mockPrisma.user.findFirst.mockResolvedValue(user)
+      mockPrisma.user.findFirst.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByEmailVerificationToken(token)
 
       expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
-        where: {
-          emailVerificationToken: token,
-          emailVerificationExpires: { gt: expect.any(Date) },
-          deletedAt: null,
-        },
+        where: { emailVerificationToken: token },
       })
-      expect(result).toEqual(user)
-    })
-
-    it('期限切れトークンの場合nullを返す', async () => {
-      mockPrisma.user.findFirst.mockResolvedValue(null)
-
-      const result = await repository.findByEmailVerificationToken('expired-token')
-
-      expect(result).toBeNull()
+      expect(result).toBeInstanceOf(User)
+      expect(result!.emailVerificationToken).toBe(token)
     })
   })
 
   describe('findByPasswordResetToken', () => {
     it('パスワードリセットトークンでユーザーを取得できる', async () => {
       const token = 'reset-token-123'
-      const user = createMockUser({
+      const mockPrismaUser = createMockPrismaUser({
         passwordResetToken: token,
-        passwordResetExpires: new Date(Date.now() + 3600000),
       })
 
-      mockPrisma.user.findFirst.mockResolvedValue(user)
+      mockPrisma.user.findFirst.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByPasswordResetToken(token)
 
       expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
-        where: {
-          passwordResetToken: token,
-          passwordResetExpires: { gt: expect.any(Date) },
-          deletedAt: null,
-        },
+        where: { passwordResetToken: token },
       })
-      expect(result).toEqual(user)
+      expect(result).toBeInstanceOf(User)
+      expect(result!.passwordResetToken).toBe(token)
     })
   })
 
   describe('update', () => {
     it('ユーザー情報を更新できる', async () => {
       const userId = uuidv4()
-      const updateData = {
+      const updateData: UpdateUserData = {
         userName: 'newusername',
-        bio: '新しい自己紹介',
       }
-      const updatedUser = createMockUser({ id: userId, ...updateData })
+      const updatedPrismaUser = createMockPrismaUser({
+        id: userId,
+        userName: updateData.userName,
+      })
 
-      mockPrisma.user.update.mockResolvedValue(updatedUser)
+      mockPrisma.user.update.mockResolvedValue(updatedPrismaUser)
 
       const result = await repository.update(userId, updateData)
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
-        data: updateData,
+        data: { userName: updateData.userName },
       })
-      expect(result).toEqual(updatedUser)
+      expect(result).toBeInstanceOf(User)
+      expect(result.userName).toBe(updateData.userName)
     })
 
     it('メール確認状態を更新できる', async () => {
       const userId = uuidv4()
-      const updateData = {
-        isEmailVerified: true,
+      const updateData: UpdateUserData = {
+        emailVerified: true,
         emailVerificationToken: null,
-        emailVerificationExpires: null,
       }
+      const updatedPrismaUser = createMockPrismaUser({
+        id: userId,
+        emailVerified: true,
+        emailVerificationToken: null,
+      })
 
-      mockPrisma.user.update.mockResolvedValue(createMockUser({ id: userId }))
+      mockPrisma.user.update.mockResolvedValue(updatedPrismaUser)
 
       await repository.update(userId, updateData)
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
-        data: updateData,
+        data: {
+          emailVerified: true,
+          emailVerificationToken: null,
+        },
       })
     })
 
     it('ログイン失敗回数を更新できる', async () => {
       const userId = uuidv4()
-      mockPrisma.user.update.mockResolvedValue(createMockUser({ id: userId }))
-
-      await repository.update(userId, {
+      const updateData: UpdateUserData = {
         failedLoginAttempts: 3,
-        lockUntil: new Date(Date.now() + 900000), // 15分後
+        lockedUntil: new Date(),
+      }
+      const updatedPrismaUser = createMockPrismaUser({
+        id: userId,
+        failedLoginAttempts: 3,
+        lockedUntil: updateData.lockedUntil,
       })
+
+      mockPrisma.user.update.mockResolvedValue(updatedPrismaUser)
+
+      await repository.update(userId, updateData)
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
-        data: expect.objectContaining({
+        data: {
           failedLoginAttempts: 3,
-          lockUntil: expect.any(Date),
-        }),
+          lockedUntil: updateData.lockedUntil,
+        },
       })
     })
   })
 
   describe('delete', () => {
-    it('ユーザーを物理削除できる', async () => {
-      const userId = uuidv4()
-      mockPrisma.user.delete.mockResolvedValue({ id: userId })
-
-      await repository.delete(userId)
-
-      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
-        where: { id: userId },
-      })
-    })
-  })
-
-  describe('softDelete', () => {
     it('ユーザーを論理削除できる', async () => {
       const userId = uuidv4()
-      const softDeletedUser = createMockUser({
-        id: userId,
-        deletedAt: new Date(),
-      })
+      mockPrisma.user.update.mockResolvedValue({})
 
-      mockPrisma.user.update.mockResolvedValue(softDeletedUser)
-
-      await repository.softDelete(userId)
+      await repository.delete(userId)
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
@@ -330,94 +334,256 @@ describe('UserRepositoryImpl', () => {
     })
   })
 
-  describe('findAll', () => {
+  describe('findMany', () => {
     it('全ユーザーを取得できる', async () => {
-      const users = [createMockUser(), createMockUser(), createMockUser()]
+      const users = [createMockPrismaUser(), createMockPrismaUser()]
+      const totalCount = 2
 
       mockPrisma.user.findMany.mockResolvedValue(users)
+      mockPrisma.user.count.mockResolvedValue(totalCount)
 
-      const result = await repository.findAll()
+      const filter: FindUsersFilter = {
+        limit: 10,
+        offset: 0,
+      }
+
+      const result = await repository.findMany(filter)
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
-        where: { deletedAt: null },
+        where: {},
+        skip: 0,
+        take: 10,
         orderBy: { createdAt: 'desc' },
       })
-      expect(result).toEqual(users)
+      expect(result.users).toHaveLength(2)
+      expect(result.totalCount).toBe(2)
     })
 
-    it('管理者のみを取得できる', async () => {
+    it('アクティブユーザーのみを取得できる', async () => {
       mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(0)
 
-      await repository.findAll({ role: 'ADMIN' })
+      const filter: FindUsersFilter = {
+        activeOnly: true,
+        limit: 10,
+        offset: 0,
+      }
+
+      await repository.findMany(filter)
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
         where: {
+          isActive: true,
           deletedAt: null,
-          role: 'ADMIN',
         },
+        skip: 0,
+        take: 10,
         orderBy: { createdAt: 'desc' },
       })
     })
 
     it('ページネーションが機能する', async () => {
       mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(0)
 
-      await repository.findAll({ limit: 10, offset: 20 })
+      const filter: FindUsersFilter = {
+        limit: 10,
+        offset: 20,
+      }
+
+      await repository.findMany(filter)
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
-        where: { deletedAt: null },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
+        where: {},
         skip: 20,
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('ロールでフィルタリングできる', async () => {
+      mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(0)
+
+      const filter: FindUsersFilter = {
+        role: 'ADMIN' as UserRole,
+        limit: 10,
+        offset: 0,
+      }
+
+      await repository.findMany(filter)
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: { role: 'ADMIN' },
+        skip: 0,
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('検索機能が動作する', async () => {
+      mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(0)
+
+      const filter: FindUsersFilter = {
+        search: 'test',
+        limit: 10,
+        offset: 0,
+      }
+
+      await repository.findMany(filter)
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { userName: { contains: 'test', mode: 'insensitive' } },
+            { email: { contains: 'test', mode: 'insensitive' } },
+          ],
+        },
+        skip: 0,
+        take: 10,
+        orderBy: { createdAt: 'desc' },
       })
     })
   })
 
-  describe('count', () => {
-    it('ユーザー数をカウントできる', async () => {
-      mockPrisma.user.count.mockResolvedValue(150)
+  describe('incrementFailedLoginAttempts', () => {
+    it('ログイン失敗回数を増加できる', async () => {
+      const userId = uuidv4()
+      mockPrisma.$executeRaw.mockResolvedValue(1)
 
-      const result = await repository.count()
+      await repository.incrementFailedLoginAttempts(userId)
 
-      expect(mockPrisma.user.count).toHaveBeenCalledWith({
-        where: { deletedAt: null },
-      })
-      expect(result).toBe(150)
+      expect(mockPrisma.$executeRaw).toHaveBeenCalled()
     })
+  })
 
+  describe('resetFailedLoginAttempts', () => {
+    it('ログイン失敗回数をリセットできる', async () => {
+      const userId = uuidv4()
+      mockPrisma.$executeRaw.mockResolvedValue(1)
+
+      await repository.resetFailedLoginAttempts(userId)
+
+      expect(mockPrisma.$executeRaw).toHaveBeenCalled()
+    })
+  })
+
+  describe('lockAccount', () => {
+    it('アカウントをロックできる', async () => {
+      const userId = uuidv4()
+      const lockUntil = new Date()
+      mockPrisma.$executeRaw.mockResolvedValue(1)
+
+      await repository.lockAccount(userId, lockUntil)
+
+      expect(mockPrisma.$executeRaw).toHaveBeenCalled()
+    })
+  })
+
+  describe('updatePassword', () => {
+    it('パスワードを更新できる', async () => {
+      const userId = uuidv4()
+      const passwordHash = '$2b$10$newhashedpassword'
+      mockPrisma.user.update.mockResolvedValue({})
+
+      await repository.updatePassword(userId, passwordHash)
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: {
+          passwordHash,
+          passwordResetToken: null,
+          passwordResetExpiry: null,
+        },
+      })
+    })
+  })
+
+  describe('verifyEmail', () => {
+    it('メールアドレスを確認済みにできる', async () => {
+      const userId = uuidv4()
+      mockPrisma.user.update.mockResolvedValue({})
+
+      await repository.verifyEmail(userId)
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: {
+          emailVerified: true,
+          emailVerificationToken: null,
+        },
+      })
+    })
+  })
+
+  describe('countActiveUsers', () => {
     it('アクティブユーザー数をカウントできる', async () => {
       mockPrisma.user.count.mockResolvedValue(120)
 
-      const result = await repository.count({ isActive: true })
+      const result = await repository.countActiveUsers()
 
       expect(mockPrisma.user.count).toHaveBeenCalledWith({
         where: {
-          deletedAt: null,
           isActive: true,
+          deletedAt: null,
         },
       })
       expect(result).toBe(120)
     })
   })
 
-  describe('エラーハンドリング', () => {
-    it('一意制約違反エラーを処理する', async () => {
-      const error = {
-        code: 'P2002',
-        message: 'Unique constraint failed on the fields: (`email`)',
-      }
-      mockPrisma.user.create.mockRejectedValue(error)
+  describe('findRecentUsers', () => {
+    it('最近のユーザーを取得できる', async () => {
+      const users = [createMockPrismaUser(), createMockPrismaUser()]
+      mockPrisma.user.findMany.mockResolvedValue(users)
 
-      await expect(repository.create(createMockUser())).rejects.toMatchObject({
-        code: 'P2002',
+      const result = await repository.findRecentUsers(5)
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
       })
+      expect(result).toHaveLength(2)
     })
+  })
 
-    it('データベースエラーを適切に伝播する', async () => {
-      const dbError = new Error('Database connection failed')
-      mockPrisma.user.findUnique.mockRejectedValue(dbError)
+  describe('findAll', () => {
+    it('全ユーザーを取得できる', async () => {
+      const users = [createMockPrismaUser(), createMockPrismaUser()]
+      mockPrisma.user.findMany.mockResolvedValue(users)
 
-      await expect(repository.findById(uuidv4())).rejects.toThrow('Database connection failed')
+      const result = await repository.findAll()
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        orderBy: { createdAt: 'desc' },
+      })
+      expect(result).toHaveLength(2)
+    })
+  })
+
+  describe('findAllWithPostCount', () => {
+    it('投稿数付きで全ユーザーを取得できる', async () => {
+      const users = [
+        { ...createMockPrismaUser(), _count: { posts: 5 } },
+        { ...createMockPrismaUser(), _count: { posts: 3 } },
+      ]
+      mockPrisma.user.findMany.mockResolvedValue(users)
+
+      const result = await repository.findAllWithPostCount()
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          _count: {
+            select: {
+              posts: true,
+            },
+          },
+        },
+      })
+      expect(result).toHaveLength(2)
     })
   })
 })

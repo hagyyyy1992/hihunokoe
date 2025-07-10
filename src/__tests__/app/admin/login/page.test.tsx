@@ -20,7 +20,10 @@ jest.mock('@/components/ui/Button', () => ({
     ...props
   }: {
     children: React.ReactNode
-    href: string
+    onClick?: () => void
+    disabled?: boolean
+    type?: 'button' | 'submit' | 'reset'
+    className?: string
     [key: string]: unknown
   }) => (
     <button onClick={onClick} disabled={disabled} type={type} className={className} {...props}>
@@ -30,44 +33,17 @@ jest.mock('@/components/ui/Button', () => ({
 }))
 
 jest.mock('@/components/ui/card', () => ({
-  Card: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div className={className}>{children}</div>,
-  CardContent: ({
-    children,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div>{children}</div>,
-  CardDescription: ({
-    children,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <p>{children}</p>,
-  CardHeader: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div className={className}>{children}</div>,
-  CardTitle: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <h2 className={className}>{children}</h2>,
+  Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={className}>{children}</div>
+  ),
+  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
+  CardHeader: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={className}>{children}</div>
+  ),
+  CardTitle: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <h2 className={className}>{children}</h2>
+  ),
 }))
 
 jest.mock('@/components/ui/Input', () => ({
@@ -80,8 +56,12 @@ jest.mock('@/components/ui/Input', () => ({
     disabled,
     ...props
   }: {
-    children: React.ReactNode
-    href: string
+    id?: string
+    type?: string
+    value?: string
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    required?: boolean
+    disabled?: boolean
     [key: string]: unknown
   }) => (
     <input
@@ -103,8 +83,8 @@ jest.mock('@/components/ui/label', () => ({
     className,
   }: {
     children: React.ReactNode
-    href: string
-    [key: string]: unknown
+    htmlFor?: string
+    className?: string
   }) => (
     <label htmlFor={htmlFor} className={className}>
       {children}
@@ -113,21 +93,10 @@ jest.mock('@/components/ui/label', () => ({
 }))
 
 jest.mock('@/components/ui/alert', () => ({
-  Alert: ({
-    children,
-    variant,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div data-variant={variant}>{children}</div>,
-  AlertDescription: ({
-    children,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div>{children}</div>,
+  Alert: ({ children, variant }: { children: React.ReactNode; variant?: string }) => (
+    <div data-variant={variant}>{children}</div>
+  ),
+  AlertDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 const mockPush = jest.fn()
@@ -146,7 +115,7 @@ describe('AdminLoginPage', () => {
       refresh: jest.fn(),
       forward: jest.fn(),
       prefetch: jest.fn(),
-    })
+    } as ReturnType<typeof useRouter>)
     ;(global.fetch as jest.Mock).mockClear()
   })
 

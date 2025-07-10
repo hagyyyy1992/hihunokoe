@@ -56,7 +56,7 @@ describe('HomePage', () => {
       refresh: jest.fn(),
       forward: jest.fn(),
       prefetch: jest.fn(),
-    })
+    } as ReturnType<typeof useRouter>)
     ;(global.fetch as jest.Mock).mockClear()
   })
 
@@ -142,9 +142,7 @@ describe('HomePage', () => {
     })
     ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Fetch error'))
 
-    const consoleSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
     render(<HomePage />)
 

@@ -12,6 +12,8 @@ export interface CommentRepository {
 
   findByPostId(postId: string): Promise<Comment[]>
 
+  findByUserId(userId: string): Promise<Comment[]>
+
   findRepliesByParentId(parentCommentId: string): Promise<Comment[]>
 
   update(id: string, content: string): Promise<Comment | null>

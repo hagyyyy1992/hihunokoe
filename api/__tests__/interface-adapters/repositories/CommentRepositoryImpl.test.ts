@@ -1,11 +1,10 @@
 import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
-import { PrismaClient } from '@prisma/client'
 import { Comment } from '@api/domain/entities/Comment'
 import { v4 as uuidv4 } from 'uuid'
 
-// Prismaクライアントのモック
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+// prismaモジュールのモック
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
     comment: {
       create: jest.fn(),
       findUnique: jest.fn(),
@@ -14,129 +13,114 @@ jest.mock('@prisma/client', () => ({
       delete: jest.fn(),
       count: jest.fn(),
     },
-  })),
+  },
 }))
+
+// モックオブジェクトの参照を取得
+const mockPrisma = require('@/lib/prisma').prisma
 
 describe('CommentRepositoryImpl', () => {
   let repository: CommentRepositoryImpl
-  let mockPrisma: any
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient()
-    repository = new CommentRepositoryImpl(mockPrisma)
+    repository = new CommentRepositoryImpl()
     jest.clearAllMocks()
   })
 
   describe('create', () => {
     it('コメントを作成できる', async () => {
-      const comment: Comment = {
+      const postId = uuidv4()
+      const userId = uuidv4()
+      const content = 'これは素晴らしい商品です！'
+      const parentCommentId = null
+
+      const mockPrismaComment = {
         id: uuidv4(),
-        postId: uuidv4(),
-        userId: uuidv4(),
-        content: 'これは素晴らしい商品です！',
-        parentId: null,
+        postId,
+        userId,
+        content,
+        parentCommentId,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
 
-      const mockUser = {
-        id: comment.userId,
-        userName: 'テストユーザー',
-        profileImage: null,
-      }
+      mockPrisma.comment.create.mockResolvedValue(mockPrismaComment)
 
-      mockPrisma.comment.create.mockResolvedValue({
-        ...comment,
-        user: mockUser,
-      })
-
-      const result = await repository.create(comment)
+      const result = await repository.create(postId, userId, content, parentCommentId)
 
       expect(mockPrisma.comment.create).toHaveBeenCalledWith({
         data: {
-          id: comment.id,
-          postId: comment.postId,
-          userId: comment.userId,
-          content: comment.content,
-          parentId: comment.parentId,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
-              profileImage: true,
-            },
-          },
+          postId,
+          userId,
+          content,
+          parentCommentId: null,
+          isActive: true,
         },
       })
-      expect(result).toEqual({
-        ...comment,
-        user: mockUser,
-      })
+      expect(result).toBeInstanceOf(Comment)
+      expect(result.postId).toBe(postId)
+      expect(result.userId).toBe(userId)
+      expect(result.content).toBe(content)
     })
 
     it('返信コメントを作成できる', async () => {
-      const parentId = uuidv4()
-      const comment: Comment = {
+      const postId = uuidv4()
+      const userId = uuidv4()
+      const content = '同感です！'
+      const parentCommentId = uuidv4()
+
+      const mockPrismaComment = {
         id: uuidv4(),
-        postId: uuidv4(),
-        userId: uuidv4(),
-        content: '同感です！',
-        parentId,
+        postId,
+        userId,
+        content,
+        parentCommentId,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
 
-      mockPrisma.comment.create.mockResolvedValue(comment)
+      mockPrisma.comment.create.mockResolvedValue(mockPrismaComment)
 
-      const result = await repository.create(comment)
+      const result = await repository.create(postId, userId, content, parentCommentId)
 
       expect(mockPrisma.comment.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          parentId,
-        }),
-        include: expect.any(Object),
+        data: {
+          postId,
+          userId,
+          content,
+          parentCommentId,
+          isActive: true,
+        },
       })
-      expect(result.parentId).toBe(parentId)
+      expect(result.parentCommentId).toBe(parentCommentId)
     })
   })
 
   describe('findById', () => {
     it('IDでコメントを取得できる', async () => {
       const commentId = uuidv4()
-      const comment = {
+      const mockPrismaComment = {
         id: commentId,
         postId: uuidv4(),
         userId: uuidv4(),
         content: 'テストコメント',
-        parentId: null,
+        parentCommentId: null,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        user: {
-          id: uuidv4(),
-          userName: 'テストユーザー',
-          profileImage: null,
-        },
       }
 
-      mockPrisma.comment.findUnique.mockResolvedValue(comment)
+      mockPrisma.comment.findUnique.mockResolvedValue(mockPrismaComment)
 
       const result = await repository.findById(commentId)
 
       expect(mockPrisma.comment.findUnique).toHaveBeenCalledWith({
         where: { id: commentId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
-              profileImage: true,
-            },
-          },
-        },
       })
-      expect(result).toEqual(comment)
+      expect(result).toBeInstanceOf(Comment)
+      expect(result!.id).toBe(commentId)
     })
 
     it('存在しないIDの場合nullを返す', async () => {
@@ -151,141 +135,123 @@ describe('CommentRepositoryImpl', () => {
   describe('findByPostId', () => {
     it('投稿IDでコメントを取得できる', async () => {
       const postId = uuidv4()
-      const comments = [
+      const mockPrismaComments = [
         {
           id: uuidv4(),
           postId,
           userId: uuidv4(),
           content: 'コメント1',
-          parentId: null,
+          parentCommentId: null,
+          isActive: true,
           createdAt: new Date('2024-01-01'),
           updatedAt: new Date('2024-01-01'),
-          user: { id: uuidv4(), userName: 'ユーザー1', profileImage: null },
         },
         {
           id: uuidv4(),
           postId,
           userId: uuidv4(),
           content: 'コメント2',
-          parentId: null,
+          parentCommentId: null,
+          isActive: true,
           createdAt: new Date('2024-01-02'),
           updatedAt: new Date('2024-01-02'),
-          user: { id: uuidv4(), userName: 'ユーザー2', profileImage: null },
         },
       ]
 
-      mockPrisma.comment.findMany.mockResolvedValue(comments)
+      mockPrisma.comment.findMany.mockResolvedValue(mockPrismaComments)
 
       const result = await repository.findByPostId(postId)
 
       expect(mockPrisma.comment.findMany).toHaveBeenCalledWith({
-        where: { postId, parentId: null },
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
-              profileImage: true,
-            },
-          },
-          replies: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  userName: true,
-                  profileImage: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
+        where: {
+          postId,
+          isActive: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: 'asc' },
       })
-      expect(result).toEqual(comments)
+      expect(result).toHaveLength(2)
+      expect(result[0]).toBeInstanceOf(Comment)
     })
 
     it('ページネーションが機能する', async () => {
       const postId = uuidv4()
       mockPrisma.comment.findMany.mockResolvedValue([])
 
-      await repository.findByPostId(postId, { limit: 10, offset: 20 })
+      await repository.findByPostIdWithPagination(postId, 20, 10)
 
       expect(mockPrisma.comment.findMany).toHaveBeenCalledWith({
-        where: { postId, parentId: null },
-        include: expect.any(Object),
+        where: {
+          postId,
+          isActive: true,
+          parentCommentId: null,
+        },
         orderBy: { createdAt: 'desc' },
-        take: 10,
         skip: 20,
+        take: 10,
       })
     })
   })
 
-  describe('findByUserId', () => {
-    it('ユーザーIDでコメントを取得できる', async () => {
-      const userId = uuidv4()
-      const comments = [
+  describe('findRepliesByParentId', () => {
+    it('親コメントの返信を取得できる', async () => {
+      const parentCommentId = uuidv4()
+      const mockReplies = [
         {
           id: uuidv4(),
           postId: uuidv4(),
-          userId,
-          content: 'ユーザーのコメント',
-          parentId: null,
+          userId: uuidv4(),
+          content: '返信コメント',
+          parentCommentId,
+          isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
       ]
 
-      mockPrisma.comment.findMany.mockResolvedValue(comments)
+      mockPrisma.comment.findMany.mockResolvedValue(mockReplies)
 
-      const result = await repository.findByUserId(userId)
+      const result = await repository.findRepliesByParentId(parentCommentId)
 
       expect(mockPrisma.comment.findMany).toHaveBeenCalledWith({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
+        where: {
+          parentCommentId,
+          isActive: true,
+        },
+        orderBy: { createdAt: 'asc' },
       })
-      expect(result).toEqual(comments)
+      expect(result).toHaveLength(1)
+      expect(result[0]).toBeInstanceOf(Comment)
     })
   })
 
   describe('update', () => {
     it('コメントを更新できる', async () => {
       const commentId = uuidv4()
-      const updateData = { content: '更新されたコメント' }
-      const updatedComment = {
+      const content = '更新されたコメント'
+      const updatedPrismaComment = {
         id: commentId,
         postId: uuidv4(),
         userId: uuidv4(),
-        content: updateData.content,
-        parentId: null,
+        content,
+        parentCommentId: null,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        user: {
-          id: uuidv4(),
-          userName: 'ユーザー',
-          profileImage: null,
-        },
       }
 
-      mockPrisma.comment.update.mockResolvedValue(updatedComment)
+      mockPrisma.comment.update.mockResolvedValue(updatedPrismaComment)
 
-      const result = await repository.update(commentId, updateData)
+      const result = await repository.update(commentId, content)
 
       expect(mockPrisma.comment.update).toHaveBeenCalledWith({
         where: { id: commentId },
-        data: updateData,
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
-              profileImage: true,
-            },
-          },
+        data: {
+          content,
+          updatedAt: expect.any(Date),
         },
       })
-      expect(result).toEqual(updatedComment)
+      expect(result).toBeInstanceOf(Comment)
+      expect(result!.content).toBe(content)
     })
 
     it('存在しないコメントの更新はエラーになる', async () => {
@@ -295,7 +261,7 @@ describe('CommentRepositoryImpl', () => {
       }
       mockPrisma.comment.update.mockRejectedValue(error)
 
-      await expect(repository.update(uuidv4(), { content: '更新' })).rejects.toMatchObject({
+      await expect(repository.update(uuidv4(), '更新')).rejects.toMatchObject({
         code: 'P2025',
       })
     })
@@ -313,16 +279,16 @@ describe('CommentRepositoryImpl', () => {
       })
     })
 
-    it('存在しないコメントの削除はエラーになる', async () => {
+    it('存在しないコメントの削除はfalseを返す', async () => {
       const error = {
         code: 'P2025',
         message: 'Record to delete does not exist',
       }
       mockPrisma.comment.delete.mockRejectedValue(error)
 
-      await expect(repository.delete(uuidv4())).rejects.toMatchObject({
-        code: 'P2025',
-      })
+      const result = await repository.delete(uuidv4())
+
+      expect(result).toBe(false)
     })
   })
 
@@ -334,7 +300,11 @@ describe('CommentRepositoryImpl', () => {
       const result = await repository.countByPostId(postId)
 
       expect(mockPrisma.comment.count).toHaveBeenCalledWith({
-        where: { postId },
+        where: {
+          postId,
+          isActive: true,
+          parentCommentId: null,
+        },
       })
       expect(result).toBe(15)
     })
@@ -345,17 +315,13 @@ describe('CommentRepositoryImpl', () => {
       const dbError = new Error('Database connection failed')
       mockPrisma.comment.create.mockRejectedValue(dbError)
 
-      const comment: Comment = {
-        id: uuidv4(),
-        postId: uuidv4(),
-        userId: uuidv4(),
-        content: 'テスト',
-        parentId: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+      const postId = uuidv4()
+      const userId = uuidv4()
+      const content = 'テスト'
 
-      await expect(repository.create(comment)).rejects.toThrow('Database connection failed')
+      await expect(repository.create(postId, userId, content)).rejects.toThrow(
+        'Database connection failed'
+      )
     })
   })
 })

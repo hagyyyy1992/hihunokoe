@@ -2,7 +2,6 @@ import { render, screen, expectElementToBeVisible, waitFor } from '../../helpers
 import EmpathyButton from '@/components/ui/EmpathyButton'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
 
 // Mock AuthContext
 jest.mock('@/lib/auth/AuthContext', () => ({
@@ -27,7 +26,7 @@ describe('EmpathyButton Component', () => {
   let mockFetch: jest.MockedFunction<typeof fetch>
 
   beforeEach(() => {
-    const setup = setupComponentTest()
+    setupComponentTest()
     mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
     mockFetch.mockClear()
   })

@@ -1,19 +1,22 @@
 import { test, expect } from '@playwright/test'
-import { login } from '../helpers/auth-helpers'
-import { createTestUser } from '../helpers/auth-helpers'
+import { registerAndLoginTestUser } from '../helpers/auth-helpers'
 import { categoryLabels } from '../../src/lib/constants/categories'
 
 test.describe('投稿カテゴリの検証', () => {
-  const testUser = {
-    userName: `test-category-${Date.now()}`,
-    email: `test-category-${Date.now()}@example.com`,
-    password: 'Password123!',
-  }
-
   test.beforeEach(async ({ page }) => {
-    // テストユーザーを作成してログイン
-    await createTestUser(page, testUser)
-    await login(page, testUser.email, testUser.password)
+    // 一意なテストユーザーを作成してログイン
+    const timestamp = Date.now()
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    const testUser = {
+      userName: `test-category-${timestamp}-${randomSuffix}`,
+      email: `test-category-${timestamp}-${randomSuffix}@example.com`,
+      password: 'Password123!',
+    }
+    await registerAndLoginTestUser(page, testUser)
+
+    // 認証確認のため投稿一覧ページに移動してからテストを開始
+    await page.goto('/posts')
+    await page.waitForTimeout(1000)
   })
 
   test('全てのカテゴリオプションが投稿フォームに存在する', async ({ page }) => {
@@ -23,7 +26,7 @@ test.describe('投稿カテゴリの検証', () => {
     // カテゴリセレクトボックスのオプションを取得
     const options = await page.$$eval('[data-testid="category-select"] option', els =>
       els.map(el => ({
-        value: el.value,
+        value: (el as HTMLOptionElement).value,
         text: el.textContent?.trim() || '',
       }))
     )
@@ -62,15 +65,27 @@ test.describe('投稿カテゴリの検証', () => {
   test('スキンケアカテゴリが正しく表示される', async ({ page }) => {
     await page.goto('/posts/new')
 
-    // フォームに入力
+    // ステップ1: 基本情報を入力
     await page.fill('[data-testid="post-title-input"]', 'スキンケアカテゴリテスト')
     await page.fill('[name="cosmeticName"]', 'テストコスメ')
     await page.selectOption('[data-testid="category-select"]', 'skincare')
     await page.fill('[name="content"]', 'スキンケアカテゴリのテスト投稿です')
 
+    // ステップ2へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
+    // ステップ3へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
+    // ステップ4へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
     // 投稿を作成
-    await page.click('[data-testid="submit-button"]')
-    await page.waitForURL('/posts')
+    await page.click('[data-testid="publish-button"]')
+    await page.waitForURL('/posts/**')
 
     // 投稿が作成されたことを確認
     const postCard = page.locator('[data-testid="post-card"]').filter({
@@ -99,15 +114,27 @@ test.describe('投稿カテゴリの検証', () => {
 
       const title = `${category.label}テスト投稿 ${Date.now()}`
 
-      // フォームに入力
+      // ステップ1: 基本情報を入力
       await page.fill('[data-testid="post-title-input"]', title)
       await page.fill('[name="cosmeticName"]', `${category.label}製品`)
       await page.selectOption('[data-testid="category-select"]', category.value)
       await page.fill('[name="content"]', `${category.label}カテゴリのテスト投稿です`)
 
+      // ステップ2へ進む
+      await page.click('button:has-text("次へ")')
+      await page.waitForTimeout(500)
+
+      // ステップ3へ進む
+      await page.click('button:has-text("次へ")')
+      await page.waitForTimeout(500)
+
+      // ステップ4へ進む
+      await page.click('button:has-text("次へ")')
+      await page.waitForTimeout(500)
+
       // 投稿を作成
-      await page.click('[data-testid="submit-button"]')
-      await page.waitForURL('/posts')
+      await page.click('[data-testid="publish-button"]')
+      await page.waitForURL('/posts/**')
 
       // 投稿が作成されたことを確認
       const postCard = page
@@ -138,14 +165,27 @@ test.describe('投稿カテゴリの検証', () => {
 
     const title = `詳細ページカテゴリテスト ${Date.now()}`
 
-    // 投稿を作成
+    // ステップ1: 基本情報を入力
     await page.fill('[data-testid="post-title-input"]', title)
     await page.fill('[name="cosmeticName"]', 'テストコスメ')
     await page.selectOption('[data-testid="category-select"]', 'skincare')
     await page.fill('[name="content"]', 'カテゴリ表示テスト')
 
-    await page.click('[data-testid="submit-button"]')
-    await page.waitForURL('/posts')
+    // ステップ2へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
+    // ステップ3へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
+    // ステップ4へ進む
+    await page.click('button:has-text("次へ")')
+    await page.waitForTimeout(500)
+
+    // 投稿を作成
+    await page.click('[data-testid="publish-button"]')
+    await page.waitForURL('/posts/**')
 
     // 作成した投稿をクリック
     await page.locator('[data-testid="post-card"]').filter({ hasText: title }).click()

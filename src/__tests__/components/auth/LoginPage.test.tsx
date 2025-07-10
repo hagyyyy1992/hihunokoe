@@ -58,13 +58,11 @@ jest.mock('next/link', () => {
 })
 describe('LoginPage', () => {
   let mockFetch: jest.MockedFunction<typeof fetch>
-  let mockRefreshAuth: jest.Mock
 
   beforeEach(() => {
     setupComponentTest()
     mockFetch = createMockFetch()
     setupFetchMock(mockFetch)
-    mockRefreshAuth = jest.fn()
     jest.clearAllMocks()
     mockLogin.mockClear()
   })
@@ -255,7 +253,7 @@ describe('LoginPage', () => {
 
       // Second call - resend verification email
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: '確認メール送信完了' }) as any
+        mockApiResponse.success({ message: '確認メール送信完了' }) as Response
       )
 
       const resendButton = screen.getByText('確認メールを再送信する')
@@ -280,9 +278,7 @@ describe('LoginPage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       mockLogin.mockRejectedValueOnce(new Error('Network error'))
 
       render(<LoginPage />)
@@ -306,15 +302,11 @@ describe('LoginPage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void = () => {}
-      const pendingPromise = new Promise(resolve => {
+      let resolvePromise: (value: void) => void = () => {}
+      const pendingPromise = new Promise<void>(resolve => {
         resolvePromise = resolve
       })
-      mockLogin.mockReturnValueOnce(pendingPromise as any)
+      mockLogin.mockReturnValueOnce(pendingPromise)
 
       render(<LoginPage />)
 
@@ -329,7 +321,7 @@ describe('LoginPage', () => {
 
       expect(submitButton).toBeDisabled()
 
-      resolvePromise(undefined)
+      resolvePromise()
       await delay(100)
 
       expect(submitButton).not.toBeDisabled()

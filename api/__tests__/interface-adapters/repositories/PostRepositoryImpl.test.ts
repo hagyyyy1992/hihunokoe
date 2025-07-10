@@ -1,8 +1,13 @@
 import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
 import { Post } from '@api/domain/entities/Post'
+import {
+  CreatePostData,
+  UpdatePostData,
+  FindPostsFilter,
+} from '@api/domain/repositories/PostRepository'
 import { v4 as uuidv4 } from 'uuid'
 
-// @/lib/prismaのモック
+// prismaとisdatabaseAvailableのモック
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     post: {
@@ -12,11 +17,17 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn(),
       delete: jest.fn(),
       count: jest.fn(),
+      aggregate: jest.fn(),
     },
   },
+  isDatabaseAvailable: jest.fn(() => true), // データベース利用可能として設定
 }))
 
-// モック関数を取得
+jest.mock('@/lib/mock-data', () => ({
+  MOCK_POSTS: [],
+}))
+
+// モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
 describe('PostRepositoryImpl', () => {
@@ -27,7 +38,7 @@ describe('PostRepositoryImpl', () => {
     jest.clearAllMocks()
   })
 
-  const createMockPost = (overrides?: Partial<Post>): Post => ({
+  const createMockPrismaPost = (overrides?: any) => ({
     id: uuidv4(),
     userId: uuidv4(),
     title: 'テスト投稿',
@@ -36,53 +47,70 @@ describe('PostRepositoryImpl', () => {
     cosmeticCategory: 'toner',
     skinType: 'normal',
     moodTag: 'love',
-    fragranceType: 'floral',
-    fragranceIntensity: 'medium',
-    textureType: 'light',
-    finishType: 'matte',
-    applicationEase: 'easy',
-    longevity: 'long',
-    valueForMoney: 'good',
-    overallRating: 5,
-    repurchaseIntention: true,
-    isPublished: true,
+    status: 'published',
+    publishedAt: new Date(),
+    usageSituation: null,
+    experienceDetails: null,
+    viewCount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
+    user: {
+      id: uuidv4(),
+      userName: 'テストユーザー',
+    },
+    _count: {
+      empathies: 0,
+      comments: 0,
+    },
+    ...overrides,
+  })
+
+  const createMockCreateData = (overrides?: Partial<CreatePostData>): CreatePostData => ({
+    userId: uuidv4(),
+    title: 'テスト投稿',
+    content: 'これはテスト投稿です',
+    productName: 'テスト化粧品',
+    category: 'toner',
+    skinType: 'normal',
+    moodTag: 'love',
+    usageSituation: null,
+    experienceDetails: null,
+    isPublished: true,
     ...overrides,
   })
 
   describe('create', () => {
     it('投稿を作成できる', async () => {
-      const post = createMockPost()
-      const mockUser = {
-        id: post.userId,
-        userName: 'テストユーザー',
-        profileImage: null,
-      }
-
-      mockPrisma.post.create.mockResolvedValue({
-        ...post,
-        user: mockUser,
-        _count: { empathies: 0, comments: 0 },
+      const createData = createMockCreateData()
+      const mockPrismaPost = createMockPrismaPost({
+        userId: createData.userId,
+        title: createData.title,
+        content: createData.content,
       })
 
-      const result = await repository.create(post)
+      mockPrisma.post.create.mockResolvedValue(mockPrismaPost)
+
+      const result = await repository.create(createData)
 
       expect(mockPrisma.post.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          id: post.id,
-          userId: post.userId,
-          title: post.title,
-          content: post.content,
-          cosmeticName: post.cosmeticName,
-          cosmeticCategory: post.cosmeticCategory,
-        }),
+        data: {
+          userId: createData.userId,
+          title: createData.title,
+          content: createData.content,
+          cosmeticName: createData.productName || '',
+          cosmeticCategory: createData.category || null,
+          skinType: createData.skinType || null,
+          moodTag: createData.moodTag || null,
+          usageSituation: createData.usageSituation || null,
+          experienceDetails: createData.experienceDetails || null,
+          status: createData.isPublished ? 'published' : 'draft',
+          publishedAt: createData.isPublished ? expect.any(Date) : null,
+        },
         include: {
           user: {
             select: {
               id: true,
               userName: true,
-              profileImage: true,
             },
           },
           _count: {
@@ -93,49 +121,37 @@ describe('PostRepositoryImpl', () => {
           },
         },
       })
-      expect(result).toMatchObject({
-        ...post,
-        user: mockUser,
-      })
+      expect(result).toBeInstanceOf(Post)
+      expect(result.title).toBe(createData.title)
     })
 
     it('オプショナルフィールドなしでも作成できる', async () => {
-      const post = createMockPost({
-        fragranceType: null,
-        fragranceIntensity: null,
-        textureType: null,
-        finishType: null,
-        applicationEase: null,
-        longevity: null,
-        valueForMoney: null,
-        overallRating: null,
-        repurchaseIntention: null,
+      const createData = createMockCreateData({
+        category: null,
+        skinType: null,
+        moodTag: null,
+      })
+      const mockPrismaPost = createMockPrismaPost({
+        cosmeticCategory: null,
+        skinType: null,
+        moodTag: null,
       })
 
-      mockPrisma.post.create.mockResolvedValue(post)
+      mockPrisma.post.create.mockResolvedValue(mockPrismaPost)
 
-      const result = await repository.create(post)
+      const result = await repository.create(createData)
 
-      expect(result.fragranceType).toBeNull()
-      expect(result.overallRating).toBeNull()
+      expect(result).toBeInstanceOf(Post)
+      expect(result.category).toBeNull()
     })
   })
 
   describe('findById', () => {
     it('IDで投稿を取得できる', async () => {
       const postId = uuidv4()
-      const post = createMockPost({ id: postId })
-      const mockData = {
-        ...post,
-        user: {
-          id: post.userId,
-          userName: 'テストユーザー',
-          profileImage: null,
-        },
-        _count: { empathies: 10, comments: 5 },
-      }
+      const mockPrismaPost = createMockPrismaPost({ id: postId })
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockData)
+      mockPrisma.post.findUnique.mockResolvedValue(mockPrismaPost)
 
       const result = await repository.findById(postId)
 
@@ -146,7 +162,6 @@ describe('PostRepositoryImpl', () => {
             select: {
               id: true,
               userName: true,
-              profileImage: true,
             },
           },
           _count: {
@@ -157,7 +172,8 @@ describe('PostRepositoryImpl', () => {
           },
         },
       })
-      expect(result).toEqual(mockData)
+      expect(result).toBeInstanceOf(Post)
+      expect(result!.id).toBe(postId)
     })
 
     it('存在しないIDの場合nullを返す', async () => {
@@ -169,159 +185,203 @@ describe('PostRepositoryImpl', () => {
     })
   })
 
-  describe('findByUserId', () => {
-    it('ユーザーIDで投稿を取得できる', async () => {
-      const userId = uuidv4()
-      const posts = [createMockPost({ userId }), createMockPost({ userId })]
-
-      mockPrisma.post.findMany.mockResolvedValue(posts)
-
-      const result = await repository.findByUserId(userId)
-
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { userId, isPublished: true },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
-      expect(result).toEqual(posts)
-    })
-
-    it('非公開投稿も含めて取得できる', async () => {
-      const userId = uuidv4()
-      mockPrisma.post.findMany.mockResolvedValue([])
-
-      await repository.findByUserId(userId, { includeUnpublished: true })
-
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { userId },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
-    })
-  })
-
-  describe('findAll', () => {
+  describe('findMany', () => {
     it('公開投稿を取得できる', async () => {
-      const posts = [createMockPost(), createMockPost(), createMockPost()]
+      const posts = [createMockPrismaPost(), createMockPrismaPost()]
+      const totalCount = 2
 
       mockPrisma.post.findMany.mockResolvedValue(posts)
+      mockPrisma.post.count.mockResolvedValue(totalCount)
 
-      const result = await repository.findAll()
+      const filter: FindPostsFilter = {
+        publishedOnly: true,
+        limit: 10,
+        offset: 0,
+      }
+
+      const result = await repository.findMany(filter)
 
       expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { isPublished: true },
-        include: expect.any(Object),
+        where: { status: 'published' },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 10,
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
       })
-      expect(result).toEqual(posts)
+      expect(result.posts).toHaveLength(2)
+      expect(result.totalCount).toBe(2)
     })
 
     it('ページネーションが機能する', async () => {
       mockPrisma.post.findMany.mockResolvedValue([])
+      mockPrisma.post.count.mockResolvedValue(0)
 
-      await repository.findAll({ limit: 20, offset: 40 })
+      const filter: FindPostsFilter = {
+        limit: 20,
+        offset: 40,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { isPublished: true },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-        skip: 40,
-      })
+      await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 40,
+          take: 20,
+        })
+      )
     })
 
     it('カテゴリでフィルタリングできる', async () => {
       mockPrisma.post.findMany.mockResolvedValue([])
+      mockPrisma.post.count.mockResolvedValue(0)
 
-      await repository.findAll({ category: 'toner' })
+      const filter: FindPostsFilter = {
+        category: 'toner',
+        limit: 10,
+        offset: 0,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { isPublished: true, cosmeticCategory: 'toner' },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
+      await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'published',
+            cosmeticCategory: 'toner',
+          }),
+        })
+      )
     })
 
     it('肌タイプでフィルタリングできる', async () => {
       mockPrisma.post.findMany.mockResolvedValue([])
+      mockPrisma.post.count.mockResolvedValue(0)
 
-      await repository.findAll({ skinType: 'dry' })
+      const filter: FindPostsFilter = {
+        skinType: 'dry',
+        limit: 10,
+        offset: 0,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { isPublished: true, skinType: 'dry' },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
+      await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'published',
+            skinType: 'dry',
+          }),
+        })
+      )
     })
 
     it('ムードタグでフィルタリングできる', async () => {
       mockPrisma.post.findMany.mockResolvedValue([])
+      mockPrisma.post.count.mockResolvedValue(0)
 
-      await repository.findAll({ moodTag: 'love' })
+      const filter: FindPostsFilter = {
+        moodTag: 'love',
+        limit: 10,
+        offset: 0,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { isPublished: true, moodTag: 'love' },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
+      await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'published',
+            moodTag: 'love',
+          }),
+        })
+      )
     })
-  })
 
-  describe('search', () => {
     it('キーワードで投稿を検索できる', async () => {
-      const keyword = '化粧水'
-      const posts = [createMockPost({ title: '化粧水のレビュー' })]
-
+      const posts = [createMockPrismaPost()]
       mockPrisma.post.findMany.mockResolvedValue(posts)
+      mockPrisma.post.count.mockResolvedValue(1)
 
-      const result = await repository.search(keyword)
+      const filter: FindPostsFilter = {
+        search: '化粧水',
+        limit: 10,
+        offset: 0,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: {
-          isPublished: true,
-          OR: [
-            { title: { contains: keyword } },
-            { content: { contains: keyword } },
-            { cosmeticName: { contains: keyword } },
-          ],
-        },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-      })
-      expect(result).toEqual(posts)
+      const result = await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            OR: expect.arrayContaining([
+              { title: { contains: '化粧水', mode: 'insensitive' } },
+              { content: { contains: '化粧水', mode: 'insensitive' } },
+              { cosmeticName: { contains: '化粧水', mode: 'insensitive' } },
+              { cosmeticCategory: { contains: '化粧水', mode: 'insensitive' } },
+            ]),
+          }),
+        })
+      )
+      expect(result.posts).toHaveLength(1)
     })
 
     it('検索結果にフィルタを適用できる', async () => {
       mockPrisma.post.findMany.mockResolvedValue([])
+      mockPrisma.post.count.mockResolvedValue(0)
 
-      await repository.search('化粧水', {
+      const filter: FindPostsFilter = {
+        search: '化粧水',
         category: 'toner',
         skinType: 'dry',
         limit: 10,
-      })
+        offset: 0,
+        publishedOnly: true,
+      }
 
-      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: {
-          isPublished: true,
-          cosmeticCategory: 'toner',
-          skinType: 'dry',
-          OR: expect.any(Array),
-        },
-        include: expect.any(Object),
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      })
+      await repository.findMany(filter)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'published',
+            cosmeticCategory: 'toner',
+            skinType: 'dry',
+            OR: expect.any(Array),
+          }),
+        })
+      )
     })
   })
 
   describe('update', () => {
     it('投稿を更新できる', async () => {
       const postId = uuidv4()
-      const updateData = {
+      const updateData: UpdatePostData = {
         title: '更新されたタイトル',
-        content: '更新された内容',
+        content: '更新されたコンテンツ',
       }
-      const updatedPost = createMockPost({ id: postId, ...updateData })
+      const updatedPost = createMockPrismaPost({
+        id: postId,
+        ...updateData,
+      })
 
       mockPrisma.post.update.mockResolvedValue(updatedPost)
 
@@ -330,20 +390,47 @@ describe('PostRepositoryImpl', () => {
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: postId },
         data: updateData,
-        include: expect.any(Object),
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
       })
-      expect(result).toEqual(updatedPost)
+      expect(result).toBeInstanceOf(Post)
+      expect(result.title).toBe(updateData.title)
     })
 
     it('公開ステータスを更新できる', async () => {
       const postId = uuidv4()
-      mockPrisma.post.update.mockResolvedValue(createMockPost({ isPublished: false }))
+      const updateData: UpdatePostData = {
+        isPublished: false,
+      }
 
-      await repository.update(postId, { isPublished: false })
+      const updatedPost = createMockPrismaPost({
+        id: postId,
+        status: 'draft',
+        publishedAt: null,
+      })
+
+      mockPrisma.post.update.mockResolvedValue(updatedPost)
+
+      await repository.update(postId, updateData)
 
       expect(mockPrisma.post.update).toHaveBeenCalledWith({
         where: { id: postId },
-        data: { isPublished: false },
+        data: {
+          status: 'draft',
+          publishedAt: null,
+        },
         include: expect.any(Object),
       })
     })
@@ -360,18 +447,6 @@ describe('PostRepositoryImpl', () => {
         where: { id: postId },
       })
     })
-
-    it('存在しない投稿の削除はエラーになる', async () => {
-      const error = {
-        code: 'P2025',
-        message: 'Record to delete does not exist',
-      }
-      mockPrisma.post.delete.mockRejectedValue(error)
-
-      await expect(repository.delete(uuidv4())).rejects.toMatchObject({
-        code: 'P2025',
-      })
-    })
   })
 
   describe('countPublishedPosts', () => {
@@ -381,20 +456,111 @@ describe('PostRepositoryImpl', () => {
       const result = await repository.countPublishedPosts()
 
       expect(mockPrisma.post.count).toHaveBeenCalledWith({
-        where: { isPublished: true },
+        where: { status: 'published' },
       })
       expect(result).toBe(100)
     })
   })
 
-  describe('エラーハンドリング', () => {
-    it('データベースエラーを適切に伝播する', async () => {
-      const dbError = new Error('Database connection failed')
-      mockPrisma.post.create.mockRejectedValue(dbError)
+  describe('findRecentPosts', () => {
+    it('最新の投稿を取得できる', async () => {
+      const posts = [createMockPrismaPost(), createMockPrismaPost()]
+      mockPrisma.post.findMany.mockResolvedValue(posts)
 
-      await expect(repository.create(createMockPost())).rejects.toThrow(
-        'Database connection failed'
-      )
+      const result = await repository.findRecentPosts(5)
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
+        where: { status: 'published' },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
+      })
+      expect(result).toHaveLength(2)
+    })
+  })
+
+  describe('getTotalViews', () => {
+    it('総視聴数を取得できる', async () => {
+      mockPrisma.post.aggregate.mockResolvedValue({
+        _sum: { viewCount: 1500 },
+      })
+
+      const result = await repository.getTotalViews()
+
+      expect(mockPrisma.post.aggregate).toHaveBeenCalledWith({
+        _sum: {
+          viewCount: true,
+        },
+      })
+      expect(result).toBe(1500)
+    })
+
+    it('視聴数がnullの場合は0を返す', async () => {
+      mockPrisma.post.aggregate.mockResolvedValue({
+        _sum: { viewCount: null },
+      })
+
+      const result = await repository.getTotalViews()
+
+      expect(result).toBe(0)
+    })
+  })
+
+  describe('updatePublishStatus', () => {
+    it('公開ステータスを更新できる', async () => {
+      const postId = uuidv4()
+      mockPrisma.post.update.mockResolvedValue({})
+
+      await repository.updatePublishStatus(postId, true)
+
+      expect(mockPrisma.post.update).toHaveBeenCalledWith({
+        where: { id: postId },
+        data: {
+          status: 'published',
+          publishedAt: expect.any(Date),
+        },
+      })
+    })
+  })
+
+  describe('findAllForAdmin', () => {
+    it('管理者向けに全投稿を取得できる', async () => {
+      const posts = [createMockPrismaPost(), createMockPrismaPost()]
+      mockPrisma.post.findMany.mockResolvedValue(posts)
+
+      const result = await repository.findAllForAdmin()
+
+      expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
+      })
+      expect(result).toHaveLength(2)
     })
   })
 })

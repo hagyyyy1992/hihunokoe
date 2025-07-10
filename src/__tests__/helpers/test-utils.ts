@@ -7,7 +7,7 @@ export const createMockRequest = (
   url: string,
   options: {
     method?: string
-    body?: any
+    body?: unknown
     cookies?: Record<string, string>
     headers?: Record<string, string>
     searchParams?: Record<string, string>
@@ -61,7 +61,7 @@ export const createMockRequest = (
 /**
  * Creates a mock request for API authentication endpoints
  */
-export const createAuthRequest = (endpoint: string, body: any, token?: string) => {
+export const createAuthRequest = (endpoint: string, body: unknown, token?: string) => {
   const cookies = token ? { 'auth-token': token } : undefined
 
   return createMockRequest(`http://localhost:3000/api/auth/${endpoint}`, {
@@ -77,7 +77,7 @@ export const createAuthRequest = (endpoint: string, body: any, token?: string) =
 export const createPostsRequest = (
   method: 'GET' | 'POST' = 'GET',
   options: {
-    body?: any
+    body?: unknown
     token?: string
     searchParams?: Record<string, string>
   } = {}
@@ -100,7 +100,7 @@ export const createPostRequest = (
   postId: string,
   method: 'GET' | 'PUT' | 'DELETE' = 'GET',
   options: {
-    body?: any
+    body?: unknown
     token?: string
   } = {}
 ) => {
@@ -211,15 +211,9 @@ export const mockConsole = () => {
   const originalConsole = { ...console }
 
   beforeEach(() => {
-    jest
-      .spyOn(console, 'log')
-      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
-    jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
-    jest
-      .spyOn(console, 'warn')
-      .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+    jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
 
   afterEach(() => {
@@ -233,7 +227,7 @@ export const mockConsole = () => {
  * Helper to test pagination responses
  */
 export const expectValidPagination = (
-  pagination: any,
+  pagination: unknown,
   expectedPage: number,
   expectedLimit: number,
   expectedTotal: number

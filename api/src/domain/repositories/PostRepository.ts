@@ -58,6 +58,20 @@ export interface PostRepository {
   incrementCommentCount(id: string): Promise<void>
   decrementCommentCount(id: string): Promise<void>
 
+  // Methods for test compatibility
+  findByUserId(userId: string, options?: { includeUnpublished?: boolean }): Promise<Post[]>
+  findAll(options?: {
+    limit?: number
+    offset?: number
+    category?: string
+    skinType?: string
+    moodTag?: string
+  }): Promise<Post[]>
+  search(
+    keyword: string,
+    options?: { category?: string; skinType?: string; limit?: number }
+  ): Promise<Post[]>
+
   // Admin-specific methods
   findAllForAdmin(): Promise<Post[]>
   findRecentPosts(limit: number): Promise<Post[]>

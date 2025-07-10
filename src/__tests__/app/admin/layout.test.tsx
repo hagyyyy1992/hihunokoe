@@ -19,7 +19,8 @@ jest.mock('@/components/ui/Button', () => ({
     ...props
   }: {
     children: React.ReactNode
-    href: string
+    onClick?: React.MouseEventHandler<HTMLButtonElement>
+    className?: string
     [key: string]: unknown
   }) => (
     <button onClick={onClick} className={className} {...props}>
@@ -34,16 +35,12 @@ jest.mock('@/components/ui/avatar', () => ({
     className,
   }: {
     children: React.ReactNode
-    href: string
+    className?: string
     [key: string]: unknown
   }) => <div className={className}>{children}</div>,
-  AvatarFallback: ({
-    children,
-  }: {
-    children: React.ReactNode
-    href: string
-    [key: string]: unknown
-  }) => <div>{children}</div>,
+  AvatarFallback: ({ children }: { children: React.ReactNode; [key: string]: unknown }) => (
+    <div>{children}</div>
+  ),
 }))
 
 jest.mock('lucide-react', () => ({
@@ -67,6 +64,8 @@ jest.mock('next/link', () => {
   }: {
     children: React.ReactNode
     href: string
+    onClick?: React.MouseEventHandler<HTMLAnchorElement>
+    className?: string
     [key: string]: unknown
   }) {
     return (

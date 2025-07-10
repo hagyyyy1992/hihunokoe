@@ -4,7 +4,6 @@ import {
   createUser,
   expectElementToBeVisible,
   fillInput,
-  submitForm,
   waitFor,
 } from '../../helpers/rtl-utils'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
@@ -65,7 +64,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
 
@@ -82,7 +81,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: false, message: '無効なトークンまたは期限切れです' }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
 
@@ -94,9 +93,7 @@ describe('ResetPasswordPage', () => {
     })
 
     it('トークン検証エラー時にエラーメッセージが表示される', async () => {
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<ResetPasswordPage />)
@@ -113,15 +110,10 @@ describe('ResetPasswordPage', () => {
 
     it('トークン検証中にローディング状態が表示される', () => {
       // Don't resolve the promise immediately to test loading state
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void = () => {}
-      const pendingPromise = new Promise(resolve => {
-        resolvePromise = resolve
+      const pendingPromise = new Promise(() => {
+        // Never resolve to keep loading state
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise as Promise<Response>)
 
       render(<ResetPasswordPage />)
 
@@ -135,7 +127,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
       await waitFor(() => expect(screen.getByText('新しいパスワードを設定')).toBeInTheDocument())
@@ -157,7 +149,7 @@ describe('ResetPasswordPage', () => {
     it('正しいパスワードでリセットできる', async () => {
       const user = createUser()
       mockFetch.mockResolvedValueOnce(
-        mockApiResponse.success({ message: 'パスワードリセット成功' }) as any
+        mockApiResponse.success({ message: 'パスワードリセット成功' }) as Response
       )
 
       const passwordInput = screen.getByLabelText('新しいパスワード') as HTMLInputElement
@@ -187,7 +179,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
       await waitFor(() => expect(screen.getByText('新しいパスワードを設定')).toBeInTheDocument())
@@ -217,7 +209,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
       await waitFor(() => expect(screen.getByText('新しいパスワードを設定')).toBeInTheDocument())
@@ -230,7 +222,7 @@ describe('ResetPasswordPage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: false, message: '無効なトークン' }),
-      } as any)
+      } as Response)
 
       render(<ResetPasswordPage />)
       await waitFor(() => expect(screen.getByText('パスワードリセット')).toBeInTheDocument())

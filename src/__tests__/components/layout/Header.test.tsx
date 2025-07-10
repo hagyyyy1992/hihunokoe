@@ -28,7 +28,7 @@ jest.mock('next/link', () => {
     [key: string]: unknown
   }) {
     return (
-      <a href={href} className={className} {...props}>
+      <a href={href} className={typeof className === 'string' ? className : undefined} {...props}>
         {children}
       </a>
     )

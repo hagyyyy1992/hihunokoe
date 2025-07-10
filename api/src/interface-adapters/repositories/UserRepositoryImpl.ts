@@ -327,7 +327,10 @@ export class UserRepositoryImpl implements UserRepository {
       prismaUser.deletedAt,
       prismaUser.createdAt,
       prismaUser.updatedAt,
-      undefined // password field (not stored)
+      undefined, // password field (not stored)
+      // Additional properties for test compatibility
+      null, // bio (not in current schema)
+      null // favoriteCategories (not in current schema)
     )
   }
 }

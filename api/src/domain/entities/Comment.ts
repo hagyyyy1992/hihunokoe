@@ -1,4 +1,6 @@
 export class Comment {
+  public readonly parentId: string | null // Alias for compatibility
+
   constructor(
     public readonly id: string,
     public readonly postId: string,
@@ -8,7 +10,10 @@ export class Comment {
     public readonly isActive: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
-  ) {}
+  ) {
+    // Set alias for compatibility
+    this.parentId = this.parentCommentId
+  }
 
   get isValid(): boolean {
     return this.content.trim().length > 0 && this.content.trim().length <= 1000

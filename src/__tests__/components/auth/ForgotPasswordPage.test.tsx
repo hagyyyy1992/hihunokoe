@@ -102,7 +102,9 @@ describe('ForgotPasswordPage', () => {
   describe('フォーム送信', () => {
     it('メールアドレスを入力してフォームを送信できる', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: 'メール送信成功' }) as any)
+      mockFetch.mockResolvedValueOnce(
+        mockApiResponse.success({ message: 'メール送信成功' }) as Response
+      )
 
       render(<ForgotPasswordPage />)
 
@@ -123,7 +125,9 @@ describe('ForgotPasswordPage', () => {
 
     it('成功時に成功メッセージが表示される', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.success({ message: 'メール送信成功' }) as any)
+      mockFetch.mockResolvedValueOnce(
+        mockApiResponse.success({ message: 'メール送信成功' }) as Response
+      )
 
       render(<ForgotPasswordPage />)
 
@@ -144,7 +148,7 @@ describe('ForgotPasswordPage', () => {
 
     it('エラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      mockFetch.mockResolvedValueOnce(mockApiResponse.error('ユーザーが見つかりません') as any)
+      mockFetch.mockResolvedValueOnce(mockApiResponse.error('ユーザーが見つかりません') as Response)
 
       render(<ForgotPasswordPage />)
 
@@ -163,9 +167,7 @@ describe('ForgotPasswordPage', () => {
 
     it('ネットワークエラー時にエラーメッセージが表示される', async () => {
       const user = createUser()
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => ({ ok: true, json: async () => ({ success: true }) }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       render(<ForgotPasswordPage />)
@@ -188,15 +190,11 @@ describe('ForgotPasswordPage', () => {
 
     it('送信中はボタンが無効化され、ローディング状態になる', async () => {
       const user = createUser()
-      let resolvePromise: (value: {
-        children: React.ReactNode
-        href: string
-        [key: string]: unknown
-      }) => void = () => {}
-      const pendingPromise = new Promise(resolve => {
+      let resolvePromise: (value: Response) => void = () => {}
+      const pendingPromise = new Promise<Response>(resolve => {
         resolvePromise = resolve
       })
-      mockFetch.mockReturnValueOnce(pendingPromise as any)
+      mockFetch.mockReturnValueOnce(pendingPromise)
 
       render(<ForgotPasswordPage />)
 
@@ -209,7 +207,7 @@ describe('ForgotPasswordPage', () => {
 
       expect(submitButton).toBeDisabled()
 
-      resolvePromise(mockApiResponse.success({ message: 'Success' }))
+      resolvePromise(mockApiResponse.success({ message: 'Success' }) as any)
       await waitFor(100)
 
       expect(submitButton).not.toBeDisabled()

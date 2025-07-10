@@ -24,14 +24,14 @@ export const setupComponentTest = () => {
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-  })) as any
+  })) as unknown as jest.MockedClass<typeof IntersectionObserver>
 
   // Mock ResizeObserver
   global.ResizeObserver = jest.fn(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-  })) as any
+  })) as unknown as jest.MockedClass<typeof ResizeObserver>
 
   // Mock scrollIntoView
   Element.prototype.scrollIntoView = jest.fn()
