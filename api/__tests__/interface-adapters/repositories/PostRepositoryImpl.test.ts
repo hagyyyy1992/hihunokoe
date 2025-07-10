@@ -1,4 +1,4 @@
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
 import { Post } from '@api/domain/entities/Post'
 import {
   CreatePostData,
@@ -30,11 +30,11 @@ jest.mock('@/lib/mock-data', () => ({
 // モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
-describe('PostRepositoryImpl', () => {
-  let repository: PostRepositoryImpl
+describe('Post.repository', () => {
+  let repository: PostRepository
 
   beforeEach(() => {
-    repository = new PostRepositoryImpl()
+    repository = new PostRepository()
     jest.clearAllMocks()
   })
 

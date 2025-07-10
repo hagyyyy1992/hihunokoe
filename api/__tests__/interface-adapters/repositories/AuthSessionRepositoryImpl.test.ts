@@ -1,12 +1,12 @@
-import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { v4 as uuidv4 } from 'uuid'
 
-describe('AuthSessionRepositoryImpl', () => {
-  let repository: AuthSessionRepositoryImpl
+describe('AuthSession.repository', () => {
+  let repository: AuthSessionRepository
 
   beforeEach(() => {
-    repository = new AuthSessionRepositoryImpl()
+    repository = new AuthSessionRepository()
     jest.clearAllMocks()
   })
 

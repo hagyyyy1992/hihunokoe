@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
 import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 
 export class TestController {
-  private userRepository: UserRepositoryImpl
+  private userRepository: UserRepository
   private emailService: EmailServiceImpl
   private rateLimitService: RateLimitServiceImpl
 
   constructor() {
-    this.userRepository = new UserRepositoryImpl()
+    this.userRepository = new UserRepository()
     this.emailService = new EmailServiceImpl()
     this.rateLimitService = new RateLimitServiceImpl()
   }

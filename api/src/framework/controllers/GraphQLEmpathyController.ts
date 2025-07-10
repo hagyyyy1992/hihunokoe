@@ -1,8 +1,8 @@
 import { EmpathyManagementUseCase } from '@api/usecases/posts/interactor'
 import type { AddEmpathyInputPort, RemoveEmpathyInputPort } from '@api/usecases/posts/input-port'
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { GraphQLContext } from '@/graphql/context'
 import { EmpathyType } from '@api/domain/entities/Empathy'
 
@@ -10,9 +10,9 @@ export class GraphQLEmpathyController {
   private empathyManagementUseCase: EmpathyManagementUseCase
 
   constructor() {
-    const empathyRepository = new EmpathyRepositoryImpl()
-    const postRepository = new PostRepositoryImpl()
-    const userRepository = new UserRepositoryImpl()
+    const empathyRepository = new EmpathyRepository()
+    const postRepository = new PostRepository()
+    const userRepository = new UserRepository()
 
     this.empathyManagementUseCase = new EmpathyManagementUseCase(
       postRepository,

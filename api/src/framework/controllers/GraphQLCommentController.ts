@@ -6,9 +6,9 @@ import type {
   CreateCommentInputPort,
   GetCommentsWithPaginationInputPort,
 } from '@api/usecases/comments/input-port'
-import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 import { GraphQLContext } from '@/graphql/context'
 
@@ -17,9 +17,9 @@ export class GraphQLCommentController {
   private commentRetrievalUseCase: CommentRetrievalUseCase
 
   constructor() {
-    const commentRepository = new CommentRepositoryImpl()
-    const postRepository = new PostRepositoryImpl()
-    const userRepository = new UserRepositoryImpl()
+    const commentRepository = new CommentRepository()
+    const postRepository = new PostRepository()
+    const userRepository = new UserRepository()
     const rateLimitService = new RateLimitServiceImpl()
 
     this.commentManagementUseCase = new CommentManagementUseCase(

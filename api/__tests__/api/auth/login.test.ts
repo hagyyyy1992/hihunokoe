@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
 import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import {
@@ -12,8 +12,8 @@ import {
 
 // Mock all dependencies
 jest.mock('@api/usecases/auth/interactor')
-jest.mock('@api/interface-adapters/repositories/UserRepositoryImpl')
-jest.mock('@api/interface-adapters/repositories/AuthSessionRepositoryImpl')
+jest.mock('@api/interface-adapters/repositories/User.repository')
+jest.mock('@api/interface-adapters/repositories/AuthSession.repository')
 jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl')
 jest.mock('@api/interface-adapters/services/TokenServiceImpl')
 jest.mock('@api/interface-adapters/services/EmailServiceImpl')

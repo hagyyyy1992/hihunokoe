@@ -7,10 +7,10 @@ import type {
   UpdatePostInputPort,
   DeletePostInputPort,
 } from '@api/usecases/posts/input-port'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
-import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLPostController {
@@ -18,10 +18,10 @@ export class GraphQLPostController {
   private postManagementUseCase: PostManagementUseCase
 
   constructor() {
-    const postRepository = new PostRepositoryImpl()
-    const userRepository = new UserRepositoryImpl()
-    const empathyRepository = new EmpathyRepositoryImpl()
-    const commentRepository = new CommentRepositoryImpl()
+    const postRepository = new PostRepository()
+    const userRepository = new UserRepository()
+    const empathyRepository = new EmpathyRepository()
+    const commentRepository = new CommentRepository()
 
     this.postRetrievalUseCase = new PostRetrievalUseCase(
       postRepository,

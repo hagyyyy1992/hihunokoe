@@ -12,9 +12,9 @@ import type {
   GetCommentsInputPort,
   GetCommentsWithPaginationInputPort,
 } from '@api/usecases/comments/input-port'
-import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 import { CommentPresenter } from '@api/framework/presenters/CommentPresenter'
@@ -25,9 +25,9 @@ export class CommentController {
   private tokenService: TokenServiceImpl
 
   constructor() {
-    const commentRepository = new CommentRepositoryImpl()
-    const postRepository = new PostRepositoryImpl()
-    const userRepository = new UserRepositoryImpl()
+    const commentRepository = new CommentRepository()
+    const postRepository = new PostRepository()
+    const userRepository = new UserRepository()
     this.tokenService = new TokenServiceImpl()
     const rateLimitService = new RateLimitServiceImpl()
 

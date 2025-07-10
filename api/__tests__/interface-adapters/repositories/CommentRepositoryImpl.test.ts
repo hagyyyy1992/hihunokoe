@@ -1,4 +1,4 @@
-import { CommentRepositoryImpl } from '@api/interface-adapters/repositories/CommentRepositoryImpl'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
 import { Comment } from '@api/domain/entities/Comment'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -19,11 +19,11 @@ jest.mock('@/lib/prisma', () => ({
 // モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
-describe('CommentRepositoryImpl', () => {
-  let repository: CommentRepositoryImpl
+describe('Comment.repository', () => {
+  let repository: CommentRepository
 
   beforeEach(() => {
-    repository = new CommentRepositoryImpl()
+    repository = new CommentRepository()
     jest.clearAllMocks()
   })
 

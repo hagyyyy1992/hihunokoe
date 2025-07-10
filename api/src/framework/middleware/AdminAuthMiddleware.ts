@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
 import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { User } from '@api/domain/entities/User'
@@ -16,8 +16,8 @@ export class AdminAuthMiddleware {
   private tokenService: TokenServiceImpl
 
   constructor() {
-    const userRepository = new UserRepositoryImpl()
-    const authSessionRepository = new AuthSessionRepositoryImpl()
+    const userRepository = new UserRepository()
+    const authSessionRepository = new AuthSessionRepository()
     const passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
 

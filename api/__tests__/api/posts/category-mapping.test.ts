@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { PostController } from '@api/framework/controllers/PostController'
 import { PostManagementUseCase, PostRetrievalUseCase } from '@api/usecases/posts/interactor'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { prisma } from '@/lib/prisma'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 

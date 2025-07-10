@@ -1,4 +1,4 @@
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { User, UserRole } from '@api/domain/entities/User'
 import {
   CreateUserData,
@@ -26,11 +26,11 @@ jest.mock('@/lib/prisma', () => ({
 // モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
-describe('UserRepositoryImpl', () => {
-  let repository: UserRepositoryImpl
+describe('User.repository', () => {
+  let repository: UserRepository
 
   beforeEach(() => {
-    repository = new UserRepositoryImpl()
+    repository = new UserRepository()
     jest.clearAllMocks()
   })
 

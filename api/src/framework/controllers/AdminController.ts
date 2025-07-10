@@ -20,10 +20,10 @@ import type {
   AdminLogoutInputPort,
   GetCurrentAdminInputPort,
 } from '@api/usecases/admin/input-port'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { AuthSessionRepositoryImpl } from '@api/interface-adapters/repositories/AuthSessionRepositoryImpl'
-import { AdminLogRepositoryImpl } from '@api/interface-adapters/repositories/AdminLogRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
+import { AdminLogRepository } from '@api/interface-adapters/repositories/AdminLog.repository'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { UserRole } from '@api/domain/entities/User'
@@ -42,9 +42,9 @@ export class AdminController {
   private tokenService: TokenServiceImpl
 
   constructor() {
-    const userRepository = new UserRepositoryImpl()
-    const postRepository = new PostRepositoryImpl()
-    const authSessionRepository = new AuthSessionRepositoryImpl()
+    const userRepository = new UserRepository()
+    const postRepository = new PostRepository()
+    const authSessionRepository = new AuthSessionRepository()
     const passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
     const commentRepository =
@@ -53,7 +53,7 @@ export class AdminController {
     if (!prisma) {
       throw new Error('Prisma client is not initialized')
     }
-    const adminLogRepository = new AdminLogRepositoryImpl(prisma)
+    const adminLogRepository = new AdminLogRepository(prisma)
 
     this.adminAuthenticationUseCase = new AdminAuthenticationUseCase(
       userRepository,

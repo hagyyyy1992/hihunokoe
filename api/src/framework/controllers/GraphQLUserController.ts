@@ -1,12 +1,12 @@
 import { GetUserInteractor } from '@api/usecases/user/interactor'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLUserController {
-  private userRepository: UserRepositoryImpl
+  private userRepository: UserRepository
 
   constructor() {
-    this.userRepository = new UserRepositoryImpl()
+    this.userRepository = new UserRepository()
   }
 
   async getUser(args: { id: string }, context: GraphQLContext) {

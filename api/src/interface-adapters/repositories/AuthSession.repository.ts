@@ -7,7 +7,7 @@ interface StoredSession {
   isValid: boolean
 }
 
-export class AuthSessionRepositoryImpl implements IAuthSessionRepository {
+export class AuthSessionRepository implements IAuthSessionRepository {
   private sessions: Map<string, StoredSession> = new Map()
 
   async create(session: AuthSession): Promise<void> {

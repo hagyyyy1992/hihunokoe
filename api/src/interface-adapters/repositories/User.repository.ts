@@ -9,7 +9,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { User as PrismaUser } from '@prisma/client'
 
-export class UserRepositoryImpl implements IUserRepository {
+export class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
 

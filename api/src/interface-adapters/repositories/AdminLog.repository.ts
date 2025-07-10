@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { IAdminLogRepository, AdminLogData } from '@api/domain/repositories/AdminLogRepository'
 
-export class AdminLogRepositoryImpl implements IAdminLogRepository {
+export class AdminLogRepository implements IAdminLogRepository {
   constructor(private prisma: PrismaClient) {}
 
   async create(data: Omit<AdminLogData, 'id' | 'createdAt'>): Promise<AdminLogData> {

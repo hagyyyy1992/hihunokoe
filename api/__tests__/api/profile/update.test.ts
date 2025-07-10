@@ -24,9 +24,9 @@ jest.mock('@api/usecases/profile/interactor', () => {
   }
 })
 
-jest.mock('@api/interface-adapters/repositories/UserRepositoryImpl', () => {
+jest.mock('@api/interface-adapters/repositories/User.repository', () => {
   return {
-    UserRepositoryImpl: jest.fn().mockImplementation(() => ({})),
+    UserRepository: jest.fn().mockImplementation(() => ({})),
   }
 })
 

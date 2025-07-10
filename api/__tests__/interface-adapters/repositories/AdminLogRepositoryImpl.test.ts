@@ -1,4 +1,4 @@
-import { AdminLogRepositoryImpl } from '@api/interface-adapters/repositories/AdminLogRepositoryImpl'
+import { AdminLogRepository } from '@api/interface-adapters/repositories/AdminLog.repository'
 import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -10,11 +10,11 @@ const mockPrisma = {
   },
 }
 
-describe('AdminLogRepositoryImpl', () => {
-  let repository: AdminLogRepositoryImpl
+describe('AdminLog.repository', () => {
+  let repository: AdminLogRepository
 
   beforeEach(() => {
-    repository = new AdminLogRepositoryImpl(mockPrisma as any)
+    repository = new AdminLogRepository(mockPrisma as any)
     jest.clearAllMocks()
   })
 

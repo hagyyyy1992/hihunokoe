@@ -1,9 +1,9 @@
 import { GraphQLContext } from '@/graphql/context'
 import { GraphQLPostController } from '@api/framework/controllers/GraphQLPostController'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 
 const postController = new GraphQLPostController()
-const userRepository = new UserRepositoryImpl()
+const userRepository = new UserRepository()
 
 export const postResolvers = {
   Query: {

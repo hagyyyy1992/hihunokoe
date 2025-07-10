@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import {
   PostManagementUseCase,
   PostRetrievalUseCase,
@@ -14,10 +19,6 @@ import type {
   RemoveEmpathyInputPort,
   GetEmpathyStatusInputPort,
 } from '@api/usecases/posts/input-port'
-import { PostRepositoryImpl } from '@api/interface-adapters/repositories/PostRepositoryImpl'
-import { UserRepositoryImpl } from '@api/interface-adapters/repositories/UserRepositoryImpl'
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
 
@@ -28,11 +29,10 @@ export class PostController {
   private tokenService: TokenServiceImpl
 
   constructor() {
-    const postRepository = new PostRepositoryImpl()
-    const userRepository = new UserRepositoryImpl()
-    const empathyRepository = new EmpathyRepositoryImpl()
-    const commentRepository =
-      new (require('@api/interface-adapters/repositories/CommentRepositoryImpl').CommentRepositoryImpl)()
+    const postRepository = new PostRepository()
+    const userRepository = new UserRepository()
+    const empathyRepository = new EmpathyRepository()
+    const commentRepository = new CommentRepository()
     this.tokenService = new TokenServiceImpl()
 
     this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)

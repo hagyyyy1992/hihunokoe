@@ -1,4 +1,4 @@
-import { EmpathyRepositoryImpl } from '@api/interface-adapters/repositories/EmpathyRepositoryImpl'
+import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
 import { CreateEmpathyData } from '@api/domain/repositories/EmpathyRepository'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -19,11 +19,11 @@ jest.mock('@/lib/prisma', () => ({
 // モック関数を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
-describe('EmpathyRepositoryImpl', () => {
-  let repository: EmpathyRepositoryImpl
+describe('Empathy.repository', () => {
+  let repository: EmpathyRepository
 
   beforeEach(() => {
-    repository = new EmpathyRepositoryImpl()
+    repository = new EmpathyRepository()
     jest.clearAllMocks()
   })
 
