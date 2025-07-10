@@ -90,12 +90,13 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    await page.waitForURL('/posts/**')
-
-    // 投稿一覧に移動（リダイレクトを待ってから）
-    await page.waitForTimeout(1000)
-    await page.goto('/posts')
-    await page.waitForTimeout(2000)
+    // 投稿詳細ページへのリダイレクトを完全に待つ
+    await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
+    await page.waitForLoadState('networkidle')
+    
+    // 確実に投稿一覧ページに移動
+    await page.goto('/posts', { waitUntil: 'networkidle' })
+    await page.waitForSelector('[data-testid="post-card"]')
 
     // 投稿が作成されたことを確認
     const postCard = page
@@ -150,11 +151,13 @@ test.describe('投稿カテゴリの検証', () => {
 
       // 投稿を作成
       await page.click('[data-testid="publish-button"]')
-      await page.waitForURL('/posts/**')
-
-      // 投稿一覧に移動
-      await page.goto('/posts')
-      await page.waitForTimeout(2000)
+      // 投稿詳細ページへのリダイレクトを完全に待つ
+      await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
+      await page.waitForLoadState('networkidle')
+      
+      // 確実に投稿一覧ページに移動
+      await page.goto('/posts', { waitUntil: 'networkidle' })
+      await page.waitForSelector('[data-testid="post-card"]')
 
       // 投稿が作成されたことを確認
       const postCard = page
@@ -208,12 +211,13 @@ test.describe('投稿カテゴリの検証', () => {
 
     // 投稿を作成
     await page.click('[data-testid="publish-button"]')
-    await page.waitForURL('/posts/**')
-
-    // 投稿一覧に移動（リダイレクトを待ってから）
-    await page.waitForTimeout(1000)
-    await page.goto('/posts')
-    await page.waitForTimeout(2000)
+    // 投稿詳細ページへのリダイレクトを完全に待つ
+    await page.waitForURL(/\/posts\/[a-z0-9-]+$/, { timeout: 10000 })
+    await page.waitForLoadState('networkidle')
+    
+    // 確実に投稿一覧ページに移動
+    await page.goto('/posts', { waitUntil: 'networkidle' })
+    await page.waitForSelector('[data-testid="post-card"]')
 
     // 作成した投稿をクリックして詳細ページに遷移
     const postCard = page.locator('[data-testid="post-card"]').filter({ hasText: title }).first()

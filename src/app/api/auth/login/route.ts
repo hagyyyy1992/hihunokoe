@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
     const clonedResponse = response.clone()
     const responseData = await clonedResponse.json()
 
-    console.log('[Login Route] Response data:', responseData) // デバッグログ
-
     if (responseData.token) {
       // クッキーストアを取得（Next.js 15では非同期）
       const cookieStore = await cookies()
