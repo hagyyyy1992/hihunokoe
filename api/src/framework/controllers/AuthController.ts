@@ -363,14 +363,14 @@ export class AuthController {
       const token = authHeader?.replace('Bearer ', '')
 
       if (!token) {
-        return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
+        return NextResponse.json({ error: '認証トークンが提供されていません' }, { status: 401 })
       }
 
       const body = await request.json()
       const { password } = body
 
       if (!password) {
-        return NextResponse.json({ error: 'Password is required' }, { status: 400 })
+        return NextResponse.json({ error: 'パスワードを入力してください' }, { status: 400 })
       }
 
       // First verify the token and get user info
@@ -387,21 +387,18 @@ export class AuthController {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Invalid or expired token') {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+          return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 })
         }
         if (error.message === 'Invalid password') {
-          return NextResponse.json({ error: 'Invalid password' }, { status: 400 })
+          return NextResponse.json({ error: 'パスワードが正しくありません' }, { status: 400 })
         }
         if (error.message === 'User not found') {
-          return NextResponse.json({ error: 'User not found' }, { status: 404 })
+          return NextResponse.json({ error: 'ユーザーが見つかりません' }, { status: 404 })
         }
       }
 
       console.error('Delete account error:', error)
-      return NextResponse.json(
-        { error: 'An error occurred while deleting account' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'アカウント削除中にエラーが発生しました' }, { status: 500 })
     }
   }
 
