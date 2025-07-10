@@ -546,11 +546,17 @@ test.describe('エラーハンドリング', () => {
       // ネットワークエラーメッセージが表示されることを確認
       // またはログインページに留まっていることを確認
       await page.waitForTimeout(2000) // エラー処理のための待機
-      
-      const errorMessage = await page.getByText('ネットワークエラーが発生しました。インターネット接続を確認してください。').isVisible().catch(() => false)
-      const generalError = await page.getByText('ログインに失敗しました').isVisible().catch(() => false)
+
+      const errorMessage = await page
+        .getByText('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+        .isVisible()
+        .catch(() => false)
+      const generalError = await page
+        .getByText('ログインに失敗しました')
+        .isVisible()
+        .catch(() => false)
       const isOnLoginPage = page.url().includes('/auth/login')
-      
+
       // エラーメッセージが表示されるか、ログインページに留まっていればOK
       expect(errorMessage || generalError || isOnLoginPage).toBe(true)
 

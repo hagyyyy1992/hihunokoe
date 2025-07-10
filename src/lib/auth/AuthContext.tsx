@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let data
       try {
         data = await response.json()
-      } catch (parseError) {
+      } catch {
         // JSONパースに失敗した場合（ネットワークエラーなど）
         throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。')
       }
