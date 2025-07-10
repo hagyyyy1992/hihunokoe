@@ -260,9 +260,16 @@ export default function CommentItem({
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">コメントを削除しますか？</h3>
+        <>
+          {/* 背景オーバーレイ */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          {/* モーダル本体 */}
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full pointer-events-auto">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">コメントを削除しますか？</h3>
             <p className="text-sm text-gray-600 mb-6">
               この操作は元に戻せません。本当に削除してもよろしいですか？
             </p>
@@ -284,7 +291,8 @@ export default function CommentItem({
               </button>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   )

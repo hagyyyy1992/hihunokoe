@@ -48,7 +48,7 @@ export class AdminController {
     const passwordHashService = new PasswordHashServiceImpl()
     this.tokenService = new TokenServiceImpl()
     const commentRepository =
-      new (require('@api/interface-adapters/repositories/CommentRepositoryImpl').CommentRepositoryImpl)()
+      new (require('@api/interface-adapters/repositories/Comment.repository').CommentRepository)()
 
     if (!prisma) {
       throw new Error('Prisma client is not initialized')

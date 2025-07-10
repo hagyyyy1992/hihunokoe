@@ -335,7 +335,7 @@ export default function EditPostPage() {
           </div>
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto"
+            className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto cursor-pointer"
           >
             <svg
               className="w-3 h-3 sm:w-4 sm:h-4"
@@ -423,7 +423,7 @@ export default function EditPostPage() {
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1 cursor-pointer disabled:cursor-not-allowed"
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={deleteLoading}
                   >
@@ -431,7 +431,7 @@ export default function EditPostPage() {
                   </button>
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2 cursor-pointer disabled:cursor-not-allowed"
                     onClick={handleDelete}
                     disabled={deleteLoading}
                   >
