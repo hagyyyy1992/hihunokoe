@@ -29,7 +29,7 @@ jest.mock('@/components/ui/Button', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/avatar', () => ({
+jest.mock('@/components/ui/Avatar', () => ({
   Avatar: ({
     children,
     className,
