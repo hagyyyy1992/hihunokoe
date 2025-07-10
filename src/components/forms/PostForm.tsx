@@ -214,7 +214,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep === 1 && isEditMode && postId) {
+      // ステップ1で編集モードの場合は詳細ページに戻る
+      router.push(`/posts/${postId}`)
+    } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
       // ステップ変更後、ページトップにスクロール
       window.scrollTo(0, 0)
@@ -817,7 +820,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-4 sm:pt-6">
-          {isEditMode && currentStep === 1 ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 1 && !isEditMode}
+          >
+            前へ
+          </Button>
+
+          {isEditMode && (
             <Button
               type="button"
               variant="danger"
@@ -825,10 +837,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               disabled={loading}
             >
               削除
-            </Button>
-          ) : (
-            <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-              前へ
             </Button>
           )}
 
