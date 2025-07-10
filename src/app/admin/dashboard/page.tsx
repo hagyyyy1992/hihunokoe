@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Users, FileText, Eye, Heart } from 'lucide-react'
 
 interface DashboardStats {
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
       }
 
       const data = await response.json()
-      setStats(data)
+      setStats(data.stats || data)
     } catch (error) {
       setError(error instanceof Error ? error.message : '不明なエラーが発生しました')
     } finally {
@@ -86,25 +86,25 @@ export default function AdminDashboard() {
   const statCards = [
     {
       title: '総ユーザー数',
-      value: stats.totalUsers.toLocaleString(),
+      value: stats?.totalUsers?.toLocaleString() || '0',
       icon: Users,
       color: 'text-blue-600',
     },
     {
       title: '総投稿数',
-      value: stats.totalPosts.toLocaleString(),
+      value: stats?.totalPosts?.toLocaleString() || '0',
       icon: FileText,
       color: 'text-green-600',
     },
     {
       title: '総ビュー数',
-      value: stats.totalViews.toLocaleString(),
+      value: stats?.totalViews?.toLocaleString() || '0',
       icon: Eye,
       color: 'text-purple-600',
     },
     {
       title: '総共感数',
-      value: stats.totalEmpathies.toLocaleString(),
+      value: stats?.totalEmpathies?.toLocaleString() || '0',
       icon: Heart,
       color: 'text-apple-600',
     },
@@ -138,24 +138,28 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <div className="space-y-3">
-              {stats.recentUsers.map(user => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
-                      {user.userName}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600 truncate">{user.email}</p>
+              {stats?.recentUsers?.length ? (
+                stats.recentUsers.map(user => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
+                        {user.userName}
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate">{user.email}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-2">
+                      <p className="text-xs text-gray-500">
+                        {new Date(user.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right flex-shrink-0 ml-2">
-                    <p className="text-xs text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString('ja-JP')}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">データがありません</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -168,25 +172,29 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <div className="space-y-3">
-              {stats.recentPosts.map(post => (
-                <div key={post.id} className="p-2 sm:p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-start justify-between mb-1 sm:mb-2">
-                    <h4 className="font-medium text-sm sm:text-base text-gray-900 line-clamp-2 flex-1 mr-2">
-                      {post.title}
-                    </h4>
-                    <span className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
-                      <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {post.empathyCount}
-                    </span>
+              {stats?.recentPosts?.length ? (
+                stats.recentPosts.map(post => (
+                  <div key={post.id} className="p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between mb-1 sm:mb-2">
+                      <h4 className="font-medium text-sm sm:text-base text-gray-900 line-clamp-2 flex-1 mr-2">
+                        {post.title}
+                      </h4>
+                      <span className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                        <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        {post.empathyCount}
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-600">
+                      <span className="truncate">by {post.userName}</span>
+                      <span className="text-xs">
+                        {new Date(post.createdAt).toLocaleDateString('ja-JP')}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-600">
-                    <span className="truncate">by {post.userName}</span>
-                    <span className="text-xs">
-                      {new Date(post.createdAt).toLocaleDateString('ja-JP')}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">データがありません</p>
+              )}
             </div>
           </CardContent>
         </Card>

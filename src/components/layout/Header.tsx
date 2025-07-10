@@ -144,12 +144,6 @@ export default function Header() {
               <div className="text-gray-500 text-sm">Loading...</div>
             ) : user ? (
               <>
-                <span
-                  className="text-gray-700 text-sm truncate max-w-20"
-                  data-testid="user-menu-button"
-                >
-                  {user.userName}さん
-                </span>
                 <Link
                   href="/profile"
                   className="text-gray-700 hover:text-apple-600 px-2 py-1 text-sm font-medium transition-colors"
@@ -249,7 +243,7 @@ export default function Header() {
                       className="px-3 py-1.5 text-sm text-gray-600 truncate"
                       data-testid="user-menu-button"
                     >
-                      {user.userName}さん
+                      {user.userName || 'ユーザー'}さん
                     </div>
                     <Link
                       href="/profile"

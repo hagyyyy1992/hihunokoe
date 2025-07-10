@@ -1,100 +1,56 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
+import { SKIN_TYPE_OPTIONS, GENDER_OPTIONS, ALLERGY_OPTIONS } from '@/lib/constants/profile'
 
-export default function ProfilePage() {
-  const { user, loading, updateProfile } = useAuth()
+function ProfilePageContent() {
+  const { user, loading } = useAuth()
   const router = useRouter()
-  const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState({
-    userName: '',
-    skinType: '',
-    birthDate: '',
-    gender: '',
-    allergies: [] as string[],
-    allergiesOther: '',
-  })
-  const [formErrors, setFormErrors] = useState({
-    userName: '',
-    skinType: '',
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' })
+  const searchParams = useSearchParams()
+  const [showUpdateMessage, setShowUpdateMessage] = useState(false)
 
   useEffect(() => {
+    // ページロード時にスクロール位置をトップに設定
+    window.scrollTo(0, 0)
+
     if (!loading && !user) {
       router.push('/auth/login')
     }
-
-    if (user) {
-      setFormData({
-        userName: user.userName || '',
-        skinType: user.skinType || '',
-        birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '',
-        gender: user.gender || '',
-        allergies: user.allergies || [],
-        allergiesOther: user.allergiesOther || '',
-      })
-    }
   }, [user, loading, router])
 
-  const validateForm = () => {
-    const errors = {
-      userName: '',
-      skinType: '',
-    }
-    let isValid = true
+  useEffect(() => {
+    // URLパラメータから更新フラグを確認
+    if (searchParams.get('updated') === 'true') {
+      setShowUpdateMessage(true)
+      // メッセージを表示後、URLパラメータを削除
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, '', newUrl)
 
-    if (formData.userName.trim().length < 3) {
-      errors.userName = 'ユーザー名は3文字以上で入力してください'
-      isValid = false
-    }
+      // 3秒後にメッセージを非表示
+      const timer = setTimeout(() => {
+        setShowUpdateMessage(false)
+      }, 3000)
 
-    if (formData.userName.trim().length > 50) {
-      errors.userName = 'ユーザー名は50文字以内で入力してください'
-      isValid = false
+      return () => clearTimeout(timer)
     }
+  }, [searchParams])
 
-    setFormErrors(errors)
-    return isValid
+  const getSkinTypeLabel = (value: string) => {
+    const option = SKIN_TYPE_OPTIONS.find(opt => opt.value === value)
+    return option ? option.label : ''
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }))
+  const getGenderLabel = (value: string) => {
+    const option = GENDER_OPTIONS.find(opt => opt.value === value)
+    return option ? option.label : ''
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setUpdateMessage({ type: '', text: '' })
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      await updateProfile(formData)
-      setUpdateMessage({ type: 'success', text: 'プロフィールを更新しました' })
-      setIsEditing(false)
-    } catch (error) {
-      console.error('Profile update error:', error)
-      setUpdateMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'プロフィールの更新に失敗しました',
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
+  const getAllergyLabel = (value: string) => {
+    return ALLERGY_OPTIONS[value as keyof typeof ALLERGY_OPTIONS] || value
   }
 
   if (loading) {
@@ -109,337 +65,160 @@ export default function ProfilePage() {
     return null
   }
 
-  const skinTypeOptions = [
-    { value: '', label: '選択してください' },
-    { value: 'normal', label: '普通肌' },
-    { value: 'dry', label: '乾燥肌' },
-    { value: 'oily', label: '脂性肌' },
-    { value: 'combination', label: '混合肌' },
-    { value: 'sensitive', label: '敏感肌' },
-  ]
-
-  const getSkinTypeLabel = (value: string) => {
-    const option = skinTypeOptions.find(opt => opt.value === value)
-    return option ? option.label : ''
-  }
-
-  const getGenderLabel = (value: string) => {
-    const genderOptions = {
-      male: '男性',
-      female: '女性',
-      other: 'その他',
-    }
-    return genderOptions[value as keyof typeof genderOptions] || ''
-  }
-
-  const getAllergyLabel = (value: string) => {
-    const allergyOptions = {
-      fragrance: '香料',
-      alcohol: 'アルコール',
-      paraben: 'パラベン',
-      sulfate: '硫酸塩',
-      silicone: 'シリコン',
-      mineral_oil: 'ミネラルオイル',
-      formaldehyde: 'ホルムアルデヒド',
-      latex: 'ラテックス',
-      nickel: 'ニッケル',
-      other: 'その他',
-    }
-    return allergyOptions[value as keyof typeof allergyOptions] || value
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        {/* 更新成功メッセージ */}
+        {showUpdateMessage && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-sm font-medium">プロフィールを更新しました</p>
+          </div>
+        )}
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-gray-900">プロフィール</h1>
-            {!isEditing && (
-              <Button
-                onClick={() => setIsEditing(true)}
-                variant="outline"
-                size="sm"
-                data-testid="edit-profile-button"
-              >
-                編集
-              </Button>
-            )}
+            <Button
+              onClick={() => router.push('/profile/edit')}
+              variant="outline"
+              size="sm"
+              data-testid="edit-profile-button"
+            >
+              編集
+            </Button>
           </div>
 
-          {updateMessage.text && (
-            <div
-              className={`mb-4 p-3 rounded-md ${
-                updateMessage.type === 'success'
-                  ? 'bg-green-50 text-green-800 border border-green-200'
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}
-            >
-              {updateMessage.text}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-apple-50 to-apple-100 rounded-lg border border-apple-200">
+              <div className="w-20 h-20 rounded-full bg-apple-100 flex items-center justify-center border-4 border-white shadow-lg">
+                <span className="text-apple-600 text-2xl font-bold">
+                  {(user.userName || '').charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.userName}</h2>
+                {user.skinType && (
+                  <div className="mt-1">
+                    <Badge variant="lavender" className="text-sm">
+                      {getSkinTypeLabel(user.skinType)}
+                    </Badge>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
 
-          {isEditing ? (
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <Input
-                  label="ユーザー名"
-                  name="userName"
-                  value={formData.userName}
-                  onChange={handleInputChange}
-                  error={formErrors.userName}
-                  required
-                  data-testid="username-input"
-                />
-
-                <div className="form-group">
-                  <label htmlFor="skinType" className="form-label">
-                    肌タイプ
-                  </label>
-                  <select
-                    id="skinType"
-                    name="skinType"
-                    value={formData.skinType}
-                    onChange={handleInputChange}
-                    className="input"
-                    data-testid="skin-type-select"
-                  >
-                    {skinTypeOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="birthDate" className="form-label">
-                    生年月日
-                  </label>
-                  <input
-                    id="birthDate"
-                    name="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={handleInputChange}
-                    className="input"
-                    data-testid="birth-date-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="gender" className="form-label">
-                    性別
-                  </label>
-                  <select
-                    id="gender"
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="input"
-                    data-testid="gender-select"
-                  >
-                    <option value="">選択してください</option>
-                    <option value="male">男性</option>
-                    <option value="female">女性</option>
-                    <option value="other">その他</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="allergies" className="form-label">
-                    アレルギー（複数選択可）
-                  </label>
-                  <select
-                    id="allergies"
-                    name="allergies"
-                    multiple
-                    value={formData.allergies}
-                    onChange={e => {
-                      const selectedOptions = Array.from(
-                        e.target.selectedOptions,
-                        option => option.value
-                      )
-                      setFormData(prev => ({
-                        ...prev,
-                        allergies: selectedOptions,
-                      }))
-                    }}
-                    className="input"
-                    size={5}
-                    data-testid="allergies-select"
-                  >
-                    <option value="fragrance">香料</option>
-                    <option value="alcohol">アルコール</option>
-                    <option value="paraben">パラベン</option>
-                    <option value="sulfate">硫酸塩</option>
-                    <option value="silicone">シリコン</option>
-                    <option value="mineral_oil">ミネラルオイル</option>
-                    <option value="formaldehyde">ホルムアルデヒド</option>
-                    <option value="latex">ラテックス</option>
-                    <option value="nickel">ニッケル</option>
-                    <option value="other">その他</option>
-                  </select>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Ctrl/Cmdキーを押しながらクリックで複数選択
-                  </p>
-                  {formData.allergies.includes('other') && (
-                    <div className="mt-2">
-                      <input
-                        name="allergiesOther"
-                        type="text"
-                        value={formData.allergiesOther}
-                        onChange={handleInputChange}
-                        className="input"
-                        placeholder="その他のアレルギーを入力してください"
-                        data-testid="allergies-other-input"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex space-x-4 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                    data-testid="save-profile-button"
-                  >
-                    保存
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      setIsEditing(false)
-                      setFormData({
-                        userName: user.userName || '',
-                        skinType: user.skinType || '',
-                        birthDate: user.birthDate
-                          ? new Date(user.birthDate).toISOString().split('T')[0]
-                          : '',
-                        gender: user.gender || '',
-                        allergies: user.allergies || [],
-                        allergiesOther: user.allergiesOther || '',
-                      })
-                      setFormErrors({
-                        userName: '',
-                        skinType: '',
-                      })
-                    }}
-                    data-testid="cancel-edit-button"
-                  >
-                    キャンセル
-                  </Button>
-                </div>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-apple-50 to-apple-100 rounded-lg border border-apple-200">
-                <div className="w-20 h-20 rounded-full bg-apple-100 flex items-center justify-center border-4 border-white shadow-lg">
-                  <span className="text-apple-600 text-2xl font-bold">
-                    {(formData.userName || '').charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{formData.userName}</h2>
-                  {formData.skinType && (
-                    <div className="mt-1">
-                      <Badge variant="lavender" className="text-sm">
-                        {getSkinTypeLabel(formData.skinType)}
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                  基本情報
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">ユーザー名</span>
-                      <p className="text-sm font-medium text-gray-900">{formData.userName}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">メールアドレス</span>
-                      <p className="text-sm font-medium text-gray-900">{user.email}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">肌タイプ</span>
-                      <p className="text-sm font-medium text-gray-900">
-                        {getSkinTypeLabel(formData.skinType)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">生年月日</span>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formData.birthDate
-                          ? new Date(formData.birthDate).toLocaleDateString('ja-JP')
-                          : ''}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">性別</span>
-                      <p className="text-sm font-medium text-gray-900">
-                        {getGenderLabel(formData.gender)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                    <div>
-                      <span className="text-xs text-gray-500">アレルギー</span>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formData.allergies.map(a => getAllergyLabel(a)).join('、')}
-                        {formData.allergiesOther && `、${formData.allergiesOther}`}
-                      </p>
-                    </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                基本情報
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">ユーザー名</span>
+                    <p className="text-sm font-medium text-gray-900">{user.userName}</p>
                   </div>
                 </div>
-              </div>
 
-              {/* アカウント設定セクション */}
-              <div className="border-t border-gray-200 pt-3 mt-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">アカウント設定</h3>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-700 mb-3">
-                    アカウントを削除すると、すべての投稿が永久に削除されます。この操作は取り消すことができません。
-                  </p>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => router.push('/account/delete')}
-                    data-testid="delete-account-button"
-                  >
-                    アカウントを削除
-                  </Button>
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">メールアドレス</span>
+                    <p className="text-sm font-medium text-gray-900">{user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">肌タイプ</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {getSkinTypeLabel(user.skinType || '') || '未設定'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">生年月日</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user.birthDate
+                        ? new Date(user.birthDate).toLocaleDateString('ja-JP')
+                        : '未設定'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">性別</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {getGenderLabel(user.gender || '') || '未設定'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
+                  <div>
+                    <span className="text-xs text-gray-500">アレルギー</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {(() => {
+                        const allergyLabels: string[] = []
+                        if (
+                          user.allergies &&
+                          Array.isArray(user.allergies) &&
+                          user.allergies.length > 0
+                        ) {
+                          allergyLabels.push(...user.allergies.map(a => getAllergyLabel(String(a))))
+                        }
+                        if (user.allergiesOther) {
+                          allergyLabels.push(user.allergiesOther)
+                        }
+                        return allergyLabels.join('、') || '未設定'
+                      })()}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          )}
+
+            {/* アカウント設定セクション */}
+            <div className="border-t border-gray-200 pt-3 mt-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">アカウント設定</h3>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-700 mb-3">
+                  アカウントを削除すると、すべての投稿が永久に削除されます。この操作は取り消すことができません。
+                </p>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => router.push('/account/delete')}
+                  data-testid="delete-account-button"
+                >
+                  アカウントを削除
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-gray-600">読み込み中...</div>
+        </div>
+      }
+    >
+      <ProfilePageContent />
+    </Suspense>
   )
 }

@@ -18,8 +18,6 @@ if (databaseType !== 'mock') {
     if (process.env.NODE_ENV !== 'production') {
       globalForPrisma.prisma = prismaClient
     }
-
-    console.log(`✅ Prisma connected to ${databaseType} database`)
   } catch (error) {
     console.error(`❌ Prisma Client initialization failed for ${databaseType}:`, error)
     prismaClient = null

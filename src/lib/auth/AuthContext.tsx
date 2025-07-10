@@ -25,7 +25,7 @@ interface UpdateProfileData {
   skinType?: string | null
   birthDate?: string | null
   gender?: string | null
-  allergies?: string[] | null
+  allergies?: string[]
   allergiesOther?: string | null
 }
 
@@ -40,24 +40,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const checkAuth = async () => {
+    setLoading(true)
+    const token = localStorage.getItem('token')
+
     try {
+      // クッキーベースの認証を優先し、localStorageのトークンもサポート
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      // localStorageにトークンがある場合はヘッダーに追加
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch('/api/auth/me', {
-        credentials: 'same-origin',
+        method: 'GET',
+        headers,
+        credentials: 'same-origin', // クッキーを送信
       })
+
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
       } else {
-        // Auth failed - explicitly set user to null
+        // Auth failed
         setUser(null)
-        // トークンも削除
-        localStorage.removeItem('token')
+        // localStorageにトークンがある場合は削除
+        if (token) {
+          localStorage.removeItem('token')
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      // Network error or other issue - set user to null
+      // Network error or other issue
       setUser(null)
-      localStorage.removeItem('token')
+      if (token) {
+        localStorage.removeItem('token')
+      }
     } finally {
       setLoading(false)
     }
@@ -74,8 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
         credentials: 'same-origin',
       })
-      const data = await response.json()
-      console.log('Login response data:', data) // デバッグログ追加
+
+      // レスポンスのJSONパースを試みる
+      let data
+      try {
+        data = await response.json()
+      } catch {
+        // JSONパースに失敗した場合（ネットワークエラーなど）
+        throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました')
@@ -84,11 +111,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user)
       // GraphQL用にトークンをlocalStorageに保存
       if (data.token) {
-        console.log('Saving token to localStorage:', data.token) // デバッグログ追加
         localStorage.setItem('token', data.token)
       } else {
         console.warn('No token in login response!') // デバッグログ追加
       }
+    } catch (error) {
+      // ネットワークエラーの場合
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+      }
+      throw error
     } finally {
       setLoading(false)
     }
@@ -121,10 +153,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin',
-      })
+      const token = localStorage.getItem('token')
+      if (token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        })
+      }
       setUser(null)
       // トークンも削除
       localStorage.removeItem('token')
@@ -139,10 +178,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (profileData: UpdateProfileData) => {
     setLoading(true)
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      throw new Error('認証が必要です')
+    }
+
     try {
       const response = await fetch('/api/profile/update', {
         method: 'PUT',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(profileData),

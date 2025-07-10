@@ -57,10 +57,6 @@ export function middleware(request: NextRequest) {
   if (IP_RESTRICTION_ENABLED && ALLOWED_IPS.length > 0) {
     const clientIp = getClientIp(request)
 
-    // デバッグ用ログ（本番環境では削除推奨）
-    console.log('[IP Restriction] Client IP:', clientIp)
-    console.log('[IP Restriction] Allowed IPs:', ALLOWED_IPS)
-
     // IPが許可リストにない場合
     if (!ALLOWED_IPS.includes(clientIp)) {
       // カスタムエラーページを返す

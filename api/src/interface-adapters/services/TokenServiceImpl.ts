@@ -54,4 +54,65 @@ export class TokenServiceImpl implements TokenService {
   generateRandomToken(): string {
     return crypto.randomBytes(32).toString('hex')
   }
+
+  async verifyAuthToken(token: string): Promise<string | null> {
+    try {
+      const payload = await this.verifyToken(token)
+      return payload.userId
+    } catch (error) {
+      return null
+    }
+  }
+
+  async generatePasswordResetToken(userId: string): Promise<string> {
+    // Generate a random token for password reset
+    const token = this.generateRandomToken()
+
+    // Note: The token should be saved to the database by the use case
+    // This service only generates the token
+    return token
+  }
+
+  async verifyPasswordResetToken(token: string): Promise<string | null> {
+    // This should verify against the database
+    // The actual verification should be done in the use case
+    // This method is just a placeholder for token format validation
+    if (token && token.length > 0) {
+      // Return a non-null value to indicate the token format is valid
+      // The actual user lookup will be done in the use case
+      return 'valid'
+    }
+    return null
+  }
+
+  async invalidatePasswordResetToken(token: string): Promise<void> {
+    // This should update the database to invalidate the token
+    // Implementation will be handled by the repository
+  }
+
+  async generateEmailToken(userId: string): Promise<string> {
+    // Generate a unique token for email verification
+    const token = this.generateRandomToken()
+
+    // Update user with new token - this should be done in the use case
+    // The token generation should be pure, database update is a side effect
+    return token
+  }
+
+  async generateEmailVerificationToken(userId: string): Promise<string> {
+    // This is an alias for generateEmailToken for backward compatibility
+    return this.generateEmailToken(userId)
+  }
+
+  async verifyEmailToken(token: string): Promise<string | null> {
+    // This should verify against the database
+    // For now, return null to indicate that the token verification should be done elsewhere
+    // The actual implementation should be in the repository layer
+    return null
+  }
+
+  async invalidateEmailToken(token: string): Promise<void> {
+    // This should update the database to invalidate the token
+    // Implementation will be handled by the repository
+  }
 }

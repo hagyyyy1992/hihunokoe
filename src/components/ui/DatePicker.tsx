@@ -81,6 +81,7 @@ export function DatePicker({
             'disabled:cursor-not-allowed disabled:opacity-50',
             '[&::-webkit-calendar-picker-indicator]:hidden',
             '[&::-webkit-date-and-time-value]:text-left',
+            'cursor-pointer',
             className
           )}
           placeholder={placeholder}

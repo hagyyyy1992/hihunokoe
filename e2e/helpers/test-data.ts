@@ -1,3 +1,35 @@
+import { categoryLabels } from '../../src/lib/constants/categories'
+
+// カテゴリーマッピング（英語キー）
+export const COSMETIC_CATEGORIES = Object.keys(categoryLabels).reduce(
+  (acc, key) => {
+    acc[key as keyof typeof categoryLabels] = key
+    return acc
+  },
+  {} as Record<keyof typeof categoryLabels, string>
+)
+
+// 日本語ラベル（共通定数から参照）
+export const COSMETIC_CATEGORY_LABELS = categoryLabels
+
+// 肌タイプマッピング（英語 -> 日本語）
+export const SKIN_TYPES = {
+  normal: '普通肌',
+  dry: '乾燥肌',
+  oily: '脂性肌',
+  combination: '混合肌',
+  sensitive: '敏感肌',
+} as const
+
+// ムードタグマッピング（英語 -> 日本語）
+export const MOOD_TAGS = {
+  disappointed: 'ちょっと残念',
+  okay: 'まあまあ',
+  good: '良かった',
+  love: 'また使いたい',
+  perfect: '完璧',
+} as const
+
 export const testUsers = {
   validUser: {
     username: 'testuser_e2e',
@@ -19,14 +51,14 @@ export const testPosts = {
     title: 'E2Eテスト投稿',
     content: 'これはPlaywrightのE2Eテストで作成された投稿です。',
     cosmeticName: 'テストクリーム',
-    cosmeticCategory: 'cream',
+    cosmeticCategory: 'cream' as const,
   },
 
   longPost: {
     title: '長文投稿のテスト',
     content: 'この投稿は長い内容のテストです。'.repeat(10),
     cosmeticName: 'テストファンデーション',
-    cosmeticCategory: 'foundation',
+    cosmeticCategory: 'foundation' as const,
   },
 }
 

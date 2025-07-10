@@ -3,7 +3,7 @@ export class Password {
 
   constructor(value: string) {
     if (!this.isValid(value)) {
-      throw new Error('Password must be at least 8 characters long')
+      throw new Error('パスワードは8文字以上で入力してください')
     }
     this.value = value
   }

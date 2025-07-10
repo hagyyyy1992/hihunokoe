@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Avatar } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/Avatar'
 import { AuthUser } from '@/lib/auth/auth'
 import { SERVICE_NAME } from '@/lib/constants'
 

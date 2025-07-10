@@ -8,6 +8,7 @@ export type SkinType =
 
 // コスメカテゴリの型定義
 export type CosmeticCategory =
+  | 'skincare' // スキンケア
   | 'toner' // 化粧水
   | 'serum' // 美容液
   | 'emulsion' // 乳液

@@ -142,7 +142,7 @@ export default function CommentForm({
               type="button"
               onClick={handleCancel}
               disabled={isLoading || isSubmitting}
-              className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50"
+              className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               キャンセル
             </button>

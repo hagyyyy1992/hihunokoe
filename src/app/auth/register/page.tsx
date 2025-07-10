@@ -8,37 +8,9 @@ import { Input } from '@/components/ui/Input'
 import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
 import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
 import { DatePicker } from '@/components/ui/DatePicker'
+import { SKIN_TYPE_OPTIONS, GENDER_OPTIONS, ALLERGY_OPTIONS } from '@/lib/constants/profile'
 
-// 定数として外に出して再作成を防ぐ
-const SKIN_TYPE_OPTIONS = [
-  { value: '', label: '選択してください' },
-  { value: 'normal', label: '普通肌' },
-  { value: 'dry', label: '乾燥肌' },
-  { value: 'oily', label: '脂性肌' },
-  { value: 'combination', label: '混合肌' },
-  { value: 'sensitive', label: '敏感肌' },
-  { value: 'other', label: 'その他' },
-] as const
-
-const GENDER_OPTIONS = [
-  { value: '', label: '選択してください' },
-  { value: 'male', label: '男性' },
-  { value: 'female', label: '女性' },
-  { value: 'other', label: 'その他' },
-] as const
-
-const ALLERGY_OPTIONS = [
-  { value: 'fragrance', label: '香料' },
-  { value: 'alcohol', label: 'アルコール' },
-  { value: 'paraben', label: 'パラベン' },
-  { value: 'sulfate', label: '硫酸塩' },
-  { value: 'silicone', label: 'シリコン' },
-  { value: 'mineral_oil', label: 'ミネラルオイル' },
-  { value: 'formaldehyde', label: 'ホルムアルデヒド' },
-  { value: 'latex', label: 'ラテックス' },
-  { value: 'nickel', label: 'ニッケル' },
-  { value: 'other', label: 'その他' },
-] as const
+// 定数は@/lib/constants/profileからインポート
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -330,9 +302,9 @@ export default function RegisterPage() {
                   size={5}
                   data-testid="allergies-select"
                 >
-                  {ALLERGY_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  {Object.entries(ALLERGY_OPTIONS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
                     </option>
                   ))}
                 </select>

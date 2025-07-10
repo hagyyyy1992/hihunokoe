@@ -13,7 +13,7 @@ export const usePasswordToggle = () => {
     return (
       <button
         type="button"
-        className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+        className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors cursor-pointer"
         onClick={togglePasswordVisibility}
         aria-label={isPasswordVisible ? 'パスワードを隠す' : 'パスワードを表示'}
         tabIndex={-1}

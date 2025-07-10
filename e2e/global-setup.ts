@@ -48,7 +48,7 @@ async function globalSetup() {
     const response = await page.request.post('http://localhost:3000/api/auth/login', {
       data: {
         email: 'demo@example.com',
-        password: 'demo123',
+        password: 'demo1234',
       },
     })
 

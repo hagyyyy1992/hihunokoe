@@ -1,102 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { loginUser, generateToken } from '@/lib/auth/auth'
-import { z } from 'zod'
+import { AuthController } from '@api/framework/controllers/AuthController'
+import { cookies } from 'next/headers'
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-})
+const authController = new AuthController()
 
 export async function POST(request: NextRequest) {
-  try {
-    const text = await request.text()
-    if (!text.trim()) {
-      return NextResponse.json({ error: 'リクエストボディが空です' }, { status: 400 })
+  const response = await authController.login(request)
+
+  // レスポンスのステータスをチェック
+  if (response.status === 200) {
+    // レスポンスをクローンして複数回読み取れるようにする
+    const clonedResponse = response.clone()
+    const responseData = await clonedResponse.json()
+
+    if (responseData.token) {
+      // クッキーストアを取得（Next.js 15では非同期）
+      const cookieStore = await cookies()
+
+      // クッキーを設定
+      cookieStore.set('auth-token', responseData.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        path: '/',
+      })
+
+      // レスポンスデータを返す
+      return NextResponse.json(responseData)
+    } else {
     }
-
-    const body = JSON.parse(text)
-    const validatedData = loginSchema.parse(body)
-
-    const user = await loginUser(validatedData)
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'メールアドレスまたはパスワードが間違っています' },
-        { status: 401 }
-      )
-    }
-
-    // 管理者はユーザー側ログインを禁止
-    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
-      return NextResponse.json(
-        { error: '管理者アカウントは管理画面からログインしてください' },
-        { status: 403 }
-      )
-    }
-
-    // メール認証チェック
-    if (!user.emailVerified) {
-      return NextResponse.json(
-        {
-          error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
-          emailVerificationRequired: true,
-          email: user.email,
-        },
-        { status: 403 }
-      )
-    }
-
-    const token = generateToken(user)
-
-    const response = NextResponse.json({
-      user,
-      token,
-      message: 'ログインしました',
-    })
-
-    // HttpOnly Cookie にトークンを設定
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7日間
-    })
-
-    return response
-  } catch (error: unknown) {
-    console.error('Login error:', error)
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'name' in error &&
-      error.name === 'ZodError' &&
-      'errors' in error
-    ) {
-      return NextResponse.json(
-        {
-          error: '入力内容に誤りがあります',
-          details: (error as unknown as { errors: unknown }).errors,
-        },
-        { status: 400 }
-      )
-    }
-
-    // PrismaClientInitializationError や他のデータベースエラーの場合でも、
-    // セキュリティのため認証失敗として扱う
-    if (
-      error &&
-      typeof error === 'object' &&
-      'name' in error &&
-      (error.name === 'PrismaClientInitializationError' ||
-        error.name === 'PrismaClientKnownRequestError')
-    ) {
-      return NextResponse.json(
-        { error: 'メールアドレスまたはパスワードが間違っています' },
-        { status: 401 }
-      )
-    }
-
-    return NextResponse.json({ error: 'ログインに失敗しました' }, { status: 500 })
   }
+
+  return response
 }

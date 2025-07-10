@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env.local' })
 const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
 
@@ -7,19 +8,25 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // デモユーザーの作成
-  const hashedPassword = await bcrypt.hash('demo123', 12)
+  const hashedPassword = await bcrypt.hash('demo1234', 12)
+  const adminHashedPassword = await bcrypt.hash('admin123', 12)
 
   const demoUser = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
     update: {
       emailVerified: true, // メール認証済みに設定
+      failedLoginAttempts: 0, // ログイン失敗回数をリセット
+      lockedUntil: null, // アカウントロックを解除
+      isActive: true, // アクティブ状態に設定
     },
     create: {
       userName: 'demo_user',
       email: 'demo@example.com',
       passwordHash: hashedPassword,
       skinType: 'normal',
+      role: 'USER',
       emailVerified: true, // メール認証済みに設定
+      isActive: true, // アクティブ状態に設定
     },
   })
 
@@ -31,13 +38,18 @@ async function main() {
     update: {
       role: 'SUPER_ADMIN',
       emailVerified: true,
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+      isActive: true,
+      passwordHash: adminHashedPassword, // パスワードも更新
     },
     create: {
       userName: 'admin',
       email: 'admin@example.com',
-      passwordHash: hashedPassword, // 同じパスワード (demo123) を使用
+      passwordHash: adminHashedPassword, // 管理者用パスワード (admin123) を使用
       role: 'SUPER_ADMIN',
       emailVerified: true,
+      isActive: true,
     },
   })
 
@@ -49,11 +61,13 @@ async function main() {
     update: {
       role: 'SUPER_ADMIN',
       isActive: true,
+      failedLoginAttempts: 0,
+      lockedUntil: null,
     },
     create: {
       adminName: 'admin',
       email: 'admin@example.com',
-      passwordHash: hashedPassword,
+      passwordHash: adminHashedPassword,
       role: 'SUPER_ADMIN',
       isActive: true,
     },
@@ -104,7 +118,7 @@ async function main() {
       content:
         'ドラッグストアで買えるプチプラクレンジングですが、メイクもしっかり落ちてつっぱりません。',
       cosmeticName: 'やさしいクレンジングオイル',
-      cosmeticCategory: 'cleansing',
+      cosmeticCategory: 'cleanser',
       skinType: 'combination',
       moodTag: 'good',
       usageSituation: {

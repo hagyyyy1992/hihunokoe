@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 // import { useState, useEffect, useCallback } from 'react'
 // import { useAuth } from '@/lib/auth/AuthContext'
 // import EmpathyButton from '@/components/ui/EmpathyButton'
@@ -30,21 +31,6 @@ interface Post {
 
 interface PostCardProps {
   post: Post
-}
-
-const categoryLabels: Record<string, string> = {
-  toner: '化粧水',
-  serum: '美容液',
-  emulsion: '乳液',
-  cream: 'クリーム',
-  cleanser: '洗顔',
-  foundation: 'ファンデーション',
-  concealer: 'コンシーラー',
-  powder: 'フェイスパウダー',
-  eyeshadow: 'アイシャドウ',
-  lipstick: 'リップ',
-  sunscreen: '日焼け止め',
-  other: 'その他',
 }
 
 const skinTypeLabels: Record<string, string> = {
@@ -126,7 +112,13 @@ export default function PostCard({ post }: PostCardProps) {
           </Link>
           <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-2">
             {post.cosmeticCategory && (
-              <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span
+                className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  skincareCategories.includes(post.cosmeticCategory)
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}
+              >
                 {categoryLabels[post.cosmeticCategory]}
               </span>
             )}

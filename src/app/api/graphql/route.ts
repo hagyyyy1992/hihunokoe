@@ -3,7 +3,12 @@ import { ApolloServer } from '@apollo/server'
 import { NextRequest } from 'next/server'
 import { typeDefs } from '@/graphql/schema'
 import { resolvers } from '@/graphql/resolvers'
-import { verifyToken } from '@/lib/auth/auth'
+import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
+import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
+import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
 
 const server = new ApolloServer<GraphQLContext>({
@@ -12,26 +17,51 @@ const server = new ApolloServer<GraphQLContext>({
   introspection: true,
   plugins: [
     {
-      async serverWillStart() {
-        console.log('GraphQL Server starting...')
-      },
+      async serverWillStart() {},
     },
   ],
 })
 
 const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(server, {
   context: async (req): Promise<GraphQLContext> => {
+    // Authorizationヘッダーから取得を試みる
     const authHeader = req.headers.get('authorization')
+    let token: string | null = null
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    } else {
+      // ヘッダーにない場合はクッキーから取得
+      const cookieHeader = req.headers.get('cookie')
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(';')
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth-token='))
+        if (authCookie) {
+          token = authCookie.split('=')[1]
+        }
+      }
+    }
+
+    if (!token) {
       return { userId: null }
     }
 
-    const token = authHeader.substring(7)
-
     try {
-      const session = await verifyToken(token)
-      return { userId: session?.id || null }
+      const userRepository = new UserRepository()
+      const authSessionRepository = new AuthSessionRepository()
+      const passwordHashService = new PasswordHashServiceImpl()
+      const tokenService = new TokenServiceImpl()
+
+      const authenticationUseCase = new AuthenticationUseCase(
+        userRepository,
+        authSessionRepository,
+        passwordHashService,
+        tokenService
+      )
+
+      const input: VerifyTokenInputPort = { token }
+      const { user } = await authenticationUseCase.verifyToken(input)
+      return { userId: user?.id || null }
     } catch {
       return { userId: null }
     }

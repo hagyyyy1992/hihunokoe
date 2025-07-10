@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
+import { categoryLabels } from '@/lib/constants/categories'
 
 interface PostFormData {
   title: string
@@ -71,6 +72,25 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
   }, [currentStep])
 
+  // エンターキーでステップ移動を処理
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target as HTMLElement
+      const isTextarea = target.tagName === 'TEXTAREA'
+      const isSubmitButton = target.getAttribute('data-testid') === 'publish-button'
+
+      // テキストエリアと投稿ボタン以外でEnterキーが押された場合
+      if (!isTextarea && !isSubmitButton) {
+        e.preventDefault()
+
+        // 現在のステップが4未満で、バリデーションが通る場合は次のステップへ
+        if (currentStep < 4 && isStepValid(currentStep)) {
+          nextStep()
+        }
+      }
+    }
+  }
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -79,18 +99,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       ...prev,
       [name]: value,
     }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Enterキーでのフォーム送信を防ぐ（テキストエリアと投稿ボタン以外）
-    if (e.key === 'Enter' && e.target instanceof HTMLElement) {
-      const isTextarea = e.target.tagName === 'TEXTAREA'
-      const isSubmitButton = e.target.getAttribute('data-testid') === 'publish-button'
-
-      if (!isTextarea && !isSubmitButton) {
-        e.preventDefault()
-      }
-    }
   }
 
   const handleNestedChange = (
@@ -173,8 +181,17 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const nextStep = () => {
+    // 現在のステップのバリデーションをチェック
+    if (!isStepValid(currentStep)) {
+      // バリデーションエラーを表示
+      setError('入力内容に問題があります。文字数制限を確認してください。')
+      return
+    }
+
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
+      // ステップ変更後、ページトップにスクロール
+      window.scrollTo(0, 0)
       // ステップ変更後、フォーカスをリセットして意図しないサブミットを防ぐ
       setTimeout(() => {
         // 投稿ボタンへのフォーカスを防ぐ
@@ -198,13 +215,26 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   }
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1)
+    if (currentStep === 1 && isEditMode && postId) {
+      // ステップ1で編集モードの場合は詳細ページに戻る
+      router.push(`/posts/${postId}`)
+    } else if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+      // ステップ変更後、ページトップにスクロール
+      window.scrollTo(0, 0)
+    }
   }
 
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        return formData.title && formData.cosmeticName && formData.content
+        const titleValid = formData.title.trim() && formData.title.trim().length <= 100
+        const cosmeticNameValid =
+          formData.cosmeticName.trim() && formData.cosmeticName.trim().length <= 100
+        const contentValid = formData.content.trim() && formData.content.trim().length <= 2000
+        const categoryValid = !!formData.cosmeticCategory
+        const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
+        return isValid
       case 2:
         return true // オプショナル
       case 3:
@@ -288,6 +318,12 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               placeholder="例: ○○クリームを敏感肌で試してみました"
               showPlaceholderHint
               data-testid="post-title-input"
+              aria-label="タイトル"
+              maxLength={100}
+              onInvalid={e => {
+                const element = e.target as HTMLInputElement
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }}
             />
 
             <Input
@@ -299,11 +335,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               onChange={handleInputChange}
               placeholder="例: ○○ブランド モイスチャークリーム"
               showPlaceholderHint
+              aria-label="使用したコスメ名"
+              maxLength={100}
             />
 
             <div className="form-group">
               <label htmlFor="cosmeticCategory" className="form-label">
-                コスメカテゴリ
+                コスメカテゴリ <span className="text-red-500 ml-1">*</span>
               </label>
               <select
                 id="cosmeticCategory"
@@ -312,20 +350,14 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 onChange={handleInputChange}
                 className="select"
                 data-testid="category-select"
+                required
               >
                 <option value="">選択してください</option>
-                <option value="toner">化粧水</option>
-                <option value="serum">美容液</option>
-                <option value="emulsion">乳液</option>
-                <option value="cream">クリーム</option>
-                <option value="cleanser">洗顔</option>
-                <option value="foundation">ファンデーション</option>
-                <option value="concealer">コンシーラー</option>
-                <option value="powder">フェイスパウダー</option>
-                <option value="eyeshadow">アイシャドウ</option>
-                <option value="lipstick">リップ</option>
-                <option value="sunscreen">日焼け止め</option>
-                <option value="other">その他</option>
+                {Object.entries(categoryLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -343,6 +375,12 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
                 data-testid="post-content-textarea"
+                maxLength={2000}
+                onInvalid={e => {
+                  // バリデーションエラー時に要素を表示領域にスクロール
+                  const element = e.target as HTMLTextAreaElement
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }}
               />
             </div>
           </div>
@@ -366,6 +404,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 value={formData.skinType}
                 onChange={handleInputChange}
                 className="select"
+                data-testid="skin-type-select"
               >
                 <option value="">選択してください</option>
                 <option value="normal">普通肌</option>
@@ -587,16 +626,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ステップ4: 感想とまとめ */}
         {currentStep === 4 && (
-          <div
-            className="space-y-4 sm:space-y-6"
-            onKeyDown={e => {
-              // ステップ4内でEnterキーによるサブミットを完全に防ぐ
-              if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'BUTTON') {
-                e.preventDefault()
-                e.stopPropagation()
-              }
-            }}
-          >
+          <div className="space-y-4 sm:space-y-6">
             <h3 className="text-base sm:text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
             <p className="text-xs sm:text-sm text-gray-600">
               使用後の肌状態や総合的な感想を教えてください。
@@ -698,6 +728,24 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </div>
             </div>
 
+            {/* 内容 */}
+            <div className="form-group">
+              <label htmlFor="content" className="form-label">
+                内容
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                value={formData.content}
+                onChange={handleInputChange}
+                rows={5}
+                className="textarea"
+                placeholder="使用感や効果について詳しく教えてください"
+                aria-label="内容"
+              />
+            </div>
+
             {/* 総合的な感想 */}
             <div className="form-group">
               <label htmlFor="moodTag" className="form-label">
@@ -708,13 +756,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 name="moodTag"
                 value={formData.moodTag}
                 onChange={e => {
-                  console.log('moodTag select changed:', e.target.value)
                   handleInputChange(e)
                 }}
-                onFocus={() => {
-                  console.log('moodTag select focused')
-                }}
+                onFocus={() => {}}
                 className="select"
+                data-testid="mood-tag-select"
               >
                 <option value="">選択してください</option>
                 <option value="disappointed">ちょっと残念</option>
@@ -767,7 +813,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-4 sm:pt-6">
-          {isEditMode && currentStep === 1 ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 1 && !isEditMode}
+          >
+            前へ
+          </Button>
+
+          {isEditMode && (
             <Button
               type="button"
               variant="danger"
@@ -775,10 +830,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               disabled={loading}
             >
               削除
-            </Button>
-          ) : (
-            <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-              前へ
             </Button>
           )}
 

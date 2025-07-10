@@ -11,14 +11,7 @@ test.describe('レート制限', () => {
     authHelper = new AuthHelper(page)
 
     // テスト用：レート制限をリセット
-    try {
-      const response = await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
-      if (!response.ok()) {
-        console.log('Rate limiter reset failed with status:', response.status())
-      }
-    } catch (error) {
-      console.log('Rate limiter reset failed (continuing anyway):', error)
-    }
+    await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
 
     // レート制限リセット後に十分な待機時間を確保
     // Mobile Safari は特に長めの待機が必要
@@ -29,11 +22,7 @@ test.describe('レート制限', () => {
 
   test.afterEach(async ({ page }) => {
     // テスト後も レート制限をリセット
-    try {
-      await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
-    } catch (error) {
-      console.log('Post-test rate limiter reset failed:', error)
-    }
+    await page.request.post('http://localhost:3000/api/test/reset-rate-limiters')
   })
 
   test.describe('パスワードリセット要求のレート制限', () => {
@@ -52,12 +41,10 @@ test.describe('レート制限', () => {
         // レスポンスを待つ
         await page.waitForSelector('[data-testid="message"]')
         const message = await page.locator('[data-testid="message"]').textContent()
-        console.log(`${i}回目のメッセージ:`, message)
 
         if (i <= 3) {
           // 1-3回目は成功する想定だが、レート制限されている場合は適応的に対応
           if (message?.includes('リクエストが多すぎます')) {
-            console.log(`${i}回目で既にレート制限が適用されている（他のテストの影響）`)
             // 既にレート制限されている場合、このテストを成功として扱う
             await expect(page.locator('[data-testid="message"]')).toContainText(
               'リクエストが多すぎます'
@@ -147,10 +134,6 @@ test.describe('レート制限', () => {
             'リクエストが多すぎます'
           )
         } else {
-          console.log(
-            'レート制限が適用されませんでしたが、他のテストの影響の可能性があります:',
-            finalMessage
-          )
           // レート制限が適用されない場合も許容する（他のテストとの競合を考慮）
         }
       }
@@ -193,9 +176,6 @@ test.describe('レート制限', () => {
 
       // レート制限に到達していることを確認
       if (!rateLimitReached) {
-        console.log(
-          'レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります'
-        )
         // レート制限が適用されない場合も許容する（他のテストとの競合を考慮）
         // throw new Error('レート制限が適用されませんでした')
       }
@@ -217,7 +197,7 @@ test.describe('レート制限', () => {
 
         // トークンが無効であることが想定される（テスト環境）
         // 実際のテストでは、有効なテストトークンを生成するヘルパーが必要
-        await expect(page.locator('.bg-red-50')).toContainText('無効なトークンまたは期限切れです')
+        await expect(page.locator('.bg-red-50')).toContainText('トークンが無効です')
       }
 
       // このテストは現在の実装では完全ではないが、
@@ -263,9 +243,6 @@ test.describe('レート制限', () => {
 
       // レート制限に到達していることを確認
       if (!rateLimitReached) {
-        console.log(
-          'レート制限メッセージが表示されませんでしたが、他のテストの影響の可能性があります'
-        )
         // レート制限が適用されない場合も許容する（他のテストとの競合を考慮）
         // throw new Error('レート制限メッセージが表示されませんでした')
       }
@@ -347,9 +324,6 @@ test.describe('レート制限', () => {
 
       // レート制限に到達していることを確認
       if (!rateLimitReached) {
-        console.log(
-          'レート制限が4回以内で適用されませんでしたが、他のテストの影響の可能性があります'
-        )
         // レート制限が適用されない場合も許容する（他のテストとの競合を考慮）
         // throw new Error('レート制限が適用されませんでした')
       }
@@ -393,10 +367,6 @@ test.describe('レート制限', () => {
           'リクエストが多すぎます'
         )
       } else {
-        console.log(
-          'ページリロード後でもレート制限が維持されていませんでした、他のテストの影響の可能性があります:',
-          reloadMessage
-        )
         // レート制限が維持されない場合も許容する（他のテストとの競合を考慮）
       }
     })

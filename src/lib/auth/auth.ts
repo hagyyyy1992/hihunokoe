@@ -256,7 +256,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   // データベースが利用できない場合、またはデータベースにユーザーが見つからない場合はモックユーザーをチェック
   const mockUser = MOCK_USERS.find(u => u.email === credentials.email)
 
-  if (mockUser && mockUser.isActive && credentials.password === 'demo123') {
+  if (mockUser && mockUser.isActive && credentials.password === 'demo1234') {
     return {
       id: mockUser.id,
       userName: mockUser.userName,
@@ -347,11 +347,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         where: { id },
       })
       if (anyUser) {
-        console.log('[AUTH] User exists but not active:', {
-          id: anyUser.id,
-          isActive: anyUser.isActive,
-          deletedAt: anyUser.deletedAt,
-        })
       }
       throw new Error('ユーザーが見つかりません')
     }
@@ -377,7 +372,6 @@ export async function deleteUserAccount(id: string): Promise<boolean> {
         updateError instanceof Prisma.PrismaClientKnownRequestError &&
         updateError.code === 'P2025'
       ) {
-        console.log(`User ${id} already deleted or not found, treating as success`)
         return true
       }
       throw updateError

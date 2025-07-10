@@ -5,6 +5,7 @@ import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
 import { useQuery } from '@apollo/client'
 import { GET_POSTS } from '@/graphql/queries/post'
+import { categoryLabels } from '@/lib/constants/categories'
 
 interface PostNode {
   id: string
@@ -144,18 +145,13 @@ export default function PostsPage() {
                 data-testid="category-filter"
               >
                 <option value="">すべて</option>
-                <option value="toner">化粧水</option>
-                <option value="serum">美容液</option>
-                <option value="emulsion">乳液</option>
-                <option value="cream">クリーム</option>
-                <option value="cleanser">洗顔</option>
-                <option value="foundation">ファンデーション</option>
-                <option value="concealer">コンシーラー</option>
-                <option value="powder">フェイスパウダー</option>
-                <option value="eyeshadow">アイシャドウ</option>
-                <option value="lipstick">リップ</option>
-                <option value="sunscreen">日焼け止め</option>
-                <option value="other">その他</option>
+                {Object.entries(categoryLabels)
+                  .filter(([value]) => value !== 'skincare')
+                  .map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
               </select>
             </div>
 

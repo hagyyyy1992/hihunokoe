@@ -68,7 +68,8 @@ export function Calendar({ value, onChange, minDate, maxDate, className }: Calen
           onClick={handlePrevMonth}
           className={cn(
             'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors',
-            'hover:bg-gray-100 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
+            'hover:bg-gray-100 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+            'cursor-pointer'
           )}
           type="button"
           aria-label="前の月"
@@ -84,7 +85,8 @@ export function Calendar({ value, onChange, minDate, maxDate, className }: Calen
           onClick={handleNextMonth}
           className={cn(
             'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors',
-            'hover:bg-gray-100 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
+            'hover:bg-gray-100 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+            'cursor-pointer'
           )}
           type="button"
           aria-label="次の月"
@@ -135,7 +137,9 @@ export function Calendar({ value, onChange, minDate, maxDate, className }: Calen
                   'bg-apple-500 text-white hover:bg-apple-500 hover:text-white focus:bg-apple-500 focus:text-white',
                 isTodayDate && !isSelected && 'bg-gray-100 text-gray-900',
                 !isSelected && !isTodayDate && isSunday && 'text-red-500',
-                !isSelected && !isTodayDate && isSaturday && 'text-blue-500'
+                !isSelected && !isTodayDate && isSaturday && 'text-blue-500',
+                !isDisabled && 'cursor-pointer',
+                isDisabled && 'cursor-not-allowed'
               )}
               aria-label={format(day, 'yyyy年M月d日', { locale: ja })}
               aria-disabled={isDisabled}

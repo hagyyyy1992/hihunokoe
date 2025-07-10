@@ -8,6 +8,7 @@ import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useQuery } from '@apollo/client'
 import { GET_POST } from '@/graphql/queries/post'
+import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 // import EmpathyButton from '@/components/ui/EmpathyButton'
 // import { EmpathyType } from '@/types'
 // import CommentList from '@/components/comments/CommentList'
@@ -134,21 +135,6 @@ interface Post {
     empathies: number
     comments: number
   }
-}
-
-const categoryLabels: Record<string, string> = {
-  toner: '化粧水',
-  serum: '美容液',
-  emulsion: '乳液',
-  cream: 'クリーム',
-  cleanser: '洗顔',
-  foundation: 'ファンデーション',
-  concealer: 'コンシーラー',
-  powder: 'フェイスパウダー',
-  eyeshadow: 'アイシャドウ',
-  lipstick: 'リップ',
-  sunscreen: '日焼け止め',
-  other: 'その他',
 }
 
 const skinTypeLabels: Record<string, string> = {
@@ -394,12 +380,14 @@ export default function PostDetailPage() {
               <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-apple-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-apple-600 font-medium text-xs sm:text-sm">
-                    {('displayName' in currentPost.user
-                      ? currentPost.user.displayName
-                      : currentPost.user.userName
-                    )
-                      ?.charAt(0)
-                      .toUpperCase()}
+                    {currentPost.user
+                      ? ('displayName' in currentPost.user
+                          ? currentPost.user.displayName
+                          : currentPost.user.userName
+                        )
+                          ?.charAt(0)
+                          .toUpperCase() || 'U'
+                      : 'U'}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -407,16 +395,20 @@ export default function PostDetailPage() {
                     className="font-medium text-gray-900 text-sm sm:text-base truncate"
                     data-testid="post-author"
                     title={
-                      'displayName' in currentPost.user
-                        ? currentPost.user.displayName
-                        : currentPost.user.userName
+                      currentPost.user
+                        ? ('displayName' in currentPost.user
+                            ? currentPost.user.displayName
+                            : currentPost.user.userName) || 'Unknown User'
+                        : 'Unknown User'
                     }
                   >
-                    {'displayName' in currentPost.user
-                      ? currentPost.user.displayName
-                      : currentPost.user.userName}
+                    {currentPost.user
+                      ? ('displayName' in currentPost.user
+                          ? currentPost.user.displayName
+                          : currentPost.user.userName) || 'Unknown User'
+                      : 'Unknown User'}
                   </p>
-                  {'bio' in currentPost.user && currentPost.user.bio && (
+                  {currentPost.user && 'bio' in currentPost.user && currentPost.user.bio && (
                     <p className="text-xs text-gray-500 truncate" title={currentPost.user.bio}>
                       {currentPost.user.bio}
                     </p>
@@ -449,7 +441,11 @@ export default function PostDetailPage() {
             <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
               {currentPost.cosmeticCategory && (
                 <span
-                  className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800"
+                  className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${
+                    skincareCategories.includes(currentPost.cosmeticCategory)
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}
                   data-testid="post-category"
                 >
                   {categoryLabels[currentPost.cosmeticCategory]}
@@ -671,7 +667,7 @@ export default function PostDetailPage() {
           {/* アクション */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 sm:pt-6 border-t space-y-3 sm:space-y-0">
             {/* 編集・削除ボタン（投稿者のみ表示） */}
-            {user && user.id === currentPost.user.id && (
+            {user && currentPost.user && user.id === currentPost.user.id && (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
                   href={`/posts/${currentPost.id}/edit`}
@@ -717,18 +713,20 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-500 order-first sm:order-last">
-              {/* <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-                <span data-testid="comment-count">{commentCount} コメント</span>
-              </div> */}
-              {/* <div className="flex items-center space-x-2">
+              {user && false && (
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  <span data-testid="comment-count">0 コメント</span>
+                </div>
+              )}
+              <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -744,13 +742,18 @@ export default function PostDetailPage() {
                   />
                 </svg>
                 <span data-testid="view-count">{currentPost.viewCount} 閲覧</span>
-              </div> */}
+              </div>
             </div>
 
-            {/* <AuthGuard
-              fallback={
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+            {/* 共感ボタン（スタブ実装） */}
+            {user && false && (
+              <div className="flex items-center space-x-3">
+                {user ? (
+                  <button
+                    data-testid="empathy-button"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-not-allowed opacity-50"
+                    disabled
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -759,82 +762,124 @@ export default function PostDetailPage() {
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                       />
                     </svg>
-                    <span>{empathyState.totalCount} 共感</span>
+                    <span>共感する</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                      <span>0 共感</span>
+                    </div>
+                    <Link
+                      href="/auth/login"
+                      className="text-sm text-green-600 hover:text-green-700 underline"
+                    >
+                      ログインして共感
+                    </Link>
                   </div>
-                  <Link
-                    href="/auth/login"
-                    className="text-sm text-primary-600 hover:text-primary-700 underline"
-                  >
-                    ログインして共感
-                  </Link>
-                </div>
-              }
-            >
-              <EmpathyButton
-                postId={post.id}
-                initialCount={empathyState.totalCount}
-                initialHasEmpathized={empathyState.hasEmpathized}
-                initialEmpathyType={empathyState.empathyType}
-                initializing={empathyState.isLoading}
-                size="md"
-              />
-            </AuthGuard> */}
+                )}
+              </div>
+            )}
           </div>
         </article>
 
-        {/* コメントセクション */}
-        {/* <AuthGuard
-          fallback={
+        {user && false && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <h3 className="text-lg font-semibold mb-4">コメント</h3>
+            <div>
+              <div className="mb-4">
+                <textarea
+                  data-testid="comment-input"
+                  className="w-full p-3 border border-gray-300 rounded-md resize-none"
+                  placeholder="コメントを入力してください"
+                  rows={3}
+                  disabled
+                />
+                <button
+                  data-testid="add-comment-button"
+                  className="mt-2 px-4 py-2 bg-gray-300 text-gray-500 rounded-md cursor-not-allowed"
+                  disabled
+                >
+                  コメントする（準備中）
+                </button>
+              </div>
+              <p className="text-gray-500 text-sm">コメント機能は現在準備中です。</p>
+            </div>
             <div className="bg-gray-50 p-6 rounded-lg text-center">
               <p className="text-gray-600 mb-4">コメントを見るにはログインが必要です</p>
               <Link
                 href="/auth/login"
-                className="inline-block bg-primary-500 text-white px-6 py-2 rounded-md hover:bg-primary-600 transition-colors"
+                className="inline-block bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors"
               >
                 ログインする
               </Link>
             </div>
-          }
-        >
-          <CommentList
-            postId={post.id}
-            initialCommentsCount={commentCount}
-            onCommentCountChange={setCommentCount}
-          />
-        </AuthGuard> */}
+          </div>
+        )}
+
+        {/* 関連投稿セクション（スタブ実装） */}
+        {user && false && (
+          <div
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8"
+            data-testid="related-posts"
+          >
+            <h3 className="text-lg font-semibold mb-4">関連する投稿</h3>
+            <p className="text-gray-500">関連投稿機能は開発中です。</p>
+          </div>
+        )}
 
         {/* 削除確認モーダル */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <>
+            {/* 背景オーバーレイ */}
             <div
-              className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full"
-              data-testid="delete-confirmation"
-            >
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                投稿を削除しますか？
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                この操作は取り消すことができません。本当に削除してもよろしいですか？
-              </p>
-              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2"
-                  data-testid="confirm-delete-button"
-                >
-                  {isDeleting ? '削除中...' : '削除する'}
-                </button>
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => setShowDeleteModal(false)}
+            />
+            {/* モーダル本体 */}
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+              <div
+                className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full pointer-events-auto"
+                data-testid="delete-confirmation"
+              >
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                  投稿を削除しますか？
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                  この操作は取り消すことができません。本当に削除してもよろしいですか？
+                </p>
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={isDeleting}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2"
+                    data-testid="confirm-delete-button"
+                  >
+                    {isDeleting ? '削除中...' : '削除する'}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { SimpleSelect } from '@/components/ui/select'
@@ -23,7 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@/components/ui/AlertDialog'
 import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react'
 
 interface Post {
@@ -48,7 +48,7 @@ export default function PostModeration() {
   const [actionType, setActionType] = useState<'publish' | 'unpublish' | 'delete' | null>(null)
 
   const filterPosts = useCallback(() => {
-    let filtered = posts
+    let filtered = Array.isArray(posts) ? posts : []
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -75,7 +75,7 @@ export default function PostModeration() {
 
       if (response.ok) {
         const data = await response.json()
-        setPosts(data)
+        setPosts(data.posts || data)
       }
     } catch (error) {
       console.error('投稿一覧の取得に失敗しました:', error)
@@ -184,82 +184,83 @@ export default function PostModeration() {
 
           {/* 投稿一覧 - モバイル用カード表示 */}
           <div className="block lg:hidden space-y-3">
-            {filteredPosts.map(post => (
-              <Card key={post.id}>
-                <CardContent className="p-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1 min-w-0 mr-2">
-                      <h3 className="font-semibold text-sm line-clamp-2" title={post.title}>
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 truncate">{post.userName}</p>
+            {Array.isArray(filteredPosts) &&
+              filteredPosts.map(post => (
+                <Card key={post.id}>
+                  <CardContent className="p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1 min-w-0 mr-2">
+                        <h3 className="font-semibold text-sm line-clamp-2" title={post.title}>
+                          {post.title}
+                        </h3>
+                        <p className="text-xs text-gray-600 truncate">{post.userName}</p>
+                      </div>
+                      <div className="flex-shrink-0">{getStatusBadge(post.status)}</div>
                     </div>
-                    <div className="flex-shrink-0">{getStatusBadge(post.status)}</div>
-                  </div>
 
-                  <div className="space-y-1 mb-3 text-xs">
-                    <div className="flex">
-                      <span className="text-gray-500 w-14">コスメ:</span>
-                      <span className="truncate">{post.cosmeticName}</span>
+                    <div className="space-y-1 mb-3 text-xs">
+                      <div className="flex">
+                        <span className="text-gray-500 w-14">コスメ:</span>
+                        <span className="truncate">{post.cosmeticName}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-500 w-14">投稿日:</span>
+                        <span>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-500 w-14">共感:</span>
+                        <span>
+                          {post.empathyCount} / ビュー: {post.viewCount}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex">
-                      <span className="text-gray-500 w-14">投稿日:</span>
-                      <span>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</span>
-                    </div>
-                    <div className="flex">
-                      <span className="text-gray-500 w-14">共感:</span>
-                      <span>
-                        {post.empathyCount} / ビュー: {post.viewCount}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex gap-1.5">
-                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                      <Eye className="h-3 w-3" />
-                    </Button>
-                    {post.status === 'published' ? (
+                    <div className="flex gap-1.5">
+                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      {post.status === 'published' ? (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-7 px-2 flex-1 text-xs"
+                          onClick={() => {
+                            setSelectedPost(post)
+                            setActionType('unpublish')
+                          }}
+                        >
+                          <EyeOff className="h-3 w-3 mr-1" />
+                          非公開
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="h-7 px-2 flex-1 text-xs"
+                          onClick={() => {
+                            setSelectedPost(post)
+                            setActionType('publish')
+                          }}
+                        >
+                          <Check className="h-3 w-3 mr-1" />
+                          公開
+                        </Button>
+                      )}
                       <Button
                         size="sm"
-                        variant="secondary"
-                        className="h-7 px-2 flex-1 text-xs"
+                        variant="destructive"
+                        className="h-7 px-2 text-xs"
                         onClick={() => {
                           setSelectedPost(post)
-                          setActionType('unpublish')
+                          setActionType('delete')
                         }}
                       >
-                        <EyeOff className="h-3 w-3 mr-1" />
-                        非公開
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="h-7 px-2 flex-1 text-xs"
-                        onClick={() => {
-                          setSelectedPost(post)
-                          setActionType('publish')
-                        }}
-                      >
-                        <Check className="h-3 w-3 mr-1" />
-                        公開
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => {
-                        setSelectedPost(post)
-                        setActionType('delete')
-                      }}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
 
           {/* 投稿一覧テーブル - デスクトップ表示 */}
@@ -278,66 +279,67 @@ export default function PostModeration() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPosts.map(post => (
-                  <TableRow key={post.id}>
-                    <TableCell className="font-medium max-w-xs">
-                      <div className="truncate" title={post.title}>
-                        {post.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>{post.userName}</TableCell>
-                    <TableCell>{post.cosmeticName}</TableCell>
-                    <TableCell>{getStatusBadge(post.status)}</TableCell>
-                    <TableCell>{post.empathyCount}</TableCell>
-                    <TableCell>{post.viewCount}</TableCell>
-                    <TableCell>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {post.status === 'published' ? (
+                {Array.isArray(filteredPosts) &&
+                  filteredPosts.map(post => (
+                    <TableRow key={post.id}>
+                      <TableCell className="font-medium max-w-xs">
+                        <div className="truncate" title={post.title}>
+                          {post.title}
+                        </div>
+                      </TableCell>
+                      <TableCell>{post.userName}</TableCell>
+                      <TableCell>{post.cosmeticName}</TableCell>
+                      <TableCell>{getStatusBadge(post.status)}</TableCell>
+                      <TableCell>{post.empathyCount}</TableCell>
+                      <TableCell>{post.viewCount}</TableCell>
+                      <TableCell>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {post.status === 'published' ? (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setActionType('unpublish')
+                              }}
+                            >
+                              <EyeOff className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setActionType('publish')
+                              }}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
-                            variant="secondary"
+                            variant="destructive"
                             onClick={() => {
                               setSelectedPost(post)
-                              setActionType('unpublish')
+                              setActionType('delete')
                             }}
                           >
-                            <EyeOff className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => {
-                              setSelectedPost(post)
-                              setActionType('publish')
-                            }}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => {
-                            setSelectedPost(post)
-                            setActionType('delete')
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>
 
-          {filteredPosts.length === 0 && (
+          {Array.isArray(filteredPosts) && filteredPosts.length === 0 && (
             <div className="text-center py-8 text-gray-500">該当する投稿が見つかりませんでした</div>
           )}
         </CardContent>

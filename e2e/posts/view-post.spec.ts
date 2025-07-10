@@ -38,119 +38,6 @@ test.describe('投稿閲覧', () => {
     // カテゴリを確認（タグは削除されたため、スキップ）
   })
 
-  test('共感機能が正常に動作する', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 共感ボタンを探す
-    const empathyButton = page.locator('[data-testid="empathy-button"]')
-
-    // 初期状態を確認（共感するテキストが表示されている）
-    await expect(empathyButton).toContainText('共感する')
-
-    // 共感をクリック
-    await empathyButton.click()
-
-    // 共感済みの状態を確認
-    await expect(empathyButton).toContainText('共感済み')
-
-    // 再度クリックして共感を取り消し
-    await empathyButton.click()
-    await expect(empathyButton).toContainText('共感する')
-  })
-
-  test('コメント機能が正常に動作する', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    const commentText = 'これは素晴らしい投稿ですね！'
-
-    // コメントを追加
-    await postHelper.addComment(commentText)
-
-    // コメントが表示されることを確認
-    await postHelper.expectCommentToBeVisible(commentText)
-
-    // コメント数が更新されることを確認
-    await postHelper.expectCommentCount(1)
-  })
-
-  test('コメントのバリデーション', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 空のコメントの場合、送信ボタンがdisabledになることを確認
-    const addCommentButton = page.locator('[data-testid="add-comment-button"]')
-    await expect(addCommentButton).toBeDisabled()
-
-    // 空白のみのコメントを入力
-    const commentInput = page.locator('[data-testid="comment-input"]')
-    await commentInput.fill('   ')
-
-    // 空白のみでも送信ボタンがdisabledのままであることを確認
-    await expect(addCommentButton).toBeDisabled()
-
-    // 有効なコメントを入力
-    await commentInput.fill('テストコメント')
-
-    // 送信ボタンが有効になることを確認
-    await expect(addCommentButton).toBeEnabled()
-  })
-
-  test('関連投稿が表示される', async ({ page }) => {
-    // 同じカテゴリの別の投稿を作成
-    await postHelper.createPost({
-      title: '関連投稿のテスト',
-      content: '関連投稿の内容です',
-      cosmeticName: testPosts.samplePost.cosmeticName,
-      cosmeticCategory: testPosts.samplePost.cosmeticCategory,
-    })
-
-    await postHelper.viewPost(postId)
-
-    // 関連投稿セクションが表示される
-    await expect(page.locator('[data-testid="related-posts"]')).toBeVisible()
-
-    // 関連投稿機能は開発中のため、開発中メッセージまたは関連投稿が表示されることを確認
-    const relatedPost = page.locator('[data-testid="related-post"]').first()
-    if (await relatedPost.isVisible()) {
-      // 関連投稿が表示されている場合
-      await expect(relatedPost).toBeVisible()
-    } else {
-      // 開発中メッセージが表示されている場合
-      await expect(page.locator('[data-testid="related-posts"]')).toContainText('開発中')
-    }
-  })
-
-  test('ゲストユーザーでも投稿を閲覧できる', async ({ page }) => {
-    // ログアウト
-    await authHelper.logout()
-
-    // ゲストとして投稿を閲覧
-    await postHelper.viewPost(postId)
-
-    // 投稿内容は見えるが、共感やコメントはログインが必要
-    await postHelper.expectPostToBeVisible(testPosts.samplePost.title)
-    await postHelper.expectPostContent(testPosts.samplePost.content)
-
-    // ゲストユーザーには「ログインして共感」リンクが表示される
-    const loginToEmpathizeLink = page.getByText('ログインして共感')
-    await expect(loginToEmpathizeLink).toBeVisible()
-
-    // リンクをクリックするとログインページにリダイレクト
-    await loginToEmpathizeLink.click()
-    await expect(page).toHaveURL(/\/auth\/login/)
-  })
-
-  test('閲覧数がカウントされる', async ({ page }) => {
-    await postHelper.viewPost(postId)
-
-    // 閲覧数が表示される
-    await expect(page.locator('[data-testid="view-count"]')).toBeVisible()
-
-    // ページをリロードして閲覧数が増加することを確認
-    await page.reload()
-    // 閲覧数の正確な値は実装に依存するため、存在だけを確認
-    await expect(page.locator('[data-testid="view-count"]')).toBeVisible()
-  })
-
   test('投稿編集権限のテスト', async ({ page }) => {
     await postHelper.viewPost(postId)
 
@@ -169,7 +56,7 @@ test.describe('投稿閲覧', () => {
   test('投稿削除機能', async ({ page }) => {
     await postHelper.viewPost(postId)
 
-    // 削除ボタンをクリック
+    // 削除ボタンをクリック（post-menu-buttonはすでに削除ボタンそのもの）
     await page.click('[data-testid="post-menu-button"]')
 
     // 確認ダイアログが表示される

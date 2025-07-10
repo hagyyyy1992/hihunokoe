@@ -1,5 +1,6 @@
 export class AuthSession {
   constructor(
+    public readonly id: string, // Added for database compatibility
     public readonly userId: string,
     public readonly token: string,
     public readonly expiresAt: Date,

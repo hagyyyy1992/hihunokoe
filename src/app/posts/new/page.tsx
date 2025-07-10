@@ -4,12 +4,16 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/PostForm'
+import DraggableGuidelineModal from '@/components/ui/DraggableGuidelineModal'
 
 export default function NewPostPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
+    // ページロード時にスクロール位置をトップに設定
+    window.scrollTo(0, 0)
+
     if (!loading && !user) {
       router.push('/auth/login')
     }
@@ -47,15 +51,7 @@ export default function NewPostPage() {
           <PostForm />
         </div>
 
-        <div className="mt-6 sm:mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
-          <h3 className="text-sm font-medium text-blue-800 mb-2">投稿ガイドライン</h3>
-          <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
-            <li>• 個人の体験談として、正直な感想を書いてください</li>
-            <li>• 「合わなかった」体験も大切な情報です</li>
-            <li>• 他の人を批判したり、攻撃的な表現は避けてください</li>
-            <li>• 商品の宣伝や営業目的の投稿はご遠慮ください</li>
-          </ul>
-        </div>
+        <DraggableGuidelineModal />
       </div>
     </div>
   )

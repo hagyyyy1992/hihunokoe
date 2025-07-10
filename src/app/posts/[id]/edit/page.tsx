@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/PostForm'
+import DraggableGuidelineModal from '@/components/ui/DraggableGuidelineModal'
 import { CosmeticCategory, SkinType, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
 
 interface Post {
@@ -128,6 +129,7 @@ export default function EditPostPage() {
   const validateCosmeticCategory = (category?: string): CosmeticCategory | '' => {
     if (!category) return ''
     const validCategories: CosmeticCategory[] = [
+      'skincare',
       'toner',
       'serum',
       'emulsion',
@@ -326,33 +328,16 @@ export default function EditPostPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
-            <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
-          </div>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto"
-          >
-            <svg
-              className="w-3 h-3 sm:w-4 sm:h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            <span>投稿を削除</span>
-          </button>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
+          <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
         </div>
 
-        <PostForm initialData={formData} postId={post.id.toString()} isEditMode={true} />
+        <div className="relative">
+          <PostForm initialData={formData} postId={post.id.toString()} isEditMode={true} />
+
+          <DraggableGuidelineModal />
+        </div>
 
         {/* 削除確認ダイアログ */}
         {showDeleteConfirm && (
@@ -364,8 +349,8 @@ export default function EditPostPage() {
               onClick={() => setShowDeleteConfirm(false)}
             />
             {/* モーダル本体 */}
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 pointer-events-auto">
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                   投稿を削除しますか？
                 </h3>
@@ -375,7 +360,7 @@ export default function EditPostPage() {
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1 cursor-pointer disabled:cursor-not-allowed"
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={deleteLoading}
                   >
@@ -383,7 +368,7 @@ export default function EditPostPage() {
                   </button>
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2 cursor-pointer disabled:cursor-not-allowed"
                     onClick={handleDelete}
                     disabled={deleteLoading}
                   >
