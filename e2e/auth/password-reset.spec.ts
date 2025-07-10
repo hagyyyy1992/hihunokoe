@@ -167,7 +167,7 @@ test.describe('パスワードリセット', () => {
       await page.goto('/auth/reset-password?token=invalid-token-12345')
 
       // エラーメッセージを確認（CSS classベースでの検索）
-      await expect(page.locator('.bg-red-50')).toContainText('無効なトークンまたは期限切れです')
+      await expect(page.locator('.bg-red-50')).toContainText('トークンが無効です')
 
       // パスワード入力フォームが表示されないことを確認
       await expect(page.locator('input[type="password"]')).not.toBeVisible()

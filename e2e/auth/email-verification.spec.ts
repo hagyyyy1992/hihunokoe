@@ -266,7 +266,9 @@ test.describe('メール認証機能', () => {
 
     if (currentURL.includes('verify-email')) {
       // まだリダイレクトされていない場合は成功メッセージを確認
-      await expect(page.getByText('メールアドレスが正常に確認されました。')).toBeVisible({
+      await expect(
+        page.getByText('メールアドレスが認証されました。ログインできます。')
+      ).toBeVisible({
         timeout: 5000,
       })
       await expect(page.getByText('今すぐホームページに移動')).toBeVisible()

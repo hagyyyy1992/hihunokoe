@@ -197,7 +197,7 @@ test.describe('レート制限', () => {
 
         // トークンが無効であることが想定される（テスト環境）
         // 実際のテストでは、有効なテストトークンを生成するヘルパーが必要
-        await expect(page.locator('.bg-red-50')).toContainText('無効なトークンまたは期限切れです')
+        await expect(page.locator('.bg-red-50')).toContainText('トークンが無効です')
       }
 
       // このテストは現在の実装では完全ではないが、

@@ -58,7 +58,9 @@
       "Bash(npx next lint:*)",
       "Bash(npx playwright:*)",
       "Bash(gh pr:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(cp:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
