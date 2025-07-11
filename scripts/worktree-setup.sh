@@ -18,6 +18,10 @@ fi
 WORKTREE_PATH=$1
 BRANCH_NAME=$2
 
+# 元のリポジトリのパスを保存（worktree作成前に取得）
+MAIN_REPO_PATH=$(pwd)
+echo -e "${YELLOW}元のリポジトリのパス: $MAIN_REPO_PATH${NC}"
+
 echo -e "${YELLOW}新しい worktree を作成します...${NC}"
 
 # ブランチが存在するかチェック
@@ -38,6 +42,22 @@ fi
 # Worktree に移動
 cd "$WORKTREE_PATH" || exit 1
 
+# 環境変数ファイルをコピー
+echo -e "${YELLOW}環境変数ファイルをコピーします...${NC}"
+
+# .env をコピー
+if [ -f "$MAIN_REPO_PATH/.env" ]; then
+    cp "$MAIN_REPO_PATH/.env" .env
+    echo -e "${GREEN}.env をコピーしました${NC}"
+else
+    echo -e "${YELLOW}情報: .env が見つかりません${NC}"
+fi
+
+# 環境変数ファイルが一つもコピーされなかった場合の警告
+if [ ! -f ".env.local" ] && [ ! -f ".env" ] && [ ! -f ".env.production" ] && [ ! -f ".env.development" ]; then
+    echo -e "${YELLOW}警告: 環境変数ファイルが見つかりませんでした。手動で作成してください。${NC}"
+fi
+
 echo -e "${YELLOW}依存関係をインストールします...${NC}"
 
 # node_modules をインストール（独立したバージョン管理のため）
@@ -50,6 +70,7 @@ mkdir -p .next
 if ! grep -q "^.env.local$" .gitignore 2>/dev/null; then
     echo ".env.local" >> .gitignore
 fi
+
 
 echo -e "${GREEN}Worktree のセットアップが完了しました！${NC}"
 echo ""
