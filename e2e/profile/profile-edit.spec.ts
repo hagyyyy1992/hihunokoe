@@ -169,6 +169,10 @@ test.describe('プロフィール編集機能', () => {
 
     // アカウント削除ページに遷移することを確認
     await expect(page).toHaveURL('/account/delete')
+
+    // 新しいアカウント削除フローが表示されることを確認
+    await expect(page.getByRole('heading', { name: 'アカウント削除' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'アカウント削除を続行' })).toBeVisible()
   })
 
   test('編集中にエラーが発生した場合のエラーメッセージ表示', async ({ page }) => {

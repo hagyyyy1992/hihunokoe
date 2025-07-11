@@ -53,12 +53,30 @@ describe('DeleteAccountPage', () => {
     expect(screen.getByRole('button', { name: /アカウント削除を続行/ })).toBeInTheDocument()
   })
 
-  it('継続ボタンをクリックするとパスワード入力フォームが表示される', () => {
+  it('継続ボタンをクリックするとアンケートフォームが表示される', () => {
     render(<DeleteAccountPage />)
 
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
+    // アンケートフォームが表示されることを確認
+    expect(screen.getByText('退会理由をお聞かせください（任意）')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /送信/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /スキップ/ })).toBeInTheDocument()
+  })
+
+  it('アンケートをスキップするとパスワード入力フォームが表示される', () => {
+    render(<DeleteAccountPage />)
+
+    // 継続ボタンをクリック
+    const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
+    fireEvent.click(continueButton)
+
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
+
+    // パスワード入力フォームが表示されることを確認
     expect(screen.getByText(/最終確認/)).toBeInTheDocument()
     expect(screen.getByLabelText(/パスワードを入力して削除を確認/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /キャンセル/ })).toBeInTheDocument()
@@ -72,6 +90,10 @@ describe('DeleteAccountPage', () => {
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
+
     // パスワードが入力されていない場合、削除ボタンが無効になることを確認
     const deleteButton = screen.getByRole('button', { name: /アカウントを削除/ })
     expect(deleteButton).toBeDisabled()
@@ -83,6 +105,10 @@ describe('DeleteAccountPage', () => {
     // 継続ボタンをクリック
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
+
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
 
     const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
     const deleteButton = screen.getByRole('button', { name: /アカウントを削除/ })
@@ -107,6 +133,10 @@ describe('DeleteAccountPage', () => {
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
+
     // パスワードを入力
     const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
     fireEvent.change(passwordInput, { target: { value: 'test123' } })
@@ -121,7 +151,7 @@ describe('DeleteAccountPage', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password: 'test123' }),
+        body: JSON.stringify({ password: 'test123', survey: null }),
       })
     })
 
@@ -146,6 +176,10 @@ describe('DeleteAccountPage', () => {
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
+
     // パスワードを入力
     const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
     fireEvent.change(passwordInput, { target: { value: 'test123' } })
@@ -166,6 +200,10 @@ describe('DeleteAccountPage', () => {
     // 継続ボタンをクリック
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
+
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
 
     // パスワードを入力
     const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
@@ -190,6 +228,10 @@ describe('DeleteAccountPage', () => {
     const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
     fireEvent.click(continueButton)
 
+    // アンケートをスキップ
+    const skipButton = screen.getByRole('button', { name: /スキップ/ })
+    fireEvent.click(skipButton)
+
     // パスワードを入力
     const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
     fireEvent.change(passwordInput, { target: { value: 'test123' } })
@@ -201,6 +243,59 @@ describe('DeleteAccountPage', () => {
     // ローディング状態を確認
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /削除中.../ })).toBeInTheDocument()
+    })
+  })
+
+  it('アンケートフォームに回答した場合、回答内容が送信される', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'アカウントが正常に削除されました' }),
+    } as Response)
+
+    render(<DeleteAccountPage />)
+
+    // 継続ボタンをクリック
+    const continueButton = screen.getByRole('button', { name: /アカウント削除を続行/ })
+    fireEvent.click(continueButton)
+
+    // アンケートフォームが表示されることを確認
+    expect(screen.getByText('退会理由をお聞かせください（任意）')).toBeInTheDocument()
+
+    // アンケートの理由を選択（チェックボックス）
+    const reasonCheckbox = screen.getByLabelText(/サービスが自分に合わなかった/)
+    fireEvent.click(reasonCheckbox)
+
+    // 送信ボタンをクリック
+    const submitButton = screen.getByRole('button', { name: /送信/ })
+    fireEvent.click(submitButton)
+
+    // パスワード入力フォームが表示されることを確認
+    expect(screen.getByLabelText(/パスワードを入力して削除を確認/)).toBeInTheDocument()
+
+    // パスワードを入力して削除
+    const passwordInput = screen.getByLabelText(/パスワードを入力して削除を確認/)
+    fireEvent.change(passwordInput, { target: { value: 'test123' } })
+
+    const deleteButton = screen.getByRole('button', { name: /アカウントを削除/ })
+    fireEvent.click(deleteButton)
+
+    // APIが正しいパラメータで呼ばれることを確認
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: 'test123',
+          survey: {
+            reasons: ['not_useful'],
+            reasonOther: undefined,
+            feedback: undefined,
+            wouldRecommend: undefined,
+          },
+        }),
+      })
     })
   })
 })

@@ -105,4 +105,10 @@ export type DeleteAccountInputPort = {
   password: string
   ipAddress?: string
   userAgent?: string
+  survey?: {
+    reason: string
+    reasonOther?: string
+    feedback?: string
+    wouldRecommend?: boolean
+  }
 }

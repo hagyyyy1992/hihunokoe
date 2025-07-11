@@ -7,6 +7,8 @@ import { EmailService } from '@api/domain/services/EmailService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { Email } from '@api/domain/value-objects/Email'
 import { Password } from '@api/domain/value-objects/Password'
+import { WithdrawalSurveyRepository } from '@api/domain/repositories/WithdrawalSurveyRepository'
+import { WithdrawalReason } from '@api/domain/entities/WithdrawalSurvey'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -423,7 +425,8 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
-    private readonly passwordHashService: PasswordHashService
+    private readonly passwordHashService: PasswordHashService,
+    private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
   ) {}
 
   async deleteAccount(input: DeleteAccountInputPort): Promise<DeleteAccountOutputPort> {
@@ -445,12 +448,26 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
       throw new InvalidCredentialsError('パスワードが正しくありません')
     }
 
+    // Save withdrawal survey if provided
+    if (input.survey && this.withdrawalSurveyRepository) {
+      try {
+        await this.withdrawalSurveyRepository.create({
+          userId: input.userId,
+          reason: input.survey.reason as WithdrawalReason,
+          reasonOther: input.survey.reasonOther,
+          feedback: input.survey.feedback,
+          wouldRecommend: input.survey.wouldRecommend,
+        })
+      } catch (error) {
+        // アンケート保存に失敗してもアカウント削除は続行
+        console.error('Failed to save withdrawal survey:', error)
+      }
+    }
+
     // Soft delete the user
     await this.userRepository.update(input.userId, {
       deletedAt: new Date(),
       active: false,
-      email: `deleted_${user.id}@deleted.local`,
-      userName: `deleted_${user.id}`,
     })
 
     // Delete all sessions

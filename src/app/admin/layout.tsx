@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  ClipboardList,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Avatar'
@@ -28,6 +29,7 @@ const navigationItems = [
   { href: '/admin/users', label: 'ユーザー管理', icon: Users },
   { href: '/admin/posts', label: '投稿管理', icon: FileText },
   { href: '/admin/reports', label: '通報管理', icon: AlertTriangle },
+  { href: '/admin/withdrawal-surveys', label: '退会アンケート', icon: ClipboardList },
   { href: '/admin/settings', label: '設定', icon: Settings },
 ]
 
@@ -109,7 +111,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:inset-auto lg:h-screen`}
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b bg-white">
           <div className="flex items-center">

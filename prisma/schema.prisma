@@ -9,32 +9,33 @@ datasource db {
 }
 
 model User {
-  id                      String           @id @default(uuid()) @db.Uuid
-  userName                String           @unique @map("user_name") @db.VarChar(100)
-  email                   String           @unique @db.VarChar(255)
-  passwordHash            String           @map("password_hash") @db.VarChar(255)
-  isActive                Boolean          @default(true) @map("is_active")
-  deletedAt               DateTime?        @map("deleted_at") @db.Timestamptz(6)
-  role                    UserRole?        @map("role") // Temporary - will be removed after migration
-  createdAt               DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt               DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  emailVerificationExpiry DateTime?        @map("email_verification_expiry") @db.Timestamptz(6)
-  emailVerificationToken  String?          @map("email_verification_token") @db.VarChar(255)
-  emailVerified           Boolean          @default(false) @map("email_verified")
-  passwordResetToken      String?          @map("password_reset_token") @db.VarChar(255)
-  passwordResetExpiry     DateTime?        @map("password_reset_expiry") @db.Timestamptz(6)
-  failedLoginAttempts     Int              @default(0) @map("failed_login_attempts")
-  lockedUntil             DateTime?        @map("locked_until") @db.Timestamptz(6)
-  birthDate               DateTime?        @map("birth_date") @db.Date
-  gender                  Gender?          @map("gender")
-  allergies               AllergyType[]    @map("allergies")
-  allergiesOther          String?          @map("allergies_other")
-  skinTypeOther           String?          @map("skin_type_other") @db.VarChar(100)
-  skinType                SkinType?        @map("skin_type")
+  id                      String             @id @default(uuid()) @db.Uuid
+  userName                String             @unique @map("user_name") @db.VarChar(100)
+  email                   String             @unique @db.VarChar(255)
+  passwordHash            String             @map("password_hash") @db.VarChar(255)
+  isActive                Boolean            @default(true) @map("is_active")
+  deletedAt               DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  role                    UserRole?          @map("role") // Temporary - will be removed after migration
+  createdAt               DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  emailVerificationExpiry DateTime?          @map("email_verification_expiry") @db.Timestamptz(6)
+  emailVerificationToken  String?            @map("email_verification_token") @db.VarChar(255)
+  emailVerified           Boolean            @default(false) @map("email_verified")
+  passwordResetToken      String?            @map("password_reset_token") @db.VarChar(255)
+  passwordResetExpiry     DateTime?          @map("password_reset_expiry") @db.Timestamptz(6)
+  failedLoginAttempts     Int                @default(0) @map("failed_login_attempts")
+  lockedUntil             DateTime?          @map("locked_until") @db.Timestamptz(6)
+  birthDate               DateTime?          @map("birth_date") @db.Date
+  gender                  Gender?            @map("gender")
+  allergies               AllergyType[]      @map("allergies")
+  allergiesOther          String?            @map("allergies_other")
+  skinTypeOther           String?            @map("skin_type_other") @db.VarChar(100)
+  skinType                SkinType?          @map("skin_type")
   comments                Comment[]
   empathies               Empathy[]
   postPermissions         PostPermission[]
   posts                   Post[]
+  withdrawalSurveys       WithdrawalSurvey[]
 
   @@map("users")
 }
@@ -190,4 +191,29 @@ model AdminLog {
   adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
 
   @@map("admin_logs")
+}
+
+model WithdrawalSurvey {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @map("user_id") @db.Uuid
+  reason         WithdrawalReason @map("reason")
+  reasonOther    String?          @map("reason_other")
+  feedback       String?          @map("feedback")
+  wouldRecommend Boolean?         @map("would_recommend")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("withdrawal_surveys")
+}
+
+enum WithdrawalReason {
+  not_useful        @map("not_useful")
+  privacy_concerns  @map("privacy_concerns")
+  too_many_emails   @map("too_many_emails")
+  found_alternative @map("found_alternative")
+  temporary_break   @map("temporary_break")
+  technical_issues  @map("technical_issues")
+  other             @map("other")
+
+  @@map("withdrawal_reasons")
 }

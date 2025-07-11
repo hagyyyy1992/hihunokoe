@@ -19,6 +19,7 @@ const mockPosts = {
     posts: {
       edges: [
         {
+          cursor: '1',
           node: {
             id: '1',
             title: 'テスト投稿1',
@@ -26,24 +27,24 @@ const mockPosts = {
             cosmeticName: 'テスト化粧水',
             cosmeticCategory: 'toner',
             skinType: 'normal',
-            author: {
-              id: '1',
-              userName: 'testuser',
-            },
+            moodTag: null,
+            viewCount: 10,
+            empathyCount: 5,
             createdAt: new Date().toISOString(),
-            _count: {
-              empathies: 5,
-              comments: 3,
+            user: {
+              id: '1',
+              displayName: 'testuser',
+              profileImageUrl: null,
             },
+            empathies: [],
           },
         },
       ],
       pageInfo: {
         hasNextPage: false,
-        hasPreviousPage: false,
-        startCursor: '1',
         endCursor: '1',
       },
+      totalCount: 1,
     },
   },
 }
@@ -53,8 +54,9 @@ const mocks = [
     request: {
       query: GET_POSTS,
       variables: {
-        first: 20,
-        filters: {},
+        first: 10,
+        filter: {},
+        orderBy: 'CREATED_AT_DESC',
       },
     },
     result: mockPosts,
@@ -124,8 +126,9 @@ describe('PostsPage', () => {
         request: {
           query: GET_POSTS,
           variables: {
-            first: 20,
-            filters: { cosmeticCategory: 'toner' },
+            first: 10,
+            filter: { cosmeticCategory: 'toner' },
+            orderBy: 'CREATED_AT_DESC',
           },
         },
         result: mockPosts,

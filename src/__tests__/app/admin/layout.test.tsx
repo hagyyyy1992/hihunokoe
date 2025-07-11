@@ -33,13 +33,16 @@ jest.mock('@/components/ui/Avatar', () => ({
   Avatar: ({
     children,
     className,
+    name,
   }: {
-    children: React.ReactNode
+    children?: React.ReactNode
     className?: string
+    name?: string
     [key: string]: unknown
-  }) => <div className={className}>{children}</div>,
-  AvatarFallback: ({ children }: { children: React.ReactNode; [key: string]: unknown }) => (
-    <div>{children}</div>
+  }) => (
+    <div className={className}>
+      {children || (name && typeof name === 'string' ? name.charAt(0).toUpperCase() : '')}
+    </div>
   ),
 }))
 
@@ -53,6 +56,7 @@ jest.mock('lucide-react', () => ({
   LogOut: () => <span>LogOut</span>,
   Menu: () => <span>Menu</span>,
   X: () => <span>X</span>,
+  ClipboardList: () => <span>ClipboardList</span>,
 }))
 
 jest.mock('next/link', () => {

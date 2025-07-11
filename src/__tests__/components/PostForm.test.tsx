@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import PostForm from '@/components/forms/PostForm'
 import { categoryLabels } from '@/lib/constants/categories'
 import { useRouter } from 'next/navigation'

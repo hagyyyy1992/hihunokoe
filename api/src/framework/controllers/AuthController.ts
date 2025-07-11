@@ -23,6 +23,8 @@ import { AuthSessionRepository } from '@api/interface-adapters/repositories/Auth
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { WithdrawalSurveyRepository } from '@api/interface-adapters/repositories/WithdrawalSurvey.repository'
+import { PrismaClient } from '@prisma/client'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -40,11 +42,13 @@ export class AuthController {
   private emailService: EmailServiceImpl
 
   constructor() {
+    const prisma = new PrismaClient()
     const userRepository = new UserRepository()
     const authSessionRepository = new AuthSessionRepository()
     const passwordHashService = new PasswordHashServiceImpl()
     const tokenService = new TokenServiceImpl()
     const emailService = new EmailServiceImpl()
+    const withdrawalSurveyRepository = new WithdrawalSurveyRepository(prisma)
 
     this.authenticationUseCase = new AuthenticationUseCase(
       userRepository,
@@ -66,7 +70,8 @@ export class AuthController {
     this.accountManagementUseCase = new AccountManagementUseCase(
       userRepository,
       authSessionRepository,
-      passwordHashService
+      passwordHashService,
+      withdrawalSurveyRepository
     )
     this.emailService = emailService
   }
@@ -367,17 +372,36 @@ export class AuthController {
       }
 
       const body = await request.json()
-      const { password } = body
+      const { password, survey } = body
 
       if (!password) {
         return NextResponse.json({ error: 'パスワードを入力してください' }, { status: 400 })
       }
 
       // First verify the token and get user info
-      const tokenService = new TokenServiceImpl()
-      const decoded = await tokenService.verifyToken(token)
+      const tokenResult = await this.authenticationUseCase.verifyToken({ token })
 
-      const inputPort: DeleteAccountInputPort = { userId: decoded.userId, password }
+      if (!tokenResult.isValid || !tokenResult.user) {
+        return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 })
+      }
+
+      const inputPort: DeleteAccountInputPort = {
+        userId: tokenResult.user.id,
+        password,
+        survey: survey
+          ? {
+              reason: survey.reasons?.[0] || survey.reason, // 最初の理由をメインとして保存
+              reasonOther: survey.reasons
+                ? JSON.stringify({
+                    allReasons: survey.reasons,
+                    otherText: survey.reasonOther,
+                  })
+                : survey.reasonOther,
+              feedback: survey.feedback,
+              wouldRecommend: survey.wouldRecommend,
+            }
+          : undefined,
+      }
       const result = await this.accountManagementUseCase.deleteAccount(inputPort)
 
       return NextResponse.json({
@@ -392,8 +416,11 @@ export class AuthController {
         if (error.message === 'Invalid password') {
           return NextResponse.json({ error: 'パスワードが正しくありません' }, { status: 400 })
         }
-        if (error.message === 'User not found') {
-          return NextResponse.json({ error: 'ユーザーが見つかりません' }, { status: 404 })
+        if (error.message === 'User not found' || error.message === 'User is already deleted') {
+          return NextResponse.json(
+            { error: 'アカウント削除中にエラーが発生しました' },
+            { status: 404 }
+          )
         }
       }
 

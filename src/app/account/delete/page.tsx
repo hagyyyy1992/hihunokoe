@@ -8,12 +8,15 @@ import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Alert, AlertDescription } from '@/components/ui/Alert'
 import { Trash2, AlertTriangle } from 'lucide-react'
+import { WithdrawalSurveyForm, WithdrawalSurveyData } from '@/components/forms/WithdrawalSurveyForm'
 
 export default function DeleteAccountPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showSurvey, setShowSurvey] = useState(false)
+  const [surveyData, setSurveyData] = useState<WithdrawalSurveyData | null>(null)
   const [isAuthChecking, setIsAuthChecking] = useState(true)
   const router = useRouter()
   const { user, logout, loading } = useAuth()
@@ -68,7 +71,10 @@ export default function DeleteAccountPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({
+          password,
+          survey: surveyData,
+        }),
       })
 
       const data = await response.json()
@@ -87,6 +93,18 @@ export default function DeleteAccountPage() {
     }
   }
 
+  const handleSurveySubmit = (data: WithdrawalSurveyData | null) => {
+    setSurveyData(data)
+    setShowSurvey(false)
+    setShowConfirmation(true)
+  }
+
+  const handleSurveySkip = () => {
+    setSurveyData(null)
+    setShowSurvey(false)
+    setShowConfirmation(true)
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Card className="border-red-200">
@@ -100,7 +118,7 @@ export default function DeleteAccountPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!showConfirmation ? (
+          {!showSurvey && !showConfirmation ? (
             <>
               <Alert className="border-amber-200 bg-amber-50">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -119,7 +137,7 @@ export default function DeleteAccountPage() {
                   アカウント削除を続行する場合は、下のボタンをクリックしてください。
                 </p>
                 <Button
-                  onClick={() => setShowConfirmation(true)}
+                  onClick={() => setShowSurvey(true)}
                   variant="danger"
                   className="w-full"
                   data-testid="continue-delete-button"
@@ -128,6 +146,8 @@ export default function DeleteAccountPage() {
                 </Button>
               </div>
             </>
+          ) : showSurvey ? (
+            <WithdrawalSurveyForm onSubmit={handleSurveySubmit} onSkip={handleSurveySkip} />
           ) : (
             <>
               <Alert className="border-red-200 bg-red-50">
@@ -167,8 +187,10 @@ export default function DeleteAccountPage() {
                   <Button
                     onClick={() => {
                       setShowConfirmation(false)
+                      setShowSurvey(false)
                       setPassword('')
                       setError('')
+                      setSurveyData(null)
                     }}
                     variant="outline"
                     disabled={isLoading}
