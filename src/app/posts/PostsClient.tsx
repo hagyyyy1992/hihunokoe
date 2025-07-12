@@ -197,7 +197,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     (filters.search && !needsServerSearch)
 
   // 初期データがなく、クエリがスキップされておらず、データもまだない場合もローディングと判定
-  const isInitialLoading = !initialData && !data && !error
+  const isInitialLoading = !initialData && !data && loading
   const isLoading = (loading && needsServerSearch) || isInitialLoading
 
   return (

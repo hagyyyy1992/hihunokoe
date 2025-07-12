@@ -101,15 +101,22 @@ function PostCard({ post }: PostCardProps) {
 
   // ハイドレーションエラーを防ぐため、相対時間はクライアントサイドでのみ計算
   const [formattedDate, setFormattedDate] = useState<string>('')
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    setFormattedDate(
-      formatDistanceToNow(new Date(post.publishedAt), {
-        addSuffix: true,
-        locale: ja,
-      })
-    )
-  }, [post.publishedAt])
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (isClient) {
+      setFormattedDate(
+        formatDistanceToNow(new Date(post.publishedAt), {
+          addSuffix: true,
+          locale: ja,
+        })
+      )
+    }
+  }, [post.publishedAt, isClient])
 
   return (
     <div
