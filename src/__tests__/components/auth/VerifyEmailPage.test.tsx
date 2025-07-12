@@ -112,8 +112,8 @@ describe('VerifyEmailPage', () => {
 
       expectElementToBeVisible(screen.getByText('メールアドレスの確認が完了しました'))
       expect(screen.getByText('✓')).toBeInTheDocument()
-      expectElementToBeVisible(screen.getByText('3秒後に自動的にホームページに移動します'))
-      expectElementToBeVisible(screen.getByText('今すぐホームページに移動'))
+      expectElementToBeVisible(screen.getByText('3秒後に自動的にホーム画面に移動します'))
+      expectElementToBeVisible(screen.getByText('今すぐホーム画面に移動'))
     })
 
     it('成功時にrefreshAuthが呼ばれる', async () => {
@@ -144,10 +144,10 @@ describe('VerifyEmailPage', () => {
       // Fast-forward time
       jest.advanceTimersByTime(3000)
 
-      expect(mockRouter.push).toHaveBeenCalledWith('/')
+      expect(mockRouter.push).toHaveBeenCalledWith('/home')
     })
 
-    it('今すぐホームページに移動リンクが正しく設定されている', async () => {
+    it('今すぐホーム画面に移動リンクが正しく設定されている', async () => {
       mockFetch.mockResolvedValueOnce(
         mockApiResponse.success({ message: 'メールアドレスの確認が完了しました' }) as Response
       )
@@ -158,8 +158,8 @@ describe('VerifyEmailPage', () => {
         expect(screen.getByText('メールアドレスの確認が完了しました')).toBeInTheDocument()
       )
 
-      const homeLink = screen.getByText('今すぐホームページに移動')
-      expect(homeLink.closest('a')).toHaveAttribute('href', '/')
+      const homeLink = screen.getByText('今すぐホーム画面に移動')
+      expect(homeLink.closest('a')).toHaveAttribute('href', '/home')
     })
   })
 
@@ -368,7 +368,7 @@ describe('VerifyEmailPage', () => {
         expect(screen.getByText('メールアドレスの確認が完了しました')).toBeInTheDocument()
       )
 
-      const homeLink = screen.getByText('今すぐホームページに移動')
+      const homeLink = screen.getByText('今すぐホーム画面に移動')
       expect(homeLink).toHaveClass('text-blue-600', 'hover:text-blue-500', 'font-medium')
     })
 

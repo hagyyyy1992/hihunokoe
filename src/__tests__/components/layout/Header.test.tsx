@@ -63,7 +63,7 @@ describe('Header', () => {
   it('renders the logo and brand name', () => {
     render(<Header />)
 
-    expect(screen.getByText('H')).toBeInTheDocument()
+    expect(screen.getByAltText('ひふのこえロゴ')).toBeInTheDocument()
     expect(screen.getByText(SERVICE_NAME)).toBeInTheDocument()
   })
 

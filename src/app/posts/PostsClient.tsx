@@ -195,7 +195,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     filters.cosmeticCategory ||
     filters.moodTag ||
     (filters.search && !needsServerSearch)
-  const isLoading = loading && needsServerSearch
+
+  // 初期データがなく、クエリがスキップされておらず、データもまだない場合もローディングと判定
+  const isInitialLoading = !initialData && !data && !error
+  const isLoading = (loading && needsServerSearch) || isInitialLoading
 
   return (
     <div className="min-h-screen bg-gray-50">

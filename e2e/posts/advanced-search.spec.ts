@@ -13,12 +13,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('テキスト検索機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では検索機能が不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
-
     // ログインして投稿一覧ページに移動
     await authHelper.registerAndLogin()
     await page.goto('/posts')
@@ -86,12 +80,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('カテゴリフィルタ機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
-
     // ログインして投稿一覧ページに移動
     await authHelper.registerAndLogin()
     await page.goto('/posts')
@@ -153,12 +141,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('肌タイプフィルタ機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
-
     // ログインしてフィルタ機能をテスト
     await authHelper.registerAndLogin()
 
@@ -226,12 +208,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('ムードタグフィルタ機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
-
     // ログインしてフィルタ機能をテスト
     await authHelper.registerAndLogin()
 
@@ -297,16 +273,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('複合フィルタ機能', async ({ page, browserName }) => {
-    // Mobile Chrome環境では不安定なため、スキップ
-    const viewport = page.viewportSize()
-    if (
-      browserName === 'webkit' ||
-      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-    ) {
-      test.skip()
-      return
-    }
-
     // ログインして投稿一覧ページに移動
     await authHelper.registerAndLogin()
     await page.goto('/posts')
@@ -426,12 +392,6 @@ test.describe('検索・フィルタリング機能', () => {
   })
 
   test('検索結果が見つからない場合の表示', async ({ page, browserName }) => {
-    // WebKit (Safari) では不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
-
     // ログインして投稿一覧ページに移動
     await authHelper.registerAndLogin()
     await page.goto('/posts')

@@ -38,16 +38,6 @@ test.describe('投稿作成', () => {
   })
 
   test('必須フィールドのバリデーション', async ({ page, browserName }) => {
-    // WebKit (Safari) およびMobile Chrome環境では投稿フォームのバリデーションが不安定なため、スキップ
-    const viewport = page.viewportSize()
-    if (
-      browserName === 'webkit' ||
-      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-    ) {
-      test.skip()
-      return
-    }
-
     // 認証状態の確立を待つ（簡略化）
     await page.waitForTimeout(2000)
 
@@ -124,17 +114,6 @@ test.describe('投稿作成', () => {
   })
 
   test('ムード選択が正常に動作する', async ({ page, browserName }) => {
-    // WebKit (Safari) およびMobile Chrome環境ではステップフォームナビゲーションが不安定なため、スキップ
-    const viewport = page.viewportSize()
-    if (
-      browserName === 'webkit' ||
-      browserName === 'firefox' ||
-      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-    ) {
-      test.skip()
-      return
-    }
-
     // 認証状態の確立を待つ（簡略化）
     await page.waitForTimeout(2000)
 

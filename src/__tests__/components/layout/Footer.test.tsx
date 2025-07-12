@@ -40,7 +40,7 @@ describe('Footer', () => {
   it('renders the logo and brand name', () => {
     renderWithAuth(<Footer />)
 
-    expect(screen.getByText('H')).toBeInTheDocument()
+    expect(screen.getByAltText('ひふのこえロゴ')).toBeInTheDocument()
     expect(screen.getByText(SERVICE_NAME)).toBeInTheDocument()
   })
 
@@ -116,12 +116,9 @@ describe('Footer', () => {
   })
 
   it('renders logo with correct styling', () => {
-    const { container } = renderWithAuth(<Footer />)
+    renderWithAuth(<Footer />)
 
-    const logoContainer = container.querySelector('.w-8.h-8.bg-apple-100.rounded-full')
-    expect(logoContainer).toBeInTheDocument()
-
-    const logoText = container.querySelector('.text-apple-600.font-bold.text-sm')
-    expect(logoText).toBeInTheDocument()
+    const logoImage = screen.getByAltText('ひふのこえロゴ')
+    expect(logoImage).toBeInTheDocument()
   })
 })

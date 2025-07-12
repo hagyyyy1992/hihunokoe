@@ -1,9 +1,9 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo, useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
-// import { useState, useEffect, useCallback } from 'react'
+// import { useCallback } from 'react'
 // import { useAuth } from '@/lib/auth/AuthContext'
 // import EmpathyButton from '@/components/ui/EmpathyButton'
 // import { EmpathyType } from '@/types'
@@ -99,14 +99,17 @@ function PostCard({ post }: PostCardProps) {
     [post.content]
   )
 
-  const formattedDate = useMemo(
-    () =>
+  // ハイドレーションエラーを防ぐため、相対時間はクライアントサイドでのみ計算
+  const [formattedDate, setFormattedDate] = useState<string>('')
+
+  useEffect(() => {
+    setFormattedDate(
       formatDistanceToNow(new Date(post.publishedAt), {
         addSuffix: true,
         locale: ja,
-      }),
-    [post.publishedAt]
-  )
+      })
+    )
+  }, [post.publishedAt])
 
   return (
     <div
@@ -167,7 +170,11 @@ function PostCard({ post }: PostCardProps) {
             )}
           </div>
           <span className="hidden sm:inline">•</span>
-          <span className="text-xs">{formattedDate}</span>
+          <span className="text-xs">
+            {formattedDate || (
+              <span className="inline-block w-12 h-3 bg-gray-200 rounded animate-pulse" />
+            )}
+          </span>
         </div>
 
         <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm text-gray-500">

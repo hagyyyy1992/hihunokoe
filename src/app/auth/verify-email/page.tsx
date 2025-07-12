@@ -41,9 +41,9 @@ function VerifyEmailContent() {
           // 認証状態をリフレッシュ
           await refreshAuth()
 
-          // 3秒後にホームページにリダイレクト
+          // 3秒後にホーム画面にリダイレクト
           setTimeout(() => {
-            router.push('/')
+            router.push('/home')
           }, 3000)
         } else {
           setStatus('error')
@@ -80,9 +80,9 @@ function VerifyEmailContent() {
             <div className="text-center">
               <div className="text-green-600 text-5xl mb-4">✓</div>
               <p className="text-green-600 font-medium mb-4">{message}</p>
-              <p className="text-gray-600 text-sm mb-4">3秒後に自動的にホームページに移動します</p>
-              <Link href="/" className="text-blue-600 hover:text-blue-500 font-medium">
-                今すぐホームページに移動
+              <p className="text-gray-600 text-sm mb-4">3秒後に自動的にホーム画面に移動します</p>
+              <Link href="/home" className="text-blue-600 hover:text-blue-500 font-medium">
+                今すぐホーム画面に移動
               </Link>
             </div>
           )}

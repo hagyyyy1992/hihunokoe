@@ -275,12 +275,6 @@ test.describe('エラーハンドリング', () => {
     })
 
     test('文字数制限を超える投稿の作成', async ({ page, browserName }) => {
-      // Firefox・WebKit環境では投稿フォームが不安定な場合があるため、スキップ
-      if (browserName === 'firefox' || browserName === 'webkit') {
-        test.skip()
-        return
-      }
-
       // ログインしてから投稿作成ページにアクセス
       await authHelper.registerAndLogin()
       await page.goto('/posts/new')
@@ -444,12 +438,6 @@ test.describe('エラーハンドリング', () => {
 
   test.describe('ネットワークエラー', () => {
     test('接続エラー時の適切なメッセージ表示', async ({ page, browserName }) => {
-      // Mobile SafariおよびFirefoxではネットワークルーティングが制限されるため、スキップ
-      if (browserName === 'webkit' || browserName === 'firefox') {
-        test.skip()
-        return
-      }
-
       // ログインページにアクセスしてからネットワークをブロック
       await page.goto('/auth/login')
       await page.waitForLoadState('networkidle')
@@ -528,12 +516,6 @@ test.describe('エラーハンドリング', () => {
     })
 
     test('完全なネットワーク障害時の処理', async ({ page, browserName }) => {
-      // Mobile Safariではネットワークルーティングが制限されるため、スキップ
-      if (browserName === 'webkit') {
-        test.skip()
-        return
-      }
-
       // まずログインページに移動
       await page.goto('/auth/login')
       await page.getByLabel('メールアドレス').fill('test@example.com')

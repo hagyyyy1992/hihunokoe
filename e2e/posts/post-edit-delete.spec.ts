@@ -13,11 +13,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿編集機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿編集フォームの処理が不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // ログインして投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()
@@ -98,11 +93,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿削除機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿削除処理が不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // ログインして投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()
@@ -160,11 +150,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('他人の投稿の編集・削除権限チェック', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿権限チェックが不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // 最初のユーザーで投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()
@@ -199,16 +184,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿編集時のバリデーション', async ({ page, browserName }) => {
-    // WebKit (Safari) およびMobile Chrome環境では投稿編集フォームの処理が不安定なため、スキップ
-    const viewport = page.viewportSize()
-    if (
-      browserName === 'webkit' ||
-      (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-    ) {
-      test.skip()
-      return
-    }
-
     // ログインして投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()
@@ -306,11 +281,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿編集のキャンセル機能', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿編集キャンセル処理が不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // ログインして投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()
@@ -354,11 +324,6 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿削除後の関連データの処理', async ({ page, browserName }) => {
-    // WebKit (Safari) では投稿削除後の処理が不安定なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // ログインして投稿を作成
     await authHelper.registerAndLogin()
     const timestamp = Date.now()

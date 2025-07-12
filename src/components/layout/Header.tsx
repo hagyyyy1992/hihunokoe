@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { SERVICE_NAME } from '@/lib/constants'
 import Logo from '@/components/ui/Logo'
 
 export default function Header() {

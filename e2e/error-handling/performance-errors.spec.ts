@@ -226,17 +226,6 @@ test.describe('パフォーマンスエラーハンドリング', () => {
 
   test.describe('同時実行エラー', () => {
     test('同時投稿作成時の競合処理', async ({ page, browserName }) => {
-      // WebKit (Safari) ・Firefox・Mobile Chrome環境では投稿フォームの処理が不安定なため、スキップ
-      const viewport = page.viewportSize()
-      if (
-        browserName === 'webkit' ||
-        browserName === 'firefox' ||
-        (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-      ) {
-        test.skip()
-        return
-      }
-
       // ログインしてから投稿作成ページにアクセス
       await authHelper.registerAndLogin()
       await page.goto('/posts/new')
