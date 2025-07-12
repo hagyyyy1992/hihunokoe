@@ -9,6 +9,7 @@ export interface CreateEmpathyData {
 export interface IEmpathyRepository {
   findById(id: string): Promise<Empathy | null>
   findByUserAndPost(userId: string, postId: string): Promise<Empathy | null>
+  findByUserAndPosts(userId: string, postIds: string[]): Promise<Empathy[]>
   findByPost(postId: string): Promise<Empathy[]>
   findByUser(userId: string): Promise<Empathy[]>
   create(data: CreateEmpathyData): Promise<Empathy>

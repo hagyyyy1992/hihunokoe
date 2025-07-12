@@ -21,12 +21,15 @@ import type {
 } from '@api/usecases/posts/input-port'
 import { isDatabaseAvailable } from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
+import { memoryCache } from '@/lib/cache/memory-cache'
+import type { CachedPostsResponse, CachedPost } from '@/types/cache'
 
 export class PostController {
   private postManagementUseCase: PostManagementUseCase
   private postRetrievalUseCase: PostRetrievalUseCase
   private empathyManagementUseCase: EmpathyManagementUseCase
   private tokenService: TokenServiceImpl
+  private empathyRepository: EmpathyRepository
 
   constructor() {
     const postRepository = new PostRepository()
@@ -34,6 +37,7 @@ export class PostController {
     const empathyRepository = new EmpathyRepository()
     const commentRepository = new CommentRepository()
     this.tokenService = new TokenServiceImpl()
+    this.empathyRepository = empathyRepository
 
     this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
     this.postRetrievalUseCase = new PostRetrievalUseCase(
@@ -117,6 +121,9 @@ export class PostController {
 
       const result = await this.postManagementUseCase.createPost(input)
 
+      // 投稿一覧のキャッシュをクリア
+      memoryCache.deletePattern('^posts:')
+
       return NextResponse.json({
         post: result.post,
         message: '投稿が作成されました',
@@ -176,6 +183,32 @@ export class PostController {
       const sortBy = sortByParam === 'popular' ? 'empathyCount' : 'createdAt'
       const userId = await this.getUserIdFromRequest(request)
 
+      // キャッシュキーの生成（ユーザー固有のデータを含まない）
+      const cacheKey = `posts:${page}:${limit}:${category || ''}:${skinType || ''}:${moodTag || ''}:${search || ''}:${sortBy}`
+
+      // キャッシュから取得を試みる
+      const cachedResult = memoryCache.get<CachedPostsResponse>(cacheKey)
+      if (cachedResult) {
+        // ユーザー固有のデータ（userHasEmpathy）を追加
+        if (userId) {
+          const userEmpathies = await this.empathyRepository.findByUserAndPosts(
+            userId,
+            cachedResult.posts.map(p => p.id)
+          )
+          const empathyMap = new Map(userEmpathies.map(e => [e.postId, true]))
+
+          cachedResult.posts = cachedResult.posts.map(post => ({
+            ...post,
+            userHasEmpathy: empathyMap.get(post.id) || false,
+          }))
+        }
+
+        return NextResponse.json({
+          posts: cachedResult.posts,
+          pagination: cachedResult.pagination,
+        })
+      }
+
       const input: GetPostsInputPort = {
         page,
         limit,
@@ -189,14 +222,29 @@ export class PostController {
 
       const result = await this.postRetrievalUseCase.getPosts(input)
 
-      return NextResponse.json({
-        posts: result.posts,
+      // ユーザー固有のデータを除外してキャッシュ
+      const cacheData: CachedPostsResponse = {
+        posts: result.posts.map(post => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { userHasEmpathy, ...postWithoutUserData } = post as CachedPost & {
+            userHasEmpathy?: boolean
+          }
+          return postWithoutUserData
+        }),
         pagination: {
           page: result.page,
           limit: result.limit,
           total: result.total,
           pages: Math.ceil(result.total / result.limit),
         },
+      }
+
+      // 30秒間キャッシュ
+      memoryCache.set(cacheKey, cacheData, 30 * 1000)
+
+      return NextResponse.json({
+        posts: result.posts,
+        pagination: cacheData.pagination,
       })
     } catch (error) {
       if (error instanceof Error) {
