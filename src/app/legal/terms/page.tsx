@@ -5,7 +5,7 @@ export default function TermsOfServicePage() {
 
       <div className="prose prose-gray max-w-none">
         <p className="mb-4">
-          本利用規約（以下「本規約」といいます。）は、Hihunokoe（以下「当サービス」といいます。）の利用条件を定めるものです。
+          本利用規約（以下「本規約」といいます。）は、ひふのこえ（以下「当サービス」といいます。）の利用条件を定めるものです。
           登録ユーザーの皆さま（以下「ユーザー」といいます。）には、本規約に従って当サービスをご利用いただきます。
         </p>
 
