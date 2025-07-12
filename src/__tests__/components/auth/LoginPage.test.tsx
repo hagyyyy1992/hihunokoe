@@ -81,7 +81,6 @@ describe('LoginPage', () => {
     expectElementToBeVisible(screen.getByTestId('login-button'))
   })
 
-
   it('会員登録リンクが表示される', () => {
     render(<LoginPage />)
 
