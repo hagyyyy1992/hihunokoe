@@ -1,97 +1,279 @@
-import type { Metadata } from 'next'
-import { SERVICE_NAME } from '@/lib/constants'
+'use client'
 
-export const metadata: Metadata = {
-  title: `ヘルプ - ${SERVICE_NAME}`,
-  description: `${SERVICE_NAME}の使い方とよくある質問`,
-}
+import { useState } from 'react'
+import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
+import { ChevronDown, ChevronUp, Search, MessageCircle, UserPlus, HelpCircle } from 'lucide-react'
 
-export default function Help() {
+// FAQ データ
+const faqData = [
+  {
+    category: 'アカウント',
+    icon: UserPlus,
+    items: [
+      {
+        id: 'account-1',
+        question: 'アカウントを作成できません',
+        answer: `以下の点をご確認ください：
+
+• メールアドレスが正しく入力されているか
+• すでに同じメールアドレスで登録されていないか
+• パスワードが8文字以上で、英数字と記号を含んでいるか
+• ブラウザのJavaScriptが有効になっているか
+
+問題が解決しない場合は、匿名お問い合わせフォームからご連絡ください。`,
+      },
+      {
+        id: 'account-2',
+        question: 'ログインできません',
+        answer: `以下の方法をお試しください：
+
+• メールアドレスとパスワードが正しく入力されているか確認
+• パスワードリセット機能を使用
+• ブラウザのキャッシュとCookieをクリア
+• 別のブラウザで試す
+
+それでもログインできない場合は、匿名お問い合わせフォームからご連絡ください。`,
+      },
+      {
+        id: 'account-3',
+        question: 'メール認証が届きません',
+        answer: `以下をご確認ください：
+
+• 迷惑メールフォルダも確認してください
+• メールアドレスが正しく入力されているか
+• ドメイン「@hihunokoe.com」からのメールを受信できるよう設定
+
+24時間経っても届かない場合は、匿名お問い合わせフォームからご連絡ください。`,
+      },
+      {
+        id: 'account-4',
+        question: 'パスワードを忘れました',
+        answer: `パスワードリセット機能をご利用ください：
+
+1. ログインページの「パスワードを忘れた方」をクリック
+2. 登録メールアドレスを入力
+3. 送信されたメールのリンクから新しいパスワードを設定
+
+メールが届かない場合は、迷惑メールフォルダもご確認ください。`,
+      },
+    ],
+  },
+  {
+    category: '投稿・体験談',
+    icon: MessageCircle,
+    items: [
+      {
+        id: 'post-1',
+        question: '投稿が表示されません',
+        answer: `投稿が表示されない理由として以下が考えられます：
+
+• 投稿が審査中の場合（通常24時間以内）
+• 利用規約に違反する内容が含まれている
+• システムエラーが発生している
+
+しばらく待っても表示されない場合は、お問い合わせフォームからご連絡ください。`,
+      },
+      {
+        id: 'post-2',
+        question: '投稿を編集・削除したい',
+        answer: `投稿の編集・削除は以下の手順で行えます：
+
+• マイページから該当の投稿を選択
+• 「編集」または「削除」ボタンをクリック
+• 編集の場合は内容を修正して保存
+
+削除した投稿は復元できませんのでご注意ください。`,
+      },
+      {
+        id: 'post-3',
+        question: 'どのような投稿をすればよいですか？',
+        answer: `以下のような内容の投稿をお待ちしています：
+
+• 実際に使用した化粧品の体験談
+• 肌質や年齢などの背景情報
+• 使用感や効果の詳細
+• 他のユーザーの参考になる情報
+
+誠実で具体的な体験談ほど、多くのユーザーに喜ばれます。`,
+      },
+    ],
+  },
+  {
+    category: 'サイト利用',
+    icon: HelpCircle,
+    items: [
+      {
+        id: 'usage-1',
+        question: 'サイトが正常に動作しません',
+        answer: `以下の方法をお試しください：
+
+• ブラウザを最新版に更新
+• ページを再読み込み（F5キー）
+• ブラウザのキャッシュとCookieをクリア
+• 別のブラウザで試す
+• インターネット接続を確認
+
+問題が続く場合は、ご利用の環境とエラー内容をお問い合わせフォームからお知らせください。`,
+      },
+      {
+        id: 'usage-2',
+        question: 'プライバシーは守られますか？',
+        answer: `当サイトではプライバシー保護を最優先に考えています：
+
+• 個人情報は暗号化して保存
+• 第三者への情報提供は行わない
+• プライバシーポリシーに従って適切に管理
+
+詳細はプライバシーポリシーをご確認ください。`,
+      },
+      {
+        id: 'usage-3',
+        question: 'アカウントを削除したい',
+        answer: `アカウント削除は以下の手順で行えます：
+
+1. ログイン後、プロフィール設定を開く
+2. 「アカウント削除」を選択
+3. 削除理由を選択（任意）
+4. 確認画面で削除を実行
+
+削除されたデータは復元できませんのでご注意ください。`,
+      },
+    ],
+  },
+]
+
+export default function HelpPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set())
+
+  const toggleItem = (id: string) => {
+    const newOpenItems = new Set(openItems)
+    if (newOpenItems.has(id)) {
+      newOpenItems.delete(id)
+    } else {
+      newOpenItems.add(id)
+    }
+    setOpenItems(newOpenItems)
+  }
+
+  // 検索フィルタリング
+  const filteredFaqData = faqData
+    .map(category => ({
+      ...category,
+      items: category.items.filter(
+        item =>
+          item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.answer.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter(category => category.items.length > 0)
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
-        <p className="text-yellow-800 text-sm font-medium">
-          ⚠️ このページは仮のテキストです。内容は後で正式に作成されます。
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-4">ヘルプ・よくある質問</h1>
+        <p className="text-muted-foreground">
+          多くの疑問がこちらで解決できます。お問い合わせ前にご確認ください。
         </p>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">ヘルプ</h1>
+      {/* 検索バー */}
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="ヘルプを検索..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="prose prose-lg max-w-none">
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">よくある質問</h2>
+      {/* FAQ リスト */}
+      <div className="space-y-8">
+        {filteredFaqData.map(category => (
+          <Card key={category.category}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <category.icon className="h-5 w-5" />
+                {category.category}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {category.items.map(item => (
+                <div key={item.id} className="border rounded-lg">
+                  <button
+                    onClick={() => toggleItem(item.id)}
+                    className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-muted/50 transition-colors"
+                  >
+                    <span className="font-medium">{item.question}</span>
+                    {openItems.has(item.id) ? (
+                      <ChevronUp className="h-4 w-4 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                    )}
+                  </button>
+                  {openItems.has(item.id) && (
+                    <div className="px-4 pb-4 text-muted-foreground">
+                      <div className="whitespace-pre-line">{item.answer}</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-          <div className="space-y-6">
-            <div className="border-l-4 border-apple-500 pl-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">
-                Q. 投稿はどのように作成しますか？
-              </h3>
-              <p className="text-gray-600">
-                A.
-                ログイン後、「投稿する」ボタンから新しい体験を投稿できます。化粧品名、使用感、肌タイプなどの情報を入力してください。
+      {/* 解決しない場合の案内 */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>問題が解決しませんでしたか？</CardTitle>
+          <CardDescription>
+            ヘルプで解決できない問題については、以下のお問い合わせ方法をご利用ください。
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">通常のお問い合わせ</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                サービス利用、投稿、その他全般的なお問い合わせ
               </p>
+              <Link href="/contact">
+                <Button className="w-full">お問い合わせフォーム（要ログイン）</Button>
+              </Link>
             </div>
 
-            <div className="border-l-4 border-apple-500 pl-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">
-                Q. プロフィール情報は公開されますか？
-              </h3>
-              <p className="text-gray-600">
-                A.
-                プロフィール情報のうち、ニックネームと肌タイプなどの基本情報のみ公開されます。個人を特定できる情報は公開されません。
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">アカウント関連の問題</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                ログイン・新規登録・パスワードリセット等
               </p>
-            </div>
-
-            <div className="border-l-4 border-apple-500 pl-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">
-                Q. 不適切な投稿を見つけた場合はどうすればいいですか？
-              </h3>
-              <p className="text-gray-600">
-                A. 投稿の「報告」ボタンからご報告ください。運営チームが適切に対応いたします。
-              </p>
-            </div>
-
-            <div className="border-l-4 border-apple-500 pl-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">
-                Q. アカウントを削除したい場合は？
-              </h3>
-              <p className="text-gray-600">
-                A.
-                プロフィール設定から「アカウント削除」を選択してください。削除されたデータは復元できませんのでご注意ください。
-              </p>
+              <Link href="/support/anonymous-contact">
+                <Button variant="outline" className="w-full">
+                  匿名お問い合わせ
+                </Button>
+              </Link>
             </div>
           </div>
-        </section>
+        </CardContent>
+      </Card>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">使い方ガイド</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-800 mb-3">新規登録</h3>
-              <p className="text-gray-600 text-sm">
-                メールアドレスとパスワードで簡単に登録できます。肌タイプなどの基本情報を設定して、より正確な情報を共有しましょう。
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-800 mb-3">投稿を探す</h3>
-              <p className="text-gray-600 text-sm">
-                化粧品名や肌タイプで検索できます。自分と似た肌質の人の体験談を参考にして、新しい化粧品を発見しましょう。
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">お困りの場合</h2>
-          <p className="text-gray-600 mb-4">
-            上記で解決しない問題がございましたら、
-            <a href="/contact" className="text-apple-600 hover:text-apple-700 underline">
-              お問い合わせページ
-            </a>
-            からご連絡ください。
-          </p>
-        </section>
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        <Link href="/legal/privacy" className="hover:underline">
+          プライバシーポリシー
+        </Link>
+        {' | '}
+        <Link href="/legal/terms" className="hover:underline">
+          利用規約
+        </Link>
       </div>
     </div>
   )

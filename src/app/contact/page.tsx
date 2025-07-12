@@ -1,141 +1,262 @@
-import type { Metadata } from 'next'
-import { SERVICE_NAME } from '@/lib/constants'
+'use client'
 
-export const metadata: Metadata = {
-  title: `お問い合わせ - ${SERVICE_NAME}`,
-  description: `${SERVICE_NAME}へのお問い合わせ`,
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/Button'
+import { Alert, AlertDescription } from '@/components/ui/Alert'
+import { SimpleSelect } from '@/components/ui/select'
+import { ContactCategory } from '@prisma/client'
+
+const categoryLabels: Record<ContactCategory, string> = {
+  general: '一般的なお問い合わせ',
+  bug_report: 'バグ報告',
+  feature_request: '機能リクエスト',
+  account: 'アカウント関連',
+  privacy: 'プライバシー関連',
+  other: 'その他',
 }
 
-export default function Contact() {
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
-        <p className="text-yellow-800 text-sm font-medium">
-          ⚠️ このページは仮のテキストです。内容は後で正式に作成されます。
-        </p>
+export default function ContactPage() {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+  const [, setUser] = useState<{ userName: string; email: string } | null>(null)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    category: 'general' as ContactCategory,
+    message: '',
+  })
+
+  useEffect(() => {
+    checkLoginStatus()
+  }, [])
+
+  const checkLoginStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+        setIsLoggedIn(true)
+        // ログインユーザーの情報でフォームを初期化
+        setFormData(prev => ({
+          ...prev,
+          name: data.user.userName || '',
+          email: data.user.email || '',
+        }))
+      } else {
+        setIsLoggedIn(false)
+      }
+    } catch {
+      setIsLoggedIn(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'お問い合わせの送信に失敗しました')
+      }
+
+      router.push('/contact/complete')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'エラーが発生しました')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // ログイン状態チェック中
+  if (isLoggedIn === null) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="text-center py-8">読み込み中...</div>
       </div>
+    )
+  }
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">お問い合わせ</h1>
+  // ログインしていない場合
+  if (!isLoggedIn) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>お問い合わせ</CardTitle>
+            <CardDescription>
+              お問い合わせ機能をご利用いただくには、ログインが必要です。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center space-y-6">
+            <p className="text-muted-foreground">ログインしてお問い合わせを送信してください。</p>
+            <div className="flex gap-4 justify-center">
+              <Link href="/auth/login">
+                <Button>ログイン</Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button variant="outline">新規登録</Button>
+              </Link>
+            </div>
 
-      <div className="prose prose-lg max-w-none">
-        <section className="mb-8">
-          <p className="text-gray-600 mb-6">
-            {SERVICE_NAME}
-            に関するご質問、ご要望、不具合報告などがございましたら、以下のフォームからお気軽にお問い合わせください。
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <form className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  お名前 *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
-                />
+            <div className="border-t pt-6 space-y-4">
+              <h3 className="font-semibold">お困りですか？</h3>
+              <div className="space-y-2">
+                <div>
+                  <Link href="/help" className="text-primary hover:underline">
+                    よくある質問（FAQ）
+                  </Link>
+                  <p className="text-sm text-muted-foreground">多くの疑問が解決できます</p>
+                </div>
+                <div>
+                  <Link href="/support/anonymous-contact" className="text-primary hover:underline">
+                    アカウント作成・ログインに関する匿名お問い合わせ
+                  </Link>
+                  <p className="text-sm text-muted-foreground">ログインできない場合はこちら</p>
+                </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  メールアドレス *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
-                />
-              </div>
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>お問い合わせ</CardTitle>
+          <CardDescription>
+            ご質問やご要望がございましたら、以下のフォームからお問い合わせください。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                  お問い合わせ種類 *
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
-                >
-                  <option value="">選択してください</option>
-                  <option value="bug">不具合報告</option>
-                  <option value="feature">機能要望</option>
-                  <option value="account">アカウントについて</option>
-                  <option value="content">投稿内容について</option>
-                  <option value="other">その他</option>
-                </select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">お名前 *</Label>
+              <Input
+                id="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                placeholder="お名前を入力してください"
+                maxLength={100}
+              />
+              <p className="text-sm text-muted-foreground">
+                ログインユーザーの名前が初期値として入力されています（編集可能）
+              </p>
+            </div>
 
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  件名 *
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">メールアドレス *</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder="メールアドレスを入力してください"
+                maxLength={255}
+              />
+              <p className="text-sm text-muted-foreground">
+                ログインユーザーのメールアドレスが初期値として入力されています（編集可能）
+              </p>
+            </div>
 
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  お問い合わせ内容 *
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={6}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-apple-500 focus:border-apple-500"
-                  placeholder="お問い合わせ内容を詳細にご記入ください"
-                />
-              </div>
-
-              <div className="bg-gray-50 rounded-md p-4">
-                <p className="text-sm text-gray-600">
-                  ※ 現在フォームは実装中です。お急ぎの場合は直接メールでお問い合わせください。
-                  <br />
-                  📧 contact@hihunokoe.example.com（仮のアドレス）
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled
-                className="w-full bg-gray-400 text-white py-3 px-4 rounded-md font-medium cursor-not-allowed"
+            <div className="space-y-2">
+              <Label htmlFor="category">カテゴリー *</Label>
+              <SimpleSelect
+                id="category"
+                value={formData.category}
+                onValueChange={value =>
+                  setFormData({ ...formData, category: value as ContactCategory })
+                }
               >
-                送信（実装中）
-              </button>
-            </form>
-          </div>
-        </section>
+                {Object.entries(categoryLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </SimpleSelect>
+            </div>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">よくある質問</h2>
-          <p className="text-gray-600 mb-4">
-            お問い合わせの前に、
-            <a href="/help" className="text-apple-600 hover:text-apple-700 underline">
-              ヘルプページ
-            </a>
-            もご確認ください。多くの質問への回答が掲載されています。
-          </p>
-        </section>
+            <div className="space-y-2">
+              <Label htmlFor="subject">件名 *</Label>
+              <Input
+                id="subject"
+                type="text"
+                required
+                value={formData.subject}
+                onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                placeholder="お問い合わせの件名"
+              />
+            </div>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">お返事について</h2>
-          <p className="text-gray-600">
-            お問い合わせいただいた内容については、通常2-3営業日以内にご返答いたします。お急ぎの場合は、その旨をお問い合わせ内容に記載してください。
-          </p>
-        </section>
+            <div className="space-y-2">
+              <Label htmlFor="message">お問い合わせ内容 *</Label>
+              <Textarea
+                id="message"
+                required
+                value={formData.message}
+                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                placeholder="お問い合わせ内容を入力してください"
+                rows={6}
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
+                {isSubmitting ? '送信中...' : '送信する'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push('/')}
+                disabled={isSubmitting}
+              >
+                キャンセル
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        <Link href="/legal/privacy" className="hover:underline">
+          プライバシーポリシー
+        </Link>
+        {' | '}
+        <Link href="/legal/terms" className="hover:underline">
+          利用規約
+        </Link>
       </div>
     </div>
   )

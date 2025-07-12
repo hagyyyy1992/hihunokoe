@@ -14,8 +14,10 @@ export function adaptCookieToBearer(request: Request): NextRequest {
     return nextRequest
   }
 
-  // Cookieからトークンを取得
-  const token = nextRequest.cookies?.get('auth-token')?.value
+  // Cookieからトークンを取得（通常のauth-tokenまたは管理者のadmin-auth-token）
+  const token =
+    nextRequest.cookies?.get('auth-token')?.value ||
+    nextRequest.cookies?.get('admin-auth-token')?.value
 
   if (!token) {
     return nextRequest
