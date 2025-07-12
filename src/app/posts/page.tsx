@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
 import { useQuery } from '@apollo/client'
@@ -23,13 +23,6 @@ interface PostNode {
     displayName: string
     profileImageUrl?: string
   }
-  empathies: Array<{
-    id: string
-    empathyType: string
-    user: {
-      id: string
-    }
-  }>
   _count: {
     comments: number
   }
@@ -56,28 +49,43 @@ export default function PostsPage() {
     moodTag: '',
     search: '',
   })
+  const [debouncedFilters, setDebouncedFilters] = useState(filters)
 
   const { data, loading, error, fetchMore } = useQuery<PostData>(GET_POSTS, {
     variables: {
       first: 10,
       filter: {
-        ...(filters.skinType && { skinType: filters.skinType }),
-        ...(filters.cosmeticCategory && { cosmeticCategory: filters.cosmeticCategory }),
-        ...(filters.moodTag && { moodTag: filters.moodTag }),
-        ...(filters.search && { search: filters.search }),
+        ...(debouncedFilters.skinType && { skinType: debouncedFilters.skinType }),
+        ...(debouncedFilters.cosmeticCategory && {
+          cosmeticCategory: debouncedFilters.cosmeticCategory,
+        }),
+        ...(debouncedFilters.moodTag && { moodTag: debouncedFilters.moodTag }),
+        ...(debouncedFilters.search && { search: debouncedFilters.search }),
       },
       orderBy: 'CREATED_AT_DESC' as const,
     },
+    fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: false,
   })
 
-  const handleFilterChange = (key: string, value: string) => {
+  const handleFilterChange = useCallback((key: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
     }))
-  }
+  }, [])
 
-  const handleLoadMore = () => {
+  // デバウンス処理
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedFilters(filters)
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [filters])
+
+  const handleLoadMore = useCallback(() => {
     if (data?.posts.pageInfo.hasNextPage) {
       fetchMore({
         variables: {
@@ -85,9 +93,9 @@ export default function PostsPage() {
         },
       })
     }
-  }
+  }, [data?.posts.pageInfo, fetchMore])
 
-  const posts = data?.posts.edges.map(edge => edge.node) || []
+  const posts = useMemo(() => data?.posts.edges.map(edge => edge.node) || [], [data])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -196,14 +204,38 @@ export default function PostsPage() {
         )}
 
         {/* ローディング表示 */}
-        {loading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-600"></div>
+        {loading && !data && (
+          <div className="grid gap-6 mb-8">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 animate-pulse"
+              >
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className="flex-1">
+                    <div className="h-5 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="flex gap-2">
+                      <div className="h-4 bg-gray-200 rounded-full w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded-full w-20"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-3 sm:mb-4">
+                  <div className="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+                <div className="flex justify-between">
+                  <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  <div className="h-4 bg-gray-200 rounded w-16"></div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
         {/* 投稿一覧 */}
-        {!loading && (
+        {(!loading || data) && (
           <>
             {posts.length > 0 ? (
               <>
@@ -228,7 +260,7 @@ export default function PostsPage() {
                         },
                         _count: {
                           empathies: post.empathyCount,
-                          comments: 0,
+                          comments: post._count?.comments || 0,
                         },
                       }}
                     />

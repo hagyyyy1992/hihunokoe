@@ -21,12 +21,9 @@ export const GET_POSTS = gql`
             displayName
             profileImageUrl
           }
-          empathies {
-            id
-            empathyType
-            user {
-              id
-            }
+          _count {
+            comments
+            empathies
           }
         }
       }
