@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AdminController } from '@api/framework/controllers/AdminController'
 
+// Force dynamic rendering to avoid caching issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 let adminController: AdminController | null = null
 
 try {
@@ -10,6 +14,12 @@ try {
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  console.log('[SUSPEND] POST request received:', {
+    url: request.url,
+    method: request.method,
+    timestamp: new Date().toISOString(),
+  })
+
   if (!adminController) {
     console.error('AdminController not available - database connection issue')
     return NextResponse.json(
@@ -19,6 +29,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   }
 
   const params = await context.params
+  console.log('[SUSPEND] Processing user:', params.id)
   return adminController.suspendUser(request, { params })
 }
 

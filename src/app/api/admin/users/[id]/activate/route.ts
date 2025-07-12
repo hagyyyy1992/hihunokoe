@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AdminController } from '@api/framework/controllers/AdminController'
 
+// Force dynamic rendering to avoid caching issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 let adminController: AdminController | null = null
 
 try {
