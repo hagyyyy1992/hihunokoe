@@ -341,9 +341,6 @@ describe('Post.repository', () => {
           where: expect.objectContaining({
             status: 'published',
             OR: [
-              { title: { search: '化粧水', mode: 'insensitive' } },
-              { content: { search: '化粧水', mode: 'insensitive' } },
-              { cosmeticName: { search: '化粧水', mode: 'insensitive' } },
               { title: { contains: '化粧水', mode: 'insensitive' } },
               { content: { contains: '化粧水', mode: 'insensitive' } },
               { cosmeticName: { contains: '化粧水', mode: 'insensitive' } },
@@ -376,9 +373,6 @@ describe('Post.repository', () => {
             cosmeticCategory: 'toner',
             skinType: 'dry',
             OR: [
-              { title: { search: '化粧水', mode: 'insensitive' } },
-              { content: { search: '化粧水', mode: 'insensitive' } },
-              { cosmeticName: { search: '化粧水', mode: 'insensitive' } },
               { title: { contains: '化粧水', mode: 'insensitive' } },
               { content: { contains: '化粧水', mode: 'insensitive' } },
               { cosmeticName: { contains: '化粧水', mode: 'insensitive' } },

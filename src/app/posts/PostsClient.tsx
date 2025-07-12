@@ -5,7 +5,7 @@ import Link from 'next/link'
 import PostCard from '@/components/ui/PostCard'
 import { useQuery, useApolloClient } from '@apollo/client'
 import { GET_POSTS } from '@/graphql/queries/post'
-import { categoryLabels } from '@/lib/constants/categories'
+import { categoryLabels, skinTypeLabels, moodTagLabels } from '@/lib/constants/categories'
 
 // クライアントサイド絞り込み用のヘルパー関数
 interface FilterState {
@@ -299,7 +299,31 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         {/* エラー表示 */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-            投稿の取得に失敗しました: {error.message}
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">投稿の読み込みに失敗しました</h3>
+                <div className="mt-1 text-sm text-red-700">
+                  ネットワークエラーまたは一時的な問題が発生している可能性があります。しばらく待ってから再度お試しください。
+                </div>
+                <div className="mt-2">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-md hover:bg-red-200 transition-colors"
+                  >
+                    ページを再読み込み
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -340,7 +364,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             {filteredPosts.length}件の投稿が見つかりました
             {filters.skinType && (
               <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                肌タイプ: {filters.skinType}
+                肌タイプ: {skinTypeLabels[filters.skinType] || filters.skinType}
               </span>
             )}
             {filters.cosmeticCategory && (
@@ -350,7 +374,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             )}
             {filters.moodTag && (
               <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                感想: {filters.moodTag}
+                感想: {moodTagLabels[filters.moodTag] || filters.moodTag}
               </span>
             )}
             {filters.search && !needsServerSearch && (

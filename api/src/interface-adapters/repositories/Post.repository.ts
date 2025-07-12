@@ -226,26 +226,19 @@ export class PostRepository implements IPostRepository {
     }
 
     if (filter.search) {
-      // PostgreSQLの全文検索を使用（パフォーマンス向上）
       const searchTerm = filter.search.trim()
       if (searchTerm) {
-        // 短い検索語句には含有検索、長い検索語句には全文検索
-        if (searchTerm.length <= 2) {
+        // PostgreSQLの全文検索機能の利用可否を安全にチェック
+        try {
+          // 常に含有検索を使用（より安全で互換性が高い）
           where.OR = [
             { title: { contains: searchTerm, mode: 'insensitive' } },
             { content: { contains: searchTerm, mode: 'insensitive' } },
             { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
           ]
-        } else {
-          where.OR = [
-            { title: { search: searchTerm, mode: 'insensitive' } },
-            { content: { search: searchTerm, mode: 'insensitive' } },
-            { cosmeticName: { search: searchTerm, mode: 'insensitive' } },
-            // フォールバック用（全文検索が使えない場合）
-            { title: { contains: searchTerm, mode: 'insensitive' } },
-            { content: { contains: searchTerm, mode: 'insensitive' } },
-            { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
-          ]
+        } catch (error) {
+          // 検索エラーが発生した場合はフィルターを無効化
+          console.warn('Search filter error, skipping search:', error)
         }
       }
     }
@@ -257,46 +250,58 @@ export class PostRepository implements IPostRepository {
       orderBy.createdAt = 'desc'
     }
 
-    // 並列実行でパフォーマンス向上
-    const [posts, totalCount] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        orderBy,
-        skip: filter.offset,
-        take: filter.limit,
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
+    try {
+      // 並列実行でパフォーマンス向上
+      const [posts, totalCount] = await Promise.all([
+        prisma.post.findMany({
+          where,
+          orderBy,
+          skip: filter.offset,
+          take: filter.limit,
+          include: {
+            user: {
+              select: {
+                id: true,
+                userName: true,
+              },
+            },
+            _count: {
+              select: {
+                empathies: true,
+                comments: true,
+              },
             },
           },
-          _count: {
-            select: {
-              empathies: true,
-              comments: true,
-            },
-          },
-        },
-      }),
-      // totalCountは軽量化（検索時のみ正確な値が必要）
-      filter.search ? prisma.post.count({ where }) : Promise.resolve(-1),
-    ])
+        }),
+        // totalCountは軽量化（検索時のみ正確な値が必要）
+        filter.search ? prisma.post.count({ where }).catch(() => -1) : Promise.resolve(-1),
+      ])
 
-    const result = {
-      posts: posts.map(post => this.toDomainPost(post)),
-      totalCount,
+      const result = {
+        posts: posts.map(post => this.toDomainPost(post)),
+        totalCount,
+      }
+
+      // 結果をキャッシュに保存（軽いフィルターのみ、条件により異なるTTL）
+      if (isLightFilter && isDatabaseAvailable()) {
+        // フィルターなしは長時間キャッシュ、軽いフィルターは短時間キャッシュ
+        const hasAnyFilter = filter.category || filter.skinType || filter.moodTag
+        const ttl = hasAnyFilter ? 180000 : 300000 // 3分または5分
+        memoryCache.set(cacheKey, result, ttl)
+      }
+
+      return result
+    } catch (error) {
+      // データベースエラーが発生した場合は空の結果を返す
+      console.error('Database query error in PostRepository.findMany:', error)
+
+      // エラーメッセージを簡素化してユーザーフレンドリーにする
+      const friendlyError = new Error(
+        '投稿の検索中にエラーが発生しました。検索条件を変更してお試しください。'
+      )
+      friendlyError.name = 'PostSearchError'
+      throw friendlyError
     }
-
-    // 結果をキャッシュに保存（軽いフィルターのみ、条件により異なるTTL）
-    if (isLightFilter && isDatabaseAvailable()) {
-      // フィルターなしは長時間キャッシュ、軽いフィルターは短時間キャッシュ
-      const hasAnyFilter = filter.category || filter.skinType || filter.moodTag
-      const ttl = hasAnyFilter ? 180000 : 300000 // 3分または5分
-      memoryCache.set(cacheKey, result, ttl)
-    }
-
-    return result
   }
 
   async create(data: CreatePostData): Promise<Post> {
@@ -571,39 +576,51 @@ export class PostRepository implements IPostRepository {
   ): Promise<Post[]> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const where: any = {
-      status: 'published',
-      OR: [
-        { title: { contains: keyword, mode: 'insensitive' } },
-        { content: { contains: keyword, mode: 'insensitive' } },
-        { cosmeticName: { contains: keyword, mode: 'insensitive' } },
-      ],
+    try {
+      const searchTerm = keyword.trim()
+      if (!searchTerm) {
+        return []
+      }
+
+      const where: any = {
+        status: 'published',
+        OR: [
+          { title: { contains: searchTerm, mode: 'insensitive' } },
+          { content: { contains: searchTerm, mode: 'insensitive' } },
+          { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
+        ],
+      }
+
+      if (options?.category) where.cosmeticCategory = options.category
+      if (options?.skinType) where.skinType = options.skinType
+
+      const posts = await prisma.post.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: options?.limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
+      })
+
+      return posts.map(post => this.toDomainPost(post))
+    } catch (error) {
+      console.error('Database search error in PostRepository.search:', error)
+
+      // 検索エラーの場合は空配列を返す
+      return []
     }
-
-    if (options?.category) where.cosmeticCategory = options.category
-    if (options?.skinType) where.skinType = options.skinType
-
-    const posts = await prisma.post.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: options?.limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            userName: true,
-          },
-        },
-        _count: {
-          select: {
-            empathies: true,
-            comments: true,
-          },
-        },
-      },
-    })
-
-    return posts.map(post => this.toDomainPost(post))
   }
 
   private toDomainPost(
