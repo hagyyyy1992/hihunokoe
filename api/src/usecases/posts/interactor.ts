@@ -236,25 +236,25 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       // userIdは削除 - 全ユーザーの投稿を取得する
     })
 
-    // 各投稿のエンパシー数とコメント数を取得
-    const postsWithCounts = await Promise.all(
-      posts.map(async post => {
-        const empathyCount = await this.empathyRepository.countByPost(post.id)
-        const commentCount = await this.commentRepository.countByPostId(post.id)
-
-        let userHasEmpathy = false
-        if (input.userId) {
-          const empathy = await this.empathyRepository.findByUserAndPost(input.userId, post.id)
-          userHasEmpathy = !!empathy
-        }
-
-        return Object.assign(post, {
-          empathyCount,
-          commentCount,
-          userHasEmpathy,
-        })
+    // ユーザーの共感状態のみを一括取得（カウントはPostRepositoryで取得済み）
+    let userEmpathies: Map<string, boolean> = new Map()
+    if (input.userId) {
+      const empathies = await this.empathyRepository.findByUserAndPosts(
+        input.userId,
+        posts.map(p => p.id)
+      )
+      empathies.forEach(empathy => {
+        userEmpathies.set(empathy.postId, true)
       })
-    )
+    }
+
+    // 各投稿にユーザーの共感状態を追加（カウントは既にPostエンティティに含まれている）
+    const postsWithCounts = posts.map(post => {
+      const userHasEmpathy = userEmpathies.get(post.id) || false
+      return Object.assign(post, {
+        userHasEmpathy,
+      })
+    })
 
     const hasNext = offset + posts.length < totalCount
 
