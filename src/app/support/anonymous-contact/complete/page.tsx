@@ -27,7 +27,7 @@ export default function AnonymousContactCompletePage() {
               <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
               <div>
                 <p className="font-medium text-blue-900">回答予定時間</p>
-                <p className="text-sm text-blue-700">通常1〜3営業日以内にご回答いたします</p>
+                <p className="text-sm text-blue-700">確認次第順次ご回答いたします</p>
               </div>
             </div>
 

@@ -111,10 +111,10 @@ export default function ContactPage() {
           <CardContent className="text-center space-y-6">
             <p className="text-muted-foreground">ログインしてお問い合わせを送信してください。</p>
             <div className="flex gap-4 justify-center">
-              <Link href="/login">
+              <Link href="/auth/login">
                 <Button>ログイン</Button>
               </Link>
-              <Link href="/register">
+              <Link href="/auth/register">
                 <Button variant="outline">新規登録</Button>
               </Link>
             </div>
