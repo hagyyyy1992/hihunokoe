@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import PostsPage from '@/app/posts/page'
+import PostsClient from '@/app/posts/PostsClient'
 import { categoryLabels } from '@/lib/constants/categories'
 import { MockedProvider } from '@apollo/client/testing'
 import { GET_POSTS } from '@/graphql/queries/post'
@@ -63,11 +63,11 @@ const mocks = [
   },
 ]
 
-describe('PostsPage', () => {
+describe('PostsClient', () => {
   test('カテゴリーフィルターが共通定数から動的に生成される', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -86,7 +86,7 @@ describe('PostsPage', () => {
   test('スキンケアカテゴリーがフィルターに含まれていない', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -100,7 +100,7 @@ describe('PostsPage', () => {
   test('各カテゴリーが正しいラベルで表示される', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -137,7 +137,7 @@ describe('PostsPage', () => {
 
     render(
       <MockedProvider mocks={mockWithFilter} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
