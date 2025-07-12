@@ -57,6 +57,7 @@ jest.mock('lucide-react', () => ({
   Menu: () => <span>Menu</span>,
   X: () => <span>X</span>,
   ClipboardList: () => <span>ClipboardList</span>,
+  MessageSquare: () => <span>MessageSquare</span>,
 }))
 
 jest.mock('next/link', () => {
@@ -223,6 +224,7 @@ describe('AdminLayout', () => {
       expect(screen.getByText('ユーザー管理')).toBeInTheDocument()
       expect(screen.getByText('投稿管理')).toBeInTheDocument()
       expect(screen.getByText('通報管理')).toBeInTheDocument()
+      expect(screen.getByText('お問い合わせ')).toBeInTheDocument()
       expect(screen.getByText('設定')).toBeInTheDocument()
     })
   })
@@ -338,5 +340,76 @@ describe('AdminLayout', () => {
       const overlay = document.querySelector('.bg-black.bg-opacity-50')
       expect(overlay).toBeInTheDocument()
     })
+  })
+
+  it('shows unread inquiries badge', async () => {
+    // Mock auth API
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: '1',
+            userName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          }),
+      } as Response)
+      // Mock unread count API
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            unreadCount: 5,
+          }),
+      } as Response)
+
+    render(
+      <AdminLayout>
+        <div>Admin Content</div>
+      </AdminLayout>
+    )
+
+    await waitFor(() => {
+      const badge = screen.getByText('5')
+      expect(badge).toBeInTheDocument()
+      expect(badge).toHaveClass('bg-red-500')
+    })
+  })
+
+  it('does not show badge when no unread inquiries', async () => {
+    // Mock auth API
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: '1',
+            userName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          }),
+      } as Response)
+      // Mock unread count API
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            unreadCount: 0,
+          }),
+      } as Response)
+
+    render(
+      <AdminLayout>
+        <div>Admin Content</div>
+      </AdminLayout>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('お問い合わせ')).toBeInTheDocument()
+    })
+
+    // バッジが表示されていないことを確認
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
   })
 })

@@ -56,6 +56,12 @@ describe('EmailServiceImpl', () => {
     })
 
     it('baseURLが指定されていない場合はデフォルトを使用する', async () => {
+      // 環境変数を一時的に保存してクリア
+      const originalApiUrl = process.env.API_URL
+      const originalNextPublicApiUrl = process.env.NEXT_PUBLIC_API_URL
+      delete process.env.API_URL
+      delete process.env.NEXT_PUBLIC_API_URL
+
       const email = 'user@example.com'
       const userName = 'テストユーザー'
       const resetToken = 'reset-token-456'
@@ -70,9 +76,19 @@ describe('EmailServiceImpl', () => {
         userName,
         'http://localhost:3000/auth/reset-password?token=reset-token-456'
       )
+
+      // 環境変数を復元
+      if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
+      if (originalNextPublicApiUrl !== undefined)
+        process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
     })
 
     it('環境変数からAPIのURLを取得する', async () => {
+      // 環境変数を一時的に保存してクリア
+      const originalApiUrl = process.env.API_URL
+      const originalNextPublicApiUrl = process.env.NEXT_PUBLIC_API_URL
+      delete process.env.NEXT_PUBLIC_API_URL
+
       process.env.API_URL = 'https://api.example.com'
 
       const email = 'user@example.com'
@@ -90,7 +106,11 @@ describe('EmailServiceImpl', () => {
         'https://api.example.com/auth/reset-password?token=reset-token-789'
       )
 
+      // 環境変数を復元
       delete process.env.API_URL
+      if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
+      if (originalNextPublicApiUrl !== undefined)
+        process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
     })
   })
 
@@ -127,6 +147,12 @@ describe('EmailServiceImpl', () => {
     })
 
     it('baseURLが指定されていない場合はデフォルトを使用する', async () => {
+      // 環境変数を一時的に保存してクリア
+      const originalApiUrl = process.env.API_URL
+      const originalNextPublicApiUrl = process.env.NEXT_PUBLIC_API_URL
+      delete process.env.API_URL
+      delete process.env.NEXT_PUBLIC_API_URL
+
       const email = 'user@example.com'
       const userName = 'テストユーザー'
       const verificationToken = 'verify-token-456'
@@ -141,9 +167,20 @@ describe('EmailServiceImpl', () => {
         userName,
         'http://localhost:3000/auth/verify-email?token=verify-token-456'
       )
+
+      // 環境変数を復元
+      if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
+      if (originalNextPublicApiUrl !== undefined)
+        process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
     })
 
-    it('NEXT_PUBLIC_API_URLを優先的に使用する', async () => {
+    it('NEXT_PUBLIC_API_URLを使用する（API_URLがない場合）', async () => {
+      // 環境変数を一時的に保存
+      const originalApiUrl = process.env.API_URL
+      const originalNextPublicApiUrl = process.env.NEXT_PUBLIC_API_URL
+
+      // API_URLをクリアして、NEXT_PUBLIC_API_URLを設定
+      delete process.env.API_URL
       process.env.NEXT_PUBLIC_API_URL = 'https://public.example.com'
 
       const email = 'user@example.com'
@@ -161,7 +198,10 @@ describe('EmailServiceImpl', () => {
         'https://public.example.com/auth/verify-email?token=verify-token-789'
       )
 
-      delete process.env.NEXT_PUBLIC_API_URL
+      // 環境変数を復元
+      if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
+      if (originalNextPublicApiUrl !== undefined)
+        process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
     })
   })
 

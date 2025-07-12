@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ClipboardList,
+  MessageSquare,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Avatar'
@@ -28,6 +29,7 @@ const navigationItems = [
   { href: '/admin/dashboard', label: 'ダッシュボード', icon: BarChart3 },
   { href: '/admin/users', label: 'ユーザー管理', icon: Users },
   { href: '/admin/posts', label: '投稿管理', icon: FileText },
+  { href: '/admin/inquiries', label: 'お問い合わせ', icon: MessageSquare },
   { href: '/admin/reports', label: '通報管理', icon: AlertTriangle },
   { href: '/admin/withdrawal-surveys', label: '退会アンケート', icon: ClipboardList },
   { href: '/admin/settings', label: '設定', icon: Settings },
@@ -37,6 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [unreadInquiries, setUnreadInquiries] = useState(0)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -72,6 +75,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     checkAuth()
   }, [router, pathname])
+
+  useEffect(() => {
+    if (!user) return
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/admin/inquiries/unread-count')
+        if (response.ok) {
+          const data = await response.json()
+          setUnreadInquiries(data.unreadCount)
+        }
+      } catch (error) {
+        console.error('Failed to fetch unread count:', error)
+      }
+    }
+
+    fetchUnreadCount()
+    const interval = setInterval(fetchUnreadCount, 60000) // 1分ごとに更新
+
+    return () => clearInterval(interval)
+  }, [user])
 
   const handleLogout = async () => {
     try {
@@ -131,6 +155,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <nav className="flex-1 overflow-y-auto mt-2 px-4 pb-4 space-y-1">
           {navigationItems.map(item => {
             const isActive = pathname === item.href
+            const showBadge = item.href === '/admin/inquiries' && unreadInquiries > 0
             return (
               <Link
                 key={item.href}
@@ -143,7 +168,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <item.icon className="mr-3 h-4 w-4 flex-shrink-0" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <span className="ml-auto bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                    {unreadInquiries}
+                  </span>
+                )}
               </Link>
             )
           })}

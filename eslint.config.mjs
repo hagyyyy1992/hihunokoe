@@ -18,9 +18,27 @@ const eslintConfig = [
   {
     plugins: {
       prettier: (await import('eslint-plugin-prettier')).default,
+      react: (await import('eslint-plugin-react')).default,
+      'jsx-a11y': (await import('eslint-plugin-jsx-a11y')).default,
     },
     rules: {
       'prettier/prettier': 'error',
+      // HTMLネスティングエラーを検知するルール
+      'react/no-unescaped-entities': 'error',
+      'jsx-a11y/no-redundant-roles': 'error',
+      // カスタムルール：無効なHTMLネスティングを警告
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXElement[name.name="p"] JSXElement[name.name="div"]',
+          message: '<div>は<p>要素の中に配置できません。ハイドレーションエラーの原因となります。',
+        },
+        {
+          selector: 'JSXElement[name.name="select"] JSXElement[name.name="button"]',
+          message:
+            '<button>は<select>要素の中に配置できません。ハイドレーションエラーの原因となります。',
+        },
+      ],
     },
   },
 ]

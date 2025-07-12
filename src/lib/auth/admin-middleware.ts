@@ -70,3 +70,46 @@ export function requireSuperAdmin<T = Record<string, string>>(
     return handler(adminReq, { params })
   }
 }
+
+export async function checkAdminAuth(request: NextRequest): Promise<{
+  isAuthenticated: boolean
+  admin: AuthUser | null
+}> {
+  const token =
+    request.headers.get('authorization')?.replace('Bearer ', '') ||
+    request.cookies.get('admin-auth-token')?.value
+
+  console.log('checkAdminAuth: token found:', !!token)
+
+  if (!token) {
+    console.log('checkAdminAuth: no token found')
+    return { isAuthenticated: false, admin: null }
+  }
+
+  try {
+    const user = verifyToken(token)
+    console.log('checkAdminAuth: user from token:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userRole: user?.role,
+    })
+
+    if (!user) {
+      console.log('checkAdminAuth: invalid token')
+      return { isAuthenticated: false, admin: null }
+    }
+
+    const adminStatus = isAdmin(user)
+    console.log('checkAdminAuth: isAdmin result:', adminStatus)
+
+    if (!adminStatus) {
+      console.log('checkAdminAuth: user is not admin')
+      return { isAuthenticated: false, admin: null }
+    }
+
+    return { isAuthenticated: true, admin: user }
+  } catch (error) {
+    console.error('checkAdminAuth: error verifying token:', error)
+    return { isAuthenticated: false, admin: null }
+  }
+}

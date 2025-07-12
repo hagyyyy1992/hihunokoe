@@ -32,6 +32,11 @@ const checks = [
     critical: false,
   },
   {
+    name: 'HTMLネスティングチェック',
+    command: 'node scripts/check-html-nesting.js',
+    critical: true, // ハイドレーションエラーを防ぐため重要
+  },
+  {
     name: 'ESLint',
     command: 'npm run lint',
     critical: true,
