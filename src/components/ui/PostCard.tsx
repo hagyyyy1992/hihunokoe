@@ -1,3 +1,4 @@
+import React, { memo, useMemo } from 'react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -57,7 +58,7 @@ const moodTagColors: Record<string, string> = {
   perfect: 'bg-purple-100 text-purple-700',
 }
 
-export default function PostCard({ post }: PostCardProps) {
+function PostCard({ post }: PostCardProps) {
   // const { user } = useAuth()
   // const [empathyState, setEmpathyState] = useState<{
   //   hasEmpathized: boolean
@@ -93,8 +94,19 @@ export default function PostCard({ post }: PostCardProps) {
   //   }
   // }, [user, post.id, fetchEmpathyState])
 
-  const truncatedContent =
-    post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content
+  const truncatedContent = useMemo(
+    () => (post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content),
+    [post.content]
+  )
+
+  const formattedDate = useMemo(
+    () =>
+      formatDistanceToNow(new Date(post.publishedAt), {
+        addSuffix: true,
+        locale: ja,
+      }),
+    [post.publishedAt]
+  )
 
   return (
     <div
@@ -155,12 +167,7 @@ export default function PostCard({ post }: PostCardProps) {
             )}
           </div>
           <span className="hidden sm:inline">•</span>
-          <span className="text-xs">
-            {formatDistanceToNow(new Date(post.publishedAt), {
-              addSuffix: true,
-              locale: ja,
-            })}
-          </span>
+          <span className="text-xs">{formattedDate}</span>
         </div>
 
         <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm text-gray-500">
@@ -191,3 +198,5 @@ export default function PostCard({ post }: PostCardProps) {
     </div>
   )
 }
+
+export default memo(PostCard)

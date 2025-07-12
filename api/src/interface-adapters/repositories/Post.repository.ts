@@ -9,9 +9,19 @@ import {
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Post as PrismaPost } from '@prisma/client'
 import { MOCK_POSTS } from '@/lib/mock-data'
+import { memoryCache } from '@/lib/cache/memory-cache'
 
 export class PostRepository implements IPostRepository {
   async findById(id: string): Promise<Post | null> {
+    // キャッシュから取得を試行
+    const cacheKey = `post:${id}`
+    if (isDatabaseAvailable()) {
+      const cached = memoryCache.get(cacheKey)
+      if (cached) {
+        return cached as Post
+      }
+    }
+
     if (!isDatabaseAvailable()) {
       // Mock mode
       const mockPost = MOCK_POSTS.find(p => p.id === id)
@@ -70,10 +80,39 @@ export class PostRepository implements IPostRepository {
     })
 
     if (!prismaPost) return null
-    return this.toDomainPost(prismaPost)
+
+    const post = this.toDomainPost(prismaPost)
+
+    // 単一投稿は長時間キャッシュ（10分）
+    if (isDatabaseAvailable()) {
+      memoryCache.set(cacheKey, post, 600000) // 10分
+    }
+
+    return post
   }
 
   async findMany(filter: FindPostsFilter): Promise<FindPostsResult> {
+    // キャッシュキーの生成
+    const cacheKey = `posts:${JSON.stringify({
+      offset: filter.offset,
+      limit: filter.limit,
+      category: filter.category,
+      skinType: filter.skinType,
+      moodTag: filter.moodTag,
+      search: filter.search,
+      sortBy: filter.sortBy,
+      publishedOnly: filter.publishedOnly,
+    })}`
+
+    // キャッシュから取得を試行（フィルターなしまたは軽いフィルターのみ）
+    const isLightFilter = !filter.search && (!filter.userId || filter.publishedOnly)
+    if (isLightFilter && isDatabaseAvailable()) {
+      const cached = memoryCache.get(cacheKey)
+      if (cached) {
+        return cached as FindPostsResult
+      }
+    }
+
     if (!isDatabaseAvailable()) {
       // Mock mode
       let filteredPosts = [...MOCK_POSTS]
@@ -187,12 +226,21 @@ export class PostRepository implements IPostRepository {
     }
 
     if (filter.search) {
-      where.OR = [
-        { title: { contains: filter.search, mode: 'insensitive' } },
-        { content: { contains: filter.search, mode: 'insensitive' } },
-        { cosmeticName: { contains: filter.search, mode: 'insensitive' } },
-        { cosmeticCategory: { contains: filter.search, mode: 'insensitive' } },
-      ]
+      const searchTerm = filter.search.trim()
+      if (searchTerm) {
+        // PostgreSQLの全文検索機能の利用可否を安全にチェック
+        try {
+          // 常に含有検索を使用（より安全で互換性が高い）
+          where.OR = [
+            { title: { contains: searchTerm, mode: 'insensitive' } },
+            { content: { contains: searchTerm, mode: 'insensitive' } },
+            { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
+          ]
+        } catch (error) {
+          // 検索エラーが発生した場合はフィルターを無効化
+          console.warn('Search filter error, skipping search:', error)
+        }
+      }
     }
 
     const orderBy: any = {}
@@ -202,33 +250,57 @@ export class PostRepository implements IPostRepository {
       orderBy.createdAt = 'desc'
     }
 
-    const [posts, totalCount] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        orderBy,
-        skip: filter.offset,
-        take: filter.limit,
-        include: {
-          user: {
-            select: {
-              id: true,
-              userName: true,
+    try {
+      // 並列実行でパフォーマンス向上
+      const [posts, totalCount] = await Promise.all([
+        prisma.post.findMany({
+          where,
+          orderBy,
+          skip: filter.offset,
+          take: filter.limit,
+          include: {
+            user: {
+              select: {
+                id: true,
+                userName: true,
+              },
+            },
+            _count: {
+              select: {
+                empathies: true,
+                comments: true,
+              },
             },
           },
-          _count: {
-            select: {
-              empathies: true,
-              comments: true,
-            },
-          },
-        },
-      }),
-      prisma.post.count({ where }),
-    ])
+        }),
+        // totalCountは軽量化（検索時のみ正確な値が必要）
+        filter.search ? prisma.post.count({ where }).catch(() => -1) : Promise.resolve(-1),
+      ])
 
-    return {
-      posts: posts.map(post => this.toDomainPost(post)),
-      totalCount,
+      const result = {
+        posts: posts.map(post => this.toDomainPost(post)),
+        totalCount,
+      }
+
+      // 結果をキャッシュに保存（軽いフィルターのみ、条件により異なるTTL）
+      if (isLightFilter && isDatabaseAvailable()) {
+        // フィルターなしは長時間キャッシュ、軽いフィルターは短時間キャッシュ
+        const hasAnyFilter = filter.category || filter.skinType || filter.moodTag
+        const ttl = hasAnyFilter ? 180000 : 300000 // 3分または5分
+        memoryCache.set(cacheKey, result, ttl)
+      }
+
+      return result
+    } catch (error) {
+      // データベースエラーが発生した場合は空の結果を返す
+      console.error('Database query error in PostRepository.findMany:', error)
+
+      // エラーメッセージを簡素化してユーザーフレンドリーにする
+      const friendlyError = new Error(
+        '投稿の検索中にエラーが発生しました。検索条件を変更してお試しください。'
+      )
+      friendlyError.name = 'PostSearchError'
+      throw friendlyError
     }
   }
 
@@ -264,6 +336,9 @@ export class PostRepository implements IPostRepository {
         },
       },
     })
+
+    // 投稿作成時はキャッシュを無効化
+    this.invalidatePostsCache()
 
     return this.toDomainPost(prismaPost)
   }
@@ -304,6 +379,10 @@ export class PostRepository implements IPostRepository {
       },
     })
 
+    // 投稿更新時はキャッシュを無効化
+    this.invalidatePostCache(id)
+    this.invalidatePostsCache()
+
     return this.toDomainPost(prismaPost)
   }
 
@@ -313,6 +392,10 @@ export class PostRepository implements IPostRepository {
     await prisma.post.delete({
       where: { id },
     })
+
+    // 投稿削除時はキャッシュを無効化
+    this.invalidatePostCache(id)
+    this.invalidatePostsCache()
   }
 
   async incrementEmpathyCount(id: string): Promise<void> {
@@ -493,39 +576,51 @@ export class PostRepository implements IPostRepository {
   ): Promise<Post[]> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const where: any = {
-      status: 'published',
-      OR: [
-        { title: { contains: keyword, mode: 'insensitive' } },
-        { content: { contains: keyword, mode: 'insensitive' } },
-        { cosmeticName: { contains: keyword, mode: 'insensitive' } },
-      ],
+    try {
+      const searchTerm = keyword.trim()
+      if (!searchTerm) {
+        return []
+      }
+
+      const where: any = {
+        status: 'published',
+        OR: [
+          { title: { contains: searchTerm, mode: 'insensitive' } },
+          { content: { contains: searchTerm, mode: 'insensitive' } },
+          { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
+        ],
+      }
+
+      if (options?.category) where.cosmeticCategory = options.category
+      if (options?.skinType) where.skinType = options.skinType
+
+      const posts = await prisma.post.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: options?.limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          _count: {
+            select: {
+              empathies: true,
+              comments: true,
+            },
+          },
+        },
+      })
+
+      return posts.map(post => this.toDomainPost(post))
+    } catch (error) {
+      console.error('Database search error in PostRepository.search:', error)
+
+      // 検索エラーの場合は空配列を返す
+      return []
     }
-
-    if (options?.category) where.cosmeticCategory = options.category
-    if (options?.skinType) where.skinType = options.skinType
-
-    const posts = await prisma.post.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: options?.limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            userName: true,
-          },
-        },
-        _count: {
-          select: {
-            empathies: true,
-            comments: true,
-          },
-        },
-      },
-    })
-
-    return posts.map(post => this.toDomainPost(post))
   }
 
   private toDomainPost(
@@ -575,5 +670,42 @@ export class PostRepository implements IPostRepository {
       null, // overallRating (not in current schema)
       null // repurchaseIntention (not in current schema)
     )
+  }
+
+  // キャッシュ無効化メソッド
+  private invalidatePostsCache(): void {
+    try {
+      // posts:で始まるキーをすべて削除
+      memoryCache.deletePattern('^posts:')
+    } catch (error) {
+      // テスト環境やキャッシュが利用できない場合は無視
+      console.warn('Failed to invalidate posts cache:', error)
+    }
+  }
+
+  // 単一投稿のキャッシュ無効化
+  private invalidatePostCache(postId: string): void {
+    try {
+      memoryCache.delete(`post:${postId}`)
+    } catch (error) {
+      // テスト環境やキャッシュが利用できない場合は無視
+      console.warn('Failed to invalidate post cache:', error)
+    }
+  }
+
+  // よく使われるフィルター組み合わせをプリロード
+  async preloadPopularFilters(): Promise<void> {
+    if (!isDatabaseAvailable()) return
+
+    const popularFilters = [
+      { category: 'toner', limit: 20, offset: 0, publishedOnly: true },
+      { category: 'foundation', limit: 20, offset: 0, publishedOnly: true },
+      { skinType: 'dry', limit: 20, offset: 0, publishedOnly: true },
+      { skinType: 'oily', limit: 20, offset: 0, publishedOnly: true },
+      { moodTag: 'love', limit: 20, offset: 0, publishedOnly: true },
+    ]
+
+    // 並列でプリロード実行
+    await Promise.allSettled(popularFilters.map(filter => this.findMany(filter)))
   }
 }

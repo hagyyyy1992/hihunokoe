@@ -36,7 +36,10 @@ export class CommentRepository implements ICommentRepository {
     return this.toDomainComment(prismaComment)
   }
 
-  async findByPostId(postId: string): Promise<Comment[]> {
+  async findByPostId(
+    postId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<Comment[]> {
     if (!prisma) throw new Error('Database connection not available')
 
     const prismaComments = await prisma.comment.findMany({
@@ -45,6 +48,8 @@ export class CommentRepository implements ICommentRepository {
         isActive: true,
       },
       orderBy: { createdAt: 'asc' },
+      skip: options?.offset,
+      take: options?.limit,
     })
 
     return prismaComments.map(comment => this.toDomainComment(comment))

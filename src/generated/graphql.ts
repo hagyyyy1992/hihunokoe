@@ -43,6 +43,19 @@ export type Comment = {
   userId: Scalars['String']['output']
 }
 
+export type CommentConnection = {
+  __typename?: 'CommentConnection'
+  edges: Array<CommentEdge>
+  pageInfo: PageInfo
+  totalCount: Scalars['Int']['output']
+}
+
+export type CommentEdge = {
+  __typename?: 'CommentEdge'
+  cursor: Scalars['String']['output']
+  node: Comment
+}
+
 export type CreatePostInput = {
   content: Scalars['String']['input']
   cosmeticCategory?: InputMaybe<Scalars['String']['input']>
@@ -63,6 +76,19 @@ export type Empathy = {
   postId: Scalars['String']['output']
   user: User
   userId: Scalars['String']['output']
+}
+
+export type EmpathyConnection = {
+  __typename?: 'EmpathyConnection'
+  edges: Array<EmpathyEdge>
+  pageInfo: PageInfo
+  totalCount: Scalars['Int']['output']
+}
+
+export type EmpathyEdge = {
+  __typename?: 'EmpathyEdge'
+  cursor: Scalars['String']['output']
+  node: Empathy
 }
 
 export type Mutation = {
@@ -123,6 +149,7 @@ export type PageInfo = {
 
 export type Post = {
   __typename?: 'Post'
+  commentCount: Scalars['Int']['output']
   comments: Array<Comment>
   content: Scalars['String']['output']
   cosmeticCategory: Maybe<Scalars['String']['output']>
@@ -174,12 +201,26 @@ export type Query = {
   __typename?: 'Query'
   currentUser: Maybe<User>
   post: Maybe<Post>
+  postComments: CommentConnection
+  postEmpathies: EmpathyConnection
   posts: PostConnection
   user: Maybe<User>
 }
 
 export type QueryPostArgs = {
   id: Scalars['ID']['input']
+}
+
+export type QueryPostCommentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  postId: Scalars['ID']['input']
+}
+
+export type QueryPostEmpathiesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  postId: Scalars['ID']['input']
 }
 
 export type QueryPostsArgs = {
@@ -312,9 +353,17 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>
   Comment: ResolverTypeWrapper<PrismaComment>
+  CommentConnection: ResolverTypeWrapper<
+    Omit<CommentConnection, 'edges'> & { edges: Array<ResolversTypes['CommentEdge']> }
+  >
+  CommentEdge: ResolverTypeWrapper<Omit<CommentEdge, 'node'> & { node: ResolversTypes['Comment'] }>
   CreatePostInput: CreatePostInput
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>
   Empathy: ResolverTypeWrapper<PrismaEmpathy>
+  EmpathyConnection: ResolverTypeWrapper<
+    Omit<EmpathyConnection, 'edges'> & { edges: Array<ResolversTypes['EmpathyEdge']> }
+  >
+  EmpathyEdge: ResolverTypeWrapper<Omit<EmpathyEdge, 'node'> & { node: ResolversTypes['Empathy'] }>
   ID: ResolverTypeWrapper<Scalars['ID']['output']>
   Int: ResolverTypeWrapper<Scalars['Int']['output']>
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>
@@ -337,9 +386,17 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output']
   Comment: PrismaComment
+  CommentConnection: Omit<CommentConnection, 'edges'> & {
+    edges: Array<ResolversParentTypes['CommentEdge']>
+  }
+  CommentEdge: Omit<CommentEdge, 'node'> & { node: ResolversParentTypes['Comment'] }
   CreatePostInput: CreatePostInput
   DateTime: Scalars['DateTime']['output']
   Empathy: PrismaEmpathy
+  EmpathyConnection: Omit<EmpathyConnection, 'edges'> & {
+    edges: Array<ResolversParentTypes['EmpathyEdge']>
+  }
+  EmpathyEdge: Omit<EmpathyEdge, 'node'> & { node: ResolversParentTypes['Empathy'] }
   ID: Scalars['ID']['output']
   Int: Scalars['Int']['output']
   JSON: Scalars['JSON']['output']
@@ -370,6 +427,26 @@ export type CommentResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
+export type CommentConnectionResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends
+    ResolversParentTypes['CommentConnection'] = ResolversParentTypes['CommentConnection'],
+> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['CommentEdge']>, ParentType, ContextType>
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
+export type CommentEdgeResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['CommentEdge'] = ResolversParentTypes['CommentEdge'],
+> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  node?: Resolver<ResolversTypes['Comment'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
 export interface DateTimeScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime'
@@ -386,6 +463,26 @@ export type EmpathyResolvers<
   postId?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
+export type EmpathyConnectionResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends
+    ResolversParentTypes['EmpathyConnection'] = ResolversParentTypes['EmpathyConnection'],
+> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['EmpathyEdge']>, ParentType, ContextType>
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
+export type EmpathyEdgeResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['EmpathyEdge'] = ResolversParentTypes['EmpathyEdge'],
+> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  node?: Resolver<ResolversTypes['Empathy'], ParentType, ContextType>
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
@@ -462,6 +559,7 @@ export type PostResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post'],
 > = ResolversObject<{
+  commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
   comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   cosmeticCategory?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
@@ -515,6 +613,18 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryPostArgs, 'id'>
   >
+  postComments?: Resolver<
+    ResolversTypes['CommentConnection'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryPostCommentsArgs, 'postId'>
+  >
+  postEmpathies?: Resolver<
+    ResolversTypes['EmpathyConnection'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryPostEmpathiesArgs, 'postId'>
+  >
   posts?: Resolver<
     ResolversTypes['PostConnection'],
     ParentType,
@@ -550,8 +660,12 @@ export type UserResolvers<
 
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Comment?: CommentResolvers<ContextType>
+  CommentConnection?: CommentConnectionResolvers<ContextType>
+  CommentEdge?: CommentEdgeResolvers<ContextType>
   DateTime?: GraphQLScalarType
   Empathy?: EmpathyResolvers<ContextType>
+  EmpathyConnection?: EmpathyConnectionResolvers<ContextType>
+  EmpathyEdge?: EmpathyEdgeResolvers<ContextType>
   JSON?: GraphQLScalarType
   Mutation?: MutationResolvers<ContextType>
   PageInfo?: PageInfoResolvers<ContextType>

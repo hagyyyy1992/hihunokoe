@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import PostsPage from '@/app/posts/page'
+import PostsClient from '@/app/posts/PostsClient'
 import { categoryLabels } from '@/lib/constants/categories'
 import { MockedProvider } from '@apollo/client/testing'
 import { GET_POSTS } from '@/graphql/queries/post'
@@ -30,13 +30,13 @@ const mockPosts = {
             moodTag: null,
             viewCount: 10,
             empathyCount: 5,
+            commentCount: 3,
             createdAt: new Date().toISOString(),
             user: {
               id: '1',
               displayName: 'testuser',
               profileImageUrl: null,
             },
-            empathies: [],
           },
         },
       ],
@@ -54,7 +54,7 @@ const mocks = [
     request: {
       query: GET_POSTS,
       variables: {
-        first: 10,
+        first: 50,
         filter: {},
         orderBy: 'CREATED_AT_DESC',
       },
@@ -63,11 +63,11 @@ const mocks = [
   },
 ]
 
-describe('PostsPage', () => {
+describe('PostsClient', () => {
   test('カテゴリーフィルターが共通定数から動的に生成される', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -86,7 +86,7 @@ describe('PostsPage', () => {
   test('スキンケアカテゴリーがフィルターに含まれていない', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -100,7 +100,7 @@ describe('PostsPage', () => {
   test('各カテゴリーが正しいラベルで表示される', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 
@@ -126,7 +126,7 @@ describe('PostsPage', () => {
         request: {
           query: GET_POSTS,
           variables: {
-            first: 10,
+            first: 50,
             filter: { cosmeticCategory: 'toner' },
             orderBy: 'CREATED_AT_DESC',
           },
@@ -137,7 +137,7 @@ describe('PostsPage', () => {
 
     render(
       <MockedProvider mocks={mockWithFilter} addTypename={false}>
-        <PostsPage />
+        <PostsClient />
       </MockedProvider>
     )
 

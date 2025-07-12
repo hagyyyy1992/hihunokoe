@@ -34,6 +34,7 @@ export const typeDefs = gql`
     status: String!
     viewCount: Int!
     empathyCount: Int!
+    commentCount: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
     publishedAt: DateTime
@@ -81,6 +82,28 @@ export const typeDefs = gql`
     endCursor: String
   }
 
+  type CommentConnection {
+    edges: [CommentEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  type CommentEdge {
+    node: Comment!
+    cursor: String!
+  }
+
+  type EmpathyConnection {
+    edges: [EmpathyEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  type EmpathyEdge {
+    node: Empathy!
+    cursor: String!
+  }
+
   input CreatePostInput {
     title: String!
     content: String!
@@ -122,6 +145,11 @@ export const typeDefs = gql`
       filter: PostFilterInput
       orderBy: PostOrderBy
     ): PostConnection!
+
+    # Paginated post comments and empathies
+    postComments(postId: ID!, first: Int, after: String): CommentConnection!
+
+    postEmpathies(postId: ID!, first: Int, after: String): EmpathyConnection!
 
     # User queries
     user(id: ID!): User

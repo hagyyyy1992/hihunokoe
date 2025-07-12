@@ -33,6 +33,22 @@ export const postResolvers = {
     ) {
       return postController.getPosts({ first, after, filter, orderBy }, context)
     },
+
+    async postComments(
+      _: unknown,
+      { postId, first, after }: { postId: string; first?: number; after?: string },
+      context: GraphQLContext
+    ) {
+      return postController.getPostComments({ postId, first, after }, context)
+    },
+
+    async postEmpathies(
+      _: unknown,
+      { postId, first, after }: { postId: string; first?: number; after?: string },
+      context: GraphQLContext
+    ) {
+      return postController.getPostEmpathies({ postId, first, after }, context)
+    },
   },
 
   Mutation: {

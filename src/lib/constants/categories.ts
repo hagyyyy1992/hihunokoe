@@ -14,6 +14,24 @@ export const categoryLabels: Record<string, string> = {
   other: 'その他',
 }
 
+// 肌タイプの日本語ラベル
+export const skinTypeLabels: Record<string, string> = {
+  normal: '普通肌',
+  dry: '乾燥肌',
+  oily: '脂性肌',
+  combination: '混合肌',
+  sensitive: '敏感肌',
+}
+
+// 感想タグの日本語ラベル
+export const moodTagLabels: Record<string, string> = {
+  disappointed: 'ちょっと残念',
+  okay: 'まあまあ',
+  good: '良かった',
+  love: 'また使いたい',
+  perfect: '完璧',
+}
+
 // スキンケアカテゴリの定義
 export const skincareCategories = [
   'skincare',

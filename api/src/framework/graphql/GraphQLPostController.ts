@@ -16,17 +16,19 @@ import { GraphQLContext } from '@/graphql/context'
 export class GraphQLPostController {
   private postRetrievalUseCase: PostRetrievalUseCase
   private postManagementUseCase: PostManagementUseCase
+  private commentRepository: CommentRepository
+  private empathyRepository: EmpathyRepository
 
   constructor() {
     const postRepository = new PostRepository()
     const userRepository = new UserRepository()
-    const empathyRepository = new EmpathyRepository()
-    const commentRepository = new CommentRepository()
+    this.empathyRepository = new EmpathyRepository()
+    this.commentRepository = new CommentRepository()
 
     this.postRetrievalUseCase = new PostRetrievalUseCase(
       postRepository,
-      empathyRepository,
-      commentRepository
+      this.empathyRepository,
+      this.commentRepository
     )
     this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
   }
@@ -41,7 +43,8 @@ export class GraphQLPostController {
       const { post } = await this.postRetrievalUseCase.getPost(input)
       return post
     } catch (error) {
-      throw new Error((error as Error).message)
+      console.error('Error in GraphQLPostController.getPost:', error)
+      throw new Error('投稿の取得中にエラーが発生しました。')
     }
   }
 
@@ -99,7 +102,15 @@ export class GraphQLPostController {
         totalCount: total,
       }
     } catch (error) {
-      throw new Error((error as Error).message)
+      console.error('Error in GraphQLPostController.getPosts:', error)
+
+      // 検索エラーの場合は特別なメッセージ
+      if (args.filter?.search && (error as Error).name === 'PostSearchError') {
+        throw new Error('検索中にエラーが発生しました。検索条件を変更してお試しください。')
+      }
+
+      // その他のエラーはユーザーフレンドリーなメッセージ
+      throw new Error('投稿の取得中にエラーが発生しました。しばらく待ってから再度お試しください。')
     }
   }
 
@@ -202,6 +213,74 @@ export class GraphQLPostController {
       return { success: true }
     } catch (error) {
       throw new Error((error as Error).message)
+    }
+  }
+
+  async getPostComments(
+    args: { postId: string; first?: number; after?: string },
+    context: GraphQLContext
+  ) {
+    try {
+      const limit = args.first || 10
+      const offset = args.after ? parseInt(args.after) : 0
+
+      const comments = await this.commentRepository.findByPostId(args.postId, {
+        limit,
+        offset,
+      })
+
+      const edges = comments.map((comment, index) => ({
+        cursor: (offset + index + 1).toString(),
+        node: comment,
+      }))
+
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage: comments.length === limit,
+          hasPreviousPage: offset > 0,
+          startCursor: edges[0]?.cursor,
+          endCursor: edges[edges.length - 1]?.cursor,
+        },
+        totalCount: comments.length, // TODO: 正確な総数を取得する場合は別途カウントクエリ
+      }
+    } catch (error) {
+      console.error('Error in GraphQLPostController.getPostComments:', error)
+      throw new Error('コメントの取得中にエラーが発生しました。')
+    }
+  }
+
+  async getPostEmpathies(
+    args: { postId: string; first?: number; after?: string },
+    context: GraphQLContext
+  ) {
+    try {
+      const limit = args.first || 10
+      const offset = args.after ? parseInt(args.after) : 0
+
+      const empathies = await this.empathyRepository.findByPostId(args.postId, {
+        limit,
+        offset,
+      })
+
+      const edges = empathies.map((empathy, index) => ({
+        cursor: (offset + index + 1).toString(),
+        node: empathy,
+      }))
+
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage: empathies.length === limit,
+          hasPreviousPage: offset > 0,
+          startCursor: edges[0]?.cursor,
+          endCursor: edges[edges.length - 1]?.cursor,
+        },
+        totalCount: empathies.length, // TODO: 正確な総数を取得する場合は別途カウントクエリ
+      }
+    } catch (error) {
+      console.error('Error in GraphQLPostController.getPostEmpathies:', error)
+      throw new Error('共感の取得中にエラーが発生しました。')
     }
   }
 }
