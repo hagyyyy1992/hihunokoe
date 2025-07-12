@@ -172,7 +172,7 @@ describe('AdminLoginPage', () => {
     // Fill in form fields first
     const emailInput = screen.getByLabelText('メールアドレス')
     const passwordInput = screen.getByLabelText('パスワード')
-    
+
     fireEvent.change(emailInput, { target: { value: 'admin@example.com' } })
     fireEvent.change(passwordInput, { target: { value: 'admin123' } })
 
