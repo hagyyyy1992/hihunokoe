@@ -138,15 +138,94 @@ export class AuthHelper {
     },
     expectSuccess: boolean = true
   ) {
-    await this.page.goto('/auth/register')
-
-    // Wait for form to be loaded
-    // Mobile Safariは読み込みが遅いため、タイムアウトを増やす
+    // Mobile Safari判定を最初に実行
     const userAgent = await this.page.evaluate(() => navigator.userAgent)
     const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
-    await this.page.waitForSelector('[data-testid="register-form"]', {
-      timeout: isMobileSafari ? 20000 : 10000,
-    })
+    console.log(`Mobile Safari detected: ${isMobileSafari}`)
+
+    // 開発サーバーの可用性を事前確認
+    try {
+      const response = await this.page.goto('/auth/register', {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      })
+
+      if (!response || response.status() !== 200) {
+        throw new Error(`Failed to load register page. Status: ${response?.status()}`)
+      }
+      console.log('Successfully navigated to register page')
+    } catch (error) {
+      console.log('Failed to navigate to register page:', error)
+      throw error
+    }
+
+    // Mobile Safariに特化した段階的な待機戦略
+    if (isMobileSafari) {
+      console.log('Applying Mobile Safari-specific wait strategy...')
+
+      // ステップ1: ネットワーク待機（長めのタイムアウト）
+      await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+      console.log('Network idle state reached')
+
+      // ステップ2: DOM安定化待機
+      await this.page.waitForTimeout(2000)
+
+      // ステップ3: Reactハイドレーション待機
+      await this.page.waitForTimeout(4000)
+      console.log('React hydration wait completed')
+
+      // ステップ4: 段階的要素確認
+      let formFound = false
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        console.log(`Checking for form elements (attempt ${attempt}/5)...`)
+
+        const formExists = await this.page.locator('[data-testid="register-form"]').count()
+        if (formExists > 0) {
+          formFound = true
+          console.log('Register form found!')
+          break
+        }
+
+        if (attempt < 5) {
+          console.log('Form not found yet, waiting 2 more seconds...')
+          await this.page.waitForTimeout(2000)
+        }
+      }
+
+      if (!formFound) {
+        console.log('Form still not found after 5 attempts, taking debug screenshot...')
+        await this.page.screenshot({ path: `debug-mobile-safari-${Date.now()}.png` })
+        throw new Error('Register form not found after multiple attempts on Mobile Safari')
+      }
+    } else {
+      // 標準ブラウザ向けの待機戦略
+      console.log('Applying standard browser wait strategy...')
+      await this.page.waitForLoadState('networkidle', { timeout: 15000 })
+      await this.page.waitForTimeout(3000)
+    }
+
+    // より確実な要素の待機とエラーハンドリング
+    try {
+      await this.page.waitForSelector('[data-testid="register-form"]', {
+        timeout: isMobileSafari ? 30000 : 20000,
+        state: 'visible',
+      })
+      console.log('Register form found and visible')
+    } catch (error) {
+      console.log('Register form not found, checking page state...')
+      const currentUrl = this.page.url()
+      const pageTitle = await this.page.title()
+      const bodyContent = await this.page.textContent('body')
+      console.log(`Current URL: ${currentUrl}`)
+      console.log(`Page title: ${pageTitle}`)
+      console.log(`Body content preview: ${bodyContent?.substring(0, 200)}`)
+
+      // Take a screenshot for debugging
+      await this.page.screenshot({ path: `debug-register-${Date.now()}.png` })
+      console.log('Debug screenshot saved')
+
+      throw error
+    }
 
     // Fill form fields
     await this.page.getByLabel('ユーザー名 *').fill(userData.username)
@@ -171,20 +250,73 @@ export class AuthHelper {
   }
 
   async login(email: string, password: string, expectSuccess: boolean = true) {
-    await this.page.goto('/auth/login')
-
-    // Mobile Safariは読み込みが遅いため、フォームが表示されるまで待つ
+    // Mobile Safari判定を最初に実行
     const userAgent = await this.page.evaluate(() => navigator.userAgent)
     const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+    console.log(`Login - Mobile Safari detected: ${isMobileSafari}`)
 
+    await this.page.goto('/auth/login')
+
+    // Mobile Safariに特化した段階的な待機戦略
     if (isMobileSafari) {
-      // フォームが確実に表示されるまで待つ
+      console.log('Applying Mobile Safari-specific login wait strategy...')
+
+      // ステップ1: ネットワーク待機（長めのタイムアウト）
+      await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+      console.log('Login page - Network idle state reached')
+
+      // ステップ2: DOM安定化待機
+      await this.page.waitForTimeout(2000)
+
+      // ステップ3: Reactハイドレーション待機
+      await this.page.waitForTimeout(4000)
+      console.log('Login page - React hydration wait completed')
+
+      // ステップ4: 段階的要素確認
+      let loginFormFound = false
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        console.log(`Checking for login form (attempt ${attempt}/5)...`)
+
+        const formExists = await this.page.locator('[data-testid="login-form"]').count()
+        if (formExists > 0) {
+          loginFormFound = true
+          console.log('Login form found!')
+          break
+        }
+
+        if (attempt < 5) {
+          console.log('Login form not found yet, waiting 2 more seconds...')
+          await this.page.waitForTimeout(2000)
+        }
+      }
+
+      if (!loginFormFound) {
+        console.log('Login form still not found after 5 attempts, taking debug screenshot...')
+        await this.page.screenshot({ path: `debug-login-mobile-safari-${Date.now()}.png` })
+        throw new Error('Login form not found after multiple attempts on Mobile Safari')
+      }
+    } else {
+      // 標準ブラウザ向けの待機戦略
+      console.log('Applying standard browser login wait strategy...')
+      await this.page.waitForLoadState('networkidle', { timeout: 15000 })
+      await this.page.waitForTimeout(3000)
+    }
+
+    // より確実な要素の待機
+    try {
       await this.page.waitForSelector('[data-testid="login-form"]', {
-        timeout: 20000,
+        timeout: isMobileSafari ? 30000 : 20000,
         state: 'visible',
       })
-      // 追加の待機時間
-      await this.page.waitForTimeout(1000)
+      console.log('Login form found and visible')
+    } catch (error) {
+      console.log('Login form not found, checking page state...')
+      const currentUrl = this.page.url()
+      const pageTitle = await this.page.title()
+      console.log(`Current URL: ${currentUrl}`)
+      console.log(`Page title: ${pageTitle}`)
+      await this.page.screenshot({ path: `debug-login-${Date.now()}.png` })
+      throw error
     }
 
     // Fill login form
@@ -305,8 +437,65 @@ export class AuthHelper {
       const isE2EMode = currentUrl.includes('e2e=true')
       console.log(`E2E mode: ${isE2EMode}`)
 
-      // ページが完全に読み込まれるまで待機
-      await this.page.waitForLoadState('networkidle', { timeout: 10000 })
+      // Mobile Safari判定
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+      console.log(`Terms page - Mobile Safari detected: ${isMobileSafari}`)
+
+      // Suspenseコンポーネントを含むページの段階的読み込み待機
+      if (isMobileSafari) {
+        console.log('Applying Mobile Safari-specific terms page wait strategy...')
+
+        // ステップ1: ネットワーク待機（長めのタイムアウト）
+        await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+        console.log('Terms page - Network idle state reached')
+
+        // ステップ2: Suspense fallback解除待機
+        await this.page.waitForTimeout(2000)
+
+        // ステップ3: Reactハイドレーション＋Suspense解決待機
+        await this.page.waitForTimeout(4000)
+        console.log('Terms page - Suspense resolution wait completed')
+
+        // ステップ4: チェックボックス要素の段階的確認
+        let checkboxesFound = false
+        for (let attempt = 1; attempt <= 8; attempt++) {
+          console.log(`Checking for checkboxes (attempt ${attempt}/8)...`)
+
+          const termsCheckbox = await this.page
+            .locator('[data-testid="agree-terms-checkbox"]')
+            .count()
+          const privacyCheckbox = await this.page
+            .locator('[data-testid="agree-privacy-checkbox"]')
+            .count()
+
+          if (termsCheckbox > 0 && privacyCheckbox > 0) {
+            checkboxesFound = true
+            console.log('Both checkboxes found!')
+            break
+          }
+
+          if (attempt < 8) {
+            console.log(
+              `Checkboxes not found yet (terms: ${termsCheckbox}, privacy: ${privacyCheckbox}), waiting 2 more seconds...`
+            )
+            await this.page.waitForTimeout(2000)
+          }
+        }
+
+        if (!checkboxesFound) {
+          console.log('Checkboxes still not found after 8 attempts, taking debug screenshot...')
+          await this.page.screenshot({ path: `debug-terms-mobile-safari-${Date.now()}.png` })
+          throw new Error(
+            'Terms agreement checkboxes not found after multiple attempts on Mobile Safari'
+          )
+        }
+      } else {
+        // 標準ブラウザ向けの待機戦略
+        console.log('Applying standard browser terms page wait strategy...')
+        await this.page.waitForLoadState('networkidle', { timeout: 15000 })
+        await this.page.waitForTimeout(3000)
+      }
 
       // 利用規約リンクをクリック（E2Eモードでは即座に読了状態になる）
       // E2Eモードではボタン要素内のテキストを直接検索、通常モードではlink要素

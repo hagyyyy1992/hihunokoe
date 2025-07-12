@@ -67,9 +67,10 @@ export default function Home() {
       skinType: '乾燥肌',
       age: '20代',
       product: '無印良品 化粧水・敏感肌用・高保湿タイプ',
-      review: '冬の乾燥がひどくて悩んでいた時に使い始めました。とろみのあるテクスチャーで、肌にしっかり浸透している感じ。朝起きた時の乾燥感が全然違います！',
+      review:
+        '冬の乾燥がひどくて悩んでいた時に使い始めました。とろみのあるテクスチャーで、肌にしっかり浸透している感じ。朝起きた時の乾燥感が全然違います！',
       period: '3ヶ月',
-      likes: 12
+      likes: 12,
     },
     {
       id: 2,
@@ -78,9 +79,10 @@ export default function Home() {
       skinType: '混合肌',
       age: '30代',
       product: 'キュレル 泡洗顔料',
-      review: '敏感肌でも使える洗顔料を探していて試してみました。泡立ちがとても良くて、洗い上がりがしっとり。Tゾーンはすっきり、頬は乾燥しすぎずちょうど良いバランスです。',
+      review:
+        '敏感肌でも使える洗顔料を探していて試してみました。泡立ちがとても良くて、洗い上がりがしっとり。Tゾーンはすっきり、頬は乾燥しすぎずちょうど良いバランスです。',
       period: '2ヶ月',
-      likes: 8
+      likes: 8,
     },
     {
       id: 3,
@@ -89,9 +91,10 @@ export default function Home() {
       skinType: '脂性肌',
       age: '20代',
       product: 'ニベア クリーム（青缶）',
-      review: '脂性肌なので重いクリームは避けていましたが、口コミが良くて試してみました。薄く伸ばすと意外とベタつかず、朝の化粧ノリが良くなりました。',
+      review:
+        '脂性肌なので重いクリームは避けていましたが、口コミが良くて試してみました。薄く伸ばすと意外とベタつかず、朝の化粧ノリが良くなりました。',
       period: '6ヶ月',
-      likes: 15
+      likes: 15,
     },
     {
       id: 4,
@@ -100,9 +103,10 @@ export default function Home() {
       skinType: '敏感肌',
       age: '40代',
       product: 'ちふれ 美白美容液 W',
-      review: 'プチプラの美白美容液を探していて購入。さらっとしたテクスチャーで敏感肌でもピリピリしません。3ヶ月使って少しずつ肌のトーンが明るくなってきた気がします。',
+      review:
+        'プチプラの美白美容液を探していて購入。さらっとしたテクスチャーで敏感肌でもピリピリしません。3ヶ月使って少しずつ肌のトーンが明るくなってきた気がします。',
       period: '4ヶ月',
-      likes: 6
+      likes: 6,
     },
     {
       id: 5,
@@ -111,18 +115,19 @@ export default function Home() {
       skinType: '普通肌',
       age: '30代',
       product: 'オルビス クレンジングリキッド',
-      review: '濡れた手でも使えるのが便利でリピート中。マスカラもしっかり落ちるのに、目元がつっぱりません。オイルフリーなので、まつエクをしていても安心して使えます。',
+      review:
+        '濡れた手でも使えるのが便利でリピート中。マスカラもしっかり落ちるのに、目元がつっぱりません。オイルフリーなので、まつエクをしていても安心して使えます。',
       period: '1年',
-      likes: 18
-    }
+      likes: 18,
+    },
   ]
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % samplePosts.length)
+    setCurrentSlide(prev => (prev + 1) % samplePosts.length)
   }
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + samplePosts.length) % samplePosts.length)
+    setCurrentSlide(prev => (prev - 1 + samplePosts.length) % samplePosts.length)
   }
 
   return (
@@ -476,7 +481,7 @@ export default function Home() {
             <p className="text-center text-gray-600 mb-12">
               実際のユーザーが投稿するリアルな体験談の例をご紹介
             </p>
-            
+
             {/* スライダーコンテナ */}
             <div className="relative">
               {/* 前へボタン */}
@@ -485,8 +490,18 @@ export default function Home() {
                 className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="前のスライドへ"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
 
@@ -496,23 +511,35 @@ export default function Home() {
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="次のスライドへ"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
 
               {/* スライドコンテンツ */}
               <div className="mx-12 overflow-hidden">
-                <div 
+                <div
                   className="flex transition-transform duration-300 ease-in-out"
                   style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
-                  {samplePosts.map((post) => (
+                  {samplePosts.map(post => (
                     <div key={post.id} className="w-full flex-shrink-0 px-4">
                       <div className="bg-white rounded-lg shadow-sm border p-6 max-w-lg mx-auto">
                         <div className="flex items-center mb-4">
                           <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-apple-700">{post.userInitial}</span>
+                            <span className="text-sm font-medium text-apple-700">
+                              {post.userInitial}
+                            </span>
                           </div>
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">{post.user}</p>
@@ -530,7 +557,11 @@ export default function Home() {
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <span>使用期間: {post.period}</span>
                           <div className="flex items-center">
-                            <svg className="w-4 h-4 text-apple-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <svg
+                              className="w-4 h-4 text-apple-500 mr-1"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
                               <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
                             </svg>
                             <span>{post.likes}</span>
@@ -556,7 +587,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            
+
             <div className="text-center mt-8">
               <Link
                 href="/posts"
@@ -564,7 +595,12 @@ export default function Home() {
               >
                 もっと体験談を見る
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </Link>
             </div>
@@ -742,7 +778,6 @@ export default function Home() {
             opacity: 0;
           }
         }
-
 
         .animate-fade-in {
           animation: fade-in 0.8s ease-out forwards;

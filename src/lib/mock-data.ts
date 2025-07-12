@@ -6,7 +6,7 @@ export const MOCK_USERS = [
     userName: 'デモユーザー',
     displayName: 'デモユーザー',
     email: 'demo@example.com',
-    passwordHash: '$2a$12$demo.hash.for.password123', // password: "demo123"
+    passwordHash: '$2b$12$Oys.0jbuFK19jC8G.9NsV.B4f2FXpVYSndqEJarfZVKzQFBcOuJru', // password: "demo1234"
     skinType: 'normal' as const,
     role: 'USER' as const,
     isActive: true,
@@ -20,7 +20,7 @@ export const MOCK_USERS = [
     userName: '美容好きさん',
     displayName: '美容好きさん',
     email: 'beauty@example.com',
-    passwordHash: '$2a$12$demo.hash.for.password456', // password: "demo123"
+    passwordHash: '$2b$12$Oys.0jbuFK19jC8G.9NsV.B4f2FXpVYSndqEJarfZVKzQFBcOuJru', // password: "demo1234"
     skinType: 'dry' as const,
     role: 'USER' as const,
     isActive: true,
@@ -34,7 +34,7 @@ export const MOCK_USERS = [
     userName: '管理者',
     displayName: '管理者',
     email: 'admin@example.com',
-    passwordHash: '$2a$12$demo.hash.for.password789', // password: "demo123"
+    passwordHash: '$2b$12$Oys.0jbuFK19jC8G.9NsV.B4f2FXpVYSndqEJarfZVKzQFBcOuJru', // password: "demo1234"
     skinType: 'normal' as const,
     role: 'ADMIN' as const,
     isActive: true,
@@ -188,10 +188,10 @@ export const MOCK_POSTS = [
 // デモ用の認証情報
 export const DEMO_CREDENTIALS = {
   email: 'demo@example.com',
-  password: 'demo123',
+  password: 'demo1234',
 }
 
 export const DEMO_CREDENTIALS_2 = {
   email: 'beauty@example.com',
-  password: 'demo123',
+  password: 'demo1234',
 }
