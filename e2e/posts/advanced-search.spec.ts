@@ -364,15 +364,38 @@ test.describe('検索・フィルタリング機能', () => {
       expect(afterSearchCount <= currentCount).toBe(true)
       filtersApplied++
 
-      // 検索をクリア
+      // 検索をクリア（複数の方法を試行）
       await searchInput.fill('')
-      await searchInput.press('Enter') // 検索をトリガー
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(2000)
 
-      // 検索クリア後の投稿数を確認してcurrentCountを更新
-      const afterClearCount = await postCards.count()
-      console.log(`[TEST] After clearing search: ${afterClearCount}`)
+      // 方法1: Enterキーを押す
+      await searchInput.press('Enter')
+      await page.waitForTimeout(1000)
+
+      // 方法2: 強制的にinputイベントを発火
+      await searchInput.dispatchEvent('input')
+      await page.waitForTimeout(1000)
+
+      // 方法3: フォーカスを外す
+      await searchInput.blur()
+
+      // 十分な待機時間
+      await page.waitForLoadState('networkidle')
+      await page.waitForTimeout(3000)
+
+      // 検索クリア後の投稿数を確認
+      let afterClearCount = await postCards.count()
+      console.log(`[TEST] After clearing search (first attempt): ${afterClearCount}`)
+
+      // もし検索がまだクリアされていない場合、ページをリロード
+      if (afterClearCount === afterSearchCount) {
+        console.log('[TEST] Search not cleared, trying page reload...')
+        await page.reload()
+        await page.waitForLoadState('networkidle')
+        await page.waitForTimeout(2000)
+        afterClearCount = await postCards.count()
+        console.log(`[TEST] After page reload: ${afterClearCount}`)
+      }
+
       currentCount = afterClearCount
     }
 

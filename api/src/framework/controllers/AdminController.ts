@@ -41,6 +41,15 @@ export class AdminController {
   private adminDashboardUseCase: AdminDashboardUseCase
   private tokenService: TokenServiceImpl
 
+  private getCorsHeaders() {
+    return {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+    }
+  }
+
   constructor() {
     if (!prisma) {
       throw new Error(
