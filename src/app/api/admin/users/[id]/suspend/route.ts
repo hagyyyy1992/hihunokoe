@@ -76,9 +76,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     return result
   } catch (error) {
     console.error('💥💥💥 [SUSPEND USER] FATAL ERROR:', {
-      error: error.message,
-      stack: error.stack,
-      name: error.name,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown',
     })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
