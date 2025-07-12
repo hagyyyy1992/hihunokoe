@@ -566,7 +566,7 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
       this.getUserGrowthDataOptimized(thirtyDaysAgo, now),
       this.getPostGrowthDataOptimized(thirtyDaysAgo, now),
     ])
-    
+
     console.log('Dashboard stats debug:', {
       totalPosts,
       publishedPosts,
@@ -659,7 +659,7 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
   ): Promise<Array<{ date: string; count: number }>> {
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     const growth = []
-    
+
     // TODO: Replace with single aggregation query
     // For now, return mock data to avoid performance issues
     for (let i = 0; i < days; i++) {
@@ -669,7 +669,7 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
         count: Math.floor(Math.random() * 10), // Mock data
       })
     }
-    
+
     return growth
   }
 
@@ -679,7 +679,7 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
   ): Promise<Array<{ date: string; count: number }>> {
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     const growth = []
-    
+
     // TODO: Replace with single aggregation query
     // For now, return mock data to avoid performance issues
     for (let i = 0; i < days; i++) {
@@ -689,7 +689,7 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
         count: Math.floor(Math.random() * 5), // Mock data
       })
     }
-    
+
     return growth
   }
 }

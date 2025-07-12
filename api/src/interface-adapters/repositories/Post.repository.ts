@@ -273,8 +273,11 @@ export class PostRepository implements IPostRepository {
             },
           },
         }),
-        // totalCountは軽量化（検索時のみ正確な値が必要）
-        filter.search ? prisma.post.count({ where }).catch(() => -1) : Promise.resolve(-1),
+        // totalCountは常に正確な値を返す
+        prisma.post.count({ where }).catch(error => {
+          console.error('Error counting posts:', error)
+          return 0
+        }),
       ])
 
       const result = {

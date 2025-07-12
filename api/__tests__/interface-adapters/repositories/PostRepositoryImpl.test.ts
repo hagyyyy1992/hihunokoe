@@ -230,7 +230,7 @@ describe('Post.repository', () => {
         },
       })
       expect(result.posts).toHaveLength(2)
-      expect(result.totalCount).toBe(-1) // 検索時以外は-1を返す
+      expect(result.totalCount).toBe(2) // 常に正確な投稿数を返すように変更
     })
 
     it('ページネーションが機能する', async () => {

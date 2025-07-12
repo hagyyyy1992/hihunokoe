@@ -172,6 +172,7 @@ npm run db:status   # Check database connection status
 #### Database Query Optimization
 
 1. **並列クエリの実行**
+
    ```typescript
    // ❌ Bad: Sequential queries
    const users = await userRepository.findMany()
@@ -182,11 +183,12 @@ npm run db:status   # Check database connection status
    const [users, posts, comments] = await Promise.all([
      userRepository.findMany(),
      postRepository.findMany(),
-     commentRepository.findMany()
+     commentRepository.findMany(),
    ])
    ```
 
 2. **N+1クエリの回避**
+
    ```typescript
    // ❌ Bad: Loop with individual queries
    for (let i = 0; i < 30; i++) {
@@ -198,11 +200,13 @@ npm run db:status   # Check database connection status
    ```
 
 3. **適切な集計の使用**
+
    - カウントには専用のcountメソッドを使用
    - GROUP BYを活用した一括集計
    - 不要なデータの取得を避ける（SELECT必要なカラムのみ）
 
 4. **キャッシュの活用**
+
    - 頻繁にアクセスされるデータはキャッシュ
    - 統計データは定期的に事前計算
 
