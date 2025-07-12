@@ -62,7 +62,8 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
       return { userId: user?.id || null }
-    } catch {
+    } catch (error) {
+      console.error('GraphQL authentication error:', error)
       return { userId: null }
     }
   },

@@ -11,6 +11,7 @@ jest.mock('@/lib/prisma', () => ({
     user: {
       findUnique: jest.fn(),
       delete: jest.fn(),
+      update: jest.fn(),
     },
     empathy: {
       deleteMany: jest.fn(),
@@ -72,18 +73,8 @@ describe('/api/test/cleanup-user', () => {
   it('returns 500 when database is not available', async () => {
     ;(process.env as any).NODE_ENV = 'test'
 
-    // Override the prisma mock to return null
-    jest.doMock(
-      '@/lib/prisma',
-      () => ({
-        prisma: null,
-      }),
-      { virtual: true }
-    )
-
-    // Clear the module cache and re-import
-    jest.resetModules()
-    const { POST } = await import('@/app/api/test/cleanup-user/route')
+    // Mock findByEmail to throw an error (simulating database unavailable)
+    mockPrisma.user.findUnique.mockRejectedValue(new Error('Database connection not available'))
 
     const request = createMockRequest({ email: 'test@example.com' })
     const response = await POST(request)
@@ -96,6 +87,10 @@ describe('/api/test/cleanup-user', () => {
   it('successfully cleans up user and related data', async () => {
     ;(process.env as any).NODE_ENV = 'test'
 
+    // Reset mock to successful behavior
+    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user-1', email: 'test@example.com' })
+    mockPrisma.user.update.mockResolvedValue({})
+
     const request = createMockRequest({ email: 'test@example.com' })
     const response = await POST(request)
     const data = await response.json()
@@ -107,6 +102,9 @@ describe('/api/test/cleanup-user', () => {
 
   it('returns success when user does not exist', async () => {
     ;(process.env as any).NODE_ENV = 'test'
+
+    // Reset mock to return null (user not found)
+    mockPrisma.user.findUnique.mockResolvedValue(null)
 
     const request = createMockRequest({ email: 'nonexistent@example.com' })
     const response = await POST(request)

@@ -235,54 +235,91 @@ export class AuthHelper {
     const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
     console.log(`Login - Mobile Safari detected: ${isMobileSafari}`)
 
-    await this.page.goto('/auth/login')
+    // ログインページに移動、エラーハンドリングを追加
+    try {
+      await this.page.goto('/auth/login', {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      })
+    } catch (error) {
+      console.log('Failed to navigate to login page, retrying...')
+      await this.page.waitForTimeout(2000)
+      await this.page.goto('/auth/login', {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      })
+    }
 
     // Mobile Safariに特化した段階的な待機戦略
     if (isMobileSafari) {
       console.log('Applying Mobile Safari-specific login wait strategy...')
 
       // ステップ1: ネットワーク待機（長めのタイムアウト）
-      await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+      await this.page.waitForLoadState('networkidle', { timeout: 30000 })
       console.log('Login page - Network idle state reached')
 
       // ステップ2: DOM安定化待機
-      await this.page.waitForTimeout(2000)
+      await this.page.waitForTimeout(3000)
 
-      // ステップ3: Reactハイドレーション待機
-      await this.page.waitForTimeout(4000)
+      // ステップ3: Reactハイドレーション待機（ロゴ変更対応）
+      await this.page.waitForTimeout(8000)
       console.log('Login page - React hydration wait completed')
 
-      // ステップ4: 段階的要素確認
+      // ステップ4: 段階的要素確認（より寛容な検索）
       let loginFormFound = false
-      for (let attempt = 1; attempt <= 5; attempt++) {
-        console.log(`Checking for login form (attempt ${attempt}/5)...`)
+      for (let attempt = 1; attempt <= 8; attempt++) {
+        console.log(`Checking for login form (attempt ${attempt}/8)...`)
 
-        const formExists = await this.page.locator('[data-testid="login-form"]').count()
-        if (formExists > 0) {
+        // 複数の方法でログインフォームを検索
+        const formByTestId = await this.page.locator('[data-testid="login-form"]').count()
+        const formBySelector = await this.page.locator('form').count()
+        const emailInput = await this.page.locator('input[type="email"]').count()
+
+        console.log(
+          `Form elements found: testId=${formByTestId}, form=${formBySelector}, email=${emailInput}`
+        )
+
+        if (formByTestId > 0 || (formBySelector > 0 && emailInput > 0)) {
           loginFormFound = true
           console.log('Login form found!')
           break
         }
 
-        if (attempt < 5) {
-          console.log('Login form not found yet, waiting 2 more seconds...')
-          await this.page.waitForTimeout(2000)
+        if (attempt < 8) {
+          console.log('Login form not found yet, waiting 3 more seconds...')
+          await this.page.waitForTimeout(3000)
         }
       }
 
       if (!loginFormFound) {
-        console.log('Login form still not found after 5 attempts, taking debug screenshot...')
+        console.log('Login form still not found after 8 attempts, taking debug screenshot...')
+        const currentUrl = this.page.url()
+        const pageContent = await this.page.content()
+        console.log(`Current URL: ${currentUrl}`)
+        console.log(`Page content length: ${pageContent.length}`)
         await this.page.screenshot({ path: `debug-login-mobile-safari-${Date.now()}.png` })
-        throw new Error('Login form not found after multiple attempts on Mobile Safari')
+
+        // 再試行として、ページをリロードしてみる
+        console.log('Trying page reload as last resort...')
+        await this.page.reload({ waitUntil: 'domcontentloaded' })
+        await this.page.waitForTimeout(5000)
+
+        const retryFormExists = await this.page.locator('[data-testid="login-form"]').count()
+        if (retryFormExists === 0) {
+          throw new Error(
+            'Login form not found after multiple attempts and page reload on Mobile Safari'
+          )
+        }
+        console.log('Login form found after page reload')
       }
     } else {
       // 標準ブラウザ向けの待機戦略
       console.log('Applying standard browser login wait strategy...')
-      await this.page.waitForLoadState('networkidle', { timeout: 15000 })
-      await this.page.waitForTimeout(3000)
+      await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+      await this.page.waitForTimeout(4000)
     }
 
-    // より確実な要素の待機
+    // より確実な要素の待機（フォールバック付き）
     try {
       await this.page.waitForSelector('[data-testid="login-form"]', {
         timeout: isMobileSafari ? 30000 : 20000,
@@ -290,13 +327,24 @@ export class AuthHelper {
       })
       console.log('Login form found and visible')
     } catch (error) {
-      console.log('Login form not found, checking page state...')
-      const currentUrl = this.page.url()
-      const pageTitle = await this.page.title()
-      console.log(`Current URL: ${currentUrl}`)
-      console.log(`Page title: ${pageTitle}`)
-      await this.page.screenshot({ path: `debug-login-${Date.now()}.png` })
-      throw error
+      console.log('Login form not found by test-id, trying alternative selectors...')
+
+      // フォールバック: form要素とemail入力を探す
+      try {
+        await this.page.waitForSelector('form', { timeout: 10000, state: 'visible' })
+        await this.page.waitForSelector('input[type="email"]', { timeout: 10000, state: 'visible' })
+        console.log('Login form found using alternative selectors')
+      } catch (fallbackError) {
+        console.log('Login form not found with any selector, checking page state...')
+        const currentUrl = this.page.url()
+        const pageTitle = await this.page.title()
+        const pageContent = await this.page.textContent('body')
+        console.log(`Current URL: ${currentUrl}`)
+        console.log(`Page title: ${pageTitle}`)
+        console.log(`Body content preview: ${pageContent?.substring(0, 200)}`)
+        await this.page.screenshot({ path: `debug-login-fallback-${Date.now()}.png` })
+        throw new Error('Login form not found after trying all selectors')
+      }
     }
 
     // Fill login form

@@ -42,6 +42,12 @@ export class AdminController {
   private tokenService: TokenServiceImpl
 
   constructor() {
+    if (!prisma) {
+      throw new Error(
+        'Database connection is required for admin operations. Please check your database configuration.'
+      )
+    }
+
     const userRepository = new UserRepository()
     const postRepository = new PostRepository()
     const authSessionRepository = new AuthSessionRepository()
@@ -49,10 +55,6 @@ export class AdminController {
     this.tokenService = new TokenServiceImpl()
     const commentRepository =
       new (require('@api/interface-adapters/repositories/Comment.repository').CommentRepository)()
-
-    if (!prisma) {
-      throw new Error('Prisma client is not initialized')
-    }
     const adminLogRepository = new AdminLogRepository(prisma)
 
     this.adminAuthenticationUseCase = new AdminAuthenticationUseCase(

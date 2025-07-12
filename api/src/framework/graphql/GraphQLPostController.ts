@@ -20,17 +20,22 @@ export class GraphQLPostController {
   private empathyRepository: EmpathyRepository
 
   constructor() {
-    const postRepository = new PostRepository()
-    const userRepository = new UserRepository()
-    this.empathyRepository = new EmpathyRepository()
-    this.commentRepository = new CommentRepository()
+    try {
+      const postRepository = new PostRepository()
+      const userRepository = new UserRepository()
+      this.empathyRepository = new EmpathyRepository()
+      this.commentRepository = new CommentRepository()
 
-    this.postRetrievalUseCase = new PostRetrievalUseCase(
-      postRepository,
-      this.empathyRepository,
-      this.commentRepository
-    )
-    this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
+      this.postRetrievalUseCase = new PostRetrievalUseCase(
+        postRepository,
+        this.empathyRepository,
+        this.commentRepository
+      )
+      this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
+    } catch (error) {
+      console.error('Failed to initialize GraphQLPostController:', error)
+      throw new Error('データベース接続エラーにより、投稿機能を初期化できませんでした。')
+    }
   }
 
   async getPost(args: { id: string }, context: GraphQLContext) {

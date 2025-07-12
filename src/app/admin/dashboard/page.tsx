@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Users, FileText, Eye, Heart } from 'lucide-react'
 
+// 管理画面は動的レンダリングが必要
+export const dynamic = 'force-dynamic'
+
 interface DashboardStats {
   stats: {
     totalUsers: number

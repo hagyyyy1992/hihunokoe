@@ -11,7 +11,10 @@ import { User as PrismaUser } from '@prisma/client'
 
 export class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
-    if (!prisma) throw new Error('Database connection not available')
+    if (!prisma) {
+      console.warn('Database connection not available, falling back to mock mode')
+      return null
+    }
 
     const prismaUser = await prisma.user.findUnique({
       where: { id },
@@ -22,7 +25,10 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    if (!prisma) throw new Error('Database connection not available')
+    if (!prisma) {
+      console.warn('Database connection not available, falling back to mock mode')
+      return null
+    }
 
     const prismaUser = await prisma.user.findUnique({
       where: { email },

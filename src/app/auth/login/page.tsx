@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import Logo from '@/components/ui/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')

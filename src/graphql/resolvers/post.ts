@@ -2,12 +2,24 @@ import { GraphQLContext } from '@/graphql/context'
 import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 
-const postController = new GraphQLPostController()
-const userRepository = new UserRepository()
+let postController: GraphQLPostController | null = null
+let userRepository: UserRepository | null = null
+
+try {
+  postController = new GraphQLPostController()
+  userRepository = new UserRepository()
+} catch (error) {
+  console.error('Failed to initialize GraphQL post resolvers:', error)
+}
 
 export const postResolvers = {
   Query: {
     async post(_: unknown, { id }: { id: string }, context: GraphQLContext) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.getPost({ id }, context)
     },
 
@@ -31,6 +43,11 @@ export const postResolvers = {
       },
       context: GraphQLContext
     ) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.getPosts({ first, after, filter, orderBy }, context)
     },
 
@@ -39,6 +56,11 @@ export const postResolvers = {
       { postId, first, after }: { postId: string; first?: number; after?: string },
       context: GraphQLContext
     ) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.getPostComments({ postId, first, after }, context)
     },
 
@@ -47,6 +69,11 @@ export const postResolvers = {
       { postId, first, after }: { postId: string; first?: number; after?: string },
       context: GraphQLContext
     ) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.getPostEmpathies({ postId, first, after }, context)
     },
   },
@@ -95,6 +122,11 @@ export const postResolvers = {
       },
       context: GraphQLContext
     ) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.createPost({ input }, context)
     },
 
@@ -143,10 +175,20 @@ export const postResolvers = {
       },
       context: GraphQLContext
     ) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.updatePost({ id, input }, context)
     },
 
     async deletePost(_: unknown, { id }: { id: string }, context: GraphQLContext) {
+      if (!postController) {
+        throw new Error(
+          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+        )
+      }
       return postController.deletePost({ id }, context)
     },
   },
@@ -155,6 +197,9 @@ export const postResolvers = {
     // Field resolvers for Post type
     user: async (parent: { userId: string }) => {
       try {
+        if (!userRepository) {
+          return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
+        }
         const user = await userRepository.findById(parent.userId)
         if (!user) {
           return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }

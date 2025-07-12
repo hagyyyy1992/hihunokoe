@@ -81,12 +81,6 @@ describe('LoginPage', () => {
     expectElementToBeVisible(screen.getByTestId('login-button'))
   })
 
-  it('ロゴが表示される', () => {
-    render(<LoginPage />)
-
-    const logo = screen.getByAltText('ひふのこえロゴ')
-    expectElementToBeVisible(logo)
-  })
 
   it('会員登録リンクが表示される', () => {
     render(<LoginPage />)

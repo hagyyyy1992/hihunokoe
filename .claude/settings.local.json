@@ -73,7 +73,8 @@
       "Bash(npm run test:e2e:*)",
       "Bash(npx jest:*)",
       "Bash(npx prisma:*)",
-      "Bash(npm run quality-check:*)"
+      "Bash(npm run quality-check:*)",
+      "Bash(npm run build:check:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",

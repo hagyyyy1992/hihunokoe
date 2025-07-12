@@ -13,13 +13,28 @@ let prismaClient: PrismaClient | null = null
 if (databaseType !== 'mock') {
   try {
     // 環境に応じたPrismaClient設定
-    prismaClient = globalForPrisma.prisma ?? new PrismaClient()
+    prismaClient =
+      globalForPrisma.prisma ??
+      new PrismaClient({
+        log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+        errorFormat: 'pretty',
+      })
 
     if (process.env.NODE_ENV !== 'production') {
       globalForPrisma.prisma = prismaClient
     }
+
+    // データベース接続をテスト
+    if (process.env.NODE_ENV === 'production') {
+      prismaClient.$connect().catch(error => {
+        console.error('❌ Failed to connect to database in production:', error)
+        prismaClient = null
+      })
+    }
   } catch (error) {
     console.error(`❌ Prisma Client initialization failed for ${databaseType}:`, error)
+    console.error('Error details:', error instanceof Error ? error.message : String(error))
+    console.error('Database URL check:', process.env.DATABASE_URL ? 'Present' : 'Missing')
     prismaClient = null
   }
 }

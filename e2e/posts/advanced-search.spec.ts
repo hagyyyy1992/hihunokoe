@@ -366,29 +366,38 @@ test.describe('検索・フィルタリング機能', () => {
 
       // 検索をクリア
       await searchInput.fill('')
-      await page.waitForTimeout(1500)
+      await searchInput.press('Enter') // 検索をトリガー
+      await page.waitForLoadState('networkidle')
+      await page.waitForTimeout(2000)
+
+      // 検索クリア後の投稿数を確認してcurrentCountを更新
+      const afterClearCount = await postCards.count()
+      console.log(`[TEST] After clearing search: ${afterClearCount}`)
+      currentCount = afterClearCount
     }
 
     // フィルタをリセット
     if (await categoryFilter.isVisible()) {
       await categoryFilter.selectOption('')
+      await page.waitForLoadState('networkidle')
       await page.waitForTimeout(1000)
     }
     if (await skinTypeFilter.isVisible()) {
       await skinTypeFilter.selectOption('')
+      await page.waitForLoadState('networkidle')
       await page.waitForTimeout(1000)
     }
 
     // リセット後の状態を待機
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(2000)
 
     const finalCount = await postCards.count()
     console.log(`[TEST] Final count after reset: ${finalCount}`)
     console.log(`[TEST] Applied ${filtersApplied} different filters`)
 
-    // フィルタをリセットした後、初期状態に近い投稿数に戻ることを確認
-    expect(finalCount).toBeGreaterThanOrEqual(Math.min(currentCount, initialCount))
+    // フィルタをリセットした後、初期状態に戻ることを確認（許容誤差を含む）
+    expect(finalCount).toBeGreaterThanOrEqual(initialCount - 1)
   })
 
   test('検索結果が見つからない場合の表示', async ({ page, browserName }) => {
