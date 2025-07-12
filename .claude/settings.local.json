@@ -110,11 +110,24 @@
       "helpFile": ".claude/commands/create-pr.md"
     }
   },
-  "enabledMcpjsonServers": ["filesystem", "git", "memory", "playwright", "figma"],
+  "enabledMcpjsonServers": [
+    "filesystem",
+    "git",
+    "memory",
+    "playwright",
+    "figma"
+  ],
   "project_context": {
     "name": "Usaka",
     "description": "Cosmetics experience sharing service",
-    "tech_stack": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind CSS", "Vercel"],
+    "tech_stack": [
+      "Next.js",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Vercel"
+    ],
     "key_commands": {
       "dev": "npm run dev:setup",
       "test": "npm test",
