@@ -9,6 +9,8 @@ export type LoginOutputPort = {
     userName: string
     role: string
     emailVerified: boolean
+    termsAcceptedAt?: Date | null
+    privacyAcceptedAt?: Date | null
   }
 }
 

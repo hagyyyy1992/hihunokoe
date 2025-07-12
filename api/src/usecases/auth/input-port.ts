@@ -25,6 +25,8 @@ export abstract class IAuthenticationUseCase {
 export type LoginInputPort = {
   email: string
   password: string
+  acceptTerms?: boolean
+  acceptPrivacy?: boolean
   ipAddress?: string
   userAgent?: string
 }

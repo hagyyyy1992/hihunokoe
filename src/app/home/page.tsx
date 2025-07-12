@@ -41,21 +41,47 @@ export default function HomePage() {
       try {
         setPostsLoading(true)
         const response = await fetch('/api/posts?limit=20')
-        if (response.ok) {
-          const data = await response.json()
-          const allPosts = data.posts || []
 
-          // 自分の投稿と他ユーザーの投稿を分ける
-          const myPosts = user ? allPosts.filter((post: Post) => post.user?.id === user.id) : []
-          const others = user
-            ? allPosts.filter((post: Post) => post.user?.id !== user.id)
-            : allPosts
-
-          setUserPosts(myPosts.slice(0, 5)) // 最新5件
-          setOtherPosts(others.slice(0, 5)) // 最新5件
+        // レスポンスのステータスをチェック
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error(`API request failed:`, {
+            status: response.status,
+            statusText: response.statusText,
+            url: response.url,
+            responseText: errorText.substring(0, 500), // 最初の500文字のみログ
+          })
+          return
         }
+
+        // Content-Typeをチェック
+        const contentType = response.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+          const responseText = await response.text()
+          console.error(`Expected JSON but received:`, {
+            contentType,
+            responseText: responseText.substring(0, 500),
+          })
+          return
+        }
+
+        const data = await response.json()
+        const allPosts = data.posts || []
+
+        // 自分の投稿と他ユーザーの投稿を分ける
+        const myPosts = user ? allPosts.filter((post: Post) => post.user?.id === user.id) : []
+        const others = user ? allPosts.filter((post: Post) => post.user?.id !== user.id) : allPosts
+
+        setUserPosts(myPosts.slice(0, 5)) // 最新5件
+        setOtherPosts(others.slice(0, 5)) // 最新5件
       } catch (error) {
         console.error('Failed to fetch posts:', error)
+        // JSON.parseエラーの場合、より詳細な情報をログ
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+          console.error(
+            'This error typically means the server returned HTML instead of JSON. Check the /api/posts endpoint.'
+          )
+        }
       } finally {
         setPostsLoading(false)
       }

@@ -11,12 +11,6 @@ test.describe('パフォーマンスエラーハンドリング', () => {
 
   test.describe('レート制限エラー', () => {
     test('ログイン試行レート制限', async ({ page, browserName }) => {
-      // Mobile Safariではエラーメッセージ検出が困難なため、スキップ
-      if (browserName === 'webkit') {
-        test.skip()
-        return
-      }
-
       // 現在の実装ではログインにレート制限がないため、
       // 複数回の失敗ログインが正しく処理されることを確認
       await page.goto('/auth/login')

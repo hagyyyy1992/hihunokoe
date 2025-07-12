@@ -77,7 +77,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/privacy"
+                  href="/legal/privacy"
                   className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   プライバシーポリシー
@@ -85,7 +85,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/terms"
+                  href="/legal/terms"
                   className="text-sm text-gray-600 hover:text-apple-600 transition-colors"
                 >
                   利用規約

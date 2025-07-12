@@ -38,18 +38,33 @@ test.describe('メール認証機能', () => {
     await page.locator('input[name="password"]').fill(userData.password)
     await page.getByRole('button', { name: 'ログイン' }).click()
 
-    // ログイン成功を確認
+    // 新規ユーザーは利用規約同意ページにリダイレクトされることを確認
+    await expect(page).toHaveURL('/auth/terms-agreement')
+    await expect(page.getByRole('heading', { name: '利用規約への同意' })).toBeVisible()
+
+    // 利用規約とプライバシーポリシーのリンクをクリック
+    await page.getByRole('main').getByRole('link', { name: '利用規約' }).click()
+    await page.waitForTimeout(100)
+    await page.getByRole('main').getByRole('link', { name: 'プライバシーポリシー' }).click()
+
+    // 最小読了時間を待つ（3秒）
+    await page.waitForTimeout(3100)
+
+    // 同意チェックボックスをチェック
+    await page.getByTestId('agree-terms-checkbox').check()
+    await page.getByTestId('agree-privacy-checkbox').check()
+
+    // 同意ボタンをクリック
+    await page.getByTestId('submit-agreement-button').click()
+
+    // ホームページにリダイレクトされることを確認
     await expect(page).toHaveURL('/home')
+
     // ヘッダーのサービス名が表示されることを確認
     await expect(page.getByRole('link', { name: 'H ひふのこえ' })).toBeVisible()
   })
 
   test('メール認証前のログイン制限', async ({ page, browserName }) => {
-    // Mobile Safariではエラーメッセージ検出が困難なため、スキップ
-    if (browserName === 'webkit') {
-      test.skip()
-      return
-    }
     // ユーザー登録
     const userData = await authHelper.generateUniqueUser()
     await page.goto('/auth/register')
@@ -278,7 +293,25 @@ test.describe('メール認証機能', () => {
       await page.locator('input[name="password"]').fill(userData.password)
       await page.getByRole('button', { name: 'ログイン' }).click()
 
-      // ログイン成功を確認
+      // 新規ユーザーは利用規約同意ページにリダイレクトされる
+      await expect(page).toHaveURL('/auth/terms-agreement')
+
+      // 利用規約とプライバシーポリシーのリンクをクリック
+      await page.getByRole('main').getByRole('link', { name: '利用規約' }).click()
+      await page.waitForTimeout(100)
+      await page.getByRole('main').getByRole('link', { name: 'プライバシーポリシー' }).click()
+
+      // 最小読了時間を待つ（3秒）
+      await page.waitForTimeout(3100)
+
+      // 同意チェックボックスをチェック
+      await page.getByTestId('agree-terms-checkbox').check()
+      await page.getByTestId('agree-privacy-checkbox').check()
+
+      // 同意ボタンをクリック
+      await page.getByTestId('submit-agreement-button').click()
+
+      // ホームページにリダイレクトされることを確認
       await expect(page).toHaveURL('/home')
 
       // 認証状態を確認

@@ -17,6 +17,9 @@ export class TokenServiceImpl implements TokenService {
       userId: payload.userId,
       email: payload.email,
       role: payload.role,
+      userName: payload.userName,
+      termsAcceptedAt: payload.termsAcceptedAt,
+      privacyAcceptedAt: payload.privacyAcceptedAt,
     }
 
     return jwt.sign(tokenPayload, this.jwtSecret, {
@@ -44,6 +47,8 @@ export class TokenServiceImpl implements TokenService {
         email: decoded.email,
         role: decoded.role || 'USER',
         userName: decoded.userName, // userNameも含める（オプショナル）
+        termsAcceptedAt: decoded.termsAcceptedAt,
+        privacyAcceptedAt: decoded.privacyAcceptedAt,
       }
     } catch (error) {
       console.error('Token verification error:', error)

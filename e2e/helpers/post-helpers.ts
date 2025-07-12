@@ -96,6 +96,70 @@ export class PostHelper {
     return postId
   }
 
+  async createPostWithDetails(postData: {
+    title: string
+    content: string
+    cosmeticName?: string
+    cosmeticCategory?: string
+    skinType?: string
+    moodTag?: string
+    usageSituation?: {
+      season?: string
+      timeOfDay?: string
+      skinCondition?: string
+      menstrualCycle?: string
+    }
+    experienceDetails?: {
+      fragrance?: {
+        type?: string
+        intensity?: string
+        description?: string
+      }
+      texture?: {
+        type?: string
+        spreadability?: string
+        absorption?: string
+        description?: string
+      }
+      afterUse?: {
+        moisture?: string
+        texture?: string
+        comfort?: string
+        duration?: string
+        description?: string
+      }
+    }
+  }): Promise<string> {
+    // REST APIを使用して直接投稿を作成（詳細情報を含む）
+    const requestBody = {
+      title: postData.title,
+      content: postData.content,
+      productName: postData.cosmeticName || 'テスト化粧品',
+      category: postData.cosmeticCategory || 'skincare',
+      skinType: postData.skinType,
+      moodTag: postData.moodTag,
+      usageSituation: postData.usageSituation,
+      experienceDetails: postData.experienceDetails,
+    }
+
+    const response = await this.page.request.post('/api/posts', {
+      data: requestBody,
+    })
+
+    if (!response.ok()) {
+      throw new Error(`Failed to create post: ${response.status()} ${response.statusText()}`)
+    }
+
+    const responseData = await response.json()
+    const postId = responseData.post?.id
+
+    if (!postId) {
+      throw new Error('Failed to get post ID from API response')
+    }
+
+    return postId
+  }
+
   async saveDraft(postData: {
     title: string
     content: string

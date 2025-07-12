@@ -28,6 +28,13 @@ test.describe('プロフィール編集機能', () => {
       body: JSON.stringify({ email: testUser.email }),
     })
 
+    // 利用規約・プライバシーポリシー同意をスキップ（テスト環境用）
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email }),
+    })
+
     await authHelper.login(testUser.email, testUser.password)
   })
 

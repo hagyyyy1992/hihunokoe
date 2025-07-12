@@ -460,6 +460,17 @@ git rebase -i HEAD~3
 - Test environment: Real browser automation (Chromium, Firefox, Safari)
 - Coverage: User workflows, cross-browser compatibility, visual regression
 
+#### Claude Code E2Eテスト実行指示
+
+Claude Codeは、E2Eテストを確認する際は以下のルールに従うこと：
+
+- **デフォルト実行環境**: Mobile Safari のみで実行する
+- **実行コマンド**: `npm run test:e2e -- --project=Mobile\ Safari`
+- **追加指示がない場合**: ユーザーから明示的に他のブラウザでの実行を指示されない限り、Mobile Safariでのテスト結果のみを確認する
+- **理由**: モバイルファーストのアプローチと効率的なテスト実行のため
+
+**例外**: ユーザーから「全ブラウザで」「Chromeでも」等の明示的な指示があった場合のみ、他のブラウザでも実行する
+
 ### E2E Tests Locator Strategy (重要)
 
 Playwright/Testing Libraryのベストプラクティスに従い、E2Eテストでは以下の優先順位でロケーターを使用すること：
@@ -583,6 +594,37 @@ Playwright/Testing Libraryのベストプラクティスに従い、E2Eテスト
 4. **Unit testing**: Run `npm test` during development
 5. **E2E testing**: Run `npm run test:e2e` before major releases
 6. **Code quality**: Run `npm run lint` and `npm run format` before committing
+
+### 開発時の品質チェック習慣（重要）
+
+**原則として、毎回の作業ごとに以下のコマンドを実行する**ことで、コード品質と一貫性を保つ：
+
+```bash
+# 品質チェックコマンド（毎回実行）
+npm run format && npx prisma format && npm run lint && npx tsc --noEmit && npm run test:coverage
+```
+
+各コマンドの意味：
+
+- `npm run format`: Prettierによるコードフォーマット
+- `npx prisma format`: Prismaスキーマファイルのフォーマット
+- `npm run lint`: ESLintによる静的解析
+- `npx tsc --noEmit`: TypeScript型チェック（ビルドなし）
+- `npm run test:coverage`: テスト実行とカバレッジ計測
+
+**推奨タイミング**：
+
+- 機能追加・修正後
+- コードレビュー前
+- コミット前
+- プルリクエスト作成前
+
+この習慣により、以下のメリットが得られます：
+
+- コードスタイルの統一
+- 潜在的なバグの早期発見
+- テストカバレッジの維持
+- 型安全性の確保
 
 ### Pre-Push Checklist
 

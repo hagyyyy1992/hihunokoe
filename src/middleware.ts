@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { validateAdminAccess } from '@/lib/auth/middleware-auth'
+import { validateAdminAccess, getUserFromToken, hasAcceptedTerms } from '@/lib/auth/middleware-auth'
 
 // IP制限の設定を環境変数から取得
 const ALLOWED_IPS = process.env.ALLOWED_IPS?.split(',').map(ip => ip.trim()) || []
@@ -14,6 +14,47 @@ const SKIP_PATHS = [
   '/sitemap.xml',
   '/api/health', // ヘルスチェックエンドポイント
 ]
+
+// 利用規約同意が必要な保護されたルート
+const PROTECTED_ROUTES = [
+  '/posts/new',
+  '/posts/edit',
+  '/profile',
+  '/settings',
+  '/api/profile',
+  '/api/comments',
+  '/api/empathy',
+]
+
+// HTTPメソッド別の保護ルート（GETは除外、POST/PUT/DELETE等のみ保護）
+const PROTECTED_API_ROUTES = [
+  '/api/posts', // POST/PUT/DELETE のみ保護、GETは許可
+]
+
+// 認証不要なパブリックルート
+const PUBLIC_ROUTES = [
+  '/',
+  '/home',
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/verify-email',
+  '/auth/terms-agreement',
+  '/legal/terms',
+  '/legal/privacy',
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/logout',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/auth/verify-email',
+  '/api/auth/accept-terms',
+  '/api/auth/resend-verification',
+]
+
+// GETメソッドで常に許可されるAPIルート（認証不要）
+const GET_ALLOWED_API_ROUTES = ['/api/posts']
 
 function getClientIp(request: NextRequest): string {
   // Vercelでは x-forwarded-for ヘッダーからIPを取得
@@ -50,6 +91,39 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     if (!validateAdminAccess(request)) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+  }
+
+  // 利用規約同意チェック（保護されたルートのみ）
+  const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route))
+  const isProtectedApiRoute = PROTECTED_API_ROUTES.some(route => pathname.startsWith(route))
+  const isPublicRoute = PUBLIC_ROUTES.some(
+    route => pathname === route || pathname.startsWith(route + '/')
+  )
+  const isGetAllowedApiRoute =
+    GET_ALLOWED_API_ROUTES.some(route => pathname.startsWith(route)) && request.method === 'GET'
+
+  // 保護されたAPIルートの場合、GETメソッドは許可
+  const shouldProtectApiRoute = isProtectedApiRoute && request.method !== 'GET'
+
+  // GETで許可されたAPIルートは常に通す
+  if (isGetAllowedApiRoute) {
+    // 何もしない、通す
+  } else if ((isProtectedRoute || shouldProtectApiRoute) && !isPublicRoute) {
+    const user = getUserFromToken(request)
+
+    // 認証されていない場合はログインページへリダイレクト
+    if (!user) {
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    // 利用規約に同意していない場合は同意ページへリダイレクト
+    if (!hasAcceptedTerms(user)) {
+      const termsUrl = new URL('/auth/terms-agreement', request.url)
+      termsUrl.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(termsUrl)
     }
   }
 

@@ -33,6 +33,7 @@ import {
   InvalidTokenError,
   TokenExpiredError,
 } from '@api/domain/exceptions/AuthenticationError'
+import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 
 export class AuthController {
   private authenticationUseCase: AuthenticationUseCase
@@ -79,13 +80,20 @@ export class AuthController {
   async login(request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json()
-      const { email, password } = body
+      const { email, password, acceptTerms, acceptPrivacy, ipAddress } = body
 
       if (!email || !password) {
         return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
       }
 
-      const inputPort: LoginInputPort = { email, password }
+      const inputPort: LoginInputPort = {
+        email,
+        password,
+        acceptTerms,
+        acceptPrivacy,
+        ipAddress,
+        userAgent: request.headers.get('user-agent') || undefined,
+      }
       const result = await this.authenticationUseCase.login(inputPort)
 
       return NextResponse.json(
@@ -111,6 +119,15 @@ export class AuthController {
           {
             error: 'メールアドレスの確認が完了していません。確認メールをご確認ください。',
             emailVerificationRequired: true,
+          },
+          { status: 403 }
+        )
+      }
+      if (error instanceof TermsNotAcceptedError) {
+        return NextResponse.json(
+          {
+            error: error.message,
+            termsAcceptanceRequired: true,
           },
           { status: 403 }
         )

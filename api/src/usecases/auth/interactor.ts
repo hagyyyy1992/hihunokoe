@@ -17,6 +17,7 @@ import {
   TokenExpiredError,
   InvalidTokenError,
 } from '@api/domain/exceptions/AuthenticationError'
+import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 import {
   IAuthenticationUseCase,
   IPasswordManagementUseCase,
@@ -97,6 +98,11 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
       throw new EmailNotVerifiedError()
     }
 
+    // 初回ログイン時（利用規約・プライバシーポリシー未同意）の場合、
+    // トークンは発行するがフロントエンドで同意ページへリダイレクトする
+    // 注: 同意チェックはログインAPIでは行わず、別ページで行う
+    const requiresTermsAgreement = !user.termsAcceptedAt || !user.privacyAcceptedAt
+
     await this.userRepository.resetFailedLoginAttempts(user.id)
 
     const token = await this.tokenService.generateToken({
@@ -104,6 +110,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
       email: user.email,
       role: user.role,
       userName: user.userName,
+      termsAcceptedAt: user.termsAcceptedAt?.toISOString() || null,
+      privacyAcceptedAt: user.privacyAcceptedAt?.toISOString() || null,
     })
 
     const expiresAt = new Date()
@@ -121,6 +129,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
         userName: user.userName,
         role: user.role,
         emailVerified: user.emailVerified,
+        termsAcceptedAt: user.termsAcceptedAt,
+        privacyAcceptedAt: user.privacyAcceptedAt,
       },
     }
   }

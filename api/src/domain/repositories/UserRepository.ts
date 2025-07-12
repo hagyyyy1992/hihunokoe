@@ -35,6 +35,9 @@ export interface UpdateUserData {
   allergies?: string[] | null
   allergiesOther?: string | null
   userName?: string
+  // 利用規約・プライバシーポリシー同意日
+  termsAcceptedAt?: Date | null
+  privacyAcceptedAt?: Date | null
 }
 
 export interface FindUsersFilter {

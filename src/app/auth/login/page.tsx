@@ -25,9 +25,15 @@ export default function LoginPage() {
       setLoading(true)
 
       try {
-        await login(email, password)
-        // ログイン成功後にリダイレクト
-        router.push('/home')
+        const result = await login(email, password)
+
+        // 利用規約同意が必要な場合はリダイレクト
+        if (result && result.requiresTermsAgreement) {
+          router.push(result.redirectTo || '/auth/terms-agreement')
+        } else {
+          // 通常のログイン成功後にリダイレクト
+          router.push('/home')
+        }
       } catch (err) {
         console.error('Login error:', err)
         const errorMessage = err instanceof Error ? err.message : 'ログインに失敗しました'

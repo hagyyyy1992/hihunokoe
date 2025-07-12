@@ -7,6 +7,8 @@ interface TokenPayload {
   role: string
   iat: number
   exp: number
+  termsAcceptedAt?: string | null
+  privacyAcceptedAt?: string | null
 }
 
 // 簡易JWT検証（署名検証なし - ミドルウェア用）
@@ -48,4 +50,22 @@ export function validateAdminAccess(request: NextRequest): boolean {
   }
 
   return true
+}
+
+export function getUserFromToken(request: NextRequest): TokenPayload | null {
+  const token = request.cookies.get('auth-token')?.value
+
+  if (!token) {
+    return null
+  }
+
+  return verifyTokenMiddleware(token)
+}
+
+export function hasAcceptedTerms(user: TokenPayload | null): boolean {
+  if (!user) {
+    return false
+  }
+
+  return !!(user.termsAcceptedAt && user.privacyAcceptedAt)
 }

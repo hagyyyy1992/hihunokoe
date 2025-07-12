@@ -115,6 +115,9 @@ export class UserRepository implements IUserRepository {
       updateData.allergies = data.allergies === null ? [] : data.allergies
     }
     if (data.allergiesOther !== undefined) updateData.allergiesOther = data.allergiesOther
+    // 利用規約・プライバシーポリシー同意日
+    if (data.termsAcceptedAt !== undefined) updateData.termsAcceptedAt = data.termsAcceptedAt
+    if (data.privacyAcceptedAt !== undefined) updateData.privacyAcceptedAt = data.privacyAcceptedAt
 
     if (!prisma) throw new Error('Database connection not available')
 
@@ -327,6 +330,8 @@ export class UserRepository implements IUserRepository {
       prismaUser.deletedAt,
       prismaUser.createdAt,
       prismaUser.updatedAt,
+      prismaUser.termsAcceptedAt,
+      prismaUser.privacyAcceptedAt,
       undefined, // password field (not stored)
       // Additional properties for test compatibility
       null, // bio (not in current schema)

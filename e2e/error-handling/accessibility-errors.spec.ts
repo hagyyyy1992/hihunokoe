@@ -11,17 +11,6 @@ test.describe('アクセシビリティエラーハンドリング', () => {
 
   test.describe('キーボードナビゲーション', () => {
     test('キーボードのみでのログインフォーム操作', async ({ page, browserName }) => {
-      // Mobile Safari・Firefox・Mobile Chrome環境ではキーボード操作が不安定なため、スキップ
-      const viewport = page.viewportSize()
-      if (
-        browserName === 'webkit' ||
-        browserName === 'firefox' ||
-        (browserName === 'chromium' && viewport?.width && viewport.width <= 768)
-      ) {
-        test.skip()
-        return
-      }
-
       await page.goto('/auth/login')
       await page.waitForLoadState('networkidle')
 

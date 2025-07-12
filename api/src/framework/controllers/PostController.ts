@@ -95,6 +95,10 @@ export class PostController {
         brandName,
         imageUrl,
         category = cosmeticCategory,
+        skinType,
+        moodTag,
+        usageSituation,
+        experienceDetails,
       } = body
 
       const input: CreatePostInputPort = {
@@ -105,6 +109,10 @@ export class PostController {
         brandName,
         imageUrl,
         category,
+        skinType,
+        moodTag,
+        usageSituation,
+        experienceDetails,
       }
 
       const result = await this.postManagementUseCase.createPost(input)

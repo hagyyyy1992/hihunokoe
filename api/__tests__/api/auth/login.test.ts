@@ -83,6 +83,8 @@ describe('AuthController - login', () => {
       expect(mockAuthenticationUseCase.login).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
+        acceptTerms: undefined,
+        acceptPrivacy: undefined,
       })
     })
   })
@@ -126,6 +128,83 @@ describe('AuthController - login', () => {
       expect(response.status).toBe(400)
       expect(data.error).toBe('Email and password are required')
       expect(mockAuthenticationUseCase.login).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('terms and privacy agreement', () => {
+    it('初回ログイン時に利用規約・プライバシーポリシーの同意が必要な場合、エラーを返す', async () => {
+      mockAuthenticationUseCase.login.mockRejectedValue(
+        new Error('利用規約とプライバシーポリシーに同意してください')
+      )
+
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+      })
+
+      const response = await authController.login(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
+    })
+
+    it('利用規約・プライバシーポリシーに同意してログインできる', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        userName: 'testuser',
+        role: 'USER' as const,
+        emailVerified: true,
+      }
+      const mockToken = 'mock-jwt-token'
+
+      mockAuthenticationUseCase.login.mockResolvedValue({
+        token: mockToken,
+        user: mockUser,
+      })
+
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+        acceptTerms: true,
+        acceptPrivacy: true,
+      })
+
+      const response = await authController.login(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data).toEqual({
+        success: true,
+        token: mockToken,
+        user: mockUser,
+      })
+      expect(mockAuthenticationUseCase.login).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+        acceptTerms: true,
+        acceptPrivacy: true,
+      })
+    })
+
+    it('片方のみの同意では失敗する', async () => {
+      mockAuthenticationUseCase.login.mockRejectedValue(
+        new Error('利用規約とプライバシーポリシーに同意してください')
+      )
+
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+        acceptTerms: true,
+        acceptPrivacy: false,
+      })
+
+      const response = await authController.login(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(data.error).toBe('ログイン中にエラーが発生しました')
     })
   })
 

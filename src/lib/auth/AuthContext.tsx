@@ -5,7 +5,12 @@ import { AuthUser } from '@/lib/auth/auth'
 
 interface AuthContextType {
   user: AuthUser | null
-  login: (email: string, password: string) => Promise<void>
+  login: (
+    email: string,
+    password: string,
+    acceptTerms?: boolean,
+    acceptPrivacy?: boolean
+  ) => Promise<{ requiresTermsAgreement?: boolean; redirectTo?: string } | void>
   register: (data: RegisterData) => Promise<void>
   logout: () => Promise<void>
   refreshAuth: () => Promise<void>
@@ -106,6 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました')
+      }
+
+      // 利用規約同意が必要な場合はリダイレクト情報を返す
+      if (data.requiresTermsAgreement) {
+        setUser(data.user)
+        if (data.token) {
+          localStorage.setItem('token', data.token)
+        }
+        return data // リダイレクト情報を含むレスポンスを返す
       }
 
       setUser(data.user)

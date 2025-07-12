@@ -84,10 +84,10 @@ describe('Footer', () => {
     expect(contactLink).toHaveAttribute('href', '/contact')
 
     const privacyLink = screen.getByRole('link', { name: 'プライバシーポリシー' })
-    expect(privacyLink).toHaveAttribute('href', '/privacy')
+    expect(privacyLink).toHaveAttribute('href', '/legal/privacy')
 
     const termsLink = screen.getByRole('link', { name: '利用規約' })
-    expect(termsLink).toHaveAttribute('href', '/terms')
+    expect(termsLink).toHaveAttribute('href', '/legal/terms')
   })
 
   it('renders the copyright notice', () => {

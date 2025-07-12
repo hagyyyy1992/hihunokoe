@@ -31,6 +31,8 @@ model User {
   allergiesOther          String?            @map("allergies_other")
   skinTypeOther           String?            @map("skin_type_other") @db.VarChar(100)
   skinType                SkinType?          @map("skin_type")
+  termsAcceptedAt         DateTime?          @map("terms_accepted_at") @db.Timestamptz(6)
+  privacyAcceptedAt       DateTime?          @map("privacy_accepted_at") @db.Timestamptz(6)
   comments                Comment[]
   empathies               Empathy[]
   postPermissions         PostPermission[]
@@ -216,4 +218,24 @@ enum WithdrawalReason {
   other             @map("other")
 
   @@map("withdrawal_reasons")
+}
+
+model LegalDocument {
+  id          String            @id @default(uuid()) @db.Uuid
+  type        LegalDocumentType @unique @map("type")
+  title       String            @map("title") @db.VarChar(255)
+  content     String            @map("content")
+  version     String            @map("version") @db.VarChar(50)
+  publishedAt DateTime          @default(now()) @map("published_at") @db.Timestamptz(6)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("legal_documents")
+}
+
+enum LegalDocumentType {
+  terms_of_service @map("terms_of_service")
+  privacy_policy   @map("privacy_policy")
+
+  @@map("legal_document_types")
 }

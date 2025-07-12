@@ -21,4 +21,6 @@ export interface AuthTokenPayload {
   email: string
   role: string
   userName?: string // オプショナルフィールドとして追加
+  termsAcceptedAt?: string | null // 利用規約同意日時
+  privacyAcceptedAt?: string | null // プライバシーポリシー同意日時
 }

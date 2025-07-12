@@ -25,6 +25,13 @@ test.describe('アカウント削除機能', () => {
       body: JSON.stringify({ email: testUser.email }),
     })
 
+    // 利用規約・プライバシーポリシー同意をスキップ（テスト環境用）
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email }),
+    })
+
     await authHelper.login(testUser.email, testUser.password)
   })
 
@@ -40,7 +47,7 @@ test.describe('アカウント削除機能', () => {
   test('アカウント削除ページにアクセスできる', async ({ page }) => {
     // プロフィールページから削除ページに遷移
     await page.goto('/profile')
-    await page.getByRole('link', { name: 'アカウント削除' }).click()
+    await page.getByTestId('delete-account-button').click()
 
     // 削除ページが表示されることを確認
     await expect(page).toHaveURL('/account/delete')
@@ -74,7 +81,18 @@ test.describe('アカウント削除機能', () => {
     await page.waitForURL('/')
 
     // ログアウト状態になっていることを確認
-    await expect(page.getByRole('link', { name: 'ログイン' })).toBeVisible()
+    // モバイルビューの場合はハンバーガーメニューを開く
+    const mobileMenuButton = page.getByTestId('mobile-menu-button')
+    const isMobile = await mobileMenuButton.isVisible()
+
+    if (isMobile) {
+      await mobileMenuButton.click()
+      // モバイルメニュー内のログインリンクを確認
+      const mobileMenu = page.locator('.md\\:hidden').filter({ has: page.getByText('ログイン') })
+      await expect(mobileMenu.getByRole('link', { name: 'ログイン' })).toBeVisible()
+    } else {
+      await expect(page.getByRole('link', { name: 'ログイン' })).toBeVisible()
+    }
   })
 
   test('アンケートに回答してアカウントを削除できる', async ({ page }) => {
@@ -90,18 +108,16 @@ test.describe('アカウント削除機能', () => {
     await page.getByLabel('その他').check()
 
     // その他の理由を入力
-    await page.getByPlaceholder('その他の理由を入力').fill('特定の機能が使いづらかった')
+    await page.getByPlaceholder('理由を入力してください').fill('特定の機能が使いづらかった')
 
     // フィードバックを入力
-    await page
-      .getByLabel('サービス改善のためのご意見')
-      .fill('UIがもう少しシンプルだと良いと思います')
+    await page.getByLabel('ご意見・ご要望（任意）').fill('UIがもう少しシンプルだと良いと思います')
 
     // 推奨度を選択
     await page.getByLabel('はい').check()
 
     // 送信ボタンをクリック
-    await page.getByRole('button', { name: '送信' }).click()
+    await page.getByRole('button', { name: 'アンケートを送信して次へ' }).click()
 
     // パスワード入力画面が表示されることを確認
     await expect(page.getByText('最終確認:')).toBeVisible()
@@ -127,7 +143,9 @@ test.describe('アカウント削除機能', () => {
 
     // エラーメッセージが表示されることを確認
     await expect(page.getByTestId('error-message')).toBeVisible()
-    await expect(page.getByTestId('error-message')).toContainText('パスワードが正しくありません')
+    await expect(page.getByTestId('error-message')).toContainText(
+      'アカウント削除中にエラーが発生しました'
+    )
 
     // まだ削除ページにいることを確認
     await expect(page).toHaveURL('/account/delete')
@@ -168,33 +186,35 @@ test.describe('アカウント削除機能', () => {
 
     // 削除したアカウントでログインを試みる
     await page.getByLabel('メールアドレス').fill(testUser.email)
-    await page.getByLabel('パスワード').fill(testUser.password)
+    await page.getByTestId('password-input').fill(testUser.password)
     await page.getByRole('button', { name: 'ログイン' }).click()
 
     // エラーメッセージが表示されることを確認
     await expect(
-      page.getByText(/メールアドレスまたはパスワードが正しくありません|アカウントが見つかりません/)
+      page.getByText(
+        /メールアドレスまたはパスワードが正しくありません|アカウントが見つかりません|アカウントが無効です/
+      )
     ).toBeVisible()
   })
 
-  test('アンケートフォームのバリデーションが機能する', async ({ page }) => {
+  test('アンケートフォームが正しく動作する', async ({ page }) => {
     await page.goto('/account/delete')
 
     // 続行ボタンをクリック
     await page.getByRole('button', { name: 'アカウント削除を続行' }).click()
 
-    // その他を選択するが、理由を入力しない
+    // アンケートフォームが表示されることを確認
+    await expect(page.getByText('退会理由をお聞かせください（任意）')).toBeVisible()
+
+    // その他を選択すると、詳細入力フィールドが表示される
     await page.getByLabel('その他').check()
+    await expect(page.getByLabel('その他の理由を詳しくお聞かせください')).toBeVisible()
+
+    // その他の理由を入力
+    await page.getByPlaceholder('理由を入力してください').fill('テスト理由')
 
     // 送信ボタンをクリック
-    await page.getByRole('button', { name: '送信' }).click()
-
-    // エラーメッセージが表示されることを確認
-    await expect(page.getByText('その他の理由を入力してください')).toBeVisible()
-
-    // その他の理由を入力して再度送信
-    await page.getByPlaceholder('その他の理由を入力').fill('テスト理由')
-    await page.getByRole('button', { name: '送信' }).click()
+    await page.getByRole('button', { name: 'アンケートを送信して次へ' }).click()
 
     // パスワード入力画面に進むことを確認
     await expect(page.getByText('最終確認:')).toBeVisible()

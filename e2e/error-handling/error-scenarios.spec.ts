@@ -10,11 +10,6 @@ test.describe('エラーハンドリング', () => {
 
   test.describe('認証エラー', () => {
     test('無効なパスワードでのログイン', async ({ page, browserName }) => {
-      // Mobile Safariではエラーメッセージ検出が困難なため、スキップ
-      if (browserName === 'webkit') {
-        test.skip()
-        return
-      }
       // 一意なユーザーを作成
       const userData = await authHelper.generateUniqueUser()
       await authHelper.register({
@@ -60,11 +55,6 @@ test.describe('エラーハンドリング', () => {
     })
 
     test('存在しないユーザーでのログイン', async ({ page, browserName }) => {
-      // Mobile Safariではエラーメッセージ検出が困難なため、スキップ
-      if (browserName === 'webkit') {
-        test.skip()
-        return
-      }
       await page.goto('/auth/login')
       await page.getByLabel('メールアドレス').fill('nonexistent@example.com')
       await page.locator('input[name="password"]').fill('password123')

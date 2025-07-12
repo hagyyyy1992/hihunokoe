@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
 import { cookies } from 'next/headers'
+import { getClientIpAddress } from '@/lib/utils/get-ip-address'
 
 const authController = new AuthController()
 
 export async function POST(request: NextRequest) {
-  const response = await authController.login(request)
+  // IPアドレスを取得
+  const ipAddress = await getClientIpAddress()
+
+  // リクエストをクローンしてIPアドレスを追加
+  const body = await request.json()
+  const modifiedRequest = new NextRequest(request.url, {
+    method: 'POST',
+    headers: request.headers,
+    body: JSON.stringify({
+      ...body,
+      ipAddress,
+    }),
+  })
+
+  const response = await authController.login(modifiedRequest)
 
   // レスポンスのステータスをチェック
   if (response.status === 200) {
@@ -25,6 +40,18 @@ export async function POST(request: NextRequest) {
         maxAge: 7 * 24 * 60 * 60, // 7 days
         path: '/',
       })
+
+      // ユーザーが利用規約に同意していない場合は、同意ページへのリダイレクトを指示
+      if (
+        responseData.user &&
+        (!responseData.user.termsAcceptedAt || !responseData.user.privacyAcceptedAt)
+      ) {
+        return NextResponse.json({
+          ...responseData,
+          requiresTermsAgreement: true,
+          redirectTo: '/auth/terms-agreement',
+        })
+      }
 
       // レスポンスデータを返す
       return NextResponse.json(responseData)

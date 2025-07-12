@@ -61,6 +61,8 @@ describe('GetUserUseCase', () => {
       null, // deletedAt
       new Date(),
       new Date(),
+      null, // termsAcceptedAt
+      null, // privacyAcceptedAt
       undefined // password
     )
 

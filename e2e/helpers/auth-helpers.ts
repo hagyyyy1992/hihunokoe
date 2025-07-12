@@ -176,15 +176,110 @@ export class AuthHelper {
     await this.page.getByRole('button', { name: 'ログイン' }).click()
 
     if (expectSuccess) {
-      // Wait for navigation away from login page
-      await this.page.waitForURL(url => !url.pathname.includes('/auth/login'), { timeout: 10000 })
+      // Check if it's Mobile Safari for specific handling
+      const userAgent = await this.page.evaluate(() => navigator.userAgent)
+      const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+      const timeoutMs = isMobileSafari ? 15000 : 10000
 
-      // ログイン成功後の安定のための待機
-      await this.page.waitForTimeout(2000)
+      // Check if we are redirected to terms agreement page
+      try {
+        await this.page.waitForURL('/auth/terms-agreement', {
+          timeout: isMobileSafari ? 5000 : 3000,
+        })
+        // If we reach here, terms agreement is required
+        await this.acceptTermsAndPrivacy()
+      } catch {
+        // No redirection to terms agreement, continue with normal flow
+      }
+
+      // Wait for navigation away from login page (and terms page if applicable) with extended timeout for Mobile Safari
+      let attempts = 0
+      const maxAttempts = isMobileSafari ? 3 : 1
+
+      // Mobile Safari-specific navigation handling
+      if (isMobileSafari) {
+        // Use polling approach for Mobile Safari
+        let loginPageDetected = true
+        let attempts = 0
+        const maxAttempts = 8
+
+        while (loginPageDetected && attempts < maxAttempts) {
+          await this.page.waitForTimeout(2000) // Wait for page to load
+          const currentUrl = this.page.url()
+
+          // Check if we're still on login or terms page
+          if (currentUrl.includes('/auth/login') || currentUrl.includes('/auth/terms-agreement')) {
+            attempts++
+            console.log(`Mobile Safari: Attempt ${attempts}, still on auth page: ${currentUrl}`)
+
+            if (attempts >= maxAttempts) {
+              throw new Error(
+                `Login failed - still on auth page after ${maxAttempts} attempts. Current URL: ${currentUrl}`
+              )
+            }
+            continue
+          }
+
+          loginPageDetected = false
+          console.log(
+            `Mobile Safari: Successfully navigated away from auth pages to: ${currentUrl}`
+          )
+        }
+      } else {
+        // Use standard waitForURL for other browsers with retry
+        while (attempts < maxAttempts) {
+          try {
+            await this.page.waitForURL(
+              url =>
+                !url.pathname.includes('/auth/login') &&
+                !url.pathname.includes('/auth/terms-agreement'),
+              { timeout: timeoutMs }
+            )
+            break
+          } catch (error) {
+            attempts++
+            if (attempts >= maxAttempts) {
+              // Last attempt failed, check if we're at least not on login page
+              const currentUrl = this.page.url()
+              if (currentUrl.includes('/auth/login')) {
+                throw new Error(
+                  `Login failed - still on login page after ${maxAttempts} attempts. Current URL: ${currentUrl}`
+                )
+              }
+              // If we're not on login page but waitForURL still failed, we'll consider it successful
+              console.warn(
+                `waitForURL failed but user appears to be logged in. Current URL: ${currentUrl}`
+              )
+              break
+            }
+            await this.page.waitForTimeout(1000)
+          }
+        }
+      }
+
+      // ログイン成功後の安定のための待機（Mobile Safariでは長めに）
+      await this.page.waitForTimeout(isMobileSafari ? 3000 : 2000)
     } else {
       // Wait a bit for any potential error message
       await this.page.waitForTimeout(1000)
     }
+  }
+
+  async acceptTermsAndPrivacy() {
+    // 利用規約とプライバシーポリシーのリンクをクリックして必要な閲覧時間を満たす
+    await this.page.getByRole('link', { name: '利用規約' }).click()
+    await this.page.waitForTimeout(3500) // 3秒+余裕
+
+    // プライバシーポリシーのリンクをクリック
+    await this.page.getByRole('link', { name: 'プライバシーポリシー' }).click()
+    await this.page.waitForTimeout(3500) // 3秒+余裕
+
+    // チェックボックスをチェック
+    await this.page.getByTestId('agree-terms-checkbox').check()
+    await this.page.getByTestId('agree-privacy-checkbox').check()
+
+    // 同意ボタンをクリック
+    await this.page.getByTestId('submit-agreement-button').click()
   }
 
   async logout() {

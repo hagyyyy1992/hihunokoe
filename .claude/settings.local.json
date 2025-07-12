@@ -62,7 +62,17 @@
       "Bash(-b cookies.txt )",
       "Bash(-H \"Content-Type: application/json\" -v)",
       "Bash(-v)",
-      "Bash(-b cookies.txt)"
+      "Bash(sed:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run format:*)",
+      "Bash(npm test)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm audit:*)",
+      "Bash(npx depcheck:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",

@@ -18,6 +18,8 @@ export interface AuthUser {
   allergies?: AllergyType[]
   allergiesOther?: string | null
   emailVerified?: boolean
+  termsAcceptedAt?: Date | null
+  privacyAcceptedAt?: Date | null
 }
 
 export interface LoginCredentials {

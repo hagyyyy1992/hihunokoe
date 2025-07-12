@@ -26,7 +26,9 @@ describe('User Entity', () => {
     true, // isActive alias
     null,
     new Date('2023-01-01'),
-    new Date('2023-01-02')
+    new Date('2023-01-02'),
+    null,
+    null
   )
 
   describe('constructor', () => {
@@ -78,7 +80,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(lockedUser.isLocked()).toBe(false)
     })
@@ -110,7 +114,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(lockedUser.isLocked()).toBe(true)
     })
@@ -147,7 +153,9 @@ describe('User Entity', () => {
         false,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(inactiveUser.canLogin()).toBe(false)
     })
@@ -179,7 +187,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(lockedUser.canLogin()).toBe(false)
     })
@@ -210,7 +220,9 @@ describe('User Entity', () => {
         true,
         new Date(), // deletedAt
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(deletedUser.canLogin()).toBe(false)
     })
@@ -247,7 +259,9 @@ describe('User Entity', () => {
         true,
         new Date(),
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(deletedUser.isDeleted()).toBe(true)
     })
@@ -284,7 +298,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(adminUser.isAdmin()).toBe(true)
     })
@@ -315,7 +331,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(superAdminUser.isAdmin()).toBe(true)
     })
@@ -352,7 +370,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(adminUser.isSuperAdmin()).toBe(false)
     })
@@ -383,7 +403,9 @@ describe('User Entity', () => {
         true,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        null,
+        null
       )
       expect(superAdminUser.isSuperAdmin()).toBe(true)
     })

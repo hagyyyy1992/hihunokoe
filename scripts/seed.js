@@ -18,6 +18,8 @@ async function main() {
       failedLoginAttempts: 0, // ログイン失敗回数をリセット
       lockedUntil: null, // アカウントロックを解除
       isActive: true, // アクティブ状態に設定
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
     },
     create: {
       userName: 'demo_user',
@@ -27,6 +29,8 @@ async function main() {
       role: 'USER',
       emailVerified: true, // メール認証済みに設定
       isActive: true, // アクティブ状態に設定
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
     },
   })
 
@@ -42,6 +46,8 @@ async function main() {
       lockedUntil: null,
       isActive: true,
       passwordHash: adminHashedPassword, // パスワードも更新
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
     },
     create: {
       userName: 'admin',
@@ -50,6 +56,8 @@ async function main() {
       role: 'SUPER_ADMIN',
       emailVerified: true,
       isActive: true,
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
     },
   })
 

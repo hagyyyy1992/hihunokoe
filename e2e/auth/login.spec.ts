@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
 import { AuthHelper } from '@e2e/helpers/auth-helpers'
-import { testUsers, generateRandomUser } from '@e2e/helpers/test-data'
 import { wait, waitWithLog } from '@e2e/helpers/wait-helper'
 
 test.describe('ログイン', () => {
@@ -23,6 +22,14 @@ test.describe('ログイン', () => {
   test('正常なログインができる', async ({ page }) => {
     // メール認証済みのデモユーザーを使用
     const demoUser = { email: 'demo@example.com', password: 'demo1234' }
+
+    // 利用規約同意状態を確保
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
 
     // まずトップページに移動
     await page.goto('/')
@@ -102,6 +109,14 @@ test.describe('ログイン', () => {
     // メール認証済みのデモユーザーを使用（新規登録ユーザーは未認証のためログインできない）
     const demoUser = { email: 'demo@example.com', password: 'demo1234' }
 
+    // 利用規約同意状態を確保
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
+
     // まずトップページに移動
     await page.goto('/')
 
@@ -134,6 +149,14 @@ test.describe('ログイン', () => {
     const authHelper = new AuthHelper(page)
     // メール認証済みのデモユーザーを使用
     const demoUser = { email: 'demo@example.com', password: 'demo1234' }
+
+    // 利用規約同意状態を確保
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
 
     // ログインページに移動
     await page.goto('/auth/login')
@@ -228,9 +251,121 @@ test.describe('ログイン', () => {
     }
   })
 
+  test('初回ログイン時に利用規約・プライバシーポリシーへの同意ページにリダイレクトされる', async ({
+    page,
+  }) => {
+    // 既存のdemoユーザーを使用（パスワードが既知）
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
+
+    // 利用規約同意状態をリセット
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/reset-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
+
+    await page.goto('/auth/login')
+
+    // メールアドレスとパスワードを入力
+    await page.getByLabel('メールアドレス').fill(demoUser.email)
+    await page.locator('input[name="password"]').fill(demoUser.password)
+
+    // ログインボタンをクリック
+    await page.getByRole('button', { name: 'ログイン' }).click()
+
+    // 利用規約同意ページにリダイレクトされることを確認
+    await expect(page).toHaveURL('/auth/terms-agreement', { timeout: 10000 })
+
+    // 同意ページの要素が表示されることを確認
+    await expect(page.getByRole('heading', { name: '利用規約への同意' })).toBeVisible()
+
+    // チェックボックスが表示されることを確認
+    const agreeTermsCheckbox = page.getByTestId('agree-terms-checkbox')
+    const agreePrivacyCheckbox = page.getByTestId('agree-privacy-checkbox')
+    await expect(agreeTermsCheckbox).toBeVisible()
+    await expect(agreePrivacyCheckbox).toBeVisible()
+
+    // 利用規約とプライバシーポリシーのリンクが表示されることを確認
+    await expect(page.getByRole('main').getByRole('link', { name: '利用規約' })).toBeVisible()
+    await expect(
+      page.getByRole('main').getByRole('link', { name: 'プライバシーポリシー' })
+    ).toBeVisible()
+
+    // まずは何もしていない状態で同意ボタンが無効であることを確認
+    await expect(page.getByTestId('submit-agreement-button')).toBeDisabled()
+
+    // 利用規約リンクをクリックして開く
+    await page.getByRole('main').getByRole('link', { name: '利用規約' }).click()
+
+    // 新しいタブが開くのを待つ
+    await page.waitForTimeout(100)
+
+    // プライバシーポリシーリンクをクリックして開く
+    await page.getByRole('main').getByRole('link', { name: 'プライバシーポリシー' }).click()
+
+    // 新しいタブが開くのを待つ
+    await page.waitForTimeout(100)
+
+    // 3秒待機（リンククリック後の最小読了時間）
+    await page.waitForTimeout(3100)
+
+    // チェックボックスをチェック
+    await agreeTermsCheckbox.check()
+    await agreePrivacyCheckbox.check()
+
+    // 同意ボタンが有効になることを確認してクリック
+    await expect(page.getByTestId('submit-agreement-button')).toBeEnabled()
+    await page.getByTestId('submit-agreement-button').click()
+
+    // ホームページにリダイレクトされることを確認
+    await expect(page).toHaveURL('/home', { timeout: 10000 })
+  })
+
+  test('利用規約同意ページから利用規約リンクが新しいタブで開く', async ({ page, context }) => {
+    // 既存のdemoユーザーを使用
+    const demoUser = { email: 'demo@example.com', password: 'demo1234' }
+
+    // 利用規約同意状態をリセット
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/reset-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
+
+    await page.goto('/auth/login')
+
+    // メールアドレスとパスワードを入力
+    await page.getByLabel('メールアドレス').fill(demoUser.email)
+    await page.locator('input[name="password"]').fill(demoUser.password)
+    await page.getByRole('button', { name: 'ログイン' }).click()
+
+    // 利用規約同意ページにリダイレクトされるのを待つ
+    await expect(page).toHaveURL('/auth/terms-agreement', { timeout: 10000 })
+
+    // 利用規約リンクをクリック
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.getByRole('main').getByRole('link', { name: '利用規約' }).click(),
+    ])
+
+    // 新しいタブで利用規約ページが開くことを確認
+    await expect(newPage).toHaveURL(/\/legal\/terms/)
+    await newPage.close()
+  })
+
   test('ログアウト機能が正常に動作する', async ({ page }) => {
     // メール認証済みのデモユーザーを使用
     const demoUser = { email: 'demo@example.com', password: 'demo1234' }
+
+    // 利用規約同意状態を確保
+    const port = process.env.PORT || '3000'
+    await fetch(`http://localhost:${port}/api/test/accept-terms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoUser.email }),
+    })
 
     // ログインページから開始
     await page.goto('/auth/login')
