@@ -14,7 +14,7 @@ console.log('📝📝📝 [UNPUBLISH POST ROUTE] MODULE LOADED!!! 📝📝📝',
   nodeEnv: process.env.NODE_ENV,
   vercelEnv: process.env.VERCEL_ENV,
   deploymentUrl: process.env.VERCEL_URL,
-  fileName: __filename || 'unpublish/route.ts'
+  fileName: __filename || 'unpublish/route.ts',
 })
 
 let adminController: AdminController | null = null
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     requestId: request.headers.get('x-request-id'),
     xMatchedPath: request.headers.get('x-matched-path'),
     vercelDeploymentUrl: request.headers.get('x-vercel-deployment-url'),
-    allHeaders: Object.fromEntries(request.headers.entries())
+    allHeaders: Object.fromEntries(request.headers.entries()),
   })
 
   if (!adminController) {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       executionTime: `${endTime - startTime}ms`,
       status: result.status,
       statusText: result.statusText,
-      headers: Object.fromEntries(result.headers.entries())
+      headers: Object.fromEntries(result.headers.entries()),
     })
 
     console.log('🎉 [UNPUBLISH POST] ===== HANDLER COMPLETED SUCCESSFULLY =====')
@@ -79,12 +79,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     console.error('💥💥💥 [UNPUBLISH POST] FATAL ERROR:', {
       error: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
     })
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -92,7 +89,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
   console.log('🚀 [UNPUBLISH POST - PUT] ===== PUT METHOD CALLED =====', {
     timestamp: new Date().toISOString(),
     url: request.url,
-    method: request.method
+    method: request.method,
   })
 
   if (!adminController) {
@@ -111,7 +108,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
 export async function OPTIONS() {
   console.log('⚙️⚙️⚙️ [UNPUBLISH POST - OPTIONS] PREFLIGHT REQUEST!!!', {
     timestamp: new Date().toISOString(),
-    message: 'CORS preflight request received'
+    message: 'CORS preflight request received',
   })
   return new NextResponse(null, {
     status: 200,

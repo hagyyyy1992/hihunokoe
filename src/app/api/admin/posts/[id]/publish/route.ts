@@ -30,9 +30,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     contentType: request.headers.get('content-type'),
     authorization: request.headers.get('authorization') ? 'present' : 'none',
     cookies: request.headers.get('cookie') ? 'present' : 'none',
-    headers: Object.fromEntries(request.headers.entries())
+    headers: Object.fromEntries(request.headers.entries()),
   })
-  
+
   if (!adminController) {
     console.error('❌ [PUBLISH POST] AdminController not available - database connection issue')
     return NextResponse.json(
@@ -49,15 +49,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     console.log('✅ [PUBLISH POST] Controller returned result:', {
       status: result.status,
       statusText: result.statusText,
-      headers: Object.fromEntries(result.headers.entries())
+      headers: Object.fromEntries(result.headers.entries()),
     })
     return result
   } catch (error) {
     console.error('💥 [PUBLISH POST] Error in handler:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -65,9 +62,9 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
   console.log('🚀 [PUBLISH POST - PUT] ===== PUT HANDLER STARTED =====', {
     timestamp: new Date().toISOString(),
     url: request.url,
-    method: request.method
+    method: request.method,
   })
-  
+
   if (!adminController) {
     console.error('❌ [PUBLISH POST - PUT] AdminController not available')
     return NextResponse.json(

@@ -13,7 +13,7 @@ console.log('🟢🟢🟢 [ACTIVATE USER ROUTE] MODULE LOADED!!! 🟢🟢🟢', 
   timestamp: new Date().toISOString(),
   nodeEnv: process.env.NODE_ENV,
   vercelEnv: process.env.VERCEL_ENV,
-  deploymentUrl: process.env.VERCEL_URL
+  deploymentUrl: process.env.VERCEL_URL,
 })
 
 let adminController: AdminController | null = null
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     authorization: request.headers.get('authorization') ? 'PRESENT' : 'MISSING',
     cookies: request.headers.get('cookie') ? 'PRESENT' : 'MISSING',
     vercelId: request.headers.get('x-vercel-id'),
-    allHeaders: Object.fromEntries(request.headers.entries())
+    allHeaders: Object.fromEntries(request.headers.entries()),
   })
 
   if (!adminController) {
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       executionTime: `${endTime - startTime}ms`,
       status: result.status,
       statusText: result.statusText,
-      headers: Object.fromEntries(result.headers.entries())
+      headers: Object.fromEntries(result.headers.entries()),
     })
 
     console.log('🎉 [ACTIVATE USER] ===== HANDLER COMPLETED SUCCESSFULLY =====')
@@ -73,12 +73,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     console.error('💥💥💥 [ACTIVATE USER] FATAL ERROR:', {
       error: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
     })
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -86,7 +83,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
   console.log('🚀 [ACTIVATE USER - PUT] ===== PUT METHOD CALLED =====', {
     timestamp: new Date().toISOString(),
     url: request.url,
-    method: request.method
+    method: request.method,
   })
 
   if (!adminController) {
@@ -105,7 +102,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
 export async function OPTIONS() {
   console.log('⚙️⚙️⚙️ [ACTIVATE USER - OPTIONS] PREFLIGHT REQUEST!!!', {
     timestamp: new Date().toISOString(),
-    message: 'CORS preflight request received'
+    message: 'CORS preflight request received',
   })
   return new NextResponse(null, {
     status: 200,
