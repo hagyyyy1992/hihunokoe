@@ -167,6 +167,62 @@ npm run db:status   # Check database connection status
 - Testing utilities in `src/app/api/test/` (cleanup, rate limiter reset)
 - API versioning support with `src/app/api/v2/`
 
+### Performance Guidelines
+
+#### Database Query Optimization
+
+1. **並列クエリの実行**
+   ```typescript
+   // ❌ Bad: Sequential queries
+   const users = await userRepository.findMany()
+   const posts = await postRepository.findMany()
+   const comments = await commentRepository.findMany()
+
+   // ✅ Good: Parallel queries
+   const [users, posts, comments] = await Promise.all([
+     userRepository.findMany(),
+     postRepository.findMany(),
+     commentRepository.findMany()
+   ])
+   ```
+
+2. **N+1クエリの回避**
+   ```typescript
+   // ❌ Bad: Loop with individual queries
+   for (let i = 0; i < 30; i++) {
+     const count = await repository.count({ date: dates[i] })
+   }
+
+   // ✅ Good: Single aggregation query
+   const counts = await repository.aggregateByDate(startDate, endDate)
+   ```
+
+3. **適切な集計の使用**
+   - カウントには専用のcountメソッドを使用
+   - GROUP BYを活用した一括集計
+   - 不要なデータの取得を避ける（SELECT必要なカラムのみ）
+
+4. **キャッシュの活用**
+   - 頻繁にアクセスされるデータはキャッシュ
+   - 統計データは定期的に事前計算
+
+5. **インデックスの適切な使用**
+   - WHERE句で使用するカラムにインデックス
+   - 複合インデックスの順序に注意
+
+#### APIレスポンスタイムの目標
+
+- 単純なCRUD操作: < 200ms
+- 複雑な集計クエリ: < 1秒
+- ダッシュボード等の統計: < 2秒
+
+#### パフォーマンス問題の兆候
+
+- 10個以上の順次データベースクエリ
+- ループ内でのデータベースアクセス
+- 大量データの全件取得
+- 未最適化の集計処理
+
 ### Clean Architecture (API Layer)
 
 - **Directory structure**: `api/src/` follows clean architecture principles
