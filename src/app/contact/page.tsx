@@ -166,12 +166,12 @@ export default function ContactPage() {
                 type="text"
                 required
                 value={formData.name}
-                readOnly
-                className="bg-muted"
-                placeholder="ログインユーザー名が自動入力されます"
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                placeholder="お名前を入力してください"
+                maxLength={100}
               />
               <p className="text-sm text-muted-foreground">
-                ログインユーザーの名前が自動で入力されます
+                ログインユーザーの名前が初期値として入力されています（編集可能）
               </p>
             </div>
 
@@ -182,12 +182,12 @@ export default function ContactPage() {
                 type="email"
                 required
                 value={formData.email}
-                readOnly
-                className="bg-muted"
-                placeholder="ログインユーザーのメールアドレスが自動入力されます"
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder="メールアドレスを入力してください"
+                maxLength={255}
               />
               <p className="text-sm text-muted-foreground">
-                ログインユーザーのメールアドレスが自動で入力されます
+                ログインユーザーのメールアドレスが初期値として入力されています（編集可能）
               </p>
             </div>
 

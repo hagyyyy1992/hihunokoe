@@ -17,9 +17,6 @@ export default function ContactCompletePage() {
         <CardContent className="space-y-6">
           <div className="text-center text-muted-foreground">
             <p>お問い合わせ内容を確認次第、担当者より対応させていただきます。</p>
-            <p className="mt-2">
-              通常2〜3営業日以内に対応いたしますが、内容によってはお時間をいただく場合がございます。
-            </p>
           </div>
 
           <div className="flex flex-col gap-3">
