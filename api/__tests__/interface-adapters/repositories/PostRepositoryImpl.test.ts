@@ -27,6 +27,14 @@ jest.mock('@/lib/mock-data', () => ({
   MOCK_POSTS: [],
 }))
 
+jest.mock('@/lib/cache/memory-cache', () => ({
+  memoryCache: {
+    get: jest.fn(() => null),
+    set: jest.fn(),
+    deletePattern: jest.fn(),
+  },
+}))
+
 // モックオブジェクトの参照を取得
 const mockPrisma = require('@/lib/prisma').prisma
 
@@ -222,7 +230,7 @@ describe('Post.repository', () => {
         },
       })
       expect(result.posts).toHaveLength(2)
-      expect(result.totalCount).toBe(2)
+      expect(result.totalCount).toBe(-1) // 検索時以外は-1を返す
     })
 
     it('ページネーションが機能する', async () => {
@@ -331,12 +339,15 @@ describe('Post.repository', () => {
       expect(mockPrisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            OR: expect.arrayContaining([
+            status: 'published',
+            OR: [
+              { title: { search: '化粧水', mode: 'insensitive' } },
+              { content: { search: '化粧水', mode: 'insensitive' } },
+              { cosmeticName: { search: '化粧水', mode: 'insensitive' } },
               { title: { contains: '化粧水', mode: 'insensitive' } },
               { content: { contains: '化粧水', mode: 'insensitive' } },
               { cosmeticName: { contains: '化粧水', mode: 'insensitive' } },
-              { cosmeticCategory: { contains: '化粧水', mode: 'insensitive' } },
-            ]),
+            ],
           }),
         })
       )
@@ -364,7 +375,14 @@ describe('Post.repository', () => {
             status: 'published',
             cosmeticCategory: 'toner',
             skinType: 'dry',
-            OR: expect.any(Array),
+            OR: [
+              { title: { search: '化粧水', mode: 'insensitive' } },
+              { content: { search: '化粧水', mode: 'insensitive' } },
+              { cosmeticName: { search: '化粧水', mode: 'insensitive' } },
+              { title: { contains: '化粧水', mode: 'insensitive' } },
+              { content: { contains: '化粧水', mode: 'insensitive' } },
+              { cosmeticName: { contains: '化粧水', mode: 'insensitive' } },
+            ],
           }),
         })
       )

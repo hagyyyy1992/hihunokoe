@@ -9,6 +9,7 @@ import {
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Post as PrismaPost } from '@prisma/client'
 import { MOCK_POSTS } from '@/lib/mock-data'
+import { memoryCache } from '@/lib/cache/memory-cache'
 
 export class PostRepository implements IPostRepository {
   async findById(id: string): Promise<Post | null> {
@@ -74,6 +75,26 @@ export class PostRepository implements IPostRepository {
   }
 
   async findMany(filter: FindPostsFilter): Promise<FindPostsResult> {
+    // キャッシュキーの生成
+    const cacheKey = `posts:${JSON.stringify({
+      offset: filter.offset,
+      limit: filter.limit,
+      category: filter.category,
+      skinType: filter.skinType,
+      moodTag: filter.moodTag,
+      search: filter.search,
+      sortBy: filter.sortBy,
+      publishedOnly: filter.publishedOnly,
+    })}`
+
+    // キャッシュから取得を試行（検索時以外）
+    if (!filter.search && isDatabaseAvailable()) {
+      const cached = memoryCache.get(cacheKey)
+      if (cached) {
+        return cached as FindPostsResult
+      }
+    }
+
     if (!isDatabaseAvailable()) {
       // Mock mode
       let filteredPosts = [...MOCK_POSTS]
@@ -187,12 +208,19 @@ export class PostRepository implements IPostRepository {
     }
 
     if (filter.search) {
-      where.OR = [
-        { title: { contains: filter.search, mode: 'insensitive' } },
-        { content: { contains: filter.search, mode: 'insensitive' } },
-        { cosmeticName: { contains: filter.search, mode: 'insensitive' } },
-        { cosmeticCategory: { contains: filter.search, mode: 'insensitive' } },
-      ]
+      // PostgreSQLの全文検索を使用（パフォーマンス向上）
+      const searchTerm = filter.search.trim()
+      if (searchTerm) {
+        where.OR = [
+          { title: { search: searchTerm, mode: 'insensitive' } },
+          { content: { search: searchTerm, mode: 'insensitive' } },
+          { cosmeticName: { search: searchTerm, mode: 'insensitive' } },
+          // フォールバック用（全文検索が使えない場合）
+          { title: { contains: filter.search, mode: 'insensitive' } },
+          { content: { contains: filter.search, mode: 'insensitive' } },
+          { cosmeticName: { contains: filter.search, mode: 'insensitive' } },
+        ]
+      }
     }
 
     const orderBy: any = {}
@@ -202,6 +230,7 @@ export class PostRepository implements IPostRepository {
       orderBy.createdAt = 'desc'
     }
 
+    // 並列実行でパフォーマンス向上
     const [posts, totalCount] = await Promise.all([
       prisma.post.findMany({
         where,
@@ -223,13 +252,21 @@ export class PostRepository implements IPostRepository {
           },
         },
       }),
-      prisma.post.count({ where }),
+      // totalCountは軽量化（検索時のみ正確な値が必要）
+      filter.search ? prisma.post.count({ where }) : Promise.resolve(-1),
     ])
 
-    return {
+    const result = {
       posts: posts.map(post => this.toDomainPost(post)),
       totalCount,
     }
+
+    // 結果をキャッシュに保存（検索時以外、5分間）
+    if (!filter.search && isDatabaseAvailable()) {
+      memoryCache.set(cacheKey, result, 300000) // 5分
+    }
+
+    return result
   }
 
   async create(data: CreatePostData): Promise<Post> {
@@ -264,6 +301,9 @@ export class PostRepository implements IPostRepository {
         },
       },
     })
+
+    // 投稿作成時はキャッシュを無効化
+    this.invalidatePostsCache()
 
     return this.toDomainPost(prismaPost)
   }
@@ -575,5 +615,11 @@ export class PostRepository implements IPostRepository {
       null, // overallRating (not in current schema)
       null // repurchaseIntention (not in current schema)
     )
+  }
+
+  // キャッシュ無効化メソッド
+  private invalidatePostsCache(): void {
+    // posts:で始まるキーをすべて削除
+    memoryCache.deletePattern('^posts:')
   }
 }

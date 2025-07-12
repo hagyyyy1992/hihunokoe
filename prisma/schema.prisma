@@ -38,29 +38,29 @@ model User {
   postPermissions         PostPermission[]
   posts                   Post[]
   withdrawalSurveys       WithdrawalSurvey[]
-  contactInquiries        ContactInquiry[] @relation("UserContactInquiries")
-  respondedInquiries      ContactInquiry[] @relation("UserRespondedInquiries")
+  contactInquiries        ContactInquiry[]   @relation("UserContactInquiries")
+  respondedInquiries      ContactInquiry[]   @relation("UserRespondedInquiries")
 
   @@map("users")
 }
 
 model AdminUser {
-  id                  String           @id @default(uuid()) @db.Uuid
-  adminName           String           @unique @map("admin_name") @db.VarChar(100)
-  email               String           @unique @db.VarChar(255)
-  passwordHash        String           @map("password_hash") @db.VarChar(255)
-  role                AdminRole        @default(ADMIN) @map("role")
-  isActive            Boolean          @default(true) @map("is_active")
-  lastLoginAt         DateTime?        @map("last_login_at") @db.Timestamptz(6)
-  failedLoginAttempts Int              @default(0) @map("failed_login_attempts")
-  lockedUntil         DateTime?        @map("locked_until") @db.Timestamptz(6)
-  permissions         Json?            @map("permissions")
-  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  createdBy           String?          @map("created_by") @db.Uuid
+  id                  String      @id @default(uuid()) @db.Uuid
+  adminName           String      @unique @map("admin_name") @db.VarChar(100)
+  email               String      @unique @db.VarChar(255)
+  passwordHash        String      @map("password_hash") @db.VarChar(255)
+  role                AdminRole   @default(ADMIN) @map("role")
+  isActive            Boolean     @default(true) @map("is_active")
+  lastLoginAt         DateTime?   @map("last_login_at") @db.Timestamptz(6)
+  failedLoginAttempts Int         @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?   @map("locked_until") @db.Timestamptz(6)
+  permissions         Json?       @map("permissions")
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdBy           String?     @map("created_by") @db.Uuid
   adminLogs           AdminLog[]
-  createdByAdmin      AdminUser?       @relation("AdminUserCreatedBy", fields: [createdBy], references: [id])
-  createdAdmins       AdminUser[]      @relation("AdminUserCreatedBy")
+  createdByAdmin      AdminUser?  @relation("AdminUserCreatedBy", fields: [createdBy], references: [id])
+  createdAdmins       AdminUser[] @relation("AdminUserCreatedBy")
 
   @@map("admin_users")
 }
@@ -87,12 +87,19 @@ model Post {
   postPermissions   PostPermission[]
   user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // 既存のインデックス
   @@index([status, createdAt(sort: Desc)])
   @@index([status, publishedAt(sort: Desc)])
   @@index([userId, status])
   @@index([cosmeticCategory, status])
   @@index([skinType, status])
   @@index([moodTag, status])
+  // パフォーマンス最適化用の複合インデックス
+  @@index([status, cosmeticCategory, createdAt(sort: Desc)], name: "posts_status_cosmetic_category_created_at_idx")
+  @@index([status, skinType, createdAt(sort: Desc)], name: "posts_status_skin_type_created_at_idx")
+  @@index([status, moodTag, createdAt(sort: Desc)], name: "posts_status_mood_tag_created_at_idx")
+  @@index([status, cosmeticCategory, skinType, moodTag, createdAt(sort: Desc)], name: "posts_multi_filter_idx")
+  @@index([viewCount(sort: Desc)], name: "posts_view_count_idx")
   @@map("posts")
 }
 
@@ -121,6 +128,7 @@ model Empathy {
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
+  @@index([postId, createdAt(sort: Desc)], name: "empathies_post_id_created_at_idx")
   @@map("empathies")
 }
 
@@ -140,6 +148,7 @@ model Comment {
 
   @@index([postId])
   @@index([userId])
+  @@index([postId, createdAt(sort: Desc)], name: "comments_post_id_created_at_idx")
   @@map("comments")
 }
 
@@ -253,23 +262,23 @@ enum LegalDocumentType {
 }
 
 model ContactInquiry {
-  id               String          @id @default(uuid()) @db.Uuid
-  userId           String?         @map("user_id") @db.Uuid
-  name             String          @map("name") @db.VarChar(100)
-  email            String          @map("email") @db.VarChar(255)
-  subject          String          @map("subject") @db.VarChar(200)
-  message          String          @map("message")
-  category         ContactCategory @map("category")
-  status           ContactStatus   @default(UNREAD) @map("status")
-  ipAddress        String?         @map("ip_address") @db.VarChar(45)
-  userAgent        String?         @map("user_agent")
-  adminNotes       String?         @map("admin_notes")
-  respondedAt      DateTime?       @map("responded_at") @db.Timestamptz(6)
-  respondedBy      String?         @map("responded_by") @db.Uuid
-  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user             User?           @relation("UserContactInquiries", fields: [userId], references: [id], onDelete: SetNull)
-  respondedByUser  User?           @relation("UserRespondedInquiries", fields: [respondedBy], references: [id], onDelete: SetNull)
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String?         @map("user_id") @db.Uuid
+  name            String          @map("name") @db.VarChar(100)
+  email           String          @map("email") @db.VarChar(255)
+  subject         String          @map("subject") @db.VarChar(200)
+  message         String          @map("message")
+  category        ContactCategory @map("category")
+  status          ContactStatus   @default(UNREAD) @map("status")
+  ipAddress       String?         @map("ip_address") @db.VarChar(45)
+  userAgent       String?         @map("user_agent")
+  adminNotes      String?         @map("admin_notes")
+  respondedAt     DateTime?       @map("responded_at") @db.Timestamptz(6)
+  respondedBy     String?         @map("responded_by") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user            User?           @relation("UserContactInquiries", fields: [userId], references: [id], onDelete: SetNull)
+  respondedByUser User?           @relation("UserRespondedInquiries", fields: [respondedBy], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
   @@map("contact_inquiries")
