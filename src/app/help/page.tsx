@@ -2,17 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { ChevronDown, ChevronUp, Search, MessageCircle, UserPlus, HelpCircle } from 'lucide-react'
-import { SERVICE_NAME } from '@/lib/constants'
-
-export const metadata: Metadata = {
-  title: `ヘルプ・よくある質問 - ${SERVICE_NAME}`,
-  description: `${SERVICE_NAME}の使い方とよくある質問`,
-}
 
 // FAQ データ
 const faqData = [
