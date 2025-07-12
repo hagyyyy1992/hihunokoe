@@ -123,7 +123,7 @@ export default function ContactPage() {
               <h3 className="font-semibold">お困りですか？</h3>
               <div className="space-y-2">
                 <div>
-                  <Link href="/support/faq" className="text-primary hover:underline">
+                  <Link href="/help" className="text-primary hover:underline">
                     よくある質問（FAQ）
                   </Link>
                   <p className="text-sm text-muted-foreground">多くの疑問が解決できます</p>

@@ -49,7 +49,7 @@ export default function AnonymousContactCompletePage() {
           </div>
 
           <div className="flex flex-col gap-3 pt-4">
-            <Link href="/support/faq">
+            <Link href="/help">
               <Button variant="outline" className="w-full">
                 よくある質問を確認する
               </Button>

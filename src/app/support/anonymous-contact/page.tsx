@@ -183,7 +183,7 @@ export default function AnonymousContactPage() {
                 <p className="text-muted-foreground">アカウント以外のお問い合わせ（要ログイン）</p>
               </div>
               <div>
-                <Link href="/support/faq" className="text-primary hover:underline">
+                <Link href="/help" className="text-primary hover:underline">
                   よくある質問（FAQ）
                 </Link>
                 <p className="text-muted-foreground">多くの疑問がすぐに解決できます</p>
