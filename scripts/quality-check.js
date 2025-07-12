@@ -6,7 +6,14 @@
  */
 
 const { execSync } = require('child_process')
-const chalk = require('chalk')
+
+// 色付きコンソール出力のヘルパー関数
+const colors = {
+  red: text => `\x1b[31m${text}\x1b[0m`,
+  green: text => `\x1b[32m${text}\x1b[0m`,
+  yellow: text => `\x1b[33m${text}\x1b[0m`,
+  blue: text => `\x1b[34m${text}\x1b[0m`,
+}
 
 const checks = [
   {
@@ -34,24 +41,29 @@ const checks = [
     command: 'npm test',
     critical: true,
   },
+  {
+    name: 'ビルドチェック（Next.js SSG/SSR検証）',
+    command: 'npm run build:check',
+    critical: true,
+  },
 ]
 
 function runCommand(command, name) {
   try {
-    console.log(chalk.blue(`🔄 ${name}を実行中...`))
+    console.log(colors.blue(`🔄 ${name}を実行中...`))
     execSync(command, { stdio: 'inherit', cwd: process.cwd() })
-    console.log(chalk.green(`✅ ${name}が完了しました`))
+    console.log(colors.green(`✅ ${name}が完了しました`))
     return true
   } catch (error) {
-    console.error(chalk.red(`❌ ${name}でエラーが発生しました`))
-    console.error(chalk.red(`コマンド: ${command}`))
-    console.error(chalk.red(`終了コード: ${error.status}`))
+    console.error(colors.red(`❌ ${name}でエラーが発生しました`))
+    console.error(colors.red(`コマンド: ${command}`))
+    console.error(colors.red(`終了コード: ${error.status}`))
     return false
   }
 }
 
 function main() {
-  console.log(chalk.yellow('🚀 品質チェックを開始します...\n'))
+  console.log(colors.yellow('🚀 品質チェックを開始します...\n'))
 
   const results = []
   let allPassed = true
@@ -64,7 +76,7 @@ function main() {
       allPassed = false
       if (check.critical) {
         console.log(
-          chalk.red(`\n💥 クリティカルチェック「${check.name}」が失敗しました。処理を中止します。`)
+          colors.red(`\n💥 クリティカルチェック「${check.name}」が失敗しました。処理を中止します。`)
         )
         break
       }
@@ -73,19 +85,19 @@ function main() {
   }
 
   // 結果サマリー
-  console.log(chalk.yellow('📊 チェック結果サマリー:'))
+  console.log(colors.yellow('📊 チェック結果サマリー:'))
   results.forEach(result => {
     const icon = result.success ? '✅' : '❌'
-    const color = result.success ? chalk.green : chalk.red
+    const color = result.success ? colors.green : colors.red
     console.log(`${icon} ${color(result.name)}`)
   })
 
   if (allPassed) {
-    console.log(chalk.green('\n🎉 全ての品質チェックが完了しました！'))
+    console.log(colors.green('\n🎉 全ての品質チェックが完了しました！'))
     process.exit(0)
   } else {
     console.log(
-      chalk.red('\n💥 品質チェックでエラーが発生しました。上記のエラーを修正してください。')
+      colors.red('\n💥 品質チェックでエラーが発生しました。上記のエラーを修正してください。')
     )
     process.exit(1)
   }

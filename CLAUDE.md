@@ -651,19 +651,40 @@ npx tsc --noEmit
 
 Claude Codeは、ユーザーからpushやデプロイを依頼された際、**必ず**以下の手順を実行すること：
 
-1. **事前チェック実行**: push前に下記コマンドを直列実行
+1. **統合品質チェック実行**: push前に統合チェックスクリプトを実行
 
    ```bash
-   npm run format && npm run lint && npm test && npx tsc --noEmit
+   npm run quality-check
    ```
+
+   このスクリプトは以下を順次実行します：
+
+   - TypeScript型チェック (`npx tsc --noEmit`)
+   - コードフォーマット (`npm run format`)
+   - Prismaスキーマフォーマット (`npx prisma format`)
+   - ESLint (`npm run lint`)
+   - テスト実行 (`npm test`)
+   - **ビルドチェック** (`npm run build:check`) - Next.js固有エラー（Suspense要件など）を検出
 
 2. **エラーハンドリング**:
 
-   - いずれかのコマンドが失敗した場合、pushを中止し原因を調査して修正して、修正完了後に再度チェックを実行
+   - いずれかのチェックが失敗した場合、pushを中止し原因を調査して修正
+   - クリティカルチェック（TypeScript、ESLint、テスト、ビルド）が失敗した場合は即座に中止
+   - 修正完了後に再度品質チェックを実行
 
 3. **成功時のみpush**: 全てのチェックが成功した場合のみgit pushを実行
 
 この手順は**必須**であり、ユーザーが「pushして」と依頼した場合でも、事前チェックなしのpushは禁止します。
+
+### 🔧 ビルドチェックについて
+
+`npm run build:check`は以下を実行し、Next.js 15固有の問題を検出します：
+
+- Suspense境界エラー（`useSearchParams()`など）
+- SSG/SSR時のビルドエラー
+- その他のNext.js実行時エラー
+
+**重要**: `build:check`はDBマイグレーションを行わず、`prisma generate`のみでPrisma Clientを生成します。
 
 ### 📝 Prettierフォーマット変更時の対応
 
