@@ -116,7 +116,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
-      DATABASE_URL: 'postgresql://postgres:password@localhost:5436/hihunokoe_dev',
+      DATABASE_URL: 'postgresql://postgres:password@localhost:5432/hihunokoe_dev',
       NEXTAUTH_SECRET: 'test-secret-key-for-e2e-tests',
       NODE_ENV: 'test', // E2Eテスト環境であることを明示
       USE_MOCK_DATA: 'false',
