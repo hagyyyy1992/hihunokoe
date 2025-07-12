@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     // APIルートを最小限のFunctionにバンドルする（Vercel無料プラン対応）
     serverMinification: true,
   },
+  // 動的ルートの認識を強制
+  generateBuildId: async () => {
+    return 'build-id-' + new Date().getTime()
+  },
 }
 
 export default nextConfig

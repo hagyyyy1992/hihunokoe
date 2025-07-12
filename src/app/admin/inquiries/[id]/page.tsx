@@ -105,9 +105,26 @@ export default function AdminInquiryDetailPage() {
       console.log('Response status:', response.status)
 
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('API Error:', errorData)
-        throw new Error(errorData.error || 'お問い合わせの取得に失敗しました')
+        let errorMessage = 'お問い合わせの取得に失敗しました'
+
+        // レスポンスの Content-Type をチェック
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json()
+            console.error('API Error:', errorData)
+            errorMessage = errorData.error || errorMessage
+          } catch (e) {
+            console.error('Failed to parse error response as JSON:', e)
+          }
+        } else {
+          console.error('Non-JSON response received, status:', response.status)
+          if (response.status === 404) {
+            errorMessage = 'お問い合わせが見つかりませんでした'
+          }
+        }
+
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
@@ -139,11 +156,25 @@ export default function AdminInquiryDetailPage() {
         body: JSON.stringify(formData),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || '更新に失敗しました')
+        let errorMessage = '更新に失敗しました'
+
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json()
+            errorMessage = errorData.error || errorMessage
+          } catch (e) {
+            console.error('Failed to parse error response as JSON:', e)
+          }
+        } else {
+          console.error('Non-JSON response received for update, status:', response.status)
+        }
+
+        throw new Error(errorMessage)
       }
+
+      const data = await response.json()
 
       setInquiry(data.inquiry)
       alert('更新しました')
