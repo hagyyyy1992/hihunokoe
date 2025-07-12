@@ -54,14 +54,15 @@ interface PostData {
   post: PostNode
 }
 
-async function PostDetailPage({ params }: { params: { id: string } }) {
+async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   let initialData: PostData | undefined
 
   try {
     // サーバーサイドで投稿データを事前取得（empathies/commentsの配列は除外済み）
     const { data } = await getClient().query<PostData>({
       query: GET_POST,
-      variables: { id: params.id },
+      variables: { id },
       errorPolicy: 'all',
     })
     initialData = data
@@ -103,7 +104,7 @@ async function PostDetailPage({ params }: { params: { id: string } }) {
         </div>
       }
     >
-      <PostDetailClient initialData={initialData} postId={params.id} />
+      <PostDetailClient initialData={initialData} postId={id} />
     </Suspense>
   )
 }
