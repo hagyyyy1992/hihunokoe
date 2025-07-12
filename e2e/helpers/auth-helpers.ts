@@ -309,18 +309,18 @@ export class AuthHelper {
       await this.page.waitForLoadState('networkidle', { timeout: 10000 })
 
       // 利用規約リンクをクリック（E2Eモードでは即座に読了状態になる）
-      // E2Eモードではbutton要素、通常モードではlink要素
+      // E2Eモードではボタン要素内のテキストを直接検索、通常モードではlink要素
       const termsElement = isE2EMode
-        ? this.page.getByRole('button', { name: '利用規約' })
+        ? this.page.getByText('利用規約').first()
         : this.page.getByRole('link', { name: '利用規約' })
       await termsElement.waitFor({ state: 'visible', timeout: 10000 })
       await termsElement.click()
       console.log('Terms element clicked')
 
       // プライバシーポリシーリンクをクリック（E2Eモードでは即座に読了状態になる）
-      // E2Eモードではbutton要素、通常モードではlink要素
+      // E2Eモードではボタン要素内のテキストを直接検索、通常モードではlink要素
       const privacyElement = isE2EMode
-        ? this.page.getByRole('button', { name: 'プライバシーポリシー' })
+        ? this.page.getByText('プライバシーポリシー').first()
         : this.page.getByRole('link', { name: 'プライバシーポリシー' })
       await privacyElement.waitFor({ state: 'visible', timeout: 10000 })
       await privacyElement.click()
