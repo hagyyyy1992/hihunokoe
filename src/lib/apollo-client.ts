@@ -33,10 +33,36 @@ const authLink = setContext((_, { headers }) => {
 
 export const apolloClient = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          posts: {
+            keyArgs: ['filter', 'orderBy'],
+            merge(existing, incoming) {
+              if (!existing) return incoming
+
+              // フィルターが変わった場合は新しいデータで置き換え
+              if (!existing.edges || !incoming.edges) return incoming
+
+              return {
+                ...incoming,
+                edges: [...existing.edges, ...incoming.edges],
+              }
+            },
+          },
+        },
+      },
+    },
+  }),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first',
+      nextFetchPolicy: 'cache-first',
+    },
+    query: {
+      fetchPolicy: 'cache-first',
+      errorPolicy: 'all',
     },
   },
 })

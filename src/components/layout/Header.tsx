@@ -128,7 +128,7 @@ export default function Header() {
                 <Link href="/home" className={getNavLinkClass('/home')}>
                   ホーム
                 </Link>
-                <Link href="/posts" className={getNavLinkClass('/posts')}>
+                <Link href="/posts" prefetch={true} className={getNavLinkClass('/posts')}>
                   体験を見る
                 </Link>
                 <Link href="/posts/new" className={getPostNewLinkClass()}>
@@ -222,6 +222,7 @@ export default function Header() {
                 )}
                 <Link
                   href="/posts"
+                  prefetch={true}
                   className={getMobileNavLinkClass('/posts')}
                   onClick={() => setIsMenuOpen(false)}
                 >

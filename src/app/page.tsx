@@ -84,6 +84,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in animation-delay-400">
               <Link
                 href="/posts"
+                prefetch={true}
                 className="bg-apple-600 text-white hover:bg-apple-700 px-8 py-4 rounded-full text-lg font-medium transition-colors inline-flex items-center justify-center transform hover:scale-105"
               >
                 体験談を見る
