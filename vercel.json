@@ -23,5 +23,35 @@
         }
       ]
     }
+  ],
+  "functions": {
+    "src/app/api/admin/posts/[id]/*/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/admin/users/[id]/*/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/admin/posts/:id/unpublish",
+      "destination": "/api/admin/posts/[id]/unpublish"
+    },
+    {
+      "source": "/api/admin/posts/:id/delete",
+      "destination": "/api/admin/posts/[id]/delete"
+    },
+    {
+      "source": "/api/admin/posts/:id/publish",
+      "destination": "/api/admin/posts/[id]/publish"
+    },
+    {
+      "source": "/api/admin/users/:id/suspend",
+      "destination": "/api/admin/users/[id]/suspend"
+    },
+    {
+      "source": "/api/admin/users/:id/activate",
+      "destination": "/api/admin/users/[id]/activate"
+    }
   ]
 }
