@@ -1,19 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLoginTestUser } from '@e2e/helpers/auth-helpers'
-import { generateRandomUser } from '@e2e/helpers/test-data'
+import { loginTestUser } from '@e2e/helpers/auth-helpers'
 
 test.describe('認証デバッグ', () => {
   test('認証フローの詳細確認', async ({ page }) => {
-    // テスト用ユーザーで登録してログイン
-    const user = generateRandomUser()
-
-    // 登録とログイン
-    await registerAndLoginTestUser(page, {
-      email: user.email,
-      password: user.password,
-      userName: user.username,
-      skinType: user.skinType,
-    })
+    // Mock userでログイン（問題の単純化）
+    await loginTestUser(page, 'demo@example.com', 'demo1234')
 
     // /api/auth/meエンドポイントをテスト
     await page.evaluate(async () => {
