@@ -8,6 +8,7 @@ export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,6 +57,72 @@ export default function Home() {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
     }
+  }
+
+  const samplePosts = [
+    {
+      id: 1,
+      user: 'あかりさん',
+      userInitial: 'A',
+      skinType: '乾燥肌',
+      age: '20代',
+      product: '無印良品 化粧水・敏感肌用・高保湿タイプ',
+      review: '冬の乾燥がひどくて悩んでいた時に使い始めました。とろみのあるテクスチャーで、肌にしっかり浸透している感じ。朝起きた時の乾燥感が全然違います！',
+      period: '3ヶ月',
+      likes: 12
+    },
+    {
+      id: 2,
+      user: 'まいさん',
+      userInitial: 'M',
+      skinType: '混合肌',
+      age: '30代',
+      product: 'キュレル 泡洗顔料',
+      review: '敏感肌でも使える洗顔料を探していて試してみました。泡立ちがとても良くて、洗い上がりがしっとり。Tゾーンはすっきり、頬は乾燥しすぎずちょうど良いバランスです。',
+      period: '2ヶ月',
+      likes: 8
+    },
+    {
+      id: 3,
+      user: 'さやかさん',
+      userInitial: 'S',
+      skinType: '脂性肌',
+      age: '20代',
+      product: 'ニベア クリーム（青缶）',
+      review: '脂性肌なので重いクリームは避けていましたが、口コミが良くて試してみました。薄く伸ばすと意外とベタつかず、朝の化粧ノリが良くなりました。',
+      period: '6ヶ月',
+      likes: 15
+    },
+    {
+      id: 4,
+      user: 'りえさん',
+      userInitial: 'R',
+      skinType: '敏感肌',
+      age: '40代',
+      product: 'ちふれ 美白美容液 W',
+      review: 'プチプラの美白美容液を探していて購入。さらっとしたテクスチャーで敏感肌でもピリピリしません。3ヶ月使って少しずつ肌のトーンが明るくなってきた気がします。',
+      period: '4ヶ月',
+      likes: 6
+    },
+    {
+      id: 5,
+      user: 'かなさん',
+      userInitial: 'K',
+      skinType: '普通肌',
+      age: '30代',
+      product: 'オルビス クレンジングリキッド',
+      review: '濡れた手でも使えるのが便利でリピート中。マスカラもしっかり落ちるのに、目元がつっぱりません。オイルフリーなので、まつエクをしていても安心して使えます。',
+      period: '1年',
+      likes: 18
+    }
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % samplePosts.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + samplePosts.length) % samplePosts.length)
   }
 
   return (
@@ -370,7 +437,7 @@ export default function Home() {
           </div>
           {/* スクロールインジケーター */}
           <button
-            onClick={() => scrollToSection('statistics')}
+            onClick={() => scrollToSection('post-samples')}
             className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
               visibleSections.has('testimonials') ? 'opacity-100' : 'opacity-0'
             }`}
@@ -392,43 +459,120 @@ export default function Home() {
           </button>
         </section>
 
-        {/* 統計セクション */}
+        {/* 投稿サンプルセクション */}
         <section
-          id="statistics"
-          className={`py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 transition-all duration-1000 ${
-            visibleSections.has('statistics')
+          id="post-samples"
+          className={`py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 transition-all duration-1000 ${
+            visibleSections.has('post-samples')
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-10'
           }`}
         >
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
-              数字で見る{SERVICE_NAME}
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-3">
+              こんな体験談が投稿されています
             </h2>
-            <div className="grid md:grid-cols-4 gap-8 text-center">
-              <div>
-                <p className="text-4xl font-bold text-apple-600 mb-2">10,000+</p>
-                <p className="text-gray-600">登録ユーザー数</p>
+            <p className="text-center text-gray-600 mb-12">
+              実際のユーザーが投稿するリアルな体験談の例をご紹介
+            </p>
+            
+            {/* スライダーコンテナ */}
+            <div className="relative">
+              {/* 前へボタン */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                aria-label="前のスライドへ"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* 次へボタン */}
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                aria-label="次のスライドへ"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* スライドコンテンツ */}
+              <div className="mx-12 overflow-hidden">
+                <div 
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {samplePosts.map((post) => (
+                    <div key={post.id} className="w-full flex-shrink-0 px-4">
+                      <div className="bg-white rounded-lg shadow-sm border p-6 max-w-lg mx-auto">
+                        <div className="flex items-center mb-4">
+                          <div className="w-10 h-10 bg-apple-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-apple-700">{post.userInitial}</span>
+                          </div>
+                          <div className="ml-3">
+                            <p className="font-medium text-gray-900">{post.user}</p>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <span>{post.skinType}</span>
+                              <span className="mx-1">•</span>
+                              <span>{post.age}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-3 text-sm">{post.product}</h3>
+                        <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                          「{post.review}」
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>使用期間: {post.period}</span>
+                          <div className="flex items-center">
+                            <svg className="w-4 h-4 text-apple-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                            </svg>
+                            <span>{post.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <p className="text-4xl font-bold text-apple-600 mb-2">25,000+</p>
-                <p className="text-gray-600">投稿された体験談</p>
+
+              {/* インジケーター */}
+              <div className="flex justify-center mt-6 space-x-2">
+                {samplePosts.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      currentSlide === index ? 'bg-apple-600' : 'bg-gray-300'
+                    }`}
+                    aria-label={`スライド${index + 1}へ`}
+                  />
+                ))}
               </div>
-              <div>
-                <p className="text-4xl font-bold text-apple-600 mb-2">5,000+</p>
-                <p className="text-gray-600">レビューされた商品</p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-apple-600 mb-2">95%</p>
-                <p className="text-gray-600">満足度</p>
-              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link
+                href="/posts"
+                className="inline-flex items-center text-apple-600 hover:text-apple-700 font-medium"
+              >
+                もっと体験談を見る
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
           </div>
           {/* スクロールインジケーター */}
           <button
             onClick={() => scrollToSection('faq')}
             className={`w-full flex justify-center py-4 transition-opacity duration-500 ${
-              visibleSections.has('statistics') ? 'opacity-100' : 'opacity-0'
+              visibleSections.has('post-samples') ? 'opacity-100' : 'opacity-0'
             }`}
             aria-label="次のセクションへ"
           >
@@ -597,6 +741,7 @@ export default function Home() {
             opacity: 0;
           }
         }
+
 
         .animate-fade-in {
           animation: fade-in 0.8s ease-out forwards;
