@@ -87,6 +87,12 @@ model Post {
   postPermissions   PostPermission[]
   user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([status, createdAt(sort: Desc)])
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([userId, status])
+  @@index([cosmeticCategory, status])
+  @@index([skinType, status])
+  @@index([moodTag, status])
   @@map("posts")
 }
 
@@ -113,6 +119,8 @@ model Empathy {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
   @@map("empathies")
 }
 
@@ -130,6 +138,8 @@ model Comment {
   post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([postId])
+  @@index([userId])
   @@map("comments")
 }
 

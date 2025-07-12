@@ -23,6 +23,7 @@
     "format:check": "prettier --check .",
     "quality-check": "node scripts/quality-check.js",
     "check:html-nesting": "node scripts/check-html-nesting.js",
+    "create-pr": "node scripts/create-pr.js",
     "postinstall": "prisma generate",
     "db:setup": "docker compose up -d postgres",
     "db:stop": "docker compose stop",

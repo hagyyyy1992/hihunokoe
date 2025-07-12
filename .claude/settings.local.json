@@ -102,6 +102,13 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/usaka_dev\" npx prisma migrate reset --force)"
     ]
   },
+  "slashCommands": {
+    "create-pr": {
+      "description": "高品質なプルリクエストを自動生成",
+      "command": "npm run create-pr",
+      "helpFile": ".claude/commands/create-pr.md"
+    }
+  },
   "enabledMcpjsonServers": ["filesystem", "git", "memory", "playwright", "figma"],
   "project_context": {
     "name": "Usaka",

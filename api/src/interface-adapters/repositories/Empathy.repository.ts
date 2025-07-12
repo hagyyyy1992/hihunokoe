@@ -29,6 +29,21 @@ export class EmpathyRepository implements IEmpathyRepository {
     return this.toDomainEmpathy(prismaEmpathy)
   }
 
+  async findByUserAndPosts(userId: string, postIds: string[]): Promise<Empathy[]> {
+    if (!prisma) throw new Error('Database connection not available')
+
+    const prismaEmpathies = await prisma.empathy.findMany({
+      where: {
+        userId,
+        postId: {
+          in: postIds,
+        },
+      },
+    })
+
+    return prismaEmpathies.map(empathy => this.toDomainEmpathy(empathy))
+  }
+
   async findByPost(postId: string): Promise<Empathy[]> {
     if (!prisma) throw new Error('Database connection not available')
 
