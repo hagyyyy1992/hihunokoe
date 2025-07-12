@@ -131,14 +131,14 @@ describe('AdminLoginPage', () => {
     expect(screen.getByRole('button', { name: 'ログイン' })).toBeInTheDocument()
   })
 
-  it('has default values for email and password', () => {
+  it('has empty default values for email and password', () => {
     render(<AdminLoginPage />)
 
     const emailInput = screen.getByLabelText('メールアドレス') as HTMLInputElement
     const passwordInput = screen.getByLabelText('パスワード') as HTMLInputElement
 
-    expect(emailInput.value).toBe('admin@example.com')
-    expect(passwordInput.value).toBe('admin123')
+    expect(emailInput.value).toBe('')
+    expect(passwordInput.value).toBe('')
   })
 
   it('updates input values when typing', () => {
@@ -168,6 +168,13 @@ describe('AdminLoginPage', () => {
     })
 
     render(<AdminLoginPage />)
+
+    // Fill in form fields first
+    const emailInput = screen.getByLabelText('メールアドレス')
+    const passwordInput = screen.getByLabelText('パスワード')
+
+    fireEvent.change(emailInput, { target: { value: 'admin@example.com' } })
+    fireEvent.change(passwordInput, { target: { value: 'admin123' } })
 
     const form = screen.getByRole('button', { name: 'ログイン' }).closest('form')
     fireEvent.submit(form!)

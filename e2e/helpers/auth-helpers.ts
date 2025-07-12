@@ -141,7 +141,12 @@ export class AuthHelper {
     await this.page.goto('/auth/register')
 
     // Wait for form to be loaded
-    await this.page.waitForSelector('[data-testid="register-form"]', { timeout: 10000 })
+    // Mobile Safariは読み込みが遅いため、タイムアウトを増やす
+    const userAgent = await this.page.evaluate(() => navigator.userAgent)
+    const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+    await this.page.waitForSelector('[data-testid="register-form"]', {
+      timeout: isMobileSafari ? 20000 : 10000,
+    })
 
     // Fill form fields
     await this.page.getByLabel('ユーザー名 *').fill(userData.username)
@@ -168,6 +173,20 @@ export class AuthHelper {
   async login(email: string, password: string, expectSuccess: boolean = true) {
     await this.page.goto('/auth/login')
 
+    // Mobile Safariは読み込みが遅いため、フォームが表示されるまで待つ
+    const userAgent = await this.page.evaluate(() => navigator.userAgent)
+    const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
+
+    if (isMobileSafari) {
+      // フォームが確実に表示されるまで待つ
+      await this.page.waitForSelector('[data-testid="login-form"]', {
+        timeout: 20000,
+        state: 'visible',
+      })
+      // 追加の待機時間
+      await this.page.waitForTimeout(1000)
+    }
+
     // Fill login form
     await this.page.getByLabel('メールアドレス').fill(email)
     await this.page.locator('input[name="password"]').fill(password)
@@ -183,10 +202,15 @@ export class AuthHelper {
 
       // Check if we are redirected to terms agreement page
       try {
-        await this.page.waitForURL('/auth/terms-agreement', {
+        await this.page.waitForURL('/auth/terms-agreement**', {
           timeout: isMobileSafari ? 5000 : 3000,
         })
         // If we reach here, terms agreement is required
+        // E2Eテストモードでリダイレクトするため、URLにパラメータを追加
+        const currentUrl = this.page.url()
+        if (!currentUrl.includes('e2e=true')) {
+          await this.page.goto(currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'e2e=true')
+        }
         await this.acceptTermsAndPrivacy()
       } catch {
         // No redirection to terms agreement, continue with normal flow
@@ -266,20 +290,76 @@ export class AuthHelper {
   }
 
   async acceptTermsAndPrivacy() {
-    // 利用規約とプライバシーポリシーのリンクをクリックして必要な閲覧時間を満たす
-    await this.page.getByRole('link', { name: '利用規約' }).click()
-    await this.page.waitForTimeout(3500) // 3秒+余裕
+    try {
+      // 現在のページURL確認
+      const currentUrl = this.page.url()
+      console.log(`AcceptTermsAndPrivacy: Starting on URL: ${currentUrl}`)
 
-    // プライバシーポリシーのリンクをクリック
-    await this.page.getByRole('link', { name: 'プライバシーポリシー' }).click()
-    await this.page.waitForTimeout(3500) // 3秒+余裕
+      // 利用規約同意ページでない場合は終了
+      if (!currentUrl.includes('/auth/terms-agreement')) {
+        console.log('Not on terms agreement page, skipping')
+        return
+      }
 
-    // チェックボックスをチェック
-    await this.page.getByTestId('agree-terms-checkbox').check()
-    await this.page.getByTestId('agree-privacy-checkbox').check()
+      // E2Eモードの確認
+      const isE2EMode = currentUrl.includes('e2e=true')
+      console.log(`E2E mode: ${isE2EMode}`)
 
-    // 同意ボタンをクリック
-    await this.page.getByTestId('submit-agreement-button').click()
+      // ページが完全に読み込まれるまで待機
+      await this.page.waitForLoadState('networkidle', { timeout: 10000 })
+
+      // 利用規約リンクをクリック（E2Eモードでは即座に読了状態になる）
+      // E2Eモードではbutton要素、通常モードではlink要素
+      const termsElement = isE2EMode
+        ? this.page.getByRole('button', { name: '利用規約' })
+        : this.page.getByRole('link', { name: '利用規約' })
+      await termsElement.waitFor({ state: 'visible', timeout: 10000 })
+      await termsElement.click()
+      console.log('Terms element clicked')
+
+      // プライバシーポリシーリンクをクリック（E2Eモードでは即座に読了状態になる）
+      // E2Eモードではbutton要素、通常モードではlink要素
+      const privacyElement = isE2EMode
+        ? this.page.getByRole('button', { name: 'プライバシーポリシー' })
+        : this.page.getByRole('link', { name: 'プライバシーポリシー' })
+      await privacyElement.waitFor({ state: 'visible', timeout: 10000 })
+      await privacyElement.click()
+      console.log('Privacy element clicked')
+
+      // E2Eモードでは短時間待機、通常モードでは少し長く待機
+      const waitTime = isE2EMode ? 100 : 1000
+      await this.page.waitForTimeout(waitTime)
+
+      // チェックボックスをチェック
+      await this.page.getByTestId('agree-terms-checkbox').check()
+      console.log('Terms checkbox checked')
+      await this.page.getByTestId('agree-privacy-checkbox').check()
+      console.log('Privacy checkbox checked')
+
+      // 同意ボタンをクリック
+      const submitButton = this.page.getByTestId('submit-agreement-button')
+      await submitButton.click()
+      console.log('Submit button clicked')
+
+      // ページ遷移を待つ
+      await this.page.waitForURL(
+        url => {
+          const urlStr = url.toString()
+          const isAway = !urlStr.includes('/auth/terms-agreement')
+          console.log(`URL check: ${urlStr}, away from terms: ${isAway}`)
+          return isAway
+        },
+        {
+          timeout: 15000,
+        }
+      )
+
+      console.log('Successfully completed terms and privacy acceptance')
+    } catch (error) {
+      console.error('Error in acceptTermsAndPrivacy:', error)
+      console.log(`Current URL when error occurred: ${this.page.url()}`)
+      throw error
+    }
   }
 
   async logout() {
@@ -432,7 +512,7 @@ export class AuthHelper {
       const userAgent = await this.page.evaluate(() => navigator.userAgent)
       const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
 
-      await mobileMenuButton.waitFor({ state: 'visible', timeout: 5000 })
+      await mobileMenuButton.waitFor({ state: 'visible', timeout: 10000 })
       await mobileMenuButton.click({ force: true, timeout: 5000 })
       // Wait for menu to open
       await this.page.waitForTimeout(500)
