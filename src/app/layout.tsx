@@ -5,6 +5,7 @@ import ConditionalLayout from '@/components/layout/ConditionalLayout'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { ApolloProvider } from '@/components/providers/ApolloProvider'
 import { SERVICE_FULL_TITLE } from '@/lib/constants'
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        <GoogleAnalytics />
         <AuthProvider>
           <ApolloProvider>
             <ConditionalLayout>{children}</ConditionalLayout>

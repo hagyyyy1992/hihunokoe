@@ -57,8 +57,42 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">6. アクセス解析ツール</h2>
         <p className="mb-4">
-          当サービスは、サービス改善のためにアクセス解析ツールを使用することがあります。
+          当サービスは、サービス改善のためにGoogle Analyticsを使用しています。 Google
+          Analyticsは、Cookieを使用してユーザーのウェブサイト利用状況を分析します。
           これにより収集される情報は統計的なものであり、個人を特定するものではありません。
+        </p>
+        <p className="mb-4">Google Analyticsにより収集される情報には以下が含まれます：</p>
+        <ul className="list-disc ml-6 mb-4">
+          <li>訪問したページのURL</li>
+          <li>滞在時間</li>
+          <li>参照元（どこから当サービスにアクセスしたか）</li>
+          <li>使用しているブラウザやデバイスの種類</li>
+          <li>おおよその地域（IPアドレスから推定）</li>
+        </ul>
+        <p className="mb-4">
+          これらの情報はGoogleに送信され、Googleのプライバシーポリシーに従って管理されます。 Google
+          Analyticsの利用規約は
+          <a
+            href="https://marketingplatform.google.com/about/analytics/terms/jp/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            こちら
+          </a>
+          をご確認ください。
+        </p>
+        <p className="mb-4">
+          Google Analyticsによるデータ収集を拒否したい場合は、
+          <a
+            href="https://tools.google.com/dlpage/gaoptout?hl=ja"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            Google Analytics オプトアウト アドオン
+          </a>
+          をご利用ください。
         </p>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">7. 個人情報の開示・訂正・削除</h2>
@@ -79,9 +113,9 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <p className="mt-8 text-sm text-gray-600">
-          制定日：2025年1月1日
+          制定日：2025年7月12日
           <br />
-          最終更新日：2025年1月1日
+          最終更新日：2025年7月12日
         </p>
       </div>
     </div>
