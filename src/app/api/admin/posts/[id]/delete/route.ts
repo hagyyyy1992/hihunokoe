@@ -5,6 +5,11 @@ import { AdminController } from '@api/framework/controllers/AdminController'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+// Explicitly define that this route uses dynamic parameters
+export async function generateStaticParams() {
+  return []
+}
+
 console.log('🗑️🗑️🗑️ [DELETE POST ROUTE] MODULE LOADED!!! 🗑️🗑️🗑️', {
   timestamp: new Date().toISOString(),
   nodeEnv: process.env.NODE_ENV,

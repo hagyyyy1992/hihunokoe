@@ -5,6 +5,11 @@ import { AdminController } from '@api/framework/controllers/AdminController'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+// Explicitly define that this route uses dynamic parameters
+export async function generateStaticParams() {
+  return []
+}
+
 console.log('[PUBLISH POST ROUTE] Module loaded at:', new Date().toISOString())
 
 let adminController: AdminController | null = null
