@@ -16,17 +16,19 @@ import { GraphQLContext } from '@/graphql/context'
 export class GraphQLPostController {
   private postRetrievalUseCase: PostRetrievalUseCase
   private postManagementUseCase: PostManagementUseCase
+  private commentRepository: CommentRepository
+  private empathyRepository: EmpathyRepository
 
   constructor() {
     const postRepository = new PostRepository()
     const userRepository = new UserRepository()
-    const empathyRepository = new EmpathyRepository()
-    const commentRepository = new CommentRepository()
+    this.empathyRepository = new EmpathyRepository()
+    this.commentRepository = new CommentRepository()
 
     this.postRetrievalUseCase = new PostRetrievalUseCase(
       postRepository,
-      empathyRepository,
-      commentRepository
+      this.empathyRepository,
+      this.commentRepository
     )
     this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
   }
@@ -200,6 +202,72 @@ export class GraphQLPostController {
     try {
       await this.postManagementUseCase.deletePost(input)
       return { success: true }
+    } catch (error) {
+      throw new Error((error as Error).message)
+    }
+  }
+
+  async getPostComments(
+    args: { postId: string; first?: number; after?: string },
+    context: GraphQLContext
+  ) {
+    try {
+      const limit = args.first || 10
+      const offset = args.after ? parseInt(args.after) : 0
+
+      const comments = await this.commentRepository.findByPostId(args.postId, {
+        limit,
+        offset,
+      })
+
+      const edges = comments.map((comment, index) => ({
+        cursor: (offset + index + 1).toString(),
+        node: comment,
+      }))
+
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage: comments.length === limit,
+          hasPreviousPage: offset > 0,
+          startCursor: edges[0]?.cursor,
+          endCursor: edges[edges.length - 1]?.cursor,
+        },
+        totalCount: comments.length, // TODO: 正確な総数を取得する場合は別途カウントクエリ
+      }
+    } catch (error) {
+      throw new Error((error as Error).message)
+    }
+  }
+
+  async getPostEmpathies(
+    args: { postId: string; first?: number; after?: string },
+    context: GraphQLContext
+  ) {
+    try {
+      const limit = args.first || 10
+      const offset = args.after ? parseInt(args.after) : 0
+
+      const empathies = await this.empathyRepository.findByPostId(args.postId, {
+        limit,
+        offset,
+      })
+
+      const edges = empathies.map((empathy, index) => ({
+        cursor: (offset + index + 1).toString(),
+        node: empathy,
+      }))
+
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage: empathies.length === limit,
+          hasPreviousPage: offset > 0,
+          startCursor: edges[0]?.cursor,
+          endCursor: edges[edges.length - 1]?.cursor,
+        },
+        totalCount: empathies.length, // TODO: 正確な総数を取得する場合は別途カウントクエリ
+      }
     } catch (error) {
       throw new Error((error as Error).message)
     }

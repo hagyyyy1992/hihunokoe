@@ -40,17 +40,28 @@ async function PostsPage() {
   let initialData: PostData | undefined
 
   try {
-    // サーバーサイドで初期データを取得
+    // サーバーサイドで初期データを取得（より多くのデータを取得）
     const { data } = await getClient().query<PostData>({
       query: GET_POSTS,
       variables: {
-        first: 10,
+        first: 50, // クライアントサイドフィルタリング用により多くのデータを取得
         filter: {},
         orderBy: 'CREATED_AT_DESC',
       },
       errorPolicy: 'all',
     })
     initialData = data
+
+    // バックグラウンドでよく使われるフィルターをプリロード（ノンブロッキング）
+    if (typeof window === 'undefined') {
+      // サーバーサイドでのみ実行
+      import('@api/interface-adapters/repositories/Post.repository')
+        .then(({ PostRepository }) => {
+          const repository = new PostRepository()
+          repository.preloadPopularFilters().catch(console.error)
+        })
+        .catch(console.error)
+    }
   } catch (error) {
     // エラーの場合はクライアントサイドでフェッチするためundefinedのまま
     console.error('Failed to fetch initial posts data:', error)

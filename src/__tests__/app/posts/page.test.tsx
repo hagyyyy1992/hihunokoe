@@ -30,13 +30,13 @@ const mockPosts = {
             moodTag: null,
             viewCount: 10,
             empathyCount: 5,
+            commentCount: 3,
             createdAt: new Date().toISOString(),
             user: {
               id: '1',
               displayName: 'testuser',
               profileImageUrl: null,
             },
-            empathies: [],
           },
         },
       ],
@@ -54,7 +54,7 @@ const mocks = [
     request: {
       query: GET_POSTS,
       variables: {
-        first: 10,
+        first: 50,
         filter: {},
         orderBy: 'CREATED_AT_DESC',
       },
@@ -126,7 +126,7 @@ describe('PostsClient', () => {
         request: {
           query: GET_POSTS,
           variables: {
-            first: 10,
+            first: 50,
             filter: { cosmeticCategory: 'toner' },
             orderBy: 'CREATED_AT_DESC',
           },

@@ -13,6 +13,15 @@ import { memoryCache } from '@/lib/cache/memory-cache'
 
 export class PostRepository implements IPostRepository {
   async findById(id: string): Promise<Post | null> {
+    // キャッシュから取得を試行
+    const cacheKey = `post:${id}`
+    if (isDatabaseAvailable()) {
+      const cached = memoryCache.get(cacheKey)
+      if (cached) {
+        return cached as Post
+      }
+    }
+
     if (!isDatabaseAvailable()) {
       // Mock mode
       const mockPost = MOCK_POSTS.find(p => p.id === id)
@@ -71,7 +80,15 @@ export class PostRepository implements IPostRepository {
     })
 
     if (!prismaPost) return null
-    return this.toDomainPost(prismaPost)
+
+    const post = this.toDomainPost(prismaPost)
+
+    // 単一投稿は長時間キャッシュ（10分）
+    if (isDatabaseAvailable()) {
+      memoryCache.set(cacheKey, post, 600000) // 10分
+    }
+
+    return post
   }
 
   async findMany(filter: FindPostsFilter): Promise<FindPostsResult> {
@@ -87,8 +104,9 @@ export class PostRepository implements IPostRepository {
       publishedOnly: filter.publishedOnly,
     })}`
 
-    // キャッシュから取得を試行（検索時以外）
-    if (!filter.search && isDatabaseAvailable()) {
+    // キャッシュから取得を試行（フィルターなしまたは軽いフィルターのみ）
+    const isLightFilter = !filter.search && (!filter.userId || filter.publishedOnly)
+    if (isLightFilter && isDatabaseAvailable()) {
       const cached = memoryCache.get(cacheKey)
       if (cached) {
         return cached as FindPostsResult
@@ -211,15 +229,24 @@ export class PostRepository implements IPostRepository {
       // PostgreSQLの全文検索を使用（パフォーマンス向上）
       const searchTerm = filter.search.trim()
       if (searchTerm) {
-        where.OR = [
-          { title: { search: searchTerm, mode: 'insensitive' } },
-          { content: { search: searchTerm, mode: 'insensitive' } },
-          { cosmeticName: { search: searchTerm, mode: 'insensitive' } },
-          // フォールバック用（全文検索が使えない場合）
-          { title: { contains: filter.search, mode: 'insensitive' } },
-          { content: { contains: filter.search, mode: 'insensitive' } },
-          { cosmeticName: { contains: filter.search, mode: 'insensitive' } },
-        ]
+        // 短い検索語句には含有検索、長い検索語句には全文検索
+        if (searchTerm.length <= 2) {
+          where.OR = [
+            { title: { contains: searchTerm, mode: 'insensitive' } },
+            { content: { contains: searchTerm, mode: 'insensitive' } },
+            { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
+          ]
+        } else {
+          where.OR = [
+            { title: { search: searchTerm, mode: 'insensitive' } },
+            { content: { search: searchTerm, mode: 'insensitive' } },
+            { cosmeticName: { search: searchTerm, mode: 'insensitive' } },
+            // フォールバック用（全文検索が使えない場合）
+            { title: { contains: searchTerm, mode: 'insensitive' } },
+            { content: { contains: searchTerm, mode: 'insensitive' } },
+            { cosmeticName: { contains: searchTerm, mode: 'insensitive' } },
+          ]
+        }
       }
     }
 
@@ -261,9 +288,12 @@ export class PostRepository implements IPostRepository {
       totalCount,
     }
 
-    // 結果をキャッシュに保存（検索時以外、5分間）
-    if (!filter.search && isDatabaseAvailable()) {
-      memoryCache.set(cacheKey, result, 300000) // 5分
+    // 結果をキャッシュに保存（軽いフィルターのみ、条件により異なるTTL）
+    if (isLightFilter && isDatabaseAvailable()) {
+      // フィルターなしは長時間キャッシュ、軽いフィルターは短時間キャッシュ
+      const hasAnyFilter = filter.category || filter.skinType || filter.moodTag
+      const ttl = hasAnyFilter ? 180000 : 300000 // 3分または5分
+      memoryCache.set(cacheKey, result, ttl)
     }
 
     return result
@@ -344,6 +374,10 @@ export class PostRepository implements IPostRepository {
       },
     })
 
+    // 投稿更新時はキャッシュを無効化
+    this.invalidatePostCache(id)
+    this.invalidatePostsCache()
+
     return this.toDomainPost(prismaPost)
   }
 
@@ -353,6 +387,10 @@ export class PostRepository implements IPostRepository {
     await prisma.post.delete({
       where: { id },
     })
+
+    // 投稿削除時はキャッシュを無効化
+    this.invalidatePostCache(id)
+    this.invalidatePostsCache()
   }
 
   async incrementEmpathyCount(id: string): Promise<void> {
@@ -619,7 +657,38 @@ export class PostRepository implements IPostRepository {
 
   // キャッシュ無効化メソッド
   private invalidatePostsCache(): void {
-    // posts:で始まるキーをすべて削除
-    memoryCache.deletePattern('^posts:')
+    try {
+      // posts:で始まるキーをすべて削除
+      memoryCache.deletePattern('^posts:')
+    } catch (error) {
+      // テスト環境やキャッシュが利用できない場合は無視
+      console.warn('Failed to invalidate posts cache:', error)
+    }
+  }
+
+  // 単一投稿のキャッシュ無効化
+  private invalidatePostCache(postId: string): void {
+    try {
+      memoryCache.delete(`post:${postId}`)
+    } catch (error) {
+      // テスト環境やキャッシュが利用できない場合は無視
+      console.warn('Failed to invalidate post cache:', error)
+    }
+  }
+
+  // よく使われるフィルター組み合わせをプリロード
+  async preloadPopularFilters(): Promise<void> {
+    if (!isDatabaseAvailable()) return
+
+    const popularFilters = [
+      { category: 'toner', limit: 20, offset: 0, publishedOnly: true },
+      { category: 'foundation', limit: 20, offset: 0, publishedOnly: true },
+      { skinType: 'dry', limit: 20, offset: 0, publishedOnly: true },
+      { skinType: 'oily', limit: 20, offset: 0, publishedOnly: true },
+      { moodTag: 'love', limit: 20, offset: 0, publishedOnly: true },
+    ]
+
+    // 並列でプリロード実行
+    await Promise.allSettled(popularFilters.map(filter => this.findMany(filter)))
   }
 }

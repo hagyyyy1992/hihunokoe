@@ -7,6 +7,47 @@ import { useQuery, useApolloClient } from '@apollo/client'
 import { GET_POSTS } from '@/graphql/queries/post'
 import { categoryLabels } from '@/lib/constants/categories'
 
+// クライアントサイド絞り込み用のヘルパー関数
+interface FilterState {
+  skinType?: string
+  cosmeticCategory?: string
+  moodTag?: string
+  search?: string
+}
+
+const filterPosts = (posts: PostNode[], filters: FilterState) => {
+  return posts.filter(post => {
+    // 肌タイプフィルター
+    if (filters.skinType && post.skinType !== filters.skinType) {
+      return false
+    }
+
+    // カテゴリフィルター
+    if (filters.cosmeticCategory && post.cosmeticCategory !== filters.cosmeticCategory) {
+      return false
+    }
+
+    // 感想フィルター
+    if (filters.moodTag && post.moodTag !== filters.moodTag) {
+      return false
+    }
+
+    // キーワード検索（部分一致）
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      const titleMatch = post.title.toLowerCase().includes(searchLower)
+      const contentMatch = post.content.toLowerCase().includes(searchLower)
+      const cosmeticMatch = post.cosmeticName.toLowerCase().includes(searchLower)
+
+      if (!titleMatch && !contentMatch && !cosmeticMatch) {
+        return false
+      }
+    }
+
+    return true
+  })
+}
+
 interface PostNode {
   id: string
   title: string
@@ -52,9 +93,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     moodTag: '',
     search: '',
   })
-  const [debouncedFilters, setDebouncedFilters] = useState(filters)
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [allPosts, setAllPosts] = useState<PostNode[]>([])
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
-  // 初期データをApollo Clientキャッシュに設定
+  // 初期データをApollo Clientキャッシュに設定 & 全投稿データを取得
   useEffect(() => {
     if (initialData) {
       apolloClient.writeQuery({
@@ -66,27 +109,28 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         },
         data: initialData,
       })
+      setAllPosts(initialData.posts.edges.map(edge => edge.node))
     }
   }, [initialData, apolloClient])
 
+  // サーバーサイド検索：複雑な検索クエリの場合のみ
+  const needsServerSearch = debouncedSearch.length >= 2
+
   const { data, loading, error, fetchMore } = useQuery<PostData>(GET_POSTS, {
     variables: {
-      first: 10,
-      filter: {
-        ...(debouncedFilters.skinType && { skinType: debouncedFilters.skinType }),
-        ...(debouncedFilters.cosmeticCategory && {
-          cosmeticCategory: debouncedFilters.cosmeticCategory,
-        }),
-        ...(debouncedFilters.moodTag && { moodTag: debouncedFilters.moodTag }),
-        ...(debouncedFilters.search && { search: debouncedFilters.search }),
-      },
+      first: 50, // より多くのデータを取得してクライアントサイドフィルタリング
+      filter: needsServerSearch ? { search: debouncedSearch } : {},
       orderBy: 'CREATED_AT_DESC' as const,
     },
     fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
-    // 初期データがある場合はスキップ
-    skip: false,
+    skip: !needsServerSearch && !!initialData, // 検索なし＆初期データありならスキップ
+    onCompleted: result => {
+      if (result?.posts?.edges) {
+        setAllPosts(result.posts.edges.map(edge => edge.node))
+      }
+    },
   })
 
   const handleFilterChange = useCallback((key: string, value: string) => {
@@ -96,34 +140,62 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     }))
   }, [])
 
-  // デバウンス処理
-  React.useEffect(() => {
+  // 検索のみデバウンス処理（他のフィルターは即座に適用）
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setDebouncedFilters(filters)
-    }, 500)
+      setDebouncedSearch(filters.search)
+    }, 300) // より短いデバウンス時間
 
     return () => clearTimeout(timeoutId)
-  }, [filters])
+  }, [filters.search])
 
-  const handleLoadMore = useCallback(() => {
-    const currentData = data || initialData
-    if (currentData?.posts.pageInfo.hasNextPage) {
-      fetchMore({
-        variables: {
-          after: currentData.posts.pageInfo.endCursor,
-        },
-      })
+  // すべての投稿データを追加取得
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore) return
+
+    setIsLoadingMore(true)
+    try {
+      const currentData = data || initialData
+      if (currentData?.posts.pageInfo.hasNextPage) {
+        const result = await fetchMore({
+          variables: {
+            after: currentData.posts.pageInfo.endCursor,
+          },
+        })
+
+        if (result.data?.posts?.edges) {
+          setAllPosts(prev => [...prev, ...result.data.posts.edges.map(edge => edge.node)])
+        }
+      }
+    } finally {
+      setIsLoadingMore(false)
     }
-  }, [data, initialData, fetchMore])
+  }, [data, initialData, fetchMore, isLoadingMore])
 
-  const posts = useMemo(() => {
-    const currentData = data || initialData
-    return currentData?.posts.edges.map(edge => edge.node) || []
-  }, [data, initialData])
+  // クライアントサイドフィルタリング
+  const filteredPosts = useMemo(() => {
+    const postsToFilter =
+      allPosts.length > 0
+        ? allPosts
+        : data?.posts.edges.map(edge => edge.node) ||
+          initialData?.posts.edges.map(edge => edge.node) ||
+          []
 
-  // フィルターが適用されている場合は初期データを使わない
-  const hasFilters = Object.values(debouncedFilters).some(value => value !== '')
-  const isLoading = loading && (!initialData || hasFilters)
+    return filterPosts(postsToFilter, {
+      skinType: filters.skinType,
+      cosmeticCategory: filters.cosmeticCategory,
+      moodTag: filters.moodTag,
+      search: needsServerSearch ? '' : filters.search, // サーバー検索中はクライアント検索を無効化
+    })
+  }, [allPosts, data, initialData, filters, needsServerSearch])
+
+  // ローディング状態の判定
+  const hasClientFilters =
+    filters.skinType ||
+    filters.cosmeticCategory ||
+    filters.moodTag ||
+    (filters.search && !needsServerSearch)
+  const isLoading = loading && needsServerSearch
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,13 +334,40 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           </div>
         )}
 
+        {/* フィルター結果の表示 */}
+        {hasClientFilters && !isLoading && (
+          <div className="mb-4 text-sm text-gray-600">
+            {filteredPosts.length}件の投稿が見つかりました
+            {filters.skinType && (
+              <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                肌タイプ: {filters.skinType}
+              </span>
+            )}
+            {filters.cosmeticCategory && (
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                カテゴリ: {categoryLabels[filters.cosmeticCategory as keyof typeof categoryLabels]}
+              </span>
+            )}
+            {filters.moodTag && (
+              <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                感想: {filters.moodTag}
+              </span>
+            )}
+            {filters.search && !needsServerSearch && (
+              <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+                検索: {filters.search}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* 投稿一覧 */}
-        {(!isLoading || data || initialData) && (
+        {(!isLoading || filteredPosts.length > 0) && (
           <>
-            {posts.length > 0 ? (
+            {filteredPosts.length > 0 ? (
               <>
                 <div className="grid gap-6 mb-8">
-                  {posts.map(post => (
+                  {filteredPosts.map(post => (
                     <PostCard
                       key={post.id}
                       post={{
@@ -295,17 +394,33 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   ))}
                 </div>
 
-                {/* もっと見るボタン */}
-                {(data?.posts.pageInfo.hasNextPage || initialData?.posts.pageInfo.hasNextPage) && (
-                  <div className="flex justify-center">
-                    <button
-                      onClick={handleLoadMore}
-                      className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                    >
-                      もっと見る
-                    </button>
-                  </div>
-                )}
+                {/* もっと見る・全件読み込みボタン */}
+                {!hasClientFilters &&
+                  (data?.posts.pageInfo.hasNextPage || initialData?.posts.pageInfo.hasNextPage) && (
+                    <div className="flex justify-center space-x-4">
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {isLoadingMore ? '読み込み中...' : 'もっと見る'}
+                      </button>
+                    </div>
+                  )}
+
+                {hasClientFilters &&
+                  allPosts.length < 100 &&
+                  (data?.posts.pageInfo.hasNextPage || initialData?.posts.pageInfo.hasNextPage) && (
+                    <div className="flex justify-center">
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="px-4 py-2 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        {isLoadingMore ? '読み込み中...' : 'さらに投稿を読み込んで検索精度を向上'}
+                      </button>
+                    </div>
+                  )}
               </>
             ) : (
               <div className="text-center py-12">

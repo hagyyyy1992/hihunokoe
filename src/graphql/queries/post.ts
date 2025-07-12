@@ -48,28 +48,12 @@ export const GET_POST = gql`
       createdAt
       viewCount
       empathyCount
+      commentCount
       user {
         id
         displayName
         profileImageUrl
         bio
-      }
-      empathies {
-        id
-        empathyType
-        user {
-          id
-        }
-      }
-      comments {
-        id
-        content
-        createdAt
-        user {
-          id
-          displayName
-          profileImageUrl
-        }
       }
     }
   }
@@ -146,6 +130,54 @@ export const ADD_EMPATHY = gql`
 export const REMOVE_EMPATHY = gql`
   mutation RemoveEmpathy($postId: ID!) {
     removeEmpathy(postId: $postId)
+  }
+`
+
+export const GET_POST_COMMENTS = gql`
+  query GetPostComments($postId: ID!, $first: Int, $after: String) {
+    postComments(postId: $postId, first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          content
+          createdAt
+          user {
+            id
+            displayName
+            profileImageUrl
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`
+
+export const GET_POST_EMPATHIES = gql`
+  query GetPostEmpathies($postId: ID!, $first: Int, $after: String) {
+    postEmpathies(postId: $postId, first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          empathyType
+          user {
+            id
+            displayName
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
   }
 `
 
