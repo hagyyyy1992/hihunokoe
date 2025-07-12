@@ -5,7 +5,7 @@ export default function PrivacyPolicyPage() {
 
       <div className="prose prose-gray max-w-none">
         <p className="mb-4">
-          Hihunokoe（以下「当サービス」といいます。）は、ユーザーの個人情報の保護に努めます。
+          ひふのこえ（以下「当サービス」といいます。）は、ユーザーの個人情報の保護に努めます。
           本プライバシーポリシーは、当サービスがどのような個人情報を収集し、どのように利用するかを説明するものです。
         </p>
 
