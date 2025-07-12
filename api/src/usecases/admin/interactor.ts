@@ -566,8 +566,15 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
       this.getUserGrowthDataOptimized(thirtyDaysAgo, now),
       this.getPostGrowthDataOptimized(thirtyDaysAgo, now),
     ])
+    
+    console.log('Dashboard stats debug:', {
+      totalPosts,
+      publishedPosts,
+      unpublishedCalculation: totalPosts - publishedPosts,
+    })
 
-    const unpublishedPosts = totalPosts - publishedPosts
+    // Ensure unpublishedPosts is never negative
+    const unpublishedPosts = Math.max(0, totalPosts - publishedPosts)
     const totalComments = 0 // TODO: Implement comment counting
     const todayComments = 0 // TODO: Implement comment counting
 

@@ -5,22 +5,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, FileText, Eye, Heart } from 'lucide-react'
 
 interface DashboardStats {
-  totalUsers: number
-  totalPosts: number
-  totalViews: number
-  totalEmpathies: number
-  recentUsers: Array<{
+  stats: {
+    totalUsers: number
+    activeUsers: number
+    suspendedUsers: number
+    totalPosts: number
+    publishedPosts: number
+    unpublishedPosts: number
+    totalComments: number
+    todayRegistrations: number
+    todayPosts: number
+    todayComments: number
+  }
+  userGrowth: Array<{ date: string; count: number }>
+  postGrowth: Array<{ date: string; count: number }>
+  recentUsers?: Array<{
     id: string
     userName: string
     email: string
     createdAt: string
   }>
-  recentPosts: Array<{
+  recentPosts?: Array<{
     id: string
     title: string
     userName: string
-    createdAt: string
     empathyCount: number
+    createdAt: string
   }>
 }
 
@@ -44,7 +54,14 @@ export default function AdminDashboard() {
       }
 
       const data = await response.json()
-      setStats(data.stats || data)
+      // APIレスポンスの構造を正しく扱う
+      setStats({
+        stats: data.stats,
+        userGrowth: data.userGrowth || [],
+        postGrowth: data.postGrowth || [],
+        recentUsers: data.recentUsers || [],
+        recentPosts: data.recentPosts || [],
+      })
     } catch (error) {
       setError(error instanceof Error ? error.message : '不明なエラーが発生しました')
     } finally {
@@ -86,25 +103,25 @@ export default function AdminDashboard() {
   const statCards = [
     {
       title: '総ユーザー数',
-      value: stats?.totalUsers?.toLocaleString() || '0',
+      value: stats?.stats?.totalUsers?.toLocaleString() || '0',
       icon: Users,
       color: 'text-blue-600',
     },
     {
       title: '総投稿数',
-      value: stats?.totalPosts?.toLocaleString() || '0',
+      value: stats?.stats?.totalPosts?.toLocaleString() || '0',
       icon: FileText,
       color: 'text-green-600',
     },
     {
       title: '総ビュー数',
-      value: stats?.totalViews?.toLocaleString() || '0',
+      value: '0', // TODO: Implement view counting
       icon: Eye,
       color: 'text-purple-600',
     },
     {
       title: '総共感数',
-      value: stats?.totalEmpathies?.toLocaleString() || '0',
+      value: '0', // TODO: Implement empathy counting
       icon: Heart,
       color: 'text-apple-600',
     },

@@ -178,6 +178,10 @@ export class AdminController {
       return NextResponse.json({
         success: true,
         stats: result.stats,
+        userGrowth: result.userGrowth,
+        postGrowth: result.postGrowth,
+        recentUsers: result.recentUsers,
+        recentPosts: result.recentPosts,
       })
     } catch (error) {
       console.error('Get dashboard stats error:', error)

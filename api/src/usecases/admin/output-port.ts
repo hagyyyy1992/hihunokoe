@@ -78,4 +78,17 @@ export type GetDashboardStatsOutputPort = {
     date: string
     count: number
   }>
+  recentUsers?: Array<{
+    id: string
+    userName: string
+    email: string
+    createdAt: Date
+  }>
+  recentPosts?: Array<{
+    id: string
+    title: string
+    userName: string
+    empathyCount: number
+    createdAt: Date
+  }>
 }
