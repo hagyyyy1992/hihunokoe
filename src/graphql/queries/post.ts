@@ -15,15 +15,12 @@ export const GET_POSTS = gql`
           moodTag
           viewCount
           empathyCount
+          commentCount
           createdAt
           user {
             id
             displayName
             profileImageUrl
-          }
-          _count {
-            comments
-            empathies
           }
         }
       }

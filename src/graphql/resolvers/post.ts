@@ -1,9 +1,11 @@
 import { GraphQLContext } from '@/graphql/context'
 import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
 
 const postController = new GraphQLPostController()
 const userRepository = new UserRepository()
+const commentRepository = new CommentRepository()
 
 export const postResolvers = {
   Query: {
@@ -166,6 +168,16 @@ export const postResolvers = {
       // TODO: Implement comment loading for posts
       void parent
       return []
+    },
+
+    commentCount: async (parent: { id: string }) => {
+      try {
+        const comments = await commentRepository.findByPostId(parent.id)
+        return comments.length
+      } catch (error) {
+        console.error('Error loading comment count for post:', error)
+        return 0
+      }
     },
   },
 }

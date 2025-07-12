@@ -34,6 +34,7 @@ export const typeDefs = gql`
     status: String!
     viewCount: Int!
     empathyCount: Int!
+    commentCount: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
     publishedAt: DateTime

@@ -17,14 +17,12 @@ interface PostNode {
   moodTag?: string
   viewCount: number
   empathyCount: number
+  commentCount: number
   createdAt: string
   user: {
     id: string
     displayName: string
     profileImageUrl?: string
-  }
-  _count: {
-    comments: number
   }
 }
 
@@ -260,7 +258,7 @@ export default function PostsPage() {
                         },
                         _count: {
                           empathies: post.empathyCount,
-                          comments: post._count?.comments || 0,
+                          comments: post.commentCount,
                         },
                       }}
                     />
