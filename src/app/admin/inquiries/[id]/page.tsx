@@ -277,9 +277,7 @@ export default function AdminInquiryDetailPage() {
 
           {inquiry.respondedBy && inquiry.respondedAt && (
             <div className="border-t pt-4 text-sm text-muted-foreground">
-              <p>
-                最終更新: {formatDate(inquiry.respondedAt)}
-              </p>
+              <p>最終更新: {formatDate(inquiry.respondedAt)}</p>
             </div>
           )}
 
