@@ -9,6 +9,7 @@ import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndic
 import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { SKIN_TYPE_OPTIONS, GENDER_OPTIONS, ALLERGY_OPTIONS } from '@/lib/constants/profile'
+import Logo from '@/components/ui/Logo'
 
 // 定数は@/lib/constants/profileからインポート
 
@@ -132,9 +133,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-sm sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-apple-100 rounded-full flex items-center justify-center">
-            <span className="text-apple-600 font-bold text-base sm:text-lg">H</span>
-          </div>
+          <Logo size="lg" showText={false} />
         </div>
         <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
           会員登録

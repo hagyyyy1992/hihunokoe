@@ -1,4 +1,5 @@
 import { SERVICE_NAME } from '@/lib/constants'
+import Image from 'next/image'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -12,12 +13,18 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
     lg: { container: 'w-16 h-16', text: 'text-2xl', brandText: 'text-3xl' },
   }
 
-  const { container, text, brandText } = sizeClasses[size]
+  const { container, brandText } = sizeClasses[size]
 
   return (
     <div className="flex items-center space-x-2">
-      <div className={`${container} bg-apple-100 rounded-full flex items-center justify-center`}>
-        <span className={`text-apple-600 font-bold ${text}`}>H</span>
+      <div className={`${container} relative`}>
+        <Image
+          src="/logo-image.png"
+          alt="ひふのこえロゴ"
+          fill
+          className="object-contain"
+          priority
+        />
       </div>
       {showText && (
         <span className={`${brandText} font-semibold text-gray-900`}>{SERVICE_NAME}</span>

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
+import Logo from '@/components/ui/Logo'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -112,13 +113,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center h-12 sm:h-14">
           {/* ロゴ */}
-          <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-apple-100 rounded-full flex items-center justify-center">
-              <span className="text-apple-600 font-bold text-xs sm:text-sm">H</span>
-            </div>
-            <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-              {SERVICE_NAME}
-            </span>
+          <Link href="/" className="flex items-center">
+            <Logo size="sm" showText={true} />
           </Link>
 
           {/* デスクトップナビゲーション */}
