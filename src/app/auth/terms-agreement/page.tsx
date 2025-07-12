@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 
-export default function TermsAgreementPage() {
+function TermsAgreementContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
@@ -229,5 +229,22 @@ export default function TermsAgreementPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+export default function TermsAgreementPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-2 text-sm text-gray-600">読み込み中...</p>
+          </div>
+        </div>
+      }
+    >
+      <TermsAgreementContent />
+    </Suspense>
   )
 }
