@@ -46,7 +46,7 @@ jobs:
       - name: Apply Prisma migrations to staging
         run: npx prisma migrate deploy
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DIRECT_URL }}
           DIRECT_URL: ${{ secrets.STAGING_DIRECT_URL }}
 
       - name: Apply Supabase migrations to staging
