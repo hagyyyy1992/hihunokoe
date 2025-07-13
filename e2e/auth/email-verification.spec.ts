@@ -277,18 +277,14 @@ test.describe('メール認証機能', () => {
         timeout: 5000,
       })
       await expect(page.getByText('今すぐホーム画面に移動')).toBeVisible()
-
-      // ホーム画面へのリンクをクリック
-      await page.getByRole('link', { name: '今すぐホーム画面に移動' }).click()
-      await expect(page).toHaveURL('/home')
     }
 
-    // 認証状態を確認するために、ログインフォームを使用してトークンを取得
-    // 既存のナビゲーションが完了するまで待機
-    await page.waitForTimeout(2000)
+    // メール認証後はログインが必要な場合があるため、現在のURLを確認
+    await page.waitForTimeout(5000) // 自動リダイレクトを待つ
+    const afterVerifyURL = page.url()
 
-    try {
-      await page.goto('/auth/login', { waitUntil: 'domcontentloaded' })
+    if (afterVerifyURL.includes('/auth/login')) {
+      // ログインページにリダイレクトされた場合は、ログインする
       await page.getByLabel('メールアドレス').fill(userData.email)
       await page.locator('input[name="password"]').fill(userData.password)
       await page.getByRole('button', { name: 'ログイン' }).click()
@@ -316,19 +312,11 @@ test.describe('メール認証機能', () => {
 
       // 認証状態を確認
       await expect(page.getByRole('link', { name: 'ひふのこえ' })).toBeVisible()
-
-      console.log('[TEST] Email verification and login successful')
-    } catch (error) {
-      console.log('[TEST] Navigation interrupted, checking if already authenticated')
-
-      // 現在のURLを確認
-      const finalURL = page.url()
-      if (finalURL.includes('home') || finalURL === 'http://localhost:3000/') {
-        // 既にログインしている場合
-        console.log('[TEST] Already authenticated, test passed')
-      } else {
-        throw error
-      }
+    } else if (afterVerifyURL.includes('/home')) {
+      // 既にホームページにリダイレクトされている場合
+      await expect(page.getByRole('link', { name: 'ひふのこえ' })).toBeVisible()
+    } else {
+      throw new Error(`Unexpected URL after email verification: ${afterVerifyURL}`)
     }
   })
 })
