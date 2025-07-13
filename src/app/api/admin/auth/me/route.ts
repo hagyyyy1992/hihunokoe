@@ -7,6 +7,12 @@ try {
   adminAuthController = new AdminAuthController()
 } catch (error) {
   console.error('Failed to initialize AdminAuthController:', error)
+  console.error('Error details:', {
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    nodeEnv: process.env.NODE_ENV,
+    databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+  })
 }
 
 export async function GET(request: NextRequest) {
