@@ -479,7 +479,7 @@ export default function Home() {
               こんな体験談が投稿されています
             </h2>
             <p className="text-center text-gray-600 mb-12">
-              実際のユーザーが投稿するリアルな体験談の例をご紹介
+              このような体験談が日々投稿されています
             </p>
 
             {/* スライダーコンテナ */}
