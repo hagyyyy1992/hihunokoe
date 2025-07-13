@@ -9,6 +9,7 @@ import { prisma } from '@/lib/prisma'
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
@@ -74,7 +75,7 @@ describe('/api/test/cleanup-user', () => {
     ;(process.env as any).NODE_ENV = 'test'
 
     // Mock findByEmail to throw an error (simulating database unavailable)
-    mockPrisma.user.findUnique.mockRejectedValue(new Error('Database connection not available'))
+    mockPrisma.user.findFirst.mockRejectedValue(new Error('Database connection not available'))
 
     const request = createMockRequest({ email: 'test@example.com' })
     const response = await POST(request)
@@ -88,7 +89,7 @@ describe('/api/test/cleanup-user', () => {
     ;(process.env as any).NODE_ENV = 'test'
 
     // Reset mock to successful behavior
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user-1', email: 'test@example.com' })
+    mockPrisma.user.findFirst.mockResolvedValue({ id: 'user-1', email: 'test@example.com' })
     mockPrisma.user.update.mockResolvedValue({})
 
     const request = createMockRequest({ email: 'test@example.com' })
@@ -104,7 +105,7 @@ describe('/api/test/cleanup-user', () => {
     ;(process.env as any).NODE_ENV = 'test'
 
     // Reset mock to return null (user not found)
-    mockPrisma.user.findUnique.mockResolvedValue(null)
+    mockPrisma.user.findFirst.mockResolvedValue(null)
 
     const request = createMockRequest({ email: 'nonexistent@example.com' })
     const response = await POST(request)
@@ -118,7 +119,7 @@ describe('/api/test/cleanup-user', () => {
   it('returns 500 when database error occurs', async () => {
     ;(process.env as any).NODE_ENV = 'test'
 
-    mockPrisma.user.findUnique.mockRejectedValue(new Error('Database error'))
+    mockPrisma.user.findFirst.mockRejectedValue(new Error('Database error'))
 
     const request = createMockRequest({ email: 'test@example.com' })
     const response = await POST(request)
@@ -132,7 +133,7 @@ describe('/api/test/cleanup-user', () => {
     ;(process.env as any).NODE_ENV = 'test'
 
     const error = new Error('Database error')
-    mockPrisma.user.findUnique.mockRejectedValue(error)
+    mockPrisma.user.findFirst.mockRejectedValue(error)
 
     const request = createMockRequest({ email: 'test@example.com' })
     await POST(request)
