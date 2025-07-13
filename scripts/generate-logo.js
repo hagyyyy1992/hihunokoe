@@ -120,13 +120,28 @@ async function generateLogos() {
       )
     )
 
-    // 一旦、32x32のPNGをfaviconとして使用
+    // 32x32のPNGファビコン
     const favicon32 = await sharp(Buffer.from(createFaviconSVG(32)))
       .png()
       .toFile(path.join(publicDir, 'favicon-32.png'))
     console.log('✓ Generated favicon-32.png')
 
-    // Note: ICOファイルは別途生成ツールで作成する必要があります
+    // ICOファイルを生成（複数サイズ）
+    const ico = require('ico-endec')
+    const faviconIco = ico.encode([
+      await sharp(Buffer.from(createFaviconSVG(16)))
+        .png()
+        .toBuffer(),
+      await sharp(Buffer.from(createFaviconSVG(32)))
+        .png()
+        .toBuffer(),
+      await sharp(Buffer.from(createFaviconSVG(48)))
+        .png()
+        .toBuffer(),
+    ])
+
+    require('fs').writeFileSync(path.join(publicDir, 'favicon.ico'), faviconIco)
+    console.log('✓ Generated favicon.ico')
 
     // OGP画像（1200x630）
     const ogSVG = `<?xml version="1.0" encoding="UTF-8"?>
