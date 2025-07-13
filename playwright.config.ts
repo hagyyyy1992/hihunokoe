@@ -122,6 +122,7 @@ export default defineConfig({
       USE_MOCK_DATA: 'false',
       MAILHOG_HOST: 'localhost',
       MAILHOG_PORT: '1025',
+      SKIP_EMAIL_SENDING: 'false', // E2E環境ではメール送信エラーを寛大に処理
     },
   },
 })

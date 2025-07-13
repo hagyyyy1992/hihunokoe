@@ -77,6 +77,8 @@
       "Bash(npm run build:check:*)",
       "Bash(cat:*)",
       "Bash(prettier:*)",
+      "Bash(npm run test:*)",
+      "Bash(node:*)",
       "Bash(gh run watch:*)"
     ],
     "deny": [
