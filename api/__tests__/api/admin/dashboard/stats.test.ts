@@ -168,6 +168,10 @@ describe('/api/admin/dashboard/stats', () => {
     }
     mockCachedAdminStatsRepository.mockImplementation(() => mockRepository)
 
+    // Prismaのモックをリセット
+    mockPrisma.user.findMany.mockRejectedValue(new Error('Database error'))
+    mockPrisma.post.findMany.mockRejectedValue(new Error('Database error'))
+
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats', {
       headers: {
         Cookie: 'admin-auth-token=valid-admin-token',

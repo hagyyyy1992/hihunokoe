@@ -1,11 +1,16 @@
 import { NextRequest } from 'next/server'
 
-// AdminControllerのモックを先に設定
+// Prismaのモック
+jest.mock('@/lib/prisma', () => ({
+  prisma: {},
+}))
+
+// AdminAuthControllerのモックを先に設定
 const mockLogin = jest.fn()
 
-jest.mock('@api/framework/controllers/AdminController', () => {
+jest.mock('@api/framework/controllers/AdminAuthController', () => {
   return {
-    AdminController: jest.fn().mockImplementation(() => {
+    AdminAuthController: jest.fn().mockImplementation(() => {
       return {
         login: mockLogin,
       }

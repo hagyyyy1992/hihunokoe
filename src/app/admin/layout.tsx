@@ -30,8 +30,8 @@ const navigationItems = [
   { href: '/admin/users', label: 'ユーザー管理', icon: Users },
   { href: '/admin/posts', label: '投稿管理', icon: FileText },
   { href: '/admin/inquiries', label: 'お問い合わせ', icon: MessageSquare },
-  { href: '/admin/reports', label: '通報管理', icon: AlertTriangle },
   { href: '/admin/withdrawal-surveys', label: '退会アンケート', icon: ClipboardList },
+  { href: '/admin/reports', label: '通報管理', icon: AlertTriangle },
   { href: '/admin/settings', label: '設定', icon: Settings },
 ]
 
