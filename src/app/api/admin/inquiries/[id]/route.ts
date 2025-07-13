@@ -4,6 +4,15 @@ import { prisma } from '@/lib/prisma'
 import { ContactStatus } from '@prisma/client'
 import { checkAdminAuth } from '@/lib/auth/admin-middleware'
 
+// Force dynamic rendering to avoid caching issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+// Explicitly define that this route uses dynamic parameters
+export async function generateStaticParams() {
+  return []
+}
+
 const updateSchema = z.object({
   status: z.nativeEnum(ContactStatus),
   adminNotes: z.string().optional(),
