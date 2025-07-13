@@ -151,3 +151,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     return NextResponse.json({ error: 'お問い合わせの更新に失敗しました' }, { status: 500 })
   }
 }
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}

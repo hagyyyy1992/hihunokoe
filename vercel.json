@@ -30,6 +30,9 @@
     },
     "src/app/api/admin/users/[id]/*/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/admin/inquiries/[id]/route.ts": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -52,6 +55,10 @@
     {
       "source": "/api/admin/users/:id/activate",
       "destination": "/api/admin/users/[id]/activate"
+    },
+    {
+      "source": "/api/admin/inquiries/:id",
+      "destination": "/api/admin/inquiries/[id]"
     }
   ]
 }
