@@ -76,7 +76,8 @@
       "Bash(npm run quality-check:*)",
       "Bash(npm run build:check:*)",
       "Bash(cat:*)",
-      "Bash(prettier:*)"
+      "Bash(prettier:*)",
+      "Bash(gh run watch:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
