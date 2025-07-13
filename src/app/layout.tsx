@@ -24,12 +24,12 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon-new.ico', sizes: 'any' },
-      { url: '/favicon.ico?v=20250713', sizes: 'any' },
-      { url: '/icon-192.png?v=20250713', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png?v=20250713', sizes: '512x512', type: 'image/png' },
+      { url: '/logo-favicon.ico', sizes: 'any' },
+      { url: '/logo-icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: '/apple-icon.png?v=20250713', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   appleWebApp: {
     capable: true,
@@ -65,8 +65,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cacheBuster = Date.now()
   return (
     <html lang="ja">
+      <head>
+        <link rel="icon" type="image/x-icon" href={`/logo-favicon.ico?cb=${cacheBuster}`} />
+        <link
+          rel="shortcut icon"
+          type="image/x-icon"
+          href={`/logo-favicon.ico?cb=${cacheBuster}`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={`/logo-icon-32.png?cb=${cacheBuster}`}
+        />
+        <link rel="apple-touch-icon" sizes="180x180" href={`/apple-icon.png?cb=${cacheBuster}`} />
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
