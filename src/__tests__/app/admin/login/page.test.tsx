@@ -4,6 +4,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import AdminLoginPage from '@/app/admin/login/page'
+import { AdminAuthProvider } from '@/lib/auth/AdminAuthContext'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -120,7 +121,11 @@ describe('AdminLoginPage', () => {
   })
 
   it('renders the login form', () => {
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     expect(screen.getByText('管理者ログイン')).toBeInTheDocument()
     expect(
@@ -132,7 +137,11 @@ describe('AdminLoginPage', () => {
   })
 
   it('has empty default values for email and password', () => {
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const emailInput = screen.getByLabelText('メールアドレス') as HTMLInputElement
     const passwordInput = screen.getByLabelText('パスワード') as HTMLInputElement
@@ -142,7 +151,11 @@ describe('AdminLoginPage', () => {
   })
 
   it('updates input values when typing', () => {
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const emailInput = screen.getByLabelText('メールアドレス')
     const passwordInput = screen.getByLabelText('パスワード')
@@ -167,7 +180,11 @@ describe('AdminLoginPage', () => {
       value: '',
     })
 
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     // Fill in form fields first
     const emailInput = screen.getByLabelText('メールアドレス')
@@ -204,7 +221,11 @@ describe('AdminLoginPage', () => {
     }
     ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const form = screen.getByRole('button', { name: 'ログイン' }).closest('form')
     fireEvent.submit(form!)
@@ -217,7 +238,11 @@ describe('AdminLoginPage', () => {
   it('handles network error', async () => {
     ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'))
 
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const form = screen.getByRole('button', { name: 'ログイン' }).closest('form')
     fireEvent.submit(form!)
@@ -236,7 +261,11 @@ describe('AdminLoginPage', () => {
       () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
     )
 
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const submitButton = screen.getByRole('button', { name: 'ログイン' })
     const form = submitButton.closest('form')
@@ -261,7 +290,11 @@ describe('AdminLoginPage', () => {
     }
     ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
-    render(<AdminLoginPage />)
+    render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const form = screen.getByRole('button', { name: 'ログイン' }).closest('form')
     fireEvent.submit(form!)

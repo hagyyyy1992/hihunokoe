@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/Alert'
+import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -14,6 +15,7 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { login } = useAdminAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,25 +23,13 @@ export default function AdminLoginPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/admin/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const result = await login(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'ログインに失敗しました')
+      if (result.success) {
+        router.push('/admin/dashboard')
+      } else {
+        setError(result.error || 'ログインに失敗しました')
       }
-
-      // HTTPOnlyクッキーはサーバー側で設定されるため、クライアント側では設定不要
-      // リダイレクト前に少し待機してクッキーが確実にセットされるようにする
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      router.push('/admin/dashboard')
     } catch (error) {
       setError(error instanceof Error ? error.message : 'ログインに失敗しました')
     } finally {

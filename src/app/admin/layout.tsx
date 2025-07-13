@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Avatar'
-import { AuthUser } from '@/lib/auth/auth'
+import { AdminAuthProvider, useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
 
 interface AdminLayoutProps {
@@ -35,9 +35,8 @@ const navigationItems = [
   { href: '/admin/settings', label: '設定', icon: Settings },
 ]
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+function AdminLayoutContent({ children }: AdminLayoutProps) {
+  const { admin, loading, logout } = useAdminAuth()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [unreadInquiries, setUnreadInquiries] = useState(0)
   const router = useRouter()
@@ -46,38 +45,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     // ログインページではチェックをスキップ
     if (pathname === '/admin/login') {
-      setIsLoading(false)
       return
     }
 
-    const checkAuth = async () => {
-      try {
-        // サーバー側でユーザー情報を取得するAPIを呼び出す
-        const response = await fetch('/api/admin/auth/me', {
-          credentials: 'include', // HTTPOnlyクッキーを送信
-        })
-
-        if (!response.ok) {
-          router.push('/admin/login')
-          setIsLoading(false)
-          return
-        }
-
-        const userData = await response.json()
-        setUser(userData)
-        setIsLoading(false)
-      } catch (error) {
-        console.error('Auth check error:', error)
-        router.push('/admin/login')
-        setIsLoading(false)
-      }
+    // 認証状態をチェック
+    if (!loading && !admin) {
+      router.push('/admin/login')
     }
-
-    checkAuth()
-  }, [router, pathname])
+  }, [admin, loading, router, pathname])
 
   useEffect(() => {
-    if (!user) return
+    if (!admin) return
 
     const fetchUnreadCount = async () => {
       try {
@@ -95,18 +73,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const interval = setInterval(fetchUnreadCount, 60000) // 1分ごとに更新
 
     return () => clearInterval(interval)
-  }, [user])
+  }, [admin])
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/auth/logout', {
-        method: 'POST',
-      })
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-
-    setUser(null)
+    await logout()
     router.push('/admin/login')
   }
 
@@ -114,7 +84,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return <>{children}</>
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -125,7 +95,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!user) {
+  if (!admin) {
     return null
   }
 
@@ -181,11 +151,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         <div className="mt-auto p-4 border-t bg-gray-50">
           <div className="flex items-center mb-3 p-3 bg-white rounded-lg">
-            <Avatar name={user.userName} size="sm" />
+            <Avatar name={admin.adminName} size="sm" />
             <div className="ml-2 flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user.userName}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{admin.adminName}</p>
               <p className="text-xs text-gray-500 truncate">
-                {user.role === 'SUPER_ADMIN' ? 'スーパー管理者' : '管理者'}
+                {admin.role === 'SUPER_ADMIN' ? 'スーパー管理者' : '管理者'}
               </p>
             </div>
           </div>
@@ -225,5 +195,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
       )}
     </div>
+  )
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  return (
+    <AdminAuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AdminAuthProvider>
   )
 }

@@ -19,6 +19,10 @@ import type {
   GetDashboardStatsInputPort,
   AdminLogoutInputPort,
   GetCurrentAdminInputPort,
+  IAdminAuthenticationUseCase,
+  IAdminUserManagementUseCase,
+  IAdminPostManagementUseCase,
+  IAdminDashboardUseCase,
 } from '@api/usecases/admin/input-port'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
@@ -35,10 +39,10 @@ import {
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AdminController {
-  private adminAuthenticationUseCase: AdminAuthenticationUseCase
-  private adminUserManagementUseCase: AdminUserManagementUseCase
-  private adminPostManagementUseCase: AdminPostManagementUseCase
-  private adminDashboardUseCase: AdminDashboardUseCase
+  private adminAuthenticationUseCase: IAdminAuthenticationUseCase
+  private adminUserManagementUseCase: IAdminUserManagementUseCase
+  private adminPostManagementUseCase: IAdminPostManagementUseCase
+  private adminDashboardUseCase: IAdminDashboardUseCase
   private tokenService: TokenServiceImpl
 
   private getCorsHeaders() {
