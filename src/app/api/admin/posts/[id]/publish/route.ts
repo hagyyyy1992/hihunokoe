@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AdminController } from '@api/framework/controllers/AdminController'
+import { prisma } from '@/lib/prisma'
+import { verifyAdminToken } from '@/lib/auth/admin-middleware'
 
 // Force dynamic rendering to avoid caching issues
 export const dynamic = 'force-dynamic'
@@ -10,81 +11,80 @@ export async function generateStaticParams() {
   return []
 }
 
-console.log('[PUBLISH POST ROUTE] Module loaded at:', new Date().toISOString())
-
-let adminController: AdminController | null = null
-
-try {
-  adminController = new AdminController()
-} catch (error) {
-  console.error('Failed to initialize AdminController:', error)
-}
-
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  console.log('🚀 [PUBLISH POST] ===== ROUTE HANDLER STARTED =====', {
-    timestamp: new Date().toISOString(),
-    url: request.url,
-    method: request.method,
-    userAgent: request.headers.get('user-agent'),
-    origin: request.headers.get('origin'),
-    referer: request.headers.get('referer'),
-    contentType: request.headers.get('content-type'),
-    authorization: request.headers.get('authorization') ? 'present' : 'none',
-    cookies: request.headers.get('cookie') ? 'present' : 'none',
-    headers: Object.fromEntries(request.headers.entries()),
-  })
-
-  if (!adminController) {
-    console.error('❌ [PUBLISH POST] AdminController not available - database connection issue')
-    return NextResponse.json(
-      { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
-      { status: 500 }
-    )
-  }
-
   try {
+    // 管理者認証チェック
+    const authResult = await verifyAdminToken(request)
+    if (!authResult.isValid || !authResult.user) {
+      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
+        { status: 500 }
+      )
+    }
+
     const params = await context.params
-    console.log('✅ [PUBLISH POST] Params extracted:', params)
-    console.log('🔄 [PUBLISH POST] Calling adminController.publishPost...')
-    const result = await adminController.publishPost(request, { params })
-    console.log('✅ [PUBLISH POST] Controller returned result:', {
-      status: result.status,
-      statusText: result.statusText,
-      headers: Object.fromEntries(result.headers.entries()),
+    const postId = params.id
+
+    // トランザクション内で投稿公開と管理ログ記録を実行
+    await prisma.$transaction(async tx => {
+      // 投稿の存在確認と現在のステータス取得
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true, title: true, status: true },
+      })
+
+      if (!post) {
+        throw new Error('投稿が見つかりません')
+      }
+
+      // 投稿を公開に更新
+      await tx.post.update({
+        where: { id: postId },
+        data: { status: 'published' },
+      })
+
+      // 管理ログを記録
+      await tx.adminLog.create({
+        data: {
+          adminUserId: authResult.user!.id,
+          action: 'PUBLISH_POST',
+          target: postId,
+          targetType: 'POST',
+          details: {
+            postTitle: post.title,
+            previousStatus: post.status,
+            newStatus: 'published',
+          },
+          ipAddress:
+            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+        },
+      })
     })
-    return result
+
+    return NextResponse.json({
+      success: true,
+      message: '投稿を公開しました',
+    })
   } catch (error) {
-    console.error('💥 [PUBLISH POST] Error in handler:', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : 'Unknown',
-    })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Publish post error:', error)
+    if (error instanceof Error && error.message === '投稿が見つかりません') {
+      return NextResponse.json({ error: error.message }, { status: 404 })
+    }
+    return NextResponse.json({ error: '投稿の公開に失敗しました' }, { status: 500 })
   }
 }
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  console.log('🚀 [PUBLISH POST - PUT] ===== PUT HANDLER STARTED =====', {
-    timestamp: new Date().toISOString(),
-    url: request.url,
-    method: request.method,
-  })
-
-  if (!adminController) {
-    console.error('❌ [PUBLISH POST - PUT] AdminController not available')
-    return NextResponse.json(
-      { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
-      { status: 500 }
-    )
-  }
-
-  const params = await context.params
-  console.log('✅ [PUBLISH POST - PUT] Processing ID:', params.id)
-  return adminController.publishPost(request, { params })
+  // POSTメソッドと同じ処理を実行
+  return POST(request, context)
 }
 
 export async function OPTIONS() {
-  console.log('⚙️ [PUBLISH POST - OPTIONS] OPTIONS request received:', new Date().toISOString())
   return new NextResponse(null, {
     status: 200,
     headers: {

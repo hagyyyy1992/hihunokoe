@@ -520,11 +520,18 @@ export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
 }
 
 export class AdminDashboardUseCase implements IAdminDashboardUseCase {
+  private adminStatsRepository: any // AdminStatsRepository
+
   constructor(
     private userRepository: IUserRepository,
     private postRepository: IPostRepository,
     private commentRepository: ICommentRepository
-  ) {}
+  ) {
+    // キャッシュ版の統計リポジトリを使用
+    const CachedAdminStatsRepository =
+      require('@api/interface-adapters/repositories/CachedAdminStats.repository').CachedAdminStatsRepository
+    this.adminStatsRepository = new CachedAdminStatsRepository()
+  }
 
   async getDashboardStats(
     inputData: GetDashboardStatsInputPort
@@ -541,58 +548,37 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
     }
 
     const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-    // Execute all count queries in parallel
-    const [
-      { totalCount: totalUsers },
-      { totalCount: activeUsers },
-      { totalCount: suspendedUsers },
-      { totalCount: totalPosts },
-      { totalCount: publishedPosts },
-      { totalCount: todayRegistrations },
-      { totalCount: todayPosts },
-      userGrowth,
-      postGrowth,
-    ] = await Promise.all([
-      this.userRepository.findMany({ offset: 0, limit: 0 }),
-      this.userRepository.findMany({ offset: 0, limit: 0, activeOnly: true }),
-      this.userRepository.findMany({ offset: 0, limit: 0, inactiveOnly: true }),
-      this.postRepository.findMany({ offset: 0, limit: 0 }),
-      this.postRepository.findMany({ offset: 0, limit: 0, publishedOnly: true }),
-      this.userRepository.findMany({ offset: 0, limit: 0, createdAfter: today }),
-      this.postRepository.findMany({ offset: 0, limit: 0, createdAfter: today }),
-      this.getUserGrowthDataOptimized(thirtyDaysAgo, now),
-      this.getPostGrowthDataOptimized(thirtyDaysAgo, now),
+    // 最適化された統計データ取得
+    const [stats, userGrowth, postGrowth] = await Promise.all([
+      this.adminStatsRepository.getDashboardStats(),
+      this.adminStatsRepository.getUserGrowthByDate(thirtyDaysAgo, now),
+      this.adminStatsRepository.getPostGrowthByDate(thirtyDaysAgo, now),
     ])
 
-    console.log('Dashboard stats debug:', {
-      totalPosts,
-      publishedPosts,
-      unpublishedCalculation: totalPosts - publishedPosts,
-    })
+    // 空の日付を埋める
+    const filledUserGrowth = this.fillMissingDates(userGrowth, thirtyDaysAgo, now)
+    const filledPostGrowth = this.fillMissingDates(postGrowth, thirtyDaysAgo, now)
 
-    // Ensure unpublishedPosts is never negative
-    const unpublishedPosts = Math.max(0, totalPosts - publishedPosts)
     const totalComments = 0 // TODO: Implement comment counting
     const todayComments = 0 // TODO: Implement comment counting
 
     return {
       stats: {
-        totalUsers,
-        activeUsers,
-        suspendedUsers,
-        totalPosts,
-        publishedPosts,
-        unpublishedPosts,
+        totalUsers: stats.totalUsers,
+        activeUsers: stats.activeUsers,
+        suspendedUsers: stats.suspendedUsers,
+        totalPosts: stats.totalPosts,
+        publishedPosts: stats.publishedPosts,
+        unpublishedPosts: stats.unpublishedPosts,
         totalComments,
-        todayRegistrations,
-        todayPosts,
+        todayRegistrations: stats.todayRegistrations,
+        todayPosts: stats.todayPosts,
         todayComments,
       },
-      userGrowth,
-      postGrowth,
+      userGrowth: filledUserGrowth,
+      postGrowth: filledPostGrowth,
     }
   }
 
@@ -652,44 +638,27 @@ export class AdminDashboardUseCase implements IAdminDashboardUseCase {
     return growth
   }
 
-  // Optimized methods that avoid N+1 queries
-  private async getUserGrowthDataOptimized(
+  /**
+   * 欠けている日付を0で埋める
+   */
+  private fillMissingDates(
+    data: Array<{ date: string; count: number }>,
     startDate: Date,
     endDate: Date
-  ): Promise<Array<{ date: string; count: number }>> {
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const growth = []
+  ): Array<{ date: string; count: number }> {
+    const dataMap = new Map(data.map(item => [item.date, item.count]))
+    const result = []
+    const currentDate = new Date(startDate)
 
-    // TODO: Replace with single aggregation query
-    // For now, return mock data to avoid performance issues
-    for (let i = 0; i < days; i++) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
-      growth.push({
-        date: date.toISOString().split('T')[0],
-        count: Math.floor(Math.random() * 10), // Mock data
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0]
+      result.push({
+        date: dateStr,
+        count: dataMap.get(dateStr) || 0,
       })
+      currentDate.setDate(currentDate.getDate() + 1)
     }
 
-    return growth
-  }
-
-  private async getPostGrowthDataOptimized(
-    startDate: Date,
-    endDate: Date
-  ): Promise<Array<{ date: string; count: number }>> {
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const growth = []
-
-    // TODO: Replace with single aggregation query
-    // For now, return mock data to avoid performance issues
-    for (let i = 0; i < days; i++) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
-      growth.push({
-        date: date.toISOString().split('T')[0],
-        count: Math.floor(Math.random() * 5), // Mock data
-      })
-    }
-
-    return growth
+    return result
   }
 }

@@ -41,6 +41,10 @@ model User {
   contactInquiries        ContactInquiry[]   @relation("UserContactInquiries")
   respondedInquiries      ContactInquiry[]   @relation("UserRespondedInquiries")
 
+  // パフォーマンス最適化用のインデックス
+  @@index([createdAt(sort: Desc)], name: "users_created_at_idx")
+  @@index([isActive, deletedAt], name: "users_active_deleted_idx")
+  @@index([isActive, createdAt(sort: Desc)], name: "users_active_created_idx")
   @@map("users")
 }
 

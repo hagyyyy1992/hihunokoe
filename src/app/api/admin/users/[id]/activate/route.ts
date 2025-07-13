@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AdminController } from '@api/framework/controllers/AdminController'
+import { prisma } from '@/lib/prisma'
+import { verifyAdminToken } from '@/lib/auth/admin-middleware'
 
 // Force dynamic rendering to avoid caching issues
 export const dynamic = 'force-dynamic'
@@ -10,101 +11,87 @@ export async function generateStaticParams() {
   return []
 }
 
-console.log('🟢🟢🟢 [ACTIVATE USER ROUTE] MODULE LOADED!!! 🟢🟢🟢', {
-  timestamp: new Date().toISOString(),
-  nodeEnv: process.env.NODE_ENV,
-  vercelEnv: process.env.VERCEL_ENV,
-  deploymentUrl: process.env.VERCEL_URL,
-})
-
-let adminController: AdminController | null = null
-
-try {
-  adminController = new AdminController()
-  console.log('✅ [ACTIVATE USER] AdminController initialized successfully')
-} catch (error) {
-  console.error('💥 [ACTIVATE USER] Failed to initialize AdminController:', error)
-}
-
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  console.log('⚡⚡⚡ [ACTIVATE USER] ===== POST HANDLER INVOKED ===== ⚡⚡⚡')
-  console.log('📊 [ACTIVATE USER] COMPLETE REQUEST DETAILS:', {
-    timestamp: new Date().toISOString(),
-    url: request.url,
-    method: request.method,
-    userAgent: request.headers.get('user-agent'),
-    origin: request.headers.get('origin'),
-    referer: request.headers.get('referer'),
-    contentType: request.headers.get('content-type'),
-    authorization: request.headers.get('authorization') ? 'PRESENT' : 'MISSING',
-    cookies: request.headers.get('cookie') ? 'PRESENT' : 'MISSING',
-    vercelId: request.headers.get('x-vercel-id'),
-    allHeaders: Object.fromEntries(request.headers.entries()),
-  })
-
-  if (!adminController) {
-    console.error('❌❌❌ [ACTIVATE USER] CRITICAL: AdminController is NULL!!!')
-    return NextResponse.json(
-      { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
-      { status: 500 }
-    )
-  }
-
-  console.log('✅ [ACTIVATE USER] AdminController is available!')
-
   try {
+    // 管理者認証チェック
+    const authResult = await verifyAdminToken(request)
+    if (!authResult.isValid || !authResult.user) {
+      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
+        { status: 500 }
+      )
+    }
+
     const params = await context.params
-    console.log('🎯 [ACTIVATE USER] EXTRACTED PARAMS:', params)
-    console.log('🔄 [ACTIVATE USER] CALLING adminController.activateUser...')
+    const targetUserId = params.id
 
-    const startTime = Date.now()
-    const result = await adminController.activateUser(request, { params })
-    const endTime = Date.now()
+    // トランザクション内でユーザー有効化と管理ログ記録を実行
+    await prisma.$transaction(async tx => {
+      // ユーザーの存在確認と現在の状態取得
+      const user = await tx.user.findUnique({
+        where: { id: targetUserId },
+        select: { id: true, userName: true, isActive: true },
+      })
 
-    console.log('✨ [ACTIVATE USER] CONTROLLER RESULT:', {
-      executionTime: `${endTime - startTime}ms`,
-      status: result.status,
-      statusText: result.statusText,
-      headers: Object.fromEntries(result.headers.entries()),
+      if (!user) {
+        throw new Error('ユーザーが見つかりません')
+      }
+
+      if (user.isActive) {
+        throw new Error('ユーザーは既に有効です')
+      }
+
+      // ユーザーを有効化
+      await tx.user.update({
+        where: { id: targetUserId },
+        data: { isActive: true },
+      })
+
+      // 管理ログを記録
+      await tx.adminLog.create({
+        data: {
+          adminUserId: authResult.user!.id,
+          action: 'ACTIVATE_USER',
+          target: targetUserId,
+          targetType: 'USER',
+          details: {
+            targetUserName: user.userName,
+          },
+          ipAddress:
+            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+        },
+      })
     })
 
-    console.log('🎉 [ACTIVATE USER] ===== HANDLER COMPLETED SUCCESSFULLY =====')
-    return result
+    return NextResponse.json({
+      success: true,
+      message: 'ユーザーを有効化しました',
+    })
   } catch (error) {
-    console.error('💥💥💥 [ACTIVATE USER] FATAL ERROR:', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : 'Unknown',
-    })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Activate user error:', error)
+    if (error instanceof Error) {
+      if (
+        error.message === 'ユーザーが見つかりません' ||
+        error.message === 'ユーザーは既に有効です'
+      ) {
+        return NextResponse.json({ error: error.message }, { status: 404 })
+      }
+    }
+    return NextResponse.json({ error: 'ユーザーの有効化に失敗しました' }, { status: 500 })
   }
 }
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  console.log('🚀 [ACTIVATE USER - PUT] ===== PUT METHOD CALLED =====', {
-    timestamp: new Date().toISOString(),
-    url: request.url,
-    method: request.method,
-  })
-
-  if (!adminController) {
-    console.error('❌ [ACTIVATE USER - PUT] AdminController not available')
-    return NextResponse.json(
-      { error: 'データベース接続エラーが発生しました。管理者にお問い合わせください。' },
-      { status: 500 }
-    )
-  }
-
-  const params = await context.params
-  console.log('✅ [ACTIVATE USER - PUT] Processing user ID:', params.id)
-  return adminController.activateUser(request, { params })
+  // POSTメソッドと同じ処理を実行
+  return POST(request, context)
 }
 
 export async function OPTIONS() {
-  console.log('⚙️⚙️⚙️ [ACTIVATE USER - OPTIONS] PREFLIGHT REQUEST!!!', {
-    timestamp: new Date().toISOString(),
-    message: 'CORS preflight request received',
-  })
   return new NextResponse(null, {
     status: 200,
     headers: {

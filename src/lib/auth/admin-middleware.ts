@@ -113,3 +113,27 @@ export async function checkAdminAuth(request: NextRequest): Promise<{
     return { isAuthenticated: false, admin: null }
   }
 }
+
+// 管理者トークンを検証するシンプルな関数
+export async function verifyAdminToken(request: NextRequest): Promise<{
+  isValid: boolean
+  user: AuthUser | null
+}> {
+  const token =
+    request.headers.get('authorization')?.replace('Bearer ', '') ||
+    request.cookies.get('admin-auth-token')?.value
+
+  if (!token) {
+    return { isValid: false, user: null }
+  }
+
+  try {
+    const user = verifyToken(token)
+    if (!user || !isAdmin(user)) {
+      return { isValid: false, user: null }
+    }
+    return { isValid: true, user }
+  } catch {
+    return { isValid: false, user: null }
+  }
+}
