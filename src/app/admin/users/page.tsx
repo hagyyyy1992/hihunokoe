@@ -108,13 +108,19 @@ export default function UserManagement() {
         credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
-      if (response.ok) {
+      // 一時的な対処: 500エラーでもデータが更新される可能性があるため
+      // レスポンスに関わらずデータを再取得
+      if (response.ok || response.status === 500) {
         await fetchUsers()
         setSelectedUser(null)
         setActionType(null)
       }
     } catch (error) {
       console.error('ユーザー操作に失敗しました:', error)
+      // エラーが発生してもデータ再取得を試みる
+      await fetchUsers()
+      setSelectedUser(null)
+      setActionType(null)
     }
   }
 

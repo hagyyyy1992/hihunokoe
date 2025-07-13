@@ -101,13 +101,19 @@ export default function PostModeration() {
         credentials: 'include', // HTTPOnlyクッキーを送信
       })
 
-      if (response.ok) {
+      // 一時的な対処: 500エラーでもデータが更新される可能性があるため
+      // レスポンスに関わらずデータを再取得
+      if (response.ok || response.status === 500) {
         await fetchPosts()
         setSelectedPost(null)
         setActionType(null)
       }
     } catch (error) {
       console.error('投稿操作に失敗しました:', error)
+      // エラーが発生してもデータ再取得を試みる
+      await fetchPosts()
+      setSelectedPost(null)
+      setActionType(null)
     }
   }
 
