@@ -90,11 +90,19 @@ export class AdminController {
   }
 
   private async getAdminUserFromRequest(request: NextRequest): Promise<string | null> {
-    // Try to get token from Authorization header first
+    // Check if request already has user/admin from middleware
+    const req = request as any
+    if (req.user?.id) {
+      return req.user.id
+    }
+    if (req.admin?.id) {
+      return req.admin.id
+    }
+
+    // Fallback to token verification
     const authHeader = request.headers.get('Authorization')
     let token = authHeader?.replace('Bearer ', '')
 
-    // Fallback to cookie for backward compatibility
     if (!token) {
       token = request.cookies.get('admin-auth-token')?.value
     }

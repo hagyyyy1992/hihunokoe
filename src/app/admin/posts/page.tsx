@@ -165,7 +165,7 @@ export default function PostModeration() {
           <CardTitle>投稿管理</CardTitle>
           <CardDescription>投稿の一覧表示、検索、管理を行います</CardDescription>
         </CardHeader>
-        <CardContent className="px-3 sm:px-6">
+        <CardContent className="px-4 sm:px-8">
           {/* 検索・フィルター */}
           <div className="space-y-4 mb-6">
             <div className="relative">
@@ -197,7 +197,7 @@ export default function PostModeration() {
             {Array.isArray(filteredPosts) &&
               filteredPosts.map(post => (
                 <Card key={post.id}>
-                  <CardContent className="p-3">
+                  <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1 min-w-0 mr-2">
                         <h3 className="font-semibold text-sm line-clamp-2" title={post.title}>

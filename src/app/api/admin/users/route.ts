@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withAdminAuth } from '@/lib/auth/admin-middleware'
 import { AdminController } from '@api/framework/controllers/AdminController'
 
 let adminController: AdminController | null = null
@@ -9,7 +10,7 @@ try {
   console.error('Failed to initialize AdminController:', error)
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withAdminAuth(async request => {
   if (!adminController) {
     console.error('AdminController not available - database connection issue')
     return NextResponse.json(
@@ -19,4 +20,4 @@ export async function GET(request: NextRequest) {
   }
 
   return adminController.getUsers(request)
-}
+})
