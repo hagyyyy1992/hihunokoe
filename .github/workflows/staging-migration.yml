@@ -31,6 +31,7 @@ jobs:
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.STAGING_DIRECT_URL }}
 
       - name: Verify staging environment
         run: |
@@ -46,6 +47,7 @@ jobs:
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.STAGING_DIRECT_URL }}
 
       - name: Apply Supabase migrations to staging
         run: |
@@ -58,4 +60,5 @@ jobs:
         run: npm run db:seed
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.STAGING_DIRECT_URL }}
         continue-on-error: true
