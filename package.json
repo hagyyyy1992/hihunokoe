@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npm run codegen && next dev --turbopack",
-    "build": "prisma generate && prisma migrate deploy && npm run db:seed:check && npm run codegen && next build",
+    "build": "prisma generate && prisma migrate deploy && npm run codegen && next build",
     "build:ci": "prisma generate && npm run codegen && next build",
     "build:check": "prisma generate && npm run codegen && next build --no-lint",
     "start": "next start",
@@ -35,7 +35,6 @@
     "db:studio": "prisma studio",
     "db:status": "node scripts/check-db-status.js",
     "db:seed": "node scripts/seed.js",
-    "db:seed:check": "node scripts/seed-staging-check.js",
     "db:nuke": "docker compose down && docker volume rm hihunokoe_postgres_data || true && docker compose up -d postgres && sleep 5 && npm run db:migrate",
     "db:clean": "prisma migrate reset --force",
     "codegen": "graphql-codegen --config codegen.ts",
