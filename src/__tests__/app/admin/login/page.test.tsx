@@ -118,6 +118,12 @@ describe('AdminLoginPage', () => {
       prefetch: jest.fn(),
     } as ReturnType<typeof useRouter>)
     ;(global.fetch as jest.Mock).mockClear()
+
+    // Default mock for AdminAuthContext auth state check
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    })
   })
 
   it('renders the login form', () => {
@@ -168,17 +174,24 @@ describe('AdminLoginPage', () => {
   })
 
   it('handles successful login', async () => {
-    const mockResponse = {
-      ok: true,
-      json: jest.fn().mockResolvedValue({ token: 'test-token' }),
+    // AdminAuthContext will call /api/admin/auth/me first to check current auth state
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
     }
-    ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
-    // Mock document.cookie
-    Object.defineProperty(document, 'cookie', {
-      writable: true,
-      value: '',
-    })
+    // Login API response - must have success: true and user object
+    const loginResponse = {
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        success: true,
+        user: { id: '1', adminName: 'test', email: 'admin@example.com', role: 'ADMIN' },
+      }),
+    }
+
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce(authMeResponse) // First call: /api/admin/auth/me
+      .mockResolvedValueOnce(loginResponse) // Second call: /api/admin/auth/login
 
     render(
       <AdminAuthProvider>
@@ -206,6 +219,7 @@ describe('AdminLoginPage', () => {
           email: 'admin@example.com',
           password: 'admin123',
         }),
+        credentials: 'include',
       })
     })
 
@@ -215,11 +229,20 @@ describe('AdminLoginPage', () => {
   })
 
   it('handles login error', async () => {
-    const mockResponse = {
+    // AdminAuthContext will call /api/admin/auth/me first
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    }
+
+    const loginResponse = {
       ok: false,
       json: jest.fn().mockResolvedValue({ error: 'Invalid credentials' }),
     }
-    ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
+
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce(authMeResponse)
+      .mockResolvedValueOnce(loginResponse)
 
     render(
       <AdminAuthProvider>
@@ -236,7 +259,15 @@ describe('AdminLoginPage', () => {
   })
 
   it('handles network error', async () => {
-    ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'))
+    // AdminAuthContext will call /api/admin/auth/me first
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    }
+
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce(authMeResponse)
+      .mockRejectedValueOnce(new Error('Network error'))
 
     render(
       <AdminAuthProvider>
@@ -248,18 +279,27 @@ describe('AdminLoginPage', () => {
     fireEvent.submit(form!)
 
     await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument()
+      expect(screen.getByText('ログインに失敗しました')).toBeInTheDocument()
     })
   })
 
   it('shows loading state during login', async () => {
-    const mockResponse = {
+    // AdminAuthContext will call /api/admin/auth/me first
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    }
+
+    const loginResponse = {
       ok: true,
       json: jest.fn().mockResolvedValue({ token: 'test-token' }),
     }
-    ;(global.fetch as jest.Mock).mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
-    )
+
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce(authMeResponse)
+      .mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(loginResponse), 100))
+      )
 
     render(
       <AdminAuthProvider>
@@ -284,11 +324,20 @@ describe('AdminLoginPage', () => {
   })
 
   it('handles generic error when no specific error message', async () => {
-    const mockResponse = {
+    // AdminAuthContext will call /api/admin/auth/me first
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    }
+
+    const loginResponse = {
       ok: false,
       json: jest.fn().mockResolvedValue({}),
     }
-    ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
+
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce(authMeResponse)
+      .mockResolvedValueOnce(loginResponse)
 
     render(
       <AdminAuthProvider>
@@ -305,7 +354,18 @@ describe('AdminLoginPage', () => {
   })
 
   it('applies correct CSS classes', () => {
-    const { container } = render(<AdminLoginPage />)
+    // Mock auth state check
+    const authMeResponse = {
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Not authenticated' }),
+    }
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce(authMeResponse)
+
+    const { container } = render(
+      <AdminAuthProvider>
+        <AdminLoginPage />
+      </AdminAuthProvider>
+    )
 
     const mainDiv = container.querySelector(
       '.min-h-screen.flex.items-center.justify-center.bg-gray-100'
