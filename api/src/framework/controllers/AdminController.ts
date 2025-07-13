@@ -28,6 +28,7 @@ import { UserRepository } from '@api/interface-adapters/repositories/User.reposi
 import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { AdminLogRepository } from '@api/interface-adapters/repositories/AdminLog.repository'
+import { AdminUserRepositoryImpl } from '@api/framework/repositories/AdminUserRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { UserRole } from '@api/domain/entities/User'
@@ -69,6 +70,7 @@ export class AdminController {
     const commentRepository =
       new (require('@api/interface-adapters/repositories/Comment.repository').CommentRepository)()
     const adminLogRepository = new AdminLogRepository(prisma)
+    const adminUserRepository = new AdminUserRepositoryImpl(prisma)
 
     this.adminAuthenticationInputPort = new AdminAuthenticationUseCase(
       userRepository,
@@ -79,17 +81,20 @@ export class AdminController {
     )
     this.adminUserManagementInputPort = new AdminUserManagementUseCase(
       userRepository,
-      adminLogRepository
+      adminLogRepository,
+      adminUserRepository
     )
     this.adminPostManagementInputPort = new AdminPostManagementUseCase(
       postRepository,
       userRepository,
-      adminLogRepository
+      adminLogRepository,
+      adminUserRepository
     )
     this.adminDashboardInputPort = new AdminDashboardUseCase(
       userRepository,
       postRepository,
-      commentRepository
+      commentRepository,
+      adminUserRepository
     )
   }
 
@@ -97,19 +102,13 @@ export class AdminController {
     // Check if request already has user/admin from middleware
     const req = request as any
 
-    console.log('AdminController.getAdminUserFromRequest: req.admin =', req.admin)
-    console.log('AdminController.getAdminUserFromRequest: req.user =', req.user)
-
     if (req.admin?.id) {
-      console.log('AdminController.getAdminUserFromRequest: Using admin.id =', req.admin.id)
       return req.admin.id
     }
     if (req.user?.id) {
-      console.log('AdminController.getAdminUserFromRequest: Using user.id =', req.user.id)
       return req.user.id
     }
 
-    console.log('AdminController.getAdminUserFromRequest: No admin or user found, returning null')
     // For AdminController, we should NOT fallback to token verification
     // as admin authentication should be handled by withAdminAuth middleware
     // This ensures AdminUser tokens are properly validated through AdminAuthController

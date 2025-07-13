@@ -4,6 +4,7 @@ import { IPostRepository } from '@api/domain/repositories/PostRepository'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { IAdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
+import { AdminUserRepository } from '@api/domain/repositories/AdminUserRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
@@ -155,18 +156,16 @@ export class AdminAuthenticationUseCase implements IAdminAuthenticationInputPort
 export class AdminUserManagementUseCase implements IAdminUserManagementInputPort {
   constructor(
     private userRepository: IUserRepository,
-    private adminLogRepository: IAdminLogRepository
+    private adminLogRepository: IAdminLogRepository,
+    private adminUserRepository: AdminUserRepository
   ) {}
 
   async activateUser(inputData: ActivateUserInputPort): Promise<ActivateUserOutputPort> {
     const { adminUserId, targetUserId } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -191,11 +190,8 @@ export class AdminUserManagementUseCase implements IAdminUserManagementInputPort
     const { adminUserId, targetUserId, reason } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -225,11 +221,8 @@ export class AdminUserManagementUseCase implements IAdminUserManagementInputPort
     const { adminUserId, page = 1, limit = 20, search, status } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -279,11 +272,8 @@ export class AdminUserManagementUseCase implements IAdminUserManagementInputPort
     const { adminUserId, format, filters } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -377,18 +367,16 @@ export class AdminPostManagementUseCase implements IAdminPostManagementInputPort
   constructor(
     private postRepository: IPostRepository,
     private userRepository: IUserRepository,
-    private adminLogRepository: IAdminLogRepository
+    private adminLogRepository: IAdminLogRepository,
+    private adminUserRepository: AdminUserRepository
   ) {}
 
   async deletePost(inputData: AdminDeletePostInputPort): Promise<AdminDeletePostOutputPort> {
     const { adminUserId, postId, reason } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -411,11 +399,8 @@ export class AdminPostManagementUseCase implements IAdminPostManagementInputPort
     const { adminUserId, postId } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -440,11 +425,8 @@ export class AdminPostManagementUseCase implements IAdminPostManagementInputPort
     const { adminUserId, postId, reason } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -469,11 +451,8 @@ export class AdminPostManagementUseCase implements IAdminPostManagementInputPort
     const { adminUserId, page = 1, limit = 20, search, status } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
@@ -525,7 +504,8 @@ export class AdminDashboardUseCase implements IAdminDashboardInputPort {
   constructor(
     private userRepository: IUserRepository,
     private postRepository: IPostRepository,
-    private commentRepository: ICommentRepository
+    private commentRepository: ICommentRepository,
+    private adminUserRepository: AdminUserRepository
   ) {
     // キャッシュ版の統計リポジトリを使用
     const CachedAdminStatsRepository =
@@ -539,11 +519,8 @@ export class AdminDashboardUseCase implements IAdminDashboardInputPort {
     const { adminUserId, dateRange } = inputData
 
     // Verify admin user exists and has permission
-    const adminUser = await this.userRepository.findById(adminUserId)
-    if (
-      !adminUser ||
-      (adminUser.role !== UserRole.ADMIN && adminUser.role !== UserRole.SUPER_ADMIN)
-    ) {
+    const adminUser = await this.adminUserRepository.findById(adminUserId)
+    if (!adminUser || (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN')) {
       throw new Error('権限がありません')
     }
 
