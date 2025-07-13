@@ -171,19 +171,22 @@ describe('User.repository', () => {
       const email = 'user@example.com'
       const mockPrismaUser = createMockPrismaUser({ email })
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
+      mockPrisma.user.findFirst.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByEmail(email)
 
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-        where: { email },
+      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          email,
+          deletedAt: null,
+        },
       })
       expect(result).toBeInstanceOf(User)
       expect(result!.email).toBe(email)
     })
 
     it('存在しないメールアドレスの場合nullを返す', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null)
+      mockPrisma.user.findFirst.mockResolvedValue(null)
 
       const result = await repository.findByEmail('nonexistent@example.com')
 
@@ -196,12 +199,15 @@ describe('User.repository', () => {
       const userName = 'testuser'
       const mockPrismaUser = createMockPrismaUser({ userName })
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockPrismaUser)
+      mockPrisma.user.findFirst.mockResolvedValue(mockPrismaUser)
 
       const result = await repository.findByUsername(userName)
 
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-        where: { userName },
+      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          userName,
+          deletedAt: null,
+        },
       })
       expect(result).toBeInstanceOf(User)
       expect(result!.userName).toBe(userName)

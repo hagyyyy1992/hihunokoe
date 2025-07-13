@@ -7,9 +7,9 @@ const createLogoSVG = (size, isSquare = false) => {
   const padding = size * 0.1
   const viewBox = `0 0 ${size} ${size}`
 
-  // 背景の形状（正方形または円）
+  // 背景の形状（丸い角丸または円）
   const background = isSquare
-    ? `<rect width="${size}" height="${size}" fill="#A8D5A8"/>`
+    ? `<rect width="${size}" height="${size}" rx="${size * 0.25}" ry="${size * 0.25}" fill="#A8D5A8"/>`
     : `<circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="#A8D5A8"/>`
 
   // 小さいサイズでも読みやすいように調整
@@ -71,7 +71,7 @@ const createLogoSVG = (size, isSquare = false) => {
 const createFaviconSVG = size => {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${size}" height="${size}" rx="${size * 0.15}" fill="#A8D5A8"/>
+  <rect width="${size}" height="${size}" rx="${size * 0.3}" ry="${size * 0.3}" fill="#A8D5A8"/>
   
   <!-- ひ の文字（太く、大きく） -->
   <text x="${size / 2}" y="${size * 0.68}" 
