@@ -6,11 +6,6 @@ import { verifyAdminToken } from '@/lib/auth/admin-middleware'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// Explicitly define that this route uses dynamic parameters
-export async function generateStaticParams() {
-  return []
-}
-
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     // 管理者認証チェック

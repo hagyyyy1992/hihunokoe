@@ -1,57 +1,105 @@
 import { NextRequest } from 'next/server'
 
-// AdminControllerのモックを先に設定
-const mockGetDashboardStats = jest.fn()
+// モック設定
+const mockPrisma = {
+  user: {
+    findMany: jest.fn(),
+  },
+  post: {
+    findMany: jest.fn(),
+  },
+}
 
-jest.mock('@api/framework/controllers/AdminController', () => {
-  return {
-    AdminController: jest.fn().mockImplementation(() => {
-      return {
-        getDashboardStats: mockGetDashboardStats,
-      }
-    }),
-  }
-})
+jest.mock('@/lib/prisma', () => ({
+  prisma: mockPrisma,
+}))
+
+jest.mock('@/lib/auth/admin-middleware', () => ({
+  verifyAdminToken: jest.fn(),
+}))
+
+jest.mock('@api/interface-adapters/repositories/CachedAdminStats.repository', () => ({
+  CachedAdminStatsRepository: jest.fn().mockImplementation(() => ({
+    getDashboardStats: jest.fn(),
+    getUserGrowthByDate: jest.fn(),
+    getPostGrowthByDate: jest.fn(),
+  })),
+}))
+
+import { verifyAdminToken } from '@/lib/auth/admin-middleware'
+import { CachedAdminStatsRepository } from '@api/interface-adapters/repositories/CachedAdminStats.repository'
+
+const mockVerifyAdminToken = verifyAdminToken as jest.Mock
+const mockCachedAdminStatsRepository = CachedAdminStatsRepository as unknown as jest.Mock
 
 describe('/api/admin/dashboard/stats', () => {
   let GET: typeof import('@/app/api/admin/dashboard/stats/route').GET
 
   beforeAll(async () => {
-    // モック設定後にモジュールをインポート
+    // モジュールをインポート
     const module = await import('@/app/api/admin/dashboard/stats/route')
     GET = module.GET
   })
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Prismaモックをリセット
+    mockPrisma.user.findMany.mockClear()
+    mockPrisma.post.findMany.mockClear()
   })
 
   it('管理者ダッシュボードの統計を取得できる', async () => {
     const mockStats = {
       totalUsers: 100,
       activeUsers: 85,
+      suspendedUsers: 15,
       totalPosts: 500,
       publishedPosts: 450,
-      totalComments: 2000,
-      newUsersToday: 5,
-      newPostsToday: 20,
-      recentActivities: [
-        {
-          id: 'activity-1',
-          type: 'user_registration',
-          userId: 'user-1',
-          userName: 'newuser',
-          timestamp: new Date().toISOString(),
-        },
-      ],
+      unpublishedPosts: 50,
+      todayRegistrations: 5,
+      todayPosts: 20,
     }
 
-    const mockResponse = new Response(JSON.stringify({ success: true, stats: mockStats }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+    const mockRecentUsers = [
+      {
+        id: 'user-1',
+        userName: 'newuser',
+        email: 'user@example.com',
+        createdAt: new Date(),
+      },
+    ]
+
+    const mockRecentPosts = [
+      {
+        id: 'post-1',
+        title: 'Test Post',
+        status: 'published',
+        viewCount: 0,
+        createdAt: new Date(),
+        user: {
+          id: 'user-1',
+          userName: 'testuser',
+        },
+      },
+    ]
+
+    // 管理者認証のモック
+    mockVerifyAdminToken.mockResolvedValue({
+      isValid: true,
+      user: { id: 'admin-1', role: 'ADMIN' },
     })
 
-    mockGetDashboardStats.mockResolvedValue(mockResponse)
+    // CachedAdminStatsRepositoryのモック
+    const mockRepository = {
+      getDashboardStats: jest.fn().mockResolvedValue(mockStats),
+      getUserGrowthByDate: jest.fn().mockResolvedValue([]),
+      getPostGrowthByDate: jest.fn().mockResolvedValue([]),
+    }
+    mockCachedAdminStatsRepository.mockImplementation(() => mockRepository)
+
+    // Prismaのモック
+    mockPrisma.user.findMany.mockResolvedValue(mockRecentUsers)
+    mockPrisma.post.findMany.mockResolvedValue(mockRecentPosts)
 
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats', {
       headers: {
@@ -62,19 +110,19 @@ describe('/api/admin/dashboard/stats', () => {
     const response = await GET(request)
     const data = await response.json()
 
-    expect(mockGetDashboardStats).toHaveBeenCalledWith(request)
     expect(response.status).toBe(200)
     expect(data.success).toBe(true)
     expect(data.stats).toEqual(mockStats)
+    expect(data.recentUsers).toHaveLength(1)
+    expect(data.recentPosts).toHaveLength(1)
   })
 
   it('管理者権限がない場合は401を返す', async () => {
-    const mockResponse = new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
+    // 認証失敗のモック
+    mockVerifyAdminToken.mockResolvedValue({
+      isValid: false,
+      user: null,
     })
-
-    mockGetDashboardStats.mockResolvedValue(mockResponse)
 
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats')
 
@@ -82,37 +130,43 @@ describe('/api/admin/dashboard/stats', () => {
     const data = await response.json()
 
     expect(response.status).toBe(401)
-    expect(data.error).toBe('Unauthorized')
+    expect(data.error).toBe('管理者権限が必要です')
   })
 
-  it('一般ユーザーの場合は403を返す', async () => {
-    const mockResponse = new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' },
+  it('一般ユーザーの場合は401を返す', async () => {
+    // 一般ユーザーの認証（管理者ではない）
+    mockVerifyAdminToken.mockResolvedValue({
+      isValid: false,
+      user: { id: 'user-1', role: 'USER' },
     })
-
-    mockGetDashboardStats.mockResolvedValue(mockResponse)
 
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats', {
       headers: {
-        Cookie: 'admin-auth-token=user-token', // 一般ユーザーのトークン
+        Cookie: 'admin-auth-token=user-token',
       },
     })
 
     const response = await GET(request)
     const data = await response.json()
 
-    expect(response.status).toBe(403)
-    expect(data.error).toBe('Forbidden')
+    expect(response.status).toBe(401)
+    expect(data.error).toBe('管理者権限が必要です')
   })
 
   it('データベースエラーの場合は500を返す', async () => {
-    const mockResponse = new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    // 管理者認証のモック
+    mockVerifyAdminToken.mockResolvedValue({
+      isValid: true,
+      user: { id: 'admin-1', role: 'ADMIN' },
     })
 
-    mockGetDashboardStats.mockResolvedValue(mockResponse)
+    // リポジトリがエラーをスロー
+    const mockRepository = {
+      getDashboardStats: jest.fn().mockRejectedValue(new Error('Database error')),
+      getUserGrowthByDate: jest.fn().mockRejectedValue(new Error('Database error')),
+      getPostGrowthByDate: jest.fn().mockRejectedValue(new Error('Database error')),
+    }
+    mockCachedAdminStatsRepository.mockImplementation(() => mockRepository)
 
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats', {
       headers: {
@@ -124,28 +178,20 @@ describe('/api/admin/dashboard/stats', () => {
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data.error).toBe('Internal Server Error')
+    expect(data.error).toBe('統計データの取得に失敗しました')
   })
 
-  it('モックモードでも統計を取得できる', async () => {
-    const mockStats = {
-      totalUsers: 50,
-      activeUsers: 45,
-      totalPosts: 200,
-      publishedPosts: 180,
-      totalComments: 800,
-      newUsersToday: 2,
-      newPostsToday: 10,
-      recentActivities: [],
-      message: 'デモモード',
-    }
-
-    const mockResponse = new Response(JSON.stringify({ success: true, stats: mockStats }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+  it('リポジトリが初期化できない場合は500を返す', async () => {
+    // 管理者認証のモック
+    mockVerifyAdminToken.mockResolvedValue({
+      isValid: true,
+      user: { id: 'admin-1', role: 'ADMIN' },
     })
 
-    mockGetDashboardStats.mockResolvedValue(mockResponse)
+    // CachedAdminStatsRepositoryの初期化エラー
+    mockCachedAdminStatsRepository.mockImplementation(() => {
+      throw new Error('Repository initialization failed')
+    })
 
     const request = new NextRequest('http://localhost:3000/api/admin/dashboard/stats', {
       headers: {
@@ -156,8 +202,7 @@ describe('/api/admin/dashboard/stats', () => {
     const response = await GET(request)
     const data = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(data.stats.message).toBe('デモモード')
+    expect(response.status).toBe(500)
+    expect(data.error).toBe('統計データの取得に失敗しました')
   })
 })

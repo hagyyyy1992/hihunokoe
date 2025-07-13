@@ -8,11 +8,6 @@ import { checkAdminAuth } from '@/lib/auth/admin-middleware'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// Explicitly define that this route uses dynamic parameters
-export async function generateStaticParams() {
-  return []
-}
-
 const updateSchema = z.object({
   status: z.nativeEnum(ContactStatus),
   adminNotes: z.string().optional(),
