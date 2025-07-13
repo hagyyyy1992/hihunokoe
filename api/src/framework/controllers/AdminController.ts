@@ -96,31 +96,17 @@ export class AdminController {
   private async getAdminUserFromRequest(request: NextRequest): Promise<string | null> {
     // Check if request already has user/admin from middleware
     const req = request as any
-    if (req.user?.id) {
-      return req.user.id
-    }
     if (req.admin?.id) {
       return req.admin.id
     }
-
-    // Fallback to token verification
-    const authHeader = request.headers.get('Authorization')
-    let token = authHeader?.replace('Bearer ', '')
-
-    if (!token) {
-      token = request.cookies.get('admin-auth-token')?.value
+    if (req.user?.id) {
+      return req.user.id
     }
 
-    if (!token) {
-      return null
-    }
-
-    try {
-      const decoded = await this.tokenService.verifyToken(token)
-      return decoded.userId
-    } catch {
-      return null
-    }
+    // For AdminController, we should NOT fallback to token verification
+    // as admin authentication should be handled by withAdminAuth middleware
+    // This ensures AdminUser tokens are properly validated through AdminAuthController
+    return null
   }
 
   async login(request: NextRequest): Promise<NextResponse> {
