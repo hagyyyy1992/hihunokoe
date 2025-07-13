@@ -21,29 +21,38 @@ const updateSchema = z.object({
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const params = await context.params
-    console.log('GET inquiry with ID:', params.id)
+    console.log('[inquiries/[id]/GET] Starting with ID:', params.id)
+    console.log('[inquiries/[id]/GET] Request URL:', request.url)
+    console.log(
+      '[inquiries/[id]/GET] Request headers:',
+      Object.fromEntries(request.headers.entries())
+    )
 
     const adminAuth = await checkAdminAuth(request)
-    console.log('Admin auth result:', {
+    console.log('[inquiries/[id]/GET] Admin auth result:', {
       isAuthenticated: adminAuth.isAuthenticated,
       hasAdmin: !!adminAuth.admin,
       adminId: adminAuth.admin?.id,
     })
 
     if (!adminAuth.isAuthenticated || !adminAuth.admin) {
-      console.log('Authentication failed')
+      console.log('[inquiries/[id]/GET] Authentication failed')
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
     }
 
     if (!prisma) {
+      console.log('[inquiries/[id]/GET] Prisma client not available')
       return NextResponse.json({ error: 'データベース接続が利用できません' }, { status: 503 })
     }
 
+    console.log('[inquiries/[id]/GET] Querying database for inquiry with ID:', params.id)
     const inquiry = await prisma.contactInquiry.findUnique({
       where: { id: params.id },
     })
+    console.log('[inquiries/[id]/GET] Database query result:', inquiry ? 'Found' : 'Not found')
 
     if (!inquiry) {
+      console.log('[inquiries/[id]/GET] Inquiry not found, returning 404')
       return NextResponse.json({ error: 'お問い合わせが見つかりません' }, { status: 404 })
     }
 
