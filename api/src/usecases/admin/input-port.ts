@@ -13,7 +13,7 @@ import {
 } from './output-port'
 
 // Admin Authentication
-export abstract class IAdminAuthenticationUseCase {
+export abstract class IAdminAuthenticationInputPort {
   abstract adminLogin(inputPort: AdminLoginInputPort): Promise<AdminLoginOutputPort>
   abstract adminLogout(inputPort: AdminLogoutInputPort): Promise<void>
   abstract getCurrentAdmin(inputPort: GetCurrentAdminInputPort): Promise<{ user: User }>
@@ -35,7 +35,7 @@ export type GetCurrentAdminInputPort = {
 }
 
 // Admin User Management
-export abstract class IAdminUserManagementUseCase {
+export abstract class IAdminUserManagementInputPort {
   abstract activateUser(inputPort: ActivateUserInputPort): Promise<ActivateUserOutputPort>
   abstract suspendUser(inputPort: SuspendUserInputPort): Promise<SuspendUserOutputPort>
   abstract getAdminUsers(inputPort: GetAdminUsersInputPort): Promise<GetAdminUsersOutputPort>
@@ -79,7 +79,7 @@ export type ExportUsersInputPort = {
 }
 
 // Admin Post Management
-export abstract class IAdminPostManagementUseCase {
+export abstract class IAdminPostManagementInputPort {
   abstract deletePost(inputPort: AdminDeletePostInputPort): Promise<AdminDeletePostOutputPort>
   abstract publishPost(inputPort: PublishPostInputPort): Promise<PublishPostOutputPort>
   abstract unpublishPost(inputPort: UnpublishPostInputPort): Promise<UnpublishPostOutputPort>
@@ -118,7 +118,7 @@ export type GetAdminPostsInputPort = {
 }
 
 // Admin Dashboard
-export abstract class IAdminDashboardUseCase {
+export abstract class IAdminDashboardInputPort {
   abstract getDashboardStats(
     inputPort: GetDashboardStatsInputPort
   ): Promise<GetDashboardStatsOutputPort>

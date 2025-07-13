@@ -19,10 +19,10 @@ import type {
   GetDashboardStatsInputPort,
   AdminLogoutInputPort,
   GetCurrentAdminInputPort,
-  IAdminAuthenticationUseCase,
-  IAdminUserManagementUseCase,
-  IAdminPostManagementUseCase,
-  IAdminDashboardUseCase,
+  IAdminAuthenticationInputPort,
+  IAdminUserManagementInputPort,
+  IAdminPostManagementInputPort,
+  IAdminDashboardInputPort,
 } from '@api/usecases/admin/input-port'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
@@ -39,10 +39,10 @@ import {
 } from '@api/domain/exceptions/AuthenticationError'
 
 export class AdminController {
-  private adminAuthenticationUseCase: IAdminAuthenticationUseCase
-  private adminUserManagementUseCase: IAdminUserManagementUseCase
-  private adminPostManagementUseCase: IAdminPostManagementUseCase
-  private adminDashboardUseCase: IAdminDashboardUseCase
+  private adminAuthenticationInputPort: IAdminAuthenticationInputPort
+  private adminUserManagementInputPort: IAdminUserManagementInputPort
+  private adminPostManagementInputPort: IAdminPostManagementInputPort
+  private adminDashboardInputPort: IAdminDashboardInputPort
   private tokenService: TokenServiceImpl
 
   private getCorsHeaders() {
@@ -70,23 +70,23 @@ export class AdminController {
       new (require('@api/interface-adapters/repositories/Comment.repository').CommentRepository)()
     const adminLogRepository = new AdminLogRepository(prisma)
 
-    this.adminAuthenticationUseCase = new AdminAuthenticationUseCase(
+    this.adminAuthenticationInputPort = new AdminAuthenticationUseCase(
       userRepository,
       authSessionRepository,
       passwordHashService,
       this.tokenService,
       adminLogRepository
     )
-    this.adminUserManagementUseCase = new AdminUserManagementUseCase(
+    this.adminUserManagementInputPort = new AdminUserManagementUseCase(
       userRepository,
       adminLogRepository
     )
-    this.adminPostManagementUseCase = new AdminPostManagementUseCase(
+    this.adminPostManagementInputPort = new AdminPostManagementUseCase(
       postRepository,
       userRepository,
       adminLogRepository
     )
-    this.adminDashboardUseCase = new AdminDashboardUseCase(
+    this.adminDashboardInputPort = new AdminDashboardUseCase(
       userRepository,
       postRepository,
       commentRepository
@@ -96,13 +96,20 @@ export class AdminController {
   private async getAdminUserFromRequest(request: NextRequest): Promise<string | null> {
     // Check if request already has user/admin from middleware
     const req = request as any
+
+    console.log('AdminController.getAdminUserFromRequest: req.admin =', req.admin)
+    console.log('AdminController.getAdminUserFromRequest: req.user =', req.user)
+
     if (req.admin?.id) {
+      console.log('AdminController.getAdminUserFromRequest: Using admin.id =', req.admin.id)
       return req.admin.id
     }
     if (req.user?.id) {
+      console.log('AdminController.getAdminUserFromRequest: Using user.id =', req.user.id)
       return req.user.id
     }
 
+    console.log('AdminController.getAdminUserFromRequest: No admin or user found, returning null')
     // For AdminController, we should NOT fallback to token verification
     // as admin authentication should be handled by withAdminAuth middleware
     // This ensures AdminUser tokens are properly validated through AdminAuthController
@@ -124,7 +131,7 @@ export class AdminController {
       const userAgent = request.headers.get('user-agent') || 'unknown'
 
       const inputPort: AdminLoginInputPort = { email, password, ipAddress, userAgent }
-      const result = await this.adminAuthenticationUseCase.adminLogin(inputPort)
+      const result = await this.adminAuthenticationInputPort.adminLogin(inputPort)
 
       // Set admin cookie
       const response = NextResponse.json({
@@ -182,7 +189,7 @@ export class AdminController {
       }
 
       const inputPort: GetDashboardStatsInputPort = { adminUserId }
-      const result = await this.adminDashboardUseCase.getDashboardStats(inputPort)
+      const result = await this.adminDashboardInputPort.getDashboardStats(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -221,7 +228,7 @@ export class AdminController {
         status,
         role: role as UserRole | undefined,
       }
-      const result = await this.adminUserManagementUseCase.getAdminUsers(inputPort)
+      const result = await this.adminUserManagementInputPort.getAdminUsers(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -268,7 +275,7 @@ export class AdminController {
         adminUserId,
         targetUserId: userId,
       }
-      await this.adminUserManagementUseCase.activateUser(inputPort)
+      await this.adminUserManagementInputPort.activateUser(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -296,7 +303,7 @@ export class AdminController {
         adminUserId,
         targetUserId: userId,
       }
-      await this.adminUserManagementUseCase.suspendUser(inputPort)
+      await this.adminUserManagementInputPort.suspendUser(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -328,7 +335,7 @@ export class AdminController {
         search,
         status: status as 'all' | 'published' | 'unpublished' | undefined,
       }
-      const result = await this.adminPostManagementUseCase.getAdminPosts(inputPort)
+      const result = await this.adminPostManagementInputPort.getAdminPosts(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -359,7 +366,7 @@ export class AdminController {
         adminUserId,
         postId,
       }
-      await this.adminPostManagementUseCase.publishPost(inputPort)
+      await this.adminPostManagementInputPort.publishPost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -387,7 +394,7 @@ export class AdminController {
         adminUserId,
         postId,
       }
-      await this.adminPostManagementUseCase.unpublishPost(inputPort)
+      await this.adminPostManagementInputPort.unpublishPost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -415,7 +422,7 @@ export class AdminController {
         adminUserId,
         postId,
       }
-      await this.adminPostManagementUseCase.deletePost(inputPort)
+      await this.adminPostManagementInputPort.deletePost(inputPort)
 
       return NextResponse.json({
         success: true,
@@ -438,7 +445,7 @@ export class AdminController {
         adminUserId,
         format: 'csv',
       }
-      const result = await this.adminUserManagementUseCase.exportUsers(inputPort)
+      const result = await this.adminUserManagementInputPort.exportUsers(inputPort)
 
       return new NextResponse(result.data as string, {
         headers: {
@@ -465,7 +472,7 @@ export class AdminController {
       const inputPort: AdminLogoutInputPort = {
         adminUserId,
       }
-      await this.adminAuthenticationUseCase.adminLogout(inputPort)
+      await this.adminAuthenticationInputPort.adminLogout(inputPort)
 
       const response = NextResponse.json({
         success: true,
@@ -492,7 +499,7 @@ export class AdminController {
       const inputPort: GetCurrentAdminInputPort = {
         adminUserId,
       }
-      const result = await this.adminAuthenticationUseCase.getCurrentAdmin(inputPort)
+      const result = await this.adminAuthenticationInputPort.getCurrentAdmin(inputPort)
 
       return NextResponse.json({
         success: true,

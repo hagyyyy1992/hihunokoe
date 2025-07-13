@@ -14,10 +14,10 @@ import {
   EmailNotVerifiedError,
 } from '@api/domain/exceptions/AuthenticationError'
 import {
-  IAdminAuthenticationUseCase,
-  IAdminUserManagementUseCase,
-  IAdminPostManagementUseCase,
-  IAdminDashboardUseCase,
+  IAdminAuthenticationInputPort,
+  IAdminUserManagementInputPort,
+  IAdminPostManagementInputPort,
+  IAdminDashboardInputPort,
   AdminLoginInputPort,
   AdminLogoutInputPort,
   GetCurrentAdminInputPort,
@@ -44,7 +44,7 @@ import {
   GetDashboardStatsOutputPort,
 } from './output-port'
 
-export class AdminAuthenticationUseCase implements IAdminAuthenticationUseCase {
+export class AdminAuthenticationUseCase implements IAdminAuthenticationInputPort {
   constructor(
     private userRepository: IUserRepository,
     private authSessionRepository: IAuthSessionRepository,
@@ -152,7 +152,7 @@ export class AdminAuthenticationUseCase implements IAdminAuthenticationUseCase {
   }
 }
 
-export class AdminUserManagementUseCase implements IAdminUserManagementUseCase {
+export class AdminUserManagementUseCase implements IAdminUserManagementInputPort {
   constructor(
     private userRepository: IUserRepository,
     private adminLogRepository: IAdminLogRepository
@@ -373,7 +373,7 @@ export class AdminUserManagementUseCase implements IAdminUserManagementUseCase {
   }
 }
 
-export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
+export class AdminPostManagementUseCase implements IAdminPostManagementInputPort {
   constructor(
     private postRepository: IPostRepository,
     private userRepository: IUserRepository,
@@ -519,7 +519,7 @@ export class AdminPostManagementUseCase implements IAdminPostManagementUseCase {
   }
 }
 
-export class AdminDashboardUseCase implements IAdminDashboardUseCase {
+export class AdminDashboardUseCase implements IAdminDashboardInputPort {
   private adminStatsRepository: any // AdminStatsRepository
 
   constructor(
