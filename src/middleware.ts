@@ -87,6 +87,77 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // 管理画面のIP制限チェック（管理画面のみ）
+  if (pathname.startsWith('/admin')) {
+    if (IP_RESTRICTION_ENABLED && ALLOWED_IPS.length > 0) {
+      const clientIp = getClientIp(request)
+
+      // IPが許可リストにない場合
+      if (!ALLOWED_IPS.includes(clientIp)) {
+        // カスタムエラーページを返す
+        return new NextResponse(
+          `
+          <!DOCTYPE html>
+          <html lang="ja">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>管理画面アクセス制限</title>
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  height: 100vh;
+                  margin: 0;
+                  background-color: #f5f5f5;
+                }
+                .container {
+                  text-align: center;
+                  padding: 2rem;
+                  background: white;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  max-width: 400px;
+                }
+                h1 {
+                  color: #333;
+                  margin-bottom: 1rem;
+                }
+                p {
+                  color: #666;
+                  line-height: 1.6;
+                }
+                .ip {
+                  font-family: monospace;
+                  background: #f0f0f0;
+                  padding: 0.2rem 0.4rem;
+                  border-radius: 4px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>管理画面アクセス制限</h1>
+                <p>申し訳ございませんが、お使いのIPアドレスから管理画面へのアクセスは許可されていません。</p>
+                <p>あなたのIPアドレス: <span class="ip">${clientIp}</span></p>
+                <p>管理画面へのアクセスが必要な場合は、システム管理者にお問い合わせください。</p>
+              </div>
+            </body>
+          </html>
+          `,
+          {
+            status: 403,
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+            },
+          }
+        )
+      }
+    }
+  }
+
   // 管理画面の認証チェック
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     if (!validateAdminAccess(request)) {
@@ -127,76 +198,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // IP制限が有効な場合
-  if (IP_RESTRICTION_ENABLED && ALLOWED_IPS.length > 0) {
-    const clientIp = getClientIp(request)
-
-    // IPが許可リストにない場合
-    if (!ALLOWED_IPS.includes(clientIp)) {
-      // カスタムエラーページを返す
-      return new NextResponse(
-        `
-        <!DOCTYPE html>
-        <html lang="ja">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>アクセス制限</title>
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                background-color: #f5f5f5;
-              }
-              .container {
-                text-align: center;
-                padding: 2rem;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                max-width: 400px;
-              }
-              h1 {
-                color: #333;
-                margin-bottom: 1rem;
-              }
-              p {
-                color: #666;
-                line-height: 1.6;
-              }
-              .ip {
-                font-family: monospace;
-                background: #f0f0f0;
-                padding: 0.2rem 0.4rem;
-                border-radius: 4px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>アクセス制限</h1>
-              <p>申し訳ございませんが、お使いのIPアドレスからのアクセスは許可されていません。</p>
-              <p>あなたのIPアドレス: <span class="ip">${clientIp}</span></p>
-              <p>アクセスが必要な場合は、管理者にお問い合わせください。</p>
-            </div>
-          </body>
-        </html>
-        `,
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-          },
-        }
-      )
-    }
-  }
-
-  // IP制限をパスした場合は通常の処理を続行
   const response = NextResponse.next()
 
   // セキュリティヘッダーを追加

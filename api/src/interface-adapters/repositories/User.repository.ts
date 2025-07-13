@@ -30,8 +30,11 @@ export class UserRepository implements IUserRepository {
       return null
     }
 
-    const prismaUser = await prisma.user.findUnique({
-      where: { email },
+    const prismaUser = await prisma.user.findFirst({
+      where: {
+        email,
+        deletedAt: null, // 退会済みユーザーを除外
+      },
     })
 
     if (!prismaUser) return null
@@ -41,8 +44,11 @@ export class UserRepository implements IUserRepository {
   async findByUsername(username: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const prismaUser = await prisma.user.findUnique({
-      where: { userName: username },
+    const prismaUser = await prisma.user.findFirst({
+      where: {
+        userName: username,
+        deletedAt: null, // 退会済みユーザーを除外
+      },
     })
 
     if (!prismaUser) return null
