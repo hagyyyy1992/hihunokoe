@@ -42,6 +42,7 @@ export default function PostModeration() {
   const [posts, setPosts] = useState<Post[]>([])
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isActionLoading, setIsActionLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
@@ -93,8 +94,9 @@ export default function PostModeration() {
   }, [filterPosts])
 
   const handlePostAction = async (action: 'publish' | 'unpublish' | 'delete') => {
-    if (!selectedPost) return
+    if (!selectedPost || isActionLoading) return
 
+    setIsActionLoading(true)
     try {
       const response = await fetch(`/api/admin/posts/${selectedPost.id}/${action}`, {
         method: 'POST',
@@ -114,6 +116,8 @@ export default function PostModeration() {
       await fetchPosts()
       setSelectedPost(null)
       setActionType(null)
+    } finally {
+      setIsActionLoading(false)
     }
   }
 
@@ -373,14 +377,23 @@ export default function PostModeration() {
                 setActionType(null)
                 setSelectedPost(null)
               }}
+              disabled={isActionLoading}
             >
               キャンセル
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handlePostAction(actionType)}
               className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : ''}
+              disabled={isActionLoading}
             >
-              {getActionLabel(actionType || '')}
+              {isActionLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  処理中...
+                </div>
+              ) : (
+                getActionLabel(actionType || '')
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

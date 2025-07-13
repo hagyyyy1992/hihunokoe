@@ -41,6 +41,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isActionLoading, setIsActionLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [roleFilter, setRoleFilter] = useState('all')
@@ -100,8 +101,9 @@ export default function UserManagement() {
   }, [filterUsers])
 
   const handleUserAction = async (action: 'activate' | 'suspend') => {
-    if (!selectedUser) return
+    if (!selectedUser || isActionLoading) return
 
+    setIsActionLoading(true)
     try {
       const response = await fetch(`/api/admin/users/${selectedUser.id}/${action}`, {
         method: 'POST',
@@ -121,6 +123,8 @@ export default function UserManagement() {
       await fetchUsers()
       setSelectedUser(null)
       setActionType(null)
+    } finally {
+      setIsActionLoading(false)
     }
   }
 
@@ -416,14 +420,25 @@ export default function UserManagement() {
                 setActionType(null)
                 setSelectedUser(null)
               }}
+              disabled={isActionLoading}
             >
               キャンセル
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionType && handleUserAction(actionType)}
               className={actionType === 'suspend' ? 'bg-red-600 hover:bg-red-700' : ''}
+              disabled={isActionLoading}
             >
-              {actionType === 'suspend' ? '停止する' : '復活させる'}
+              {isActionLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  処理中...
+                </div>
+              ) : actionType === 'suspend' ? (
+                '停止する'
+              ) : (
+                '復活させる'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
