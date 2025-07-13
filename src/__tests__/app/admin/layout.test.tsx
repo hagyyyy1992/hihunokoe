@@ -183,10 +183,13 @@ describe('AdminLayout', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: '1',
-          userName: 'admin',
-          email: 'admin@example.com',
-          role: 'ADMIN',
+          success: true,
+          user: {
+            id: '1',
+            adminName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          },
         }),
     } as Response)
 
@@ -206,10 +209,13 @@ describe('AdminLayout', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: '1',
-          userName: 'admin',
-          email: 'admin@example.com',
-          role: 'ADMIN',
+          success: true,
+          user: {
+            id: '1',
+            adminName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          },
         }),
     } as Response)
 
@@ -234,10 +240,13 @@ describe('AdminLayout', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: '1',
-          userName: 'admin',
-          email: 'admin@example.com',
-          role: 'ADMIN',
+          success: true,
+          user: {
+            id: '1',
+            adminName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          },
         }),
     } as Response)
 
@@ -259,10 +268,13 @@ describe('AdminLayout', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: '1',
-          userName: 'superadmin',
-          email: 'superadmin@example.com',
-          role: 'SUPER_ADMIN',
+          success: true,
+          user: {
+            id: '1',
+            adminName: 'superadmin',
+            email: 'superadmin@example.com',
+            role: 'SUPER_ADMIN',
+          },
         }),
     } as Response)
 
@@ -283,15 +295,18 @@ describe('AdminLayout', () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            id: '1',
-            userName: 'admin',
-            email: 'admin@example.com',
-            role: 'ADMIN',
+            success: true,
+            user: {
+              id: '1',
+              adminName: 'admin',
+              email: 'admin@example.com',
+              role: 'ADMIN',
+            },
           }),
       } as Response)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ message: 'ログアウトしました' }),
+        json: () => Promise.resolve({ success: true, message: 'ログアウトしました' }),
       } as Response)
 
     render(
@@ -313,10 +328,13 @@ describe('AdminLayout', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: '1',
-          userName: 'admin',
-          email: 'admin@example.com',
-          role: 'ADMIN',
+          success: true,
+          user: {
+            id: '1',
+            adminName: 'admin',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+          },
         }),
     } as Response)
 
@@ -349,10 +367,13 @@ describe('AdminLayout', () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            id: '1',
-            userName: 'admin',
-            email: 'admin@example.com',
-            role: 'ADMIN',
+            success: true,
+            user: {
+              id: '1',
+              adminName: 'admin',
+              email: 'admin@example.com',
+              role: 'ADMIN',
+            },
           }),
       } as Response)
       // Mock unread count API
@@ -384,10 +405,13 @@ describe('AdminLayout', () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            id: '1',
-            userName: 'admin',
-            email: 'admin@example.com',
-            role: 'ADMIN',
+            success: true,
+            user: {
+              id: '1',
+              adminName: 'admin',
+              email: 'admin@example.com',
+              role: 'ADMIN',
+            },
           }),
       } as Response)
       // Mock unread count API
