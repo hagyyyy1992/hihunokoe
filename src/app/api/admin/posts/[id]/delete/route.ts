@@ -29,38 +29,19 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const params = await context.params
     const postId = params.id
 
-    // トランザクション内で投稿削除と管理ログ記録を実行
-    await prisma.$transaction(async tx => {
-      // 投稿の存在確認
-      const post = await tx.post.findUnique({
-        where: { id: postId },
-        select: { id: true, title: true },
-      })
+    // 投稿の存在確認
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, title: true },
+    })
 
-      if (!post) {
-        throw new Error('投稿が見つかりません')
-      }
+    if (!post) {
+      return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
+    }
 
-      // 投稿を削除
-      await tx.post.delete({
-        where: { id: postId },
-      })
-
-      // 管理ログを記録
-      await tx.adminLog.create({
-        data: {
-          adminUserId: authResult.user!.id,
-          action: 'DELETE_POST',
-          target: postId,
-          targetType: 'POST',
-          details: {
-            postTitle: post.title,
-          },
-          ipAddress:
-            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-          userAgent: request.headers.get('user-agent') || 'unknown',
-        },
-      })
+    // 投稿を削除
+    await prisma.post.delete({
+      where: { id: postId },
     })
 
     return NextResponse.json({
@@ -69,9 +50,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     })
   } catch (error) {
     console.error('Delete post error:', error)
-    if (error instanceof Error && error.message === '投稿が見つかりません') {
-      return NextResponse.json({ error: error.message }, { status: 404 })
-    }
     return NextResponse.json({ error: '投稿の削除に失敗しました' }, { status: 500 })
   }
 }

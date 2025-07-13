@@ -34,43 +34,24 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       return NextResponse.json({ error: '自分自身を停止することはできません' }, { status: 400 })
     }
 
-    // トランザクション内でユーザー停止と管理ログ記録を実行
-    await prisma.$transaction(async tx => {
-      // ユーザーの存在確認と現在の状態取得
-      const user = await tx.user.findUnique({
-        where: { id: targetUserId },
-        select: { id: true, userName: true, isActive: true },
-      })
+    // ユーザーの存在確認と現在の状態取得
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, userName: true, isActive: true },
+    })
 
-      if (!user) {
-        throw new Error('ユーザーが見つかりません')
-      }
+    if (!user) {
+      return NextResponse.json({ error: 'ユーザーが見つかりません' }, { status: 404 })
+    }
 
-      if (!user.isActive) {
-        throw new Error('ユーザーは既に停止されています')
-      }
+    if (!user.isActive) {
+      return NextResponse.json({ error: 'ユーザーは既に停止されています' }, { status: 400 })
+    }
 
-      // ユーザーを停止
-      await tx.user.update({
-        where: { id: targetUserId },
-        data: { isActive: false },
-      })
-
-      // 管理ログを記録
-      await tx.adminLog.create({
-        data: {
-          adminUserId: authResult.user!.id,
-          action: 'SUSPEND_USER',
-          target: targetUserId,
-          targetType: 'USER',
-          details: {
-            targetUserName: user.userName,
-          },
-          ipAddress:
-            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-          userAgent: request.headers.get('user-agent') || 'unknown',
-        },
-      })
+    // ユーザーを停止
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: { isActive: false },
     })
 
     return NextResponse.json({
@@ -79,14 +60,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     })
   } catch (error) {
     console.error('Suspend user error:', error)
-    if (error instanceof Error) {
-      if (
-        error.message === 'ユーザーが見つかりません' ||
-        error.message === 'ユーザーは既に停止されています'
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 404 })
-      }
-    }
     return NextResponse.json({ error: 'ユーザーの停止に失敗しました' }, { status: 500 })
   }
 }
