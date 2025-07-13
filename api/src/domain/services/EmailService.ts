@@ -12,4 +12,5 @@ export interface EmailService {
     baseUrl?: string
   ): Promise<void>
   sendWelcomeEmail(email: string, userName: string): Promise<void>
+  sendAccountDeletionEmail(email: string, userName: string): Promise<void>
 }

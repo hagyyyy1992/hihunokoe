@@ -232,6 +232,11 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   private async validateUniqueConstraints(email: string, userName: string): Promise<void> {
     const existingUserByEmail = await this.userRepository.findByEmail(email)
     if (existingUserByEmail) {
+      // 退会済みユーザーの場合は再登録を許可
+      if (existingUserByEmail.deletedAt) {
+        return
+      }
+
       // メール未認証かつ作成から24時間以上経過している場合は再登録を許可
       if (!existingUserByEmail.emailVerified) {
         const createdAt = new Date(existingUserByEmail.createdAt)
@@ -252,6 +257,11 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 
     const existingUserByUserName = await this.userRepository.findByUsername(userName)
     if (existingUserByUserName) {
+      // 退会済みユーザーの場合は再登録を許可
+      if (existingUserByUserName.deletedAt) {
+        return
+      }
+
       // ユーザー名も同様にチェック
       if (!existingUserByUserName.emailVerified) {
         const createdAt = new Date(existingUserByUserName.createdAt)
@@ -436,6 +446,7 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService,
+    private readonly emailService: EmailService,
     private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
   ) {}
 
@@ -482,6 +493,14 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
 
     // Delete all sessions
     await this.authSessionRepository.deleteByUserId(input.userId)
+
+    // Send account deletion confirmation email
+    try {
+      await this.emailService.sendAccountDeletionEmail(user.email, user.userName)
+    } catch (error) {
+      // メール送信に失敗してもアカウント削除は完了とする
+      console.error('Failed to send account deletion email:', error)
+    }
 
     return {
       message: 'アカウントが削除されました。',

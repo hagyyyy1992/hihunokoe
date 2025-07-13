@@ -72,6 +72,7 @@ export class AuthController {
       userRepository,
       authSessionRepository,
       passwordHashService,
+      emailService,
       withdrawalSurveyRepository
     )
     this.emailService = emailService

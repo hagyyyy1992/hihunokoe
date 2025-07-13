@@ -113,9 +113,9 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <p className="mt-8 text-sm text-gray-600">
-          制定日：2025年7月12日
+          制定日：2025年7月13日
           <br />
-          最終更新日：2025年7月12日
+          最終更新日：2025年7月13日
         </p>
       </div>
     </div>

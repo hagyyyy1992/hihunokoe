@@ -88,9 +88,9 @@ export default function TermsOfServicePage() {
         </ol>
 
         <p className="mt-8 text-sm text-gray-600">
-          制定日：2025年1月1日
+          制定日：2025年7月13日
           <br />
-          最終更新日：2025年1月1日
+          最終更新日：2025年7月13日
         </p>
       </div>
     </div>

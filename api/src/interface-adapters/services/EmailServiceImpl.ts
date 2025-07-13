@@ -56,4 +56,19 @@ export class EmailServiceImpl implements EmailService {
     // This can be implemented later if needed
     console.log(`Welcome email would be sent to ${email} for user ${userName}`)
   }
+
+  async sendAccountDeletionEmail(email: string, userName: string): Promise<void> {
+    const { sendEmail, generateAccountDeletionEmailHtml, generateAccountDeletionEmailText } =
+      await import('@/lib/email/email')
+
+    const htmlContent = generateAccountDeletionEmailHtml(userName)
+    const textContent = generateAccountDeletionEmailText(userName)
+
+    await sendEmail({
+      to: email,
+      subject: '【化粧品体験共有サービス】アカウント削除完了のお知らせ',
+      html: htmlContent,
+      text: textContent,
+    })
+  }
 }
