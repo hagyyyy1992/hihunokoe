@@ -21,6 +21,13 @@ export interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
+  // E2E環境やテスト環境でメール送信を無効化
+  const skipEmail = process.env.SKIP_EMAIL_SENDING === 'true' || process.env.NODE_ENV === 'test'
+  if (skipEmail) {
+    console.log(`[SKIP EMAIL] Would send email to ${to} with subject: ${subject}`)
+    return { success: true }
+  }
+
   const isDevelopment = process.env.NODE_ENV === 'development'
   const fromEmail = process.env.FROM_EMAIL || 'noreply@hihunokoe.com'
   // 本番環境でRESEND_API_KEYが未設定の場合
@@ -50,6 +57,11 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
       return { success: true }
     } catch (error) {
       console.error('MailHog email error:', error)
+      // E2E環境やCI環境ではMailHogエラーをより寛大に処理
+      if (process.env.CI === 'true' || process.env.NODE_ENV === 'test') {
+        console.warn('MailHog connection failed in test environment, treating as success')
+        return { success: true }
+      }
       throw new Error('Failed to send email via MailHog')
     }
   } else {

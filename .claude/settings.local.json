@@ -75,7 +75,9 @@
       "Bash(npx prisma:*)",
       "Bash(npm run quality-check:*)",
       "Bash(npm run build:check:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run test:*)",
+      "Bash(node:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
