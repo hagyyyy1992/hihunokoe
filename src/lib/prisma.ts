@@ -13,7 +13,6 @@ let prismaClient: PrismaClient | null = null
 if (databaseType !== 'mock') {
   try {
     // 環境に応じたPrismaClient設定
-
     // Vercelのサーバーレス環境では、pgbouncerモードで接続プーリングを使用
     const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
 
