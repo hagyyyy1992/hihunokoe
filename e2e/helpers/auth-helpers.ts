@@ -355,6 +355,17 @@ export class AuthHelper {
     await this.page.getByRole('button', { name: 'ログイン' }).click()
 
     if (expectSuccess) {
+      // Wait for possible error messages or navigation
+      await this.page.waitForTimeout(2000)
+
+      // Check for any error messages on the page
+      const errorElement = await this.page.locator('[data-testid="error-message"]').first()
+      const errorVisible = await errorElement.isVisible().catch(() => false)
+      if (errorVisible) {
+        const errorText = await errorElement.textContent()
+        console.log('Login error detected:', errorText)
+        throw new Error(`Login failed: ${errorText}`)
+      }
       // Check if it's Mobile Safari for specific handling
       const userAgent = await this.page.evaluate(() => navigator.userAgent)
       const isMobileSafari = userAgent.includes('iPhone') || userAgent.includes('iPad')
@@ -365,6 +376,7 @@ export class AuthHelper {
         await this.page.waitForURL('/auth/terms-agreement**', {
           timeout: isMobileSafari ? 5000 : 3000,
         })
+        console.log('Login: Redirected to terms agreement page')
         // If we reach here, terms agreement is required
         // E2Eテストモードでリダイレクトするため、URLにパラメータを追加
         const currentUrl = this.page.url()
@@ -372,7 +384,9 @@ export class AuthHelper {
           await this.page.goto(currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'e2e=true')
         }
         await this.acceptTermsAndPrivacy()
-      } catch {
+      } catch (error) {
+        console.log('Login: No redirection to terms agreement detected')
+        console.log('Current URL after login:', this.page.url())
         // No redirection to terms agreement, continue with normal flow
       }
 
@@ -485,16 +499,16 @@ export class AuthHelper {
         await this.page.waitForTimeout(4000)
         console.log('Terms page - Suspense resolution wait completed')
 
-        // ステップ4: チェックボックス要素の段階的確認
+        // ステップ4: チェックボックス要素の段階的確認（アクセシビリティベース）
         let checkboxesFound = false
         for (let attempt = 1; attempt <= 8; attempt++) {
           console.log(`Checking for checkboxes (attempt ${attempt}/8)...`)
 
           const termsCheckbox = await this.page
-            .locator('[data-testid="agree-terms-checkbox"]')
+            .getByRole('checkbox', { name: /利用規約.*に同意します/ })
             .count()
           const privacyCheckbox = await this.page
-            .locator('[data-testid="agree-privacy-checkbox"]')
+            .getByRole('checkbox', { name: /プライバシーポリシー.*に同意します/ })
             .count()
 
           if (termsCheckbox > 0 && privacyCheckbox > 0) {
@@ -547,14 +561,14 @@ export class AuthHelper {
       const waitTime = isE2EMode ? 100 : 1000
       await this.page.waitForTimeout(waitTime)
 
-      // チェックボックスをチェック
-      await this.page.getByTestId('agree-terms-checkbox').check()
+      // チェックボックスをチェック（アクセシビリティベース）
+      await this.page.getByRole('checkbox', { name: /利用規約.*に同意します/ }).check()
       console.log('Terms checkbox checked')
-      await this.page.getByTestId('agree-privacy-checkbox').check()
+      await this.page.getByRole('checkbox', { name: /プライバシーポリシー.*に同意します/ }).check()
       console.log('Privacy checkbox checked')
 
-      // 同意ボタンをクリック
-      const submitButton = this.page.getByTestId('submit-agreement-button')
+      // 同意ボタンをクリック（アクセシビリティベース）
+      const submitButton = this.page.getByRole('button', { name: /同意して続ける/ })
       await submitButton.click()
       console.log('Submit button clicked')
 

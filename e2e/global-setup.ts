@@ -44,21 +44,35 @@ async function globalSetup() {
   const page = await context.newPage()
 
   try {
-    // デモユーザーが存在することを確認
-    const response = await page.request.post('http://localhost:3000/api/auth/login', {
+    // 1番目のデモユーザーが存在することを確認
+    const response1 = await page.request.post('http://localhost:3000/api/auth/login', {
       data: {
         email: 'demo@example.com',
         password: 'demo1234',
       },
     })
 
-    if (response.ok()) {
-      console.log('✅ Demo user verified')
+    if (response1.ok()) {
+      console.log('✅ Demo user #1 verified')
     } else {
-      console.log('⚠️  Demo user login failed, but continuing...')
+      console.log('⚠️  Demo user #1 login failed, but continuing...')
+    }
+
+    // 2番目のデモユーザーが存在することを確認
+    const response2 = await page.request.post('http://localhost:3000/api/auth/login', {
+      data: {
+        email: 'beauty@example.com',
+        password: 'demo1234',
+      },
+    })
+
+    if (response2.ok()) {
+      console.log('✅ Demo user #2 verified')
+    } else {
+      console.log('⚠️  Demo user #2 login failed, but continuing...')
     }
   } catch (error) {
-    console.log('⚠️  Failed to verify demo user:', error)
+    console.log('⚠️  Failed to verify demo users:', error)
   } finally {
     await browser.close()
   }
