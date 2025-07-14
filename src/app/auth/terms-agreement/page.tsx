@@ -36,12 +36,10 @@ function TermsAgreementContent() {
   // リンククリックハンドラー
   const handleTermsClick = useCallback(
     (e: React.MouseEvent) => {
-      console.log('Terms link clicked, E2E mode:', isE2ETest)
       if (isE2ETest) {
         // E2Eテストモードでは新しいタブを開かずに即座に読了状態にする
         e.preventDefault()
         e.stopPropagation()
-        console.log('Preventing terms link navigation for E2E test')
         setHasOpenedTerms(true)
         return false
       }
@@ -57,12 +55,10 @@ function TermsAgreementContent() {
 
   const handlePrivacyClick = useCallback(
     (e: React.MouseEvent) => {
-      console.log('Privacy link clicked, E2E mode:', isE2ETest)
       if (isE2ETest) {
         // E2Eテストモードでは新しいタブを開かずに即座に読了状態にする
         e.preventDefault()
         e.stopPropagation()
-        console.log('Preventing privacy link navigation for E2E test')
         setHasOpenedPrivacy(true)
         return false
       }

@@ -91,34 +91,15 @@ export async function checkAdminAuth(request: NextRequest): Promise<{
     request.headers.get('authorization')?.replace('Bearer ', '') ||
     request.cookies.get('admin-auth-token')?.value
 
-  console.log('checkAdminAuth: token found:', !!token)
-
   if (!token) {
-    console.log('checkAdminAuth: no token found')
     return { isAuthenticated: false, admin: null }
   }
 
   try {
     const user = verifyToken(token)
-    console.log('checkAdminAuth: user from token:', {
-      hasUser: !!user,
-      userId: user?.id,
-      userRole: user?.role,
-    })
-
-    if (!user) {
-      console.log('checkAdminAuth: invalid token')
-      return { isAuthenticated: false, admin: null }
-    }
-
+    if (!user) return { isAuthenticated: false, admin: null }
     const adminStatus = isUserAdmin(user)
-    console.log('checkAdminAuth: isAdmin result:', adminStatus)
-
-    if (!adminStatus) {
-      console.log('checkAdminAuth: user is not admin')
-      return { isAuthenticated: false, admin: null }
-    }
-
+    if (!adminStatus) return { isAuthenticated: false, admin: null }
     return { isAuthenticated: true, admin: user }
   } catch (error) {
     console.error('checkAdminAuth: error verifying token:', error)
@@ -134,16 +115,10 @@ export async function verifyAdminToken(request: NextRequest): Promise<{
   const token =
     request.headers.get('authorization')?.replace('Bearer ', '') ||
     request.cookies.get('admin-auth-token')?.value
-
-  if (!token) {
-    return { isValid: false, user: null }
-  }
-
+  if (!token) return { isValid: false, user: null }
   try {
     const user = verifyToken(token)
-    if (!user || !isUserAdmin(user)) {
-      return { isValid: false, user: null }
-    }
+    if (!user || !isUserAdmin(user)) return { isValid: false, user: null }
     return { isValid: true, user }
   } catch {
     return { isValid: false, user: null }

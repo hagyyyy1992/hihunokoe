@@ -40,9 +40,6 @@ export async function GET(request: NextRequest) {
       where.category = category
     }
 
-    console.log('[inquiries/GET] Query parameters:', { search, status, category, page, limit })
-    console.log('[inquiries/GET] Where conditions:', JSON.stringify(where, null, 2))
-
     const [inquiries, total] = await Promise.all([
       prisma.contactInquiry.findMany({
         where,
@@ -62,13 +59,6 @@ export async function GET(request: NextRequest) {
       }),
       prisma.contactInquiry.count({ where }),
     ])
-
-    console.log('[inquiries/GET] Found inquiries count:', inquiries.length)
-    console.log('[inquiries/GET] Total count:', total)
-    console.log(
-      '[inquiries/GET] Inquiry IDs:',
-      inquiries.map(i => i.id)
-    )
 
     return NextResponse.json({
       inquiries,

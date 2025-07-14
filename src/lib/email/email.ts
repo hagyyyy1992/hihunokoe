@@ -24,7 +24,6 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   // E2E環境やテスト環境でメール送信を無効化
   const skipEmail = process.env.SKIP_EMAIL_SENDING === 'true' || process.env.NODE_ENV === 'test'
   if (skipEmail) {
-    console.log(`[SKIP EMAIL] Would send email to ${to} with subject: ${subject}`)
     return { success: true }
   }
 
