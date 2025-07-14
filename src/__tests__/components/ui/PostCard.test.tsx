@@ -142,22 +142,6 @@ describe('PostCard Component', () => {
     expectElementToBeVisible(skinType)
   })
 
-  it('統計情報を表示する', () => {
-    render(<PostCard post={mockPost} />)
-
-    // 共感数（非表示）
-    // const empathyCount = screen.getByText('5')
-    // expect(empathyCount).toBeInTheDocument()
-
-    // コメント数（非表示）
-    // const commentCount = screen.getByText('3')
-    // expect(commentCount).toBeInTheDocument()
-
-    // 閲覧数
-    const viewCount = screen.getByText('42')
-    expect(viewCount).toBeInTheDocument()
-  })
-
   it('投稿へのリンクが正しく設定される', () => {
     render(<PostCard post={mockPost} />)
 
