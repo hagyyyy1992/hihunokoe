@@ -1,19 +1,21 @@
 import { EmailService } from '@api/interface-adapters/services/EmailService'
 
-// メールライブラリのモック
-const mockSendEmail = jest.fn()
-const mockGeneratePasswordResetEmailHtml = jest.fn()
-const mockGeneratePasswordResetEmailText = jest.fn()
-const mockGenerateVerificationEmailHtml = jest.fn()
-const mockGenerateVerificationEmailText = jest.fn()
-
+// jest.mock()は最初に呼び出す必要がある
 jest.mock('@/lib/email/email', () => ({
-  sendEmail: mockSendEmail,
-  generatePasswordResetEmailHtml: mockGeneratePasswordResetEmailHtml,
-  generatePasswordResetEmailText: mockGeneratePasswordResetEmailText,
-  generateVerificationEmailHtml: mockGenerateVerificationEmailHtml,
-  generateVerificationEmailText: mockGenerateVerificationEmailText,
+  sendEmail: jest.fn(),
+  generatePasswordResetEmailHtml: jest.fn(),
+  generatePasswordResetEmailText: jest.fn(),
+  generateVerificationEmailHtml: jest.fn(),
+  generateVerificationEmailText: jest.fn(),
 }))
+
+// モック関数を取得
+const emailMock = require('@/lib/email/email')
+const mockSendEmail = emailMock.sendEmail as jest.Mock
+const mockGeneratePasswordResetEmailHtml = emailMock.generatePasswordResetEmailHtml as jest.Mock
+const mockGeneratePasswordResetEmailText = emailMock.generatePasswordResetEmailText as jest.Mock
+const mockGenerateVerificationEmailHtml = emailMock.generateVerificationEmailHtml as jest.Mock
+const mockGenerateVerificationEmailText = emailMock.generateVerificationEmailText as jest.Mock
 
 describe('EmailService', () => {
   let emailService: EmailService
