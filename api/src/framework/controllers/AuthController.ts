@@ -17,13 +17,12 @@ import type {
   DeleteAccountInputPort,
   ResendVerificationEmailInputPort,
   VerifyPasswordResetTokenInputPort,
-  VerifyTokenInputPort,
 } from '@api/usecases/auth/input-port'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { EmailService } from '@api/interface-adapters/services/EmailService'
 import { WithdrawalSurveyRepository } from '@api/interface-adapters/repositories/WithdrawalSurvey.repository'
 import { PrismaClient } from '@prisma/client'
 import {
@@ -35,13 +34,14 @@ import {
   TokenExpiredError,
 } from '@api/domain/exceptions/AuthenticationError'
 import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
+import { IEmailService } from '@api/domain/services/EmailService'
 
 export class AuthController {
   private authenticationUseCase: AuthenticationUseCase
   private passwordManagementUseCase: PasswordManagementUseCase
   private emailVerificationUseCase: EmailVerificationUseCase
   private accountManagementUseCase: AccountManagementUseCase
-  private emailService: EmailServiceImpl
+  private emailService: IEmailService
 
   constructor() {
     const prisma = new PrismaClient()
@@ -49,7 +49,7 @@ export class AuthController {
     const authSessionRepository = new AuthSessionRepository()
     const passwordHashService = new PasswordHashServiceImpl()
     const tokenService = new TokenServiceImpl()
-    const emailService = new EmailServiceImpl()
+    const emailService = new EmailService()
     const withdrawalSurveyRepository = new WithdrawalSurveyRepository(prisma)
 
     this.authenticationUseCase = new AuthenticationUseCase(

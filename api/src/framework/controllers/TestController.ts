@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { EmailService } from '@api/interface-adapters/services/EmailService'
 import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
 
 export class TestController {
   private userRepository: UserRepository
-  private emailService: EmailServiceImpl
+  private emailService: EmailService
   private rateLimitService: RateLimitServiceImpl
 
   constructor() {
     this.userRepository = new UserRepository()
-    this.emailService = new EmailServiceImpl()
+    this.emailService = new EmailService()
     this.rateLimitService = new RateLimitServiceImpl()
   }
 
@@ -85,7 +85,8 @@ export class TestController {
         return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
       }
 
-      await this.emailService.sendWelcomeEmail(to, 'Test User')
+      // テスト用に検証メールを送信
+      await this.emailService.sendVerificationEmail(to, 'Test User', 'test-token-123')
 
       return NextResponse.json({
         success: true,

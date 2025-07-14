@@ -77,8 +77,8 @@ jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl', () => ({
   })),
 }))
 
-jest.mock('@api/interface-adapters/services/EmailServiceImpl', () => ({
-  EmailServiceImpl: jest.fn().mockImplementation(() => ({})),
+jest.mock('@api/interface-adapters/services/EmailService', () => ({
+  EmailService: jest.fn().mockImplementation(() => ({})),
 }))
 
 jest.mock('@api/interface-adapters/repositories/WithdrawalSurvey.repository', () => ({
@@ -170,6 +170,10 @@ describe('DELETE /api/auth/delete-account', () => {
       verify: jest.fn().mockResolvedValue(true),
       compare: jest.fn().mockResolvedValue(true),
     }))
+
+    // Setup mocks for EmailService
+    const { EmailService } = require('@api/interface-adapters/services/EmailService')
+    EmailService.mockImplementation(() => ({}))
 
     // Setup mocks for WithdrawalSurveyRepository
     const {

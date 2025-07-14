@@ -1,4 +1,4 @@
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { EmailService } from '@api/interface-adapters/services/EmailService'
 
 // メールライブラリのモック
 const mockSendEmail = jest.fn()
@@ -15,12 +15,12 @@ jest.mock('@/lib/email/email', () => ({
   generateVerificationEmailText: mockGenerateVerificationEmailText,
 }))
 
-describe('EmailServiceImpl', () => {
-  let emailService: EmailServiceImpl
+describe('EmailService', () => {
+  let emailService: EmailService
 
   beforeEach(() => {
     jest.clearAllMocks()
-    emailService = new EmailServiceImpl()
+    emailService = new EmailService()
   })
 
   describe('sendPasswordResetEmail', () => {
@@ -202,20 +202,6 @@ describe('EmailServiceImpl', () => {
       if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
       if (originalNextPublicApiUrl !== undefined)
         process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
-    })
-  })
-
-  describe('sendWelcomeEmail', () => {
-    it('ウェルカムメールの送信はまだ実装されていない', async () => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
-
-      await emailService.sendWelcomeEmail('user@example.com', 'テストユーザー')
-
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Welcome email would be sent to user@example.com for user テストユーザー'
-      )
-
-      consoleLogSpy.mockRestore()
     })
   })
 

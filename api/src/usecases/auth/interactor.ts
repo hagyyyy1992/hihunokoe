@@ -3,7 +3,7 @@ import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
-import { EmailService } from '@api/domain/services/EmailService'
+import { IEmailService } from '@api/domain/services/EmailService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { Email } from '@api/domain/value-objects/Email'
 import { Password } from '@api/domain/value-objects/Password'
@@ -18,7 +18,6 @@ import {
   TokenExpiredError,
   InvalidTokenError,
 } from '@api/domain/exceptions/AuthenticationError'
-import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 import {
   IAuthenticationUseCase,
   IPasswordManagementUseCase,
@@ -286,7 +285,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
     private readonly userRepository: IUserRepository,
     private readonly passwordHashService: PasswordHashService,
     private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly emailService?: IEmailService
   ) {}
 
   async forgotPassword(input: ForgotPasswordInputPort): Promise<ForgotPasswordOutputPort> {
@@ -375,7 +374,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly emailService?: IEmailService
   ) {}
 
   async verifyEmail(input: VerifyEmailInputPort): Promise<VerifyEmailOutputPort> {
@@ -445,7 +444,7 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService,
-    private readonly emailService: EmailService,
+    private readonly emailService: IEmailService,
     private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
   ) {}
 
