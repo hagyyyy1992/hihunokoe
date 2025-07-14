@@ -126,7 +126,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleResendEmail}
-                  className="text-sm text-blue-600 hover:text-blue-500 underline"
+                  className="text-sm text-blue-600 hover:text-blue-500 underline cursor-pointer"
                 >
                   確認メールを再送信する
                 </button>

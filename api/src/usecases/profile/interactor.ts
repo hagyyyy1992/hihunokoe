@@ -60,10 +60,7 @@ export class GetProfileUseCase implements IProfileUseCase {
     if (skinType !== undefined) updateData.skinType = skinType
     if (birthDate !== undefined) updateData.birthDate = birthDate ? new Date(birthDate) : null
     if (gender !== undefined) updateData.gender = gender
-    if (allergies !== undefined) {
-      console.log('Profile update - allergies:', allergies)
-      updateData.allergies = allergies
-    }
+    if (allergies !== undefined) updateData.allergies = allergies
     if (allergiesOther !== undefined) updateData.allergiesOther = allergiesOther
     if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl
     const updatedUser = await this.userRepository.update(userId, updateData)

@@ -2,7 +2,7 @@ import { AccountManagementUseCase } from '@api/usecases/auth/interactor'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { EmailService } from '@api/domain/services/EmailService'
+import { IEmailService } from '@api/domain/services/EmailService'
 import { WithdrawalSurveyRepository } from '@api/domain/repositories/WithdrawalSurveyRepository'
 import { User, UserRole } from '@api/domain/entities/User'
 import { DeleteAccountInputPort } from '@api/usecases/auth/input-port'
@@ -12,7 +12,7 @@ describe('AccountManagementUseCase - deleteAccount - 退会アンケート処理
   let mockUserRepository: jest.Mocked<IUserRepository>
   let mockAuthSessionRepository: jest.Mocked<IAuthSessionRepository>
   let mockPasswordHashService: jest.Mocked<PasswordHashService>
-  let mockEmailService: jest.Mocked<EmailService>
+  let mockEmailService: jest.Mocked<IEmailService>
   let mockWithdrawalSurveyRepository: jest.Mocked<WithdrawalSurveyRepository>
   let mockUser: User
 

@@ -6,6 +6,7 @@ import {
   generatePasswordResetEmailHtml,
   generatePasswordResetEmailText,
 } from '@/lib/email/email'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 
 export async function generatePasswordResetToken(): Promise<string> {
   return randomBytes(32).toString('hex')
@@ -33,7 +34,7 @@ export async function sendPasswordResetEmail(
   baseUrl?: string
 ): Promise<void> {
   const token = await createPasswordResetToken(userId)
-  const finalBaseUrl = baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const finalBaseUrl = getEmailBaseUrl(baseUrl)
   const resetUrl = `${finalBaseUrl}/auth/reset-password?token=${token}`
 
   const htmlContent = generatePasswordResetEmailHtml(userName, resetUrl)

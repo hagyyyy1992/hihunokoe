@@ -3,12 +3,13 @@ import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
-import { EmailService } from '@api/domain/services/EmailService'
+import { IEmailService } from '@api/domain/services/EmailService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { Email } from '@api/domain/value-objects/Email'
 import { Password } from '@api/domain/value-objects/Password'
 import { WithdrawalSurveyRepository } from '@api/domain/repositories/WithdrawalSurveyRepository'
 import { WithdrawalReason } from '@api/domain/entities/WithdrawalSurvey'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -17,7 +18,6 @@ import {
   TokenExpiredError,
   InvalidTokenError,
 } from '@api/domain/exceptions/AuthenticationError'
-import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 import {
   IAuthenticationUseCase,
   IPasswordManagementUseCase,
@@ -285,7 +285,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
     private readonly userRepository: IUserRepository,
     private readonly passwordHashService: PasswordHashService,
     private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly emailService?: IEmailService
   ) {}
 
   async forgotPassword(input: ForgotPasswordInputPort): Promise<ForgotPasswordOutputPort> {
@@ -314,8 +314,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 
     // Send password reset email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken, baseUrl)
     }
 
@@ -375,7 +374,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly emailService?: IEmailService
   ) {}
 
   async verifyEmail(input: VerifyEmailInputPort): Promise<VerifyEmailOutputPort> {
@@ -425,8 +424,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 
     // Send verification email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendVerificationEmail(
         user.email,
         user.userName,
@@ -446,7 +444,7 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService,
-    private readonly emailService: EmailService,
+    private readonly emailService: IEmailService,
     private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
   ) {}
 
