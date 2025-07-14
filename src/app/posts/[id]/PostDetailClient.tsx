@@ -680,7 +680,7 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                 </Link>
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex-1 sm:flex-initial"
+                  className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex-1 sm:flex-initial cursor-pointer"
                   data-testid="post-menu-button"
                 >
                   <svg
