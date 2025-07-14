@@ -228,23 +228,9 @@ export function generateAccountDeletionEmailHtml(userName: string): string {
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #2c3e50;">${SERVICE_NAME}</h2>
         <h3>アカウント削除完了</h3>
-        
         <p>こんにちは、${userName}さん</p>
-        
         <p>アカウント削除の手続きが完了いたしました。</p>
-        
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-          <h4 style="margin-top: 0; color: #495057;">削除された内容</h4>
-          <ul style="color: #6c757d;">
-            <li>プロフィール情報</li>
-            <li>投稿した体験談</li>
-            <li>コメントと共感履歴</li>
-            <li>その他のアカウント関連データ</li>
-          </ul>
-        </div>
-        
         <p>これまで${SERVICE_NAME}をご利用いただき、ありがとうございました。</p>
-        
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
         <p style="color: #999; font-size: 12px;">
           このメールは自動送信されています。返信はできません。
@@ -264,13 +250,6 @@ ${SERVICE_NAME}
 こんにちは、${userName}さん
 
 アカウント削除の手続きが完了いたしました。
-
-削除された内容:
-- プロフィール情報
-- 投稿した体験談
-- コメントと共感履歴
-- その他のアカウント関連データ
-
 今後、このメールアドレスでの新規登録が可能です。
 また、何かご不明な点がございましたら、サポートまでお問い合わせください。
 
