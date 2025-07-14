@@ -7,6 +7,8 @@ class MockUserRepository implements IUserRepository {
   findById = jest.fn()
   findByEmail = jest.fn()
   findByUsername = jest.fn()
+  findByEmailIncludingDeleted = jest.fn()
+  findByUsernameIncludingDeleted = jest.fn()
   findByEmailVerificationToken = jest.fn()
   findByPasswordResetToken = jest.fn()
   findMany = jest.fn()

@@ -80,7 +80,7 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
     }
 
     // Check if account is active
-    if (!user.isActive || user.deletedAt) {
+    if (!user.isActive) {
       throw new AccountInactiveError()
     }
 
@@ -230,13 +230,35 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   }
 
   private async validateUniqueConstraints(email: string, userName: string): Promise<void> {
+    // 削除済みユーザーも含めて検索
+    const existingUserByEmailIncludingDeleted =
+      await this.userRepository.findByEmailIncludingDeleted(email)
+    const existingUserByUserNameIncludingDeleted =
+      await this.userRepository.findByUsernameIncludingDeleted(userName)
+
+    // 削除済みユーザーがいる場合、ユニーク制約を回避するためデータを変更
+    if (existingUserByEmailIncludingDeleted && existingUserByEmailIncludingDeleted.deletedAt) {
+      const timestamp = Date.now()
+      await this.userRepository.update(existingUserByEmailIncludingDeleted.id, {
+        email: `deleted_${timestamp}_${existingUserByEmailIncludingDeleted.email}`,
+        userName: `deleted_${timestamp}_${existingUserByEmailIncludingDeleted.userName}`,
+      })
+    }
+
+    if (
+      existingUserByUserNameIncludingDeleted &&
+      existingUserByUserNameIncludingDeleted.deletedAt &&
+      existingUserByUserNameIncludingDeleted.id !== existingUserByEmailIncludingDeleted?.id
+    ) {
+      const timestamp = Date.now()
+      await this.userRepository.update(existingUserByUserNameIncludingDeleted.id, {
+        userName: `deleted_${timestamp}_${existingUserByUserNameIncludingDeleted.userName}`,
+      })
+    }
+
+    // アクティブなユーザーのチェック
     const existingUserByEmail = await this.userRepository.findByEmail(email)
     if (existingUserByEmail) {
-      // 退会済みユーザーの場合は再登録を許可
-      if (existingUserByEmail.deletedAt) {
-        return
-      }
-
       // メール未認証かつ作成から24時間以上経過している場合は再登録を許可
       if (!existingUserByEmail.emailVerified) {
         const createdAt = new Date(existingUserByEmail.createdAt)
@@ -257,11 +279,6 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 
     const existingUserByUserName = await this.userRepository.findByUsername(userName)
     if (existingUserByUserName) {
-      // 退会済みユーザーの場合は再登録を許可
-      if (existingUserByUserName.deletedAt) {
-        return
-      }
-
       // ユーザー名も同様にチェック
       if (!existingUserByUserName.emailVerified) {
         const createdAt = new Date(existingUserByUserName.createdAt)
@@ -486,7 +503,6 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
     // Soft delete the user
     await this.userRepository.update(input.userId, {
       deletedAt: new Date(),
-      active: false,
     })
 
     // Delete all sessions

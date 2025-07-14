@@ -41,6 +41,16 @@ export class UserRepository implements IUserRepository {
     return this.toDomainUser(prismaUser)
   }
 
+  async findByEmailIncludingDeleted(email: string): Promise<User | null> {
+    if (!prisma) {
+      console.warn('Database connection not available, falling back to mock mode')
+      return null
+    }
+    const prismaUser = await prisma.user.findFirst({ where: { email } })
+    if (!prismaUser) return null
+    return this.toDomainUser(prismaUser)
+  }
+
   async findByUsername(username: string): Promise<User | null> {
     if (!prisma) throw new Error('Database connection not available')
 
@@ -50,7 +60,13 @@ export class UserRepository implements IUserRepository {
         deletedAt: null, // 退会済みユーザーを除外
       },
     })
+    if (!prismaUser) return null
+    return this.toDomainUser(prismaUser)
+  }
 
+  async findByUsernameIncludingDeleted(username: string): Promise<User | null> {
+    if (!prisma) throw new Error('Database connection not available')
+    const prismaUser = await prisma.user.findFirst({ where: { userName: username } })
     if (!prismaUser) return null
     return this.toDomainUser(prismaUser)
   }

@@ -48,7 +48,7 @@ describe('DeleteAccountPage', () => {
     render(<DeleteAccountPage />)
 
     expect(screen.getByRole('heading', { name: /アカウント削除/i })).toBeInTheDocument()
-    expect(screen.getByText(/この操作は取り消すことができません/)).toBeInTheDocument()
+    expect(screen.getByText(/一定期間を経て以下のデータが完全に削除されます/)).toBeInTheDocument()
     expect(screen.getByText(/プロフィール情報/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /アカウント削除を続行/ })).toBeInTheDocument()
   })

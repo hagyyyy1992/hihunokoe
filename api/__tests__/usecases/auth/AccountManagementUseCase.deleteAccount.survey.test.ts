@@ -164,7 +164,6 @@ describe('AccountManagementUseCase - deleteAccount - 退会アンケート処理
         'user-123',
         expect.objectContaining({
           deletedAt: expect.any(Date),
-          active: false,
         })
       )
       expect(mockAuthSessionRepository.deleteByUserId).toHaveBeenCalledWith('user-123')
