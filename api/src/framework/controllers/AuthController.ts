@@ -5,6 +5,7 @@ import {
   EmailVerificationUseCase,
   AccountManagementUseCase,
 } from '@api/usecases/auth/interactor'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 import type {
   LoginInputPort,
   RegisterInputPort,
@@ -156,8 +157,7 @@ export class AuthController {
 
       // Send verification email after successful registration
       if (this.emailService && result.user.emailVerificationToken) {
-        const baseUrl =
-          process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+        const baseUrl = getEmailBaseUrl()
         await this.emailService.sendVerificationEmail(
           result.user.email,
           result.user.username,

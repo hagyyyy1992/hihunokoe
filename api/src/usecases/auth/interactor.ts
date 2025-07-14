@@ -9,6 +9,7 @@ import { Email } from '@api/domain/value-objects/Email'
 import { Password } from '@api/domain/value-objects/Password'
 import { WithdrawalSurveyRepository } from '@api/domain/repositories/WithdrawalSurveyRepository'
 import { WithdrawalReason } from '@api/domain/entities/WithdrawalSurvey'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -314,8 +315,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 
     // Send password reset email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken, baseUrl)
     }
 
@@ -425,8 +425,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 
     // Send verification email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendVerificationEmail(
         user.email,
         user.userName,

@@ -5,6 +5,7 @@ import {
   generateVerificationEmailHtml,
   generateVerificationEmailText,
 } from '@/lib/email/email'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 
 const prisma = new PrismaClient()
 
@@ -34,12 +35,7 @@ export async function sendVerificationEmail(
   baseUrl?: string
 ): Promise<void> {
   const token = await createVerificationToken(userId)
-  const finalBaseUrl =
-    baseUrl ||
-    process.env.API_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://localhost:3000'
+  const finalBaseUrl = getEmailBaseUrl(baseUrl)
   const verificationUrl = `${finalBaseUrl}/auth/verify-email?token=${token}`
 
   const htmlContent = generateVerificationEmailHtml(userName, verificationUrl)

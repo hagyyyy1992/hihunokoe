@@ -1,4 +1,5 @@
 import { EmailService } from '@api/domain/services/EmailService'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 
 export class EmailServiceImpl implements EmailService {
   async sendPasswordResetEmail(
@@ -11,8 +12,7 @@ export class EmailServiceImpl implements EmailService {
     const { sendEmail, generatePasswordResetEmailHtml, generatePasswordResetEmailText } =
       await import('@/lib/email/email')
 
-    const finalBaseUrl =
-      baseUrl || process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+    const finalBaseUrl = getEmailBaseUrl(baseUrl)
     const resetUrl = `${finalBaseUrl}/auth/reset-password?token=${resetToken}`
 
     const htmlContent = generatePasswordResetEmailHtml(userName, resetUrl)
@@ -37,8 +37,7 @@ export class EmailServiceImpl implements EmailService {
     const { sendEmail, generateVerificationEmailHtml, generateVerificationEmailText } =
       await import('@/lib/email/email')
 
-    const finalBaseUrl =
-      baseUrl || process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+    const finalBaseUrl = getEmailBaseUrl(baseUrl)
     const verificationUrl = `${finalBaseUrl}/auth/verify-email?token=${verificationToken}`
 
     const htmlContent = generateVerificationEmailHtml(userName, verificationUrl)
