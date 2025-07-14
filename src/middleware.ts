@@ -100,14 +100,9 @@ export function middleware(request: NextRequest) {
 
     // IPが許可リストにない場合
     if (!ALLOWED_IPS.includes(clientIp)) {
-      const isAdminRoute = pathname.startsWith('/admin')
-      const title = isAdminRoute ? '管理画面アクセス制限' : 'ステージング環境アクセス制限'
-      const message = isAdminRoute
-        ? 'お使いのIPアドレスから管理画面へのアクセスは許可されていません。'
-        : 'お使いのIPアドレスからステージング環境へのアクセスは許可されていません。'
-      const contactMessage = isAdminRoute
-        ? '管理画面へのアクセスが必要な場合は、システム管理者にお問い合わせください。'
-        : 'ステージング環境へのアクセスが必要な場合は、システム管理者にお問い合わせください。'
+      const title = 'アクセス制限'
+      const message = 'お使いのIPアドレスからアクセスは許可されていません。'
+      const contactMessage = 'アクセスが必要な場合は、システム管理者にお問い合わせください。'
 
       // カスタムエラーページを返す
       return new NextResponse(
