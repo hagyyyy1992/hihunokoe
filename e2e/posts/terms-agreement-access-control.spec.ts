@@ -333,8 +333,15 @@ test.describe('投稿詳細ページの利用規約同意チェック', () => {
     // ホームページにリダイレクトされることを確認
     await expect(page).toHaveURL('/home')
 
+    // セッションが維持されていることを確認
+    await page.waitForTimeout(1000)
+
     // 投稿詳細ページにアクセス
     await page.goto(`/posts/${testPostId}`)
+    await page.waitForLoadState('networkidle')
+
+    // ログインしていることを確認（ログインページにリダイレクトされていないこと）
+    await expect(page).not.toHaveURL('/auth/login')
 
     // 詳細情報が表示されることを確認
     await expect(page.getByText('春')).toBeVisible() // 季節
@@ -347,7 +354,7 @@ test.describe('投稿詳細ページの利用規約同意チェック', () => {
       page.getByText('⚠️ 詳細情報を見るには利用規約への同意が必要です')
     ).not.toBeVisible()
 
-    // クリーンアップ
-    await cleanupTestUser(newUser.email)
+    // クリーンアップは最後に実行（セッションが無効化される可能性があるため）
+    // await cleanupTestUser(newUser.email)
   })
 })

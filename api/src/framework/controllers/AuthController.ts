@@ -338,16 +338,6 @@ export class AuthController {
       const authHeader = request.headers.get('Authorization')
       const token = authHeader?.replace('Bearer ', '')
 
-      // デバッグログ
-      console.log(
-        '[AuthController.getCurrentUser] Authorization header:',
-        authHeader ? authHeader.substring(0, 30) + '...' : 'null'
-      )
-      console.log(
-        '[AuthController.getCurrentUser] Token extracted:',
-        token ? token.substring(0, 20) + '...' : 'null'
-      )
-
       if (!token) {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })
       }

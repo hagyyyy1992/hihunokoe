@@ -36,6 +36,32 @@ async function main() {
 
   console.log('✅ Demo user created:', demoUser.email)
 
+  // 2番目のデモユーザーの作成
+  const demoUser2 = await prisma.user.upsert({
+    where: { email: 'beauty@example.com' },
+    update: {
+      emailVerified: true, // メール認証済みに設定
+      failedLoginAttempts: 0, // ログイン失敗回数をリセット
+      lockedUntil: null, // アカウントロックを解除
+      isActive: true, // アクティブ状態に設定
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
+    },
+    create: {
+      userName: 'beauty_lover',
+      email: 'beauty@example.com',
+      passwordHash: hashedPassword,
+      skinType: 'dry',
+      role: 'USER',
+      emailVerified: true, // メール認証済みに設定
+      isActive: true, // アクティブ状態に設定
+      termsAcceptedAt: new Date(), // 利用規約同意日を設定
+      privacyAcceptedAt: new Date(), // プライバシーポリシー同意日を設定
+    },
+  })
+
+  console.log('✅ Demo user #2 created:', demoUser2.email)
+
   // 管理者ユーザーの作成（互換性のため一旦Userテーブルにも作成）
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },

@@ -79,7 +79,9 @@
       "Bash(prettier:*)",
       "Bash(npm run test:*)",
       "Bash(node:*)",
-      "Bash(gh run watch:*)"
+      "Bash(gh run watch:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
