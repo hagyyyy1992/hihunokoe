@@ -24,9 +24,19 @@ if (databaseType !== 'mock') {
         datasources: isVercel
           ? {
               db: {
-                url:
-                  process.env.DATABASE_URL +
-                  '?pgbouncer=true&connection_limit=1&statement_cache_size=0',
+                url: (() => {
+                  const url = process.env.DATABASE_URL
+                  if (!url) return undefined
+
+                  // URLが既にパラメータを含んでいるかチェック
+                  if (url.includes('?')) {
+                    // 既存のパラメータに追加
+                    return url + '&connection_limit=1&statement_cache_size=0'
+                  } else {
+                    // 新規にパラメータを追加
+                    return url + '?pgbouncer=true&connection_limit=1&statement_cache_size=0'
+                  }
+                })(),
               },
             }
           : undefined,
