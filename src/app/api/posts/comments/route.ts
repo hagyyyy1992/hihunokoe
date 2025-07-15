@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import { CommentController } from '@api/framework/controllers/CommentController'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 
-const commentController = new CommentController()
+const commentController = ControllerFactory.createCommentController()
 
 // GET /api/posts/comments - コメント一覧取得 (query parameter使用)
 export async function GET(request: Request) {

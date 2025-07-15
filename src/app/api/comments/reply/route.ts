@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 import { CommentController } from '@api/framework/controllers/CommentController'
 
 let commentController: CommentController | null = null
 
 try {
-  commentController = new CommentController()
+  commentController = ControllerFactory.createCommentController()
 } catch (error) {
   console.error('Failed to initialize CommentController:', error)
 }

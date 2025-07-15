@@ -1,5 +1,6 @@
 import { Comment } from '@api/domain/entities/Comment'
 import { User } from '@api/domain/entities/User'
+import { NextResponse } from 'next/server'
 
 export interface CommentResponse {
   id: string
@@ -16,6 +17,21 @@ export interface CommentResponse {
   isEdited: boolean
   canEdit: boolean
   canDelete: boolean
+}
+
+export interface SuccessResponse<T = any> {
+  success: true
+  data?: T
+  message?: string
+}
+
+export interface ErrorResponse {
+  success: false
+  error: {
+    code: string
+    message: string
+    details?: any
+  }
 }
 
 export class CommentPresenter {
@@ -52,5 +68,48 @@ export class CommentPresenter {
     }
 
     return response
+  }
+
+  static presentSuccess<T = any>(
+    data?: T,
+    message?: string,
+    status: number = 200
+  ): NextResponse<SuccessResponse<T>> {
+    return NextResponse.json(
+      {
+        success: true,
+        data,
+        message,
+      },
+      { status }
+    )
+  }
+
+  static presentCreated(
+    comment: CommentResponse,
+    message: string = 'コメントを投稿しました'
+  ): NextResponse<SuccessResponse<CommentResponse>> {
+    return this.presentSuccess(comment, message, 201)
+  }
+
+  static presentUpdated(
+    comment: CommentResponse,
+    message: string = 'コメントを更新しました'
+  ): NextResponse<SuccessResponse<CommentResponse>> {
+    return this.presentSuccess(comment, message, 200)
+  }
+
+  static presentDeleted(message: string = 'コメントを削除しました'): NextResponse<SuccessResponse> {
+    return this.presentSuccess(undefined, message, 200)
+  }
+
+  static presentList(
+    comments: CommentResponse[]
+  ): NextResponse<SuccessResponse<CommentResponse[]>> {
+    return this.presentSuccess(comments, undefined, 200)
+  }
+
+  static presentSingle(comment: CommentResponse): NextResponse<SuccessResponse<CommentResponse>> {
+    return this.presentSuccess(comment, undefined, 200)
   }
 }
