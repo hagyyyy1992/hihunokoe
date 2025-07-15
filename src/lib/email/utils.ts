@@ -6,8 +6,8 @@ export function getEmailBaseUrl(baseUrl?: string): string {
   // 1. 明示的に渡されたbaseUrlを優先
   if (baseUrl) return baseUrl
 
-  // デバッグ用に環境変数をログ出力（本番環境以外）
-  if (process.env.NODE_ENV !== 'production') {
+  // デバッグ用に環境変数をログ出力（開発環境のみ、テスト環境では無効）
+  if (process.env.NODE_ENV === 'development') {
     console.log('Email URL Environment Variables:', {
       VERCEL_ENV: process.env.VERCEL_ENV,
       VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,

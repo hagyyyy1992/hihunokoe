@@ -716,7 +716,9 @@ export class PostRepository implements IPostRepository {
       memoryCache.deletePattern('^posts:')
     } catch (error) {
       // テスト環境やキャッシュが利用できない場合は無視
-      console.warn('Failed to invalidate posts cache:', error)
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn('Failed to invalidate posts cache:', error)
+      }
     }
   }
 
@@ -726,7 +728,9 @@ export class PostRepository implements IPostRepository {
       memoryCache.delete(`post:${postId}`)
     } catch (error) {
       // テスト環境やキャッシュが利用できない場合は無視
-      console.warn('Failed to invalidate post cache:', error)
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn('Failed to invalidate post cache:', error)
+      }
     }
   }
 
