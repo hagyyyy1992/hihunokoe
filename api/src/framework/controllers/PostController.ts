@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
-import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import {
   PostManagementUseCase,
   PostRetrievalUseCase,
@@ -19,38 +14,28 @@ import type {
   RemoveEmpathyInputPort,
   GetEmpathyStatusInputPort,
 } from '@api/usecases/posts/input-port'
-import { isDatabaseAvailable } from '@/lib/prisma'
-import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
+import type { TokenService } from '@api/domain/services/TokenService'
+import type { IUserRepository } from '@api/domain/repositories/UserRepository'
+import type { IPostRepository } from '@api/domain/repositories/PostRepository'
+import type { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
+import type { ICommentRepository } from '@api/domain/repositories/CommentRepository'
+import { PostPresenter } from '@api/framework/presenters/PostPresenter'
+import { PostValidator } from '@api/framework/validators/PostValidator'
+import { ErrorHandler } from '@api/framework/errors/ErrorHandler'
+import { ApplicationError } from '@api/framework/errors/ApplicationError'
 import { memoryCache } from '@/lib/cache/memory-cache'
 import type { CachedPostsResponse, CachedPost } from '@/types/cache'
 
 export class PostController {
-  private postManagementUseCase: PostManagementUseCase
-  private postRetrievalUseCase: PostRetrievalUseCase
-  private empathyManagementUseCase: EmpathyManagementUseCase
-  private tokenService: TokenServiceImpl
-  private empathyRepository: EmpathyRepository
-
-  constructor() {
-    const postRepository = new PostRepository()
-    const userRepository = new UserRepository()
-    const empathyRepository = new EmpathyRepository()
-    const commentRepository = new CommentRepository()
-    this.tokenService = new TokenServiceImpl()
-    this.empathyRepository = empathyRepository
-
-    this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
-    this.postRetrievalUseCase = new PostRetrievalUseCase(
-      postRepository,
-      empathyRepository,
-      commentRepository
-    )
-    this.empathyManagementUseCase = new EmpathyManagementUseCase(
-      postRepository,
-      userRepository,
-      empathyRepository
-    )
-  }
+  constructor(
+    private postManagementUseCase: PostManagementUseCase,
+    private postRetrievalUseCase: PostRetrievalUseCase,
+    private empathyManagementUseCase: EmpathyManagementUseCase,
+    private tokenService: TokenService,
+    private userRepository: IUserRepository,
+    private empathyRepository: IEmpathyRepository,
+    private commentRepository: ICommentRepository
+  ) {}
 
   private async getUserIdFromRequest(request: NextRequest): Promise<string | null> {
     const authHeader = request.headers.get('Authorization')
@@ -81,71 +66,59 @@ export class PostController {
     return null
   }
 
+  private async requireAuth(request: NextRequest): Promise<string> {
+    const userId = await this.getUserIdFromRequest(request)
+    if (!userId) {
+      throw ApplicationError.unauthorized()
+    }
+    return userId
+  }
+
   async createPost(request: NextRequest): Promise<NextResponse> {
     try {
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
+      const userId = await this.requireAuth(request)
       const body = await request.json()
 
-      const {
-        title,
-        content,
-        cosmeticName,
-        cosmeticCategory,
-        productName = cosmeticName,
-        brandName,
-        imageUrl,
-        category = cosmeticCategory,
-        skinType,
-        moodTag,
-        usageSituation,
-        experienceDetails,
-      } = body
-
-      const input: CreatePostInputPort = {
-        userId,
-        title,
-        content,
-        productName,
-        brandName,
-        imageUrl,
-        category,
-        skinType,
-        moodTag,
-        usageSituation,
-        experienceDetails,
+      // レガシーAPIとの互換性のため、旧フィールド名を新フィールド名にマッピング
+      const mappedBody = {
+        ...body,
+        productName: body.productName || body.cosmeticName,
+        category: body.category || body.cosmeticCategory,
       }
 
+      const validatedData = PostValidator.validateCreatePost({
+        ...mappedBody,
+        userId,
+      })
+
+      const input: CreatePostInputPort = validatedData
+
       const result = await this.postManagementUseCase.createPost(input)
+
+      // ユーザー情報を取得
+      const user = await this.userRepository.findById(result.post.userId)
+      if (!user) {
+        throw ApplicationError.notFound('ユーザー')
+      }
+
+      // 投稿のレスポンス用データを作成
+      const empathyCount = await this.empathyRepository.countByPost(result.post.id)
+      const commentCount = await this.commentRepository.countByPostId(result.post.id)
+
+      const postResponse = PostPresenter.toResponse(result.post, user, empathyCount, commentCount)
 
       // 投稿一覧のキャッシュをクリア
       memoryCache.deletePattern('^posts:')
 
-      return NextResponse.json({
-        post: result.post,
-        message: '投稿が作成されました',
-      })
+      return PostPresenter.presentCreated(postResponse)
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'User not found' || error.message === 'User account is inactive') {
-          return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
-        }
-        if (error.message.includes('required') || error.message.includes('characters')) {
-          return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
-        }
-      }
-
-      console.error('Create post error:', error)
-      return NextResponse.json({ error: '投稿の作成に失敗しました' }, { status: 500 })
+      return ErrorHandler.handle(error)
     }
   }
 
   async getPost(request: NextRequest, context: { params: { id: string } }): Promise<NextResponse> {
     try {
-      const postId = context.params.id
+      const postId = PostValidator.validatePostId(context.params.id)
       const userId = await this.getUserIdFromRequest(request)
 
       const input: GetPostInputPort = {
@@ -155,33 +128,48 @@ export class PostController {
 
       const result = await this.postRetrievalUseCase.getPost(input)
 
-      return NextResponse.json({
-        post: result.post,
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
+      // ユーザー情報を取得
+      const user = await this.userRepository.findById(result.post.userId)
+      if (!user) {
+        throw ApplicationError.notFound('ユーザー')
       }
 
-      console.error('Get post error:', error)
-      return NextResponse.json({ error: '投稿の取得に失敗しました' }, { status: 500 })
+      // 投稿のレスポンス用データを作成
+      const empathyCount = await this.empathyRepository.countByPost(result.post.id)
+      const commentCount = await this.commentRepository.countByPostId(result.post.id)
+      const userHasEmpathy = userId
+        ? (await this.empathyRepository.findByUserAndPost(userId, result.post.id)) !== null
+        : false
+
+      const postResponse = PostPresenter.toResponse(
+        result.post,
+        user,
+        empathyCount,
+        commentCount,
+        userHasEmpathy
+      )
+
+      return PostPresenter.presentPost(postResponse)
+    } catch (error) {
+      return ErrorHandler.handle(error)
     }
   }
 
   async getPosts(request: NextRequest): Promise<NextResponse> {
     try {
       const url = new URL(request.url)
-      const page = parseInt(url.searchParams.get('page') || '1')
-      const limit = parseInt(url.searchParams.get('limit') || '10')
-      const category = url.searchParams.get('category') || undefined
-      const skinType = url.searchParams.get('skinType') || undefined
-      const moodTag = url.searchParams.get('moodTag') || undefined
-      const search = url.searchParams.get('search') || undefined
-      const sortByParam = url.searchParams.get('sortBy') || 'recent'
-      const sortBy = sortByParam === 'popular' ? 'empathyCount' : 'createdAt'
       const userId = await this.getUserIdFromRequest(request)
+
+      // バリデーション
+      const { page, limit } = PostValidator.validatePagination(
+        url.searchParams.get('page'),
+        url.searchParams.get('limit')
+      )
+      const category = PostValidator.validateCategory(url.searchParams.get('category'))
+      const skinType = PostValidator.validateSkinType(url.searchParams.get('skinType'))
+      const moodTag = PostValidator.validateMoodTag(url.searchParams.get('moodTag'))
+      const search = PostValidator.validateSearch(url.searchParams.get('search'))
+      const sortBy = PostValidator.validateSortBy(url.searchParams.get('sortBy'))
 
       // キャッシュキーの生成（ユーザー固有のデータを含まない）
       const cacheKey = `posts:${page}:${limit}:${category || ''}:${skinType || ''}:${moodTag || ''}:${search || ''}:${sortBy}`
@@ -203,10 +191,7 @@ export class PostController {
           }))
         }
 
-        return NextResponse.json({
-          posts: cachedResult.posts,
-          pagination: cachedResult.pagination,
-        })
+        return PostPresenter.presentPostList(cachedResult.posts as any[], cachedResult.pagination)
       }
 
       const input: GetPostsInputPort = {
@@ -216,45 +201,51 @@ export class PostController {
         skinType,
         moodTag,
         search,
-        sortBy: sortBy as 'createdAt' | 'empathyCount',
+        sortBy,
         userId: userId || undefined,
       }
 
       const result = await this.postRetrievalUseCase.getPosts(input)
 
+      // 各投稿のレスポンスを作成
+      const postsResponse = await Promise.all(
+        result.posts.map(async post => {
+          const user = await this.userRepository.findById(post.userId)
+          if (!user) throw ApplicationError.notFound('ユーザー')
+
+          const empathyCount = await this.empathyRepository.countByPost(post.id)
+          const commentCount = await this.commentRepository.countByPostId(post.id)
+          const userHasEmpathy = userId
+            ? (await this.empathyRepository.findByUserAndPost(userId, post.id)) !== null
+            : false
+
+          return PostPresenter.toResponse(post, user, empathyCount, commentCount, userHasEmpathy)
+        })
+      )
+
+      const pagination = {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        pages: Math.ceil(result.total / result.limit),
+      }
+
       // ユーザー固有のデータを除外してキャッシュ
       const cacheData: CachedPostsResponse = {
-        posts: result.posts.map(post => {
+        posts: postsResponse.map(post => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { userHasEmpathy, ...postWithoutUserData } = post as CachedPost & {
-            userHasEmpathy?: boolean
-          }
-          return postWithoutUserData
+          const { userHasEmpathy, ...postWithoutUserData } = post
+          return postWithoutUserData as any
         }),
-        pagination: {
-          page: result.page,
-          limit: result.limit,
-          total: result.total,
-          pages: Math.ceil(result.total / result.limit),
-        },
+        pagination,
       }
 
       // 30秒間キャッシュ
       memoryCache.set(cacheKey, cacheData, 30 * 1000)
 
-      return NextResponse.json({
-        posts: result.posts,
-        pagination: cacheData.pagination,
-      })
+      return PostPresenter.presentPostList(postsResponse, pagination)
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes('Page') || error.message.includes('Limit')) {
-          return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
-        }
-      }
-
-      console.error('Get posts error:', error)
-      return NextResponse.json({ error: '投稿の取得に失敗しました' }, { status: 500 })
+      return ErrorHandler.handle(error)
     }
   }
 
@@ -263,58 +254,53 @@ export class PostController {
     context: { params: { id: string } }
   ): Promise<NextResponse> {
     try {
-      const postId = context.params.id
-      const userId = await this.getUserIdFromRequest(request)
-
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
+      const postId = PostValidator.validatePostId(context.params.id)
+      const userId = await this.requireAuth(request)
       const body = await request.json()
 
-      const {
-        title,
-        content,
-        cosmeticName,
-        cosmeticCategory,
-        productName = cosmeticName,
-        brandName,
-        imageUrl,
-        category = cosmeticCategory,
-      } = body
+      // レガシーAPIとの互換性のため、旧フィールド名を新フィールド名にマッピング
+      const mappedBody = {
+        ...body,
+        productName: body.productName || body.cosmeticName,
+        category: body.category || body.cosmeticCategory,
+      }
 
-      const input: UpdatePostInputPort = {
+      const validatedData = PostValidator.validateUpdatePost({
+        ...mappedBody,
         postId,
         userId,
-        title,
-        content,
-        productName,
-        brandName,
-        imageUrl,
-        category,
-      }
+      })
+
+      const input: UpdatePostInputPort = validatedData
 
       const result = await this.postManagementUseCase.updatePost(input)
 
-      return NextResponse.json({
-        post: result.post,
-        message: '投稿が更新されました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'Not authorized to update this post') {
-          return NextResponse.json({ error: '投稿の編集権限がありません' }, { status: 403 })
-        }
-        if (error.message.includes('required') || error.message.includes('characters')) {
-          return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
-        }
+      // ユーザー情報を取得
+      const user = await this.userRepository.findById(result.post.userId)
+      if (!user) {
+        throw ApplicationError.notFound('ユーザー')
       }
 
-      console.error('Update post error:', error)
-      return NextResponse.json({ error: '投稿の更新に失敗しました' }, { status: 500 })
+      // 投稿のレスポンス用データを作成
+      const empathyCount = await this.empathyRepository.countByPost(result.post.id)
+      const commentCount = await this.commentRepository.countByPostId(result.post.id)
+      const userHasEmpathy =
+        (await this.empathyRepository.findByUserAndPost(userId, result.post.id)) !== null
+
+      const postResponse = PostPresenter.toResponse(
+        result.post,
+        user,
+        empathyCount,
+        commentCount,
+        userHasEmpathy
+      )
+
+      // 投稿一覧のキャッシュをクリア
+      memoryCache.deletePattern('^posts:')
+
+      return PostPresenter.presentUpdated(postResponse)
+    } catch (error) {
+      return ErrorHandler.handle(error)
     }
   }
 
@@ -323,32 +309,19 @@ export class PostController {
     context: { params: { id: string } }
   ): Promise<NextResponse> {
     try {
-      const postId = context.params.id
-      const userId = await this.getUserIdFromRequest(request)
-
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
+      const postId = PostValidator.validatePostId(context.params.id)
+      const userId = await this.requireAuth(request)
 
       const input: DeletePostInputPort = { postId, userId }
 
       await this.postManagementUseCase.deletePost(input)
 
-      return NextResponse.json({
-        message: '投稿が削除されました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'Not authorized to delete this post') {
-          return NextResponse.json({ error: '投稿の削除権限がありません' }, { status: 403 })
-        }
-      }
+      // 投稿一覧のキャッシュをクリア
+      memoryCache.deletePattern('^posts:')
 
-      console.error('Delete post error:', error)
-      return NextResponse.json({ error: '投稿の削除に失敗しました' }, { status: 500 })
+      return PostPresenter.presentDeleted()
+    } catch (error) {
+      return ErrorHandler.handle(error)
     }
   }
 
@@ -357,40 +330,19 @@ export class PostController {
     context: { params: { id: string } }
   ): Promise<NextResponse> {
     try {
-      const postId = context.params.id
-      const userId = await this.getUserIdFromRequest(request)
-
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-
-      const body = await request.json()
-      const { empathyType } = body
+      const postId = PostValidator.validatePostId(context.params.id)
+      const userId = await this.requireAuth(request)
 
       const input: AddEmpathyInputPort = { postId, userId }
 
       const result = await this.empathyManagementUseCase.addEmpathy(input)
 
-      return NextResponse.json({
-        success: true,
-        empathy: result.empathy,
-        message: result.message,
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'User not found' || error.message === 'User account is inactive') {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-        }
-        if (error.message === 'Already gave empathy to this post') {
-          return NextResponse.json({ error: 'Already gave empathy to this post' }, { status: 409 })
-        }
-      }
+      const empathyResponse = PostPresenter.toEmpathyResponse(result.empathy)
+      const totalCount = await this.empathyRepository.countByPost(postId)
 
-      console.error('Add empathy error:', error)
-      return NextResponse.json({ error: 'An error occurred while adding empathy' }, { status: 500 })
+      return PostPresenter.presentEmpathyAdded(empathyResponse, totalCount)
+    } catch (error) {
+      return ErrorHandler.handle(error)
     }
   }
 
@@ -399,341 +351,18 @@ export class PostController {
     context: { params: { id: string } }
   ): Promise<NextResponse> {
     try {
-      const postId = context.params.id
-      const userId = await this.getUserIdFromRequest(request)
-
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+      const postId = PostValidator.validatePostId(context.params.id)
+      const userId = await this.requireAuth(request)
 
       const input: RemoveEmpathyInputPort = { postId, userId }
 
-      const result = await this.empathyManagementUseCase.removeEmpathy(input)
+      await this.empathyManagementUseCase.removeEmpathy(input)
 
-      return NextResponse.json({
-        success: true,
-        message: result.message,
-      })
+      const totalCount = await this.empathyRepository.countByPost(postId)
+
+      return PostPresenter.presentEmpathyRemoved(totalCount)
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-        }
-        if (error.message === 'No empathy found for this post') {
-          return NextResponse.json({ error: 'No empathy found for this post' }, { status: 404 })
-        }
-      }
-
-      console.error('Remove empathy error:', error)
-      return NextResponse.json(
-        { error: 'An error occurred while removing empathy' },
-        { status: 500 }
-      )
-    }
-  }
-
-  async getPostByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      const input: GetPostInputPort = {
-        postId,
-        userId: userId || undefined,
-      }
-
-      const result = await this.postRetrievalUseCase.getPost(input)
-
-      return NextResponse.json({
-        success: true,
-        post: result.post,
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-      }
-
-      console.error('Get post error:', error)
-      return NextResponse.json({ error: '投稿の取得に失敗しました' }, { status: 500 })
-    }
-  }
-
-  async updatePostByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
-      const body = await request.json()
-
-      const {
-        title,
-        content,
-        cosmeticName,
-        cosmeticCategory,
-        productName = cosmeticName,
-        brandName,
-        imageUrl,
-        category = cosmeticCategory,
-      } = body
-
-      const input: UpdatePostInputPort = {
-        postId,
-        userId,
-        title,
-        content,
-        productName,
-        brandName,
-        imageUrl,
-        category,
-      }
-
-      const result = await this.postManagementUseCase.updatePost(input)
-
-      return NextResponse.json({
-        post: result.post,
-        message: '投稿が更新されました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'Not authorized to update this post') {
-          return NextResponse.json({ error: '投稿の編集権限がありません' }, { status: 403 })
-        }
-        if (error.message.includes('required') || error.message.includes('characters')) {
-          return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
-        }
-      }
-
-      console.error('Update post error:', error)
-      return NextResponse.json({ error: '投稿の更新に失敗しました' }, { status: 500 })
-    }
-  }
-
-  async deletePostByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
-      const input: DeletePostInputPort = { postId, userId }
-
-      await this.postManagementUseCase.deletePost(input)
-
-      return NextResponse.json({
-        success: true,
-        message: '投稿が削除されました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'Not authorized to delete this post') {
-          return NextResponse.json({ error: '投稿の削除権限がありません' }, { status: 403 })
-        }
-      }
-
-      console.error('Delete post error:', error)
-      return NextResponse.json({ error: '投稿の削除に失敗しました' }, { status: 500 })
-    }
-  }
-
-  async addEmpathyByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
-      const body = await request.json()
-      const { empathyType } = body
-
-      if (!empathyType) {
-        return NextResponse.json({ error: 'empathyTypeが指定されていません' }, { status: 400 })
-      }
-
-      if (!['helpful', 'interested', 'supportive'].includes(empathyType)) {
-        return NextResponse.json({ error: '入力内容に誤りがあります' }, { status: 400 })
-      }
-
-      if (!isDatabaseAvailable()) {
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-        if (!uuidRegex.test(postId)) {
-          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
-        }
-
-        const post = MOCK_POSTS.find(p => p.id === postId)
-        if (!post) {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-
-        const existingEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === userId)
-        if (existingEmpathy) {
-          return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
-        }
-
-        const newEmpathy = {
-          id: `empathy-${Date.now()}`,
-          postId,
-          userId,
-          empathyType,
-          createdAt: new Date(),
-        }
-        MOCK_EMPATHIES.push(newEmpathy)
-
-        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-
-        return NextResponse.json({
-          success: true,
-          empathy: {
-            id: newEmpathy.id,
-            postId: newEmpathy.postId,
-            userId: newEmpathy.userId,
-            empathyType: newEmpathy.empathyType,
-            createdAt: newEmpathy.createdAt,
-          },
-          totalCount,
-          message: '共感を追加しました（デモモード）',
-        })
-      }
-
-      const input: AddEmpathyInputPort = { postId, userId }
-      const result = await this.empathyManagementUseCase.addEmpathy(input)
-
-      return NextResponse.json({
-        success: true,
-        empathy: {
-          id: result.empathy.id,
-          postId: result.empathy.postId,
-          userId: result.empathy.userId,
-          empathyType: result.empathy.empathyType,
-          createdAt: result.empathy.createdAt,
-        },
-        totalCount: 1,
-        message: result.message || '共感を追加しました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'User not found' || error.message === 'User account is inactive') {
-          return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
-        }
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'Already gave empathy to this post') {
-          return NextResponse.json({ error: '既に共感済みです' }, { status: 400 })
-        }
-      }
-
-      console.error('Add empathy error:', error)
-      return NextResponse.json({ error: '共感の追加に失敗しました' }, { status: 500 })
-    }
-  }
-
-  async removeEmpathyByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
-      if (!isDatabaseAvailable()) {
-        // Mock mode
-        // Validate postId format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-        if (!uuidRegex.test(postId)) {
-          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
-        }
-
-        // Check if post exists in mock data
-        const post = MOCK_POSTS.find(p => p.id === postId)
-        if (!post) {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-
-        // Find existing empathy
-        const empathyIndex = MOCK_EMPATHIES.findIndex(
-          e => e.postId === postId && e.userId === userId
-        )
-        if (empathyIndex === -1) {
-          return NextResponse.json({ error: '共感が見つかりません' }, { status: 404 })
-        }
-
-        // Remove empathy from mock data
-        MOCK_EMPATHIES.splice(empathyIndex, 1)
-
-        // Get updated count
-        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-
-        return NextResponse.json({
-          success: true,
-          totalCount,
-          message: '共感を削除しました（デモモード）',
-        })
-      }
-
-      // Database mode
-      const input: RemoveEmpathyInputPort = { postId, userId }
-
-      const result = await this.empathyManagementUseCase.removeEmpathy(input)
-
-      return NextResponse.json({
-        success: true,
-        totalCount: 0,
-        message: result.message || '共感を削除しました',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-        if (error.message === 'No empathy found for this post') {
-          return NextResponse.json({ error: '共感が見つかりません' }, { status: 404 })
-        }
-      }
-
-      console.error('Remove empathy error:', error)
-      return NextResponse.json({ error: '共感の削除に失敗しました' }, { status: 500 })
+      return ErrorHandler.handle(error)
     }
   }
 
@@ -742,89 +371,16 @@ export class PostController {
     context: { params: { id: string } }
   ): Promise<NextResponse> {
     try {
-      const postId = context.params.id
-      const userId = await this.getUserIdFromRequest(request)
-
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
+      const postId = PostValidator.validatePostId(context.params.id)
+      const userId = await this.requireAuth(request)
 
       const input: GetEmpathyStatusInputPort = { postId, userId }
 
       const result = await this.empathyManagementUseCase.getEmpathyStatus(input)
 
-      return NextResponse.json({
-        hasEmpathized: result.hasEmpathy,
-        empathyType: null,
-        totalCount: result.empathyCount,
-      })
+      return PostPresenter.presentEmpathyStatus(result.hasEmpathy, null, result.empathyCount)
     } catch (error) {
-      console.error('Get empathy status error:', error)
-      return NextResponse.json({ error: '共感状態の取得に失敗しました' }, { status: 500 })
-    }
-  }
-
-  async getEmpathyStatusByQuery(request: NextRequest): Promise<NextResponse> {
-    try {
-      const url = new URL(request.url)
-      const postId = url.searchParams.get('id')
-
-      if (!postId) {
-        return NextResponse.json({ error: 'IDが指定されていません' }, { status: 400 })
-      }
-
-      const userId = await this.getUserIdFromRequest(request)
-      if (!userId) {
-        return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
-      }
-
-      if (!isDatabaseAvailable()) {
-        // Mock mode
-        // Validate postId format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-        if (!uuidRegex.test(postId)) {
-          return NextResponse.json({ error: '無効なIDです' }, { status: 400 })
-        }
-
-        // Check if post exists in mock data
-        const post = MOCK_POSTS.find(p => p.id === postId)
-        if (!post) {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-
-        // Check user's empathy status
-        const userEmpathy = MOCK_EMPATHIES.find(e => e.postId === postId && e.userId === userId)
-        const totalCount = MOCK_EMPATHIES.filter(e => e.postId === postId).length
-
-        return NextResponse.json({
-          hasEmpathized: !!userEmpathy,
-          empathyType: userEmpathy?.empathyType || null,
-          totalCount,
-        })
-      }
-
-      // Database mode
-      const input: GetEmpathyStatusInputPort = { postId, userId }
-
-      const result = await this.empathyManagementUseCase.getEmpathyStatus(input)
-
-      return NextResponse.json({
-        hasEmpathized: result.hasEmpathy,
-        empathyType: null,
-        totalCount: result.empathyCount,
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'User not found' || error.message === 'User account is inactive') {
-          return NextResponse.json({ error: 'トークンが無効です' }, { status: 401 })
-        }
-        if (error.message === 'Post not found') {
-          return NextResponse.json({ error: '投稿が見つかりません' }, { status: 404 })
-        }
-      }
-
-      console.error('Get empathy status error:', error)
-      return NextResponse.json({ error: '共感状態の取得に失敗しました' }, { status: 500 })
+      return ErrorHandler.handle(error)
     }
   }
 }

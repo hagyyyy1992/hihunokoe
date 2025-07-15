@@ -1,4 +1,5 @@
 import { GraphQLContext } from '@/graphql/context'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 
@@ -6,7 +7,7 @@ let postController: GraphQLPostController | null = null
 let userRepository: UserRepository | null = null
 
 try {
-  postController = new GraphQLPostController()
+  postController = ControllerFactory.createGraphQLPostController()
   userRepository = new UserRepository()
 } catch (error) {
   console.error('Failed to initialize GraphQL post resolvers:', error)

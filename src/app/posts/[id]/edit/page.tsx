@@ -12,8 +12,10 @@ interface Post {
   id: string
   title: string
   content: string
-  cosmeticName: string
+  cosmeticName?: string
+  productName?: string
   cosmeticCategory?: string
+  category?: string
   skinType?: string
   usageSituation?: {
     season?: string
@@ -43,7 +45,13 @@ interface Post {
     }
   }
   moodTag?: string
-  userId: string
+  userId?: string
+  user?: {
+    id: string
+    userName: string
+    skinType?: string
+    profileImageUrl?: string
+  }
 }
 
 export default function EditPostPage() {
@@ -65,7 +73,14 @@ export default function EditPostPage() {
         throw new Error(data.error || '投稿の取得に失敗しました')
       }
 
-      setPost(data.post)
+      const post = data.success && data.data ? data.data.post : data.post
+
+      // PostPresenterから返されるデータ構造に対応
+      if (post && post.user?.id && !post.userId) {
+        post.userId = post.user.id
+      }
+
+      setPost(post)
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
@@ -99,7 +114,9 @@ export default function EditPostPage() {
 
   // 権限チェック
   useEffect(() => {
-    if (!loading && post && user && post.userId !== user.id) {
+    const postUserId = post?.userId || post?.user?.id
+
+    if (!loading && post && user && postUserId !== user.id) {
       router.push(`/posts/${id}`)
     }
   }, [post, user, loading, id, router])
@@ -292,8 +309,8 @@ export default function EditPostPage() {
   const formData = {
     title: post.title,
     content: post.content,
-    cosmeticName: post.cosmeticName,
-    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory),
+    cosmeticName: post.cosmeticName || post.productName || '',
+    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory || post.category),
     skinType: validateSkinType(post.skinType),
     usageSituation: validateUsageSituation(post.usageSituation),
     experienceDetails: validateExperienceDetails(post.experienceDetails),

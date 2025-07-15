@@ -1,8 +1,5 @@
 import { NextRequest } from 'next/server'
-import { PostController } from '@api/framework/controllers/PostController'
-import { PostManagementUseCase, PostRetrievalUseCase } from '@api/usecases/posts/interactor'
-import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 import { prisma } from '@/lib/prisma'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 
@@ -44,7 +41,7 @@ jest.mock('@/lib/cache/memory-cache', () => ({
 }))
 
 describe('投稿カテゴリマッピングのテスト', () => {
-  let postController: PostController
+  let postController: ReturnType<typeof ControllerFactory.createPostController>
   const mockUserId = 'test-user-id'
   const mockUser = {
     id: mockUserId,
@@ -56,7 +53,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    postController = new PostController()
+    postController = ControllerFactory.createPostController()
 
     // ユーザーが存在する設定
     ;(prisma!.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
@@ -108,9 +105,14 @@ describe('投稿カテゴリマッピングのテスト', () => {
         const response = await postController.createPost(request)
         const data = await response.json()
 
-        expect(response.status).toBe(200)
-        expect(data.post.cosmeticCategory).toBe(category)
-        expect(data.post.category).toBe(category) // 互換性のため両方のフィールドが存在
+        if (response.status !== 201) {
+          console.log('Error response for category:', category, data)
+        }
+
+        expect(response.status).toBe(201)
+        expect(data.success).toBe(true)
+        expect(data.data.post.category).toBe(category)
+        expect(data.data.post.productName).toBe('テストコスメ')
       }
     })
 
@@ -156,9 +158,10 @@ describe('投稿カテゴリマッピングのテスト', () => {
       const response = await postController.createPost(request)
       const data = await response.json()
 
-      expect(response.status).toBe(200)
-      expect(data.post.cosmeticCategory).toBe('skincare')
-      expect(data.post.category).toBe('skincare')
+      expect(response.status).toBe(201)
+      expect(data.success).toBe(true)
+      expect(data.data.post.category).toBe('skincare')
+      expect(data.data.post.productName).toBe('テストコスメ')
     })
   })
 
@@ -194,12 +197,12 @@ describe('投稿カテゴリマッピングのテスト', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.posts).toHaveLength(mockPosts.length)
+      expect(data.success).toBe(true)
+      expect(data.data.posts).toHaveLength(mockPosts.length)
 
       // 各投稿のカテゴリが正しいことを確認
-      data.posts.forEach((post: any, index: number) => {
+      data.data.posts.forEach((post: any, index: number) => {
         const expectedCategory = Object.keys(categoryLabels)[index]
-        expect(post.cosmeticCategory).toBe(expectedCategory)
         expect(post.category).toBe(expectedCategory)
       })
     })
@@ -208,7 +211,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
   describe('GET /api/posts/[id] - 投稿詳細でのカテゴリ表示', () => {
     test('skincare カテゴリの投稿詳細が正しく取得できる', async () => {
       const mockPost = {
-        id: 'test-post-id',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         userId: mockUserId,
         title: 'スキンケアテスト',
         content: 'テスト内容',
@@ -231,13 +234,22 @@ describe('投稿カテゴリマッピングのテスト', () => {
 
       ;(prisma!.post.findFirst as jest.Mock).mockResolvedValue(mockPost)
 
-      const request = new NextRequest('http://localhost:3000/api/posts/test-post-id')
-      const response = await postController.getPost(request, { params: { id: 'test-post-id' } })
+      const request = new NextRequest(
+        'http://localhost:3000/api/posts/550e8400-e29b-41d4-a716-446655440001'
+      )
+      const response = await postController.getPost(request, {
+        params: { id: '550e8400-e29b-41d4-a716-446655440001' },
+      })
       const data = await response.json()
 
+      if (response.status !== 200) {
+        console.log('Error response for getPost:', data)
+      }
+
       expect(response.status).toBe(200)
-      expect(data.post.cosmeticCategory).toBe('skincare')
-      expect(data.post.category).toBe('skincare')
+      expect(data.success).toBe(true)
+      expect(data.data.post.category).toBe('skincare')
+      expect(data.data.post.productName).toBe('テストコスメ')
     })
   })
 

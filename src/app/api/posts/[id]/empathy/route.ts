@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import { PostController } from '@api/framework/controllers/PostController'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 
-const postController = new PostController()
+const postController = ControllerFactory.createPostController()
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const resolvedParams = await context.params

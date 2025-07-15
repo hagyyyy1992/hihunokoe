@@ -646,6 +646,18 @@ export class PostRepository implements IPostRepository {
     }
   }
 
+  private parseJsonField(field: any): any {
+    if (typeof field === 'string') {
+      try {
+        return JSON.parse(field)
+      } catch (error) {
+        console.warn('Failed to parse JSON field:', field, error)
+        return undefined
+      }
+    }
+    return field
+  }
+
   private toDomainPost(
     prismaPost: PrismaPost & {
       user?: {
@@ -680,8 +692,9 @@ export class PostRepository implements IPostRepository {
       prismaPost.createdAt,
       prismaPost.updatedAt,
       prismaPost.deletedAt,
-      prismaPost.usageSituation,
-      prismaPost.experienceDetails,
+      // JSON文字列をパースしてオブジェクトに変換
+      prismaPost.usageSituation ? this.parseJsonField(prismaPost.usageSituation) : undefined,
+      prismaPost.experienceDetails ? this.parseJsonField(prismaPost.experienceDetails) : undefined,
       prismaPost.user || null,
       // Additional properties for test compatibility
       null, // fragranceType (not in current schema)

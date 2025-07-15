@@ -1,5 +1,8 @@
-import { NextRequest } from 'next/server'
-import { PostRetrievalUseCase, PostManagementUseCase } from '@api/usecases/posts/interactor'
+import {
+  PostRetrievalUseCase,
+  PostManagementUseCase,
+  EmpathyManagementUseCase,
+} from '@api/usecases/posts/interactor'
 import type {
   GetPostInputPort,
   GetPostsInputPort,
@@ -7,47 +10,40 @@ import type {
   UpdatePostInputPort,
   DeletePostInputPort,
 } from '@api/usecases/posts/input-port'
-import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
-import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
+import type { IUserRepository } from '@api/domain/repositories/UserRepository'
+import type { IPostRepository } from '@api/domain/repositories/PostRepository'
+import type { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
+import type { ICommentRepository } from '@api/domain/repositories/CommentRepository'
+import { PostValidator } from '@api/framework/validators/PostValidator'
+import { ApplicationError } from '@api/framework/errors/ApplicationError'
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLPostController {
-  private postRetrievalUseCase: PostRetrievalUseCase
-  private postManagementUseCase: PostManagementUseCase
-  private commentRepository: CommentRepository
-  private empathyRepository: EmpathyRepository
-
-  constructor() {
-    try {
-      const postRepository = new PostRepository()
-      const userRepository = new UserRepository()
-      this.empathyRepository = new EmpathyRepository()
-      this.commentRepository = new CommentRepository()
-
-      this.postRetrievalUseCase = new PostRetrievalUseCase(
-        postRepository,
-        this.empathyRepository,
-        this.commentRepository
-      )
-      this.postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
-    } catch (error) {
-      console.error('Failed to initialize GraphQLPostController:', error)
-      throw new Error('データベース接続エラーにより、投稿機能を初期化できませんでした。')
-    }
-  }
+  constructor(
+    private postRetrievalUseCase: PostRetrievalUseCase,
+    private postManagementUseCase: PostManagementUseCase,
+    private empathyManagementUseCase: EmpathyManagementUseCase,
+    private userRepository: IUserRepository,
+    private postRepository: IPostRepository,
+    private empathyRepository: IEmpathyRepository,
+    private commentRepository: ICommentRepository
+  ) {}
 
   async getPost(args: { id: string }, context: GraphQLContext) {
-    const input: GetPostInputPort = {
-      postId: args.id,
-      userId: context.userId || undefined,
-    }
-
     try {
+      const postId = PostValidator.validatePostId(args.id)
+
+      const input: GetPostInputPort = {
+        postId,
+        userId: context.userId || undefined,
+      }
+
       const { post } = await this.postRetrievalUseCase.getPost(input)
       return post
     } catch (error) {
+      if (error instanceof ApplicationError) {
+        throw new Error(error.message)
+      }
       console.error('Error in GraphQLPostController.getPost:', error)
       throw new Error('投稿の取得中にエラーが発生しました。')
     }
@@ -67,24 +63,38 @@ export class GraphQLPostController {
     },
     context: GraphQLContext
   ) {
-    // Convert GraphQL args to use case input
-    const limit = args.first || 10
-    const skip = args.after ? parseInt(args.after) : 0
-
-    const input: GetPostsInputPort = {
-      page: Math.floor(skip / limit) + 1,
-      limit,
-      category: args.filter?.cosmeticCategory,
-      skinType: args.filter?.skinType,
-      moodTag: args.filter?.moodTag,
-      search: args.filter?.search,
-      sortBy: (args.orderBy === 'popular' ? 'empathyCount' : 'createdAt') as
-        | 'createdAt'
-        | 'empathyCount',
-      userId: context.userId || undefined,
-    }
-
     try {
+      // Convert GraphQL args to use case input
+      const limit = args.first || 10
+      const skip = args.after ? parseInt(args.after) : 0
+
+      // GraphQL orderBy to internal format conversion
+      let internalOrderBy: string | null = null
+      if (args.orderBy === 'CREATED_AT_DESC') {
+        internalOrderBy = 'recent'
+      } else if (args.orderBy === 'EMPATHY_COUNT_DESC') {
+        internalOrderBy = 'popular'
+      }
+
+      // バリデーション
+      const { page } = PostValidator.validatePagination(Math.floor(skip / limit) + 1, limit)
+      const category = PostValidator.validateCategory(args.filter?.cosmeticCategory || null)
+      const skinType = PostValidator.validateSkinType(args.filter?.skinType || null)
+      const moodTag = PostValidator.validateMoodTag(args.filter?.moodTag || null)
+      const search = PostValidator.validateSearch(args.filter?.search || null)
+      const sortBy = PostValidator.validateSortBy(internalOrderBy)
+
+      const input: GetPostsInputPort = {
+        page,
+        limit,
+        category,
+        skinType,
+        moodTag,
+        search,
+        sortBy,
+        userId: context.userId || undefined,
+      }
+
       const { posts, total } = await this.postRetrievalUseCase.getPosts(input)
 
       // Convert to GraphQL Connection format
@@ -107,6 +117,9 @@ export class GraphQLPostController {
         totalCount: total,
       }
     } catch (error) {
+      if (error instanceof ApplicationError) {
+        throw new Error(error.message)
+      }
       console.error('Error in GraphQLPostController.getPosts:', error)
 
       // 検索エラーの場合は特別なメッセージ
@@ -134,28 +147,33 @@ export class GraphQLPostController {
     },
     context: GraphQLContext
   ) {
-    if (!context.userId) {
-      throw new Error('Authentication required')
-    }
-
-    const input: CreatePostInputPort = {
-      userId: context.userId,
-      title: args.input.title,
-      content: args.input.content,
-      productName: args.input.cosmeticName,
-      brandName: undefined,
-      imageUrl: undefined,
-      category: args.input.cosmeticCategory,
-      skinType: args.input.skinType,
-      moodTag: args.input.moodTag,
-      usageSituation: args.input.usageSituation,
-      experienceDetails: args.input.experienceDetails,
-    }
-
     try {
+      if (!context.userId) {
+        throw ApplicationError.unauthorized()
+      }
+
+      const validatedData = PostValidator.validateCreatePost({
+        userId: context.userId,
+        title: args.input.title,
+        content: args.input.content,
+        productName: args.input.cosmeticName,
+        brandName: undefined,
+        imageUrl: undefined,
+        category: args.input.cosmeticCategory,
+        skinType: args.input.skinType,
+        moodTag: args.input.moodTag,
+        usageSituation: args.input.usageSituation,
+        experienceDetails: args.input.experienceDetails,
+      })
+
+      const input: CreatePostInputPort = validatedData
+
       const { post } = await this.postManagementUseCase.createPost(input)
       return post
     } catch (error) {
+      if (error instanceof ApplicationError) {
+        throw new Error(error.message)
+      }
       throw new Error((error as Error).message)
     }
   }
@@ -176,47 +194,62 @@ export class GraphQLPostController {
     },
     context: GraphQLContext
   ) {
-    if (!context.userId) {
-      throw new Error('Authentication required')
-    }
-
-    const input: UpdatePostInputPort = {
-      postId: args.id,
-      userId: context.userId,
-      title: args.input.title,
-      content: args.input.content,
-      productName: args.input.cosmeticName,
-      brandName: undefined,
-      imageUrl: undefined,
-      category: args.input.cosmeticCategory,
-      skinType: args.input.skinType,
-      moodTag: args.input.moodTag,
-      usageSituation: args.input.usageSituation,
-      experienceDetails: args.input.experienceDetails,
-    }
-
     try {
+      if (!context.userId) {
+        throw ApplicationError.unauthorized()
+      }
+
+      const postId = PostValidator.validatePostId(args.id)
+
+      console.log('GraphQL updatePost input data:', JSON.stringify(args.input, null, 2))
+
+      const validatedData = PostValidator.validateUpdatePost({
+        postId,
+        userId: context.userId,
+        title: args.input.title,
+        content: args.input.content,
+        productName: args.input.cosmeticName,
+        category: args.input.cosmeticCategory,
+        skinType: args.input.skinType,
+        moodTag: args.input.moodTag,
+        usageSituation: args.input.usageSituation,
+        experienceDetails: args.input.experienceDetails,
+      })
+
+      const input: UpdatePostInputPort = validatedData
+
       const { post } = await this.postManagementUseCase.updatePost(input)
       return post
     } catch (error) {
+      if (error instanceof ApplicationError) {
+        console.error('GraphQL updatePost validation error:', error.details)
+        const detailsStr = error.details ? ` (詳細: ${JSON.stringify(error.details)})` : ''
+        throw new Error(`${error.message}${detailsStr}`)
+      }
+      console.error('GraphQL updatePost error:', error)
       throw new Error((error as Error).message)
     }
   }
 
   async deletePost(args: { id: string }, context: GraphQLContext) {
-    if (!context.userId) {
-      throw new Error('Authentication required')
-    }
-
-    const input: DeletePostInputPort = {
-      postId: args.id,
-      userId: context.userId,
-    }
-
     try {
+      if (!context.userId) {
+        throw ApplicationError.unauthorized()
+      }
+
+      const postId = PostValidator.validatePostId(args.id)
+
+      const input: DeletePostInputPort = {
+        postId,
+        userId: context.userId,
+      }
+
       await this.postManagementUseCase.deletePost(input)
       return { success: true }
     } catch (error) {
+      if (error instanceof ApplicationError) {
+        throw new Error(error.message)
+      }
       throw new Error((error as Error).message)
     }
   }
@@ -229,10 +262,7 @@ export class GraphQLPostController {
       const limit = args.first || 10
       const offset = args.after ? parseInt(args.after) : 0
 
-      const comments = await this.commentRepository.findByPostId(args.postId, {
-        limit,
-        offset,
-      })
+      const comments = await this.commentRepository.findByPostId(args.postId)
 
       const edges = comments.map((comment, index) => ({
         cursor: (offset + index + 1).toString(),
@@ -263,12 +293,9 @@ export class GraphQLPostController {
       const limit = args.first || 10
       const offset = args.after ? parseInt(args.after) : 0
 
-      const empathies = await this.empathyRepository.findByPostId(args.postId, {
-        limit,
-        offset,
-      })
+      const empathies = await this.empathyRepository.findByPost(args.postId)
 
-      const edges = empathies.map((empathy, index) => ({
+      const edges = empathies.map((empathy: any, index: number) => ({
         cursor: (offset + index + 1).toString(),
         node: empathy,
       }))

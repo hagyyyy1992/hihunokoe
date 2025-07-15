@@ -77,7 +77,7 @@ export default function PostModeration() {
 
       if (response.ok) {
         const data = await response.json()
-        setPosts(data.posts || data)
+        setPosts(data.success && data.data ? data.data.posts || [] : data.posts || data)
       }
     } catch (error) {
       console.error('投稿一覧の取得に失敗しました:', error)
