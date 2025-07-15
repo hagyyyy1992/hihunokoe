@@ -19,6 +19,7 @@ import {
   textureAfterUseLabels,
   comfortLabels,
 } from '@/lib/constants'
+import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface PostData {
   post: {
@@ -703,48 +704,14 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
           </div>
         </article>
 
-        {/* 削除確認モーダル */}
-        {showDeleteModal && (
-          <>
-            {/* 背景オーバーレイ */}
-            <div
-              className="fixed inset-0 z-40"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-              onClick={() => setShowDeleteModal(false)}
-            />
-            {/* モーダル本体 */}
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-              <div
-                className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full pointer-events-auto"
-                data-testid="delete-confirmation"
-              >
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                  投稿を削除しますか？
-                </h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                  この操作は取り消すことができません。本当に削除してもよろしいですか？
-                </p>
-                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    disabled={isDeleting}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1 cursor-pointer"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer"
-                    data-testid="confirm-delete-button"
-                  >
-                    {isDeleting ? '削除中...' : '削除する'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+        {/* 削除確認ダイアログ */}
+        <DeleteConfirmDialog
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={handleDelete}
+          itemName="投稿"
+          loading={isDeleting}
+        />
       </div>
     </div>
   )

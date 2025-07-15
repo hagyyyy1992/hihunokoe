@@ -9,6 +9,7 @@ import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 import { categoryLabels } from '@/lib/constants/categories'
+import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface PostFormData {
   title: string
@@ -785,35 +786,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         )}
 
         {/* 削除確認ダイアログ */}
-        {showDeleteConfirm && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-            onClick={() => setShowDeleteConfirm(false)}
-          >
-            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                投稿を削除しますか？
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                この操作は取り消せません。本当に削除しますか？
-              </p>
-              <div className="flex justify-end space-x-2 sm:space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={loading}
-                >
-                  キャンセル
-                </Button>
-                <Button type="button" variant="danger" onClick={handleDelete} loading={loading}>
-                  削除する
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirm={handleDelete}
+          itemName="投稿"
+          loading={loading}
+        />
 
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-4 sm:pt-6">
