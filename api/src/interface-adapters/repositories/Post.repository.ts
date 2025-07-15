@@ -48,6 +48,7 @@ export class PostRepository implements IPostRepository {
         mockPost._count?.comments || 0,
         mockPost.createdAt,
         mockPost.updatedAt,
+        mockPost.deletedAt || null,
         mockPost.usageSituation,
         mockPost.experienceDetails,
         mockPost.user
@@ -61,8 +62,11 @@ export class PostRepository implements IPostRepository {
 
     if (!prisma) throw new Error('Database connection not available')
 
-    const prismaPost = await prisma.post.findUnique({
-      where: { id },
+    const prismaPost = await prisma.post.findFirst({
+      where: {
+        id,
+        deletedAt: null, // 削除されていない投稿のみ
+      },
       include: {
         user: {
           select: {
@@ -182,6 +186,7 @@ export class PostRepository implements IPostRepository {
             mockPost._count?.comments || 0,
             mockPost.createdAt,
             mockPost.updatedAt,
+            mockPost.deletedAt || null,
             mockPost.usageSituation,
             mockPost.experienceDetails,
             mockPost.user
@@ -426,6 +431,7 @@ export class PostRepository implements IPostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     const posts = await prisma.post.findMany({
+      // 管理画面では削除済み投稿も含めて全て表示
       orderBy: { createdAt: 'desc' },
       include: {
         user: {
@@ -450,7 +456,10 @@ export class PostRepository implements IPostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     const posts = await prisma.post.findMany({
-      where: { status: 'published' },
+      where: {
+        status: 'published',
+        deletedAt: null, // 削除されていない投稿のみ
+      },
       orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
@@ -476,7 +485,10 @@ export class PostRepository implements IPostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     return await prisma.post.count({
-      where: { status: 'published' },
+      where: {
+        status: 'published',
+        deletedAt: null, // 削除されていない投稿のみ
+      },
     })
   }
 
@@ -484,6 +496,7 @@ export class PostRepository implements IPostRepository {
     if (!prisma) throw new Error('Database connection not available')
 
     const result = await prisma.post.aggregate({
+      where: { deletedAt: null }, // 削除されていない投稿のみ
       _sum: {
         viewCount: true,
       },
@@ -508,7 +521,10 @@ export class PostRepository implements IPostRepository {
   async findByUserId(userId: string, options?: { includeUnpublished?: boolean }): Promise<Post[]> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const where: any = { userId }
+    const where: any = {
+      userId,
+      deletedAt: null, // 削除されていない投稿のみ
+    }
     if (!options?.includeUnpublished) {
       where.status = 'published'
     }
@@ -544,7 +560,10 @@ export class PostRepository implements IPostRepository {
   }): Promise<Post[]> {
     if (!prisma) throw new Error('Database connection not available')
 
-    const where: any = { status: 'published' }
+    const where: any = {
+      status: 'published',
+      deletedAt: null, // 削除されていない投稿のみ
+    }
     if (options?.category) where.cosmeticCategory = options.category
     if (options?.skinType) where.skinType = options.skinType
     if (options?.moodTag) where.moodTag = options.moodTag
@@ -587,6 +606,7 @@ export class PostRepository implements IPostRepository {
 
       const where: any = {
         status: 'published',
+        deletedAt: null, // 削除されていない投稿のみ
         OR: [
           { title: { contains: searchTerm, mode: 'insensitive' } },
           { content: { contains: searchTerm, mode: 'insensitive' } },
@@ -659,6 +679,7 @@ export class PostRepository implements IPostRepository {
       prismaPost._count.comments,
       prismaPost.createdAt,
       prismaPost.updatedAt,
+      prismaPost.deletedAt,
       prismaPost.usageSituation,
       prismaPost.experienceDetails,
       prismaPost.user || null,
@@ -710,5 +731,33 @@ export class PostRepository implements IPostRepository {
 
     // 並列でプリロード実行
     await Promise.allSettled(popularFilters.map(filter => this.findMany(filter)))
+  }
+
+  async deleteByUserId(userId: string): Promise<void> {
+    if (!isDatabaseAvailable()) {
+      // Mock mode
+      return
+    }
+
+    if (!prisma) throw new Error('Database connection not available')
+
+    try {
+      // ユーザーの全投稿を論理削除
+      await prisma.post.updateMany({
+        where: {
+          userId,
+          deletedAt: null, // まだ削除されていないもののみ
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      })
+
+      // キャッシュを無効化
+      this.invalidatePostsCache()
+    } catch (error) {
+      console.error('Failed to soft delete posts by user:', error)
+      throw new Error('投稿の削除に失敗しました')
+    }
   }
 }

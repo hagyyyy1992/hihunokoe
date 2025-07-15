@@ -22,6 +22,7 @@ describe('Post Entity', () => {
     3,
     new Date('2023-01-01'),
     new Date('2023-01-02'),
+    null, // deletedAt
     { morning: true, evening: false },
     { satisfaction: 4, wouldRecommend: true },
     { id: 'user-123', userName: 'testuser' }
@@ -270,6 +271,7 @@ describe('Post Entity', () => {
         0, // commentCount
         new Date(),
         new Date(),
+        null, // deletedAt
         null, // usageSituation
         null, // experienceDetails
         null // user

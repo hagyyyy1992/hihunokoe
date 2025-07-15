@@ -12,7 +12,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     post: {
       create: jest.fn(),
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -62,6 +62,7 @@ describe('Post.repository', () => {
     viewCount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
+    deletedAt: null,
     user: {
       id: uuidv4(),
       userName: 'テストユーザー',
@@ -159,12 +160,15 @@ describe('Post.repository', () => {
       const postId = uuidv4()
       const mockPrismaPost = createMockPrismaPost({ id: postId })
 
-      mockPrisma.post.findUnique.mockResolvedValue(mockPrismaPost)
+      mockPrisma.post.findFirst.mockResolvedValue(mockPrismaPost)
 
       const result = await repository.findById(postId)
 
-      expect(mockPrisma.post.findUnique).toHaveBeenCalledWith({
-        where: { id: postId },
+      expect(mockPrisma.post.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: postId,
+          deletedAt: null,
+        },
         include: {
           user: {
             select: {
@@ -185,7 +189,7 @@ describe('Post.repository', () => {
     })
 
     it('存在しないIDの場合nullを返す', async () => {
-      mockPrisma.post.findUnique.mockResolvedValue(null)
+      mockPrisma.post.findFirst.mockResolvedValue(null)
 
       const result = await repository.findById(uuidv4())
 
@@ -468,7 +472,10 @@ describe('Post.repository', () => {
       const result = await repository.countPublishedPosts()
 
       expect(mockPrisma.post.count).toHaveBeenCalledWith({
-        where: { status: 'published' },
+        where: {
+          status: 'published',
+          deletedAt: null,
+        },
       })
       expect(result).toBe(100)
     })
@@ -482,7 +489,10 @@ describe('Post.repository', () => {
       const result = await repository.findRecentPosts(5)
 
       expect(mockPrisma.post.findMany).toHaveBeenCalledWith({
-        where: { status: 'published' },
+        where: {
+          status: 'published',
+          deletedAt: null,
+        },
         orderBy: { createdAt: 'desc' },
         take: 5,
         include: {
@@ -513,6 +523,7 @@ describe('Post.repository', () => {
       const result = await repository.getTotalViews()
 
       expect(mockPrisma.post.aggregate).toHaveBeenCalledWith({
+        where: { deletedAt: null },
         _sum: {
           viewCount: true,
         },

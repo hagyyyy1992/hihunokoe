@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
       viewCount: post.viewCount,
       createdAt: post.createdAt.toISOString(),
       publishedAt: post.publishedAt?.toISOString() || null,
+      deletedAt: post.deletedAt?.toISOString() || null,
       user: {
         id: post.user.id,
         userName: post.user.userName,

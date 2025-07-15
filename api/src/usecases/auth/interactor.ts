@@ -1,6 +1,7 @@
 import { User, UserRole } from '@api/domain/entities/User'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
+import { IPostRepository } from '@api/domain/repositories/PostRepository'
 import { PasswordHashService } from '@api/domain/services/PasswordHashService'
 import { TokenService } from '@api/domain/services/TokenService'
 import { IEmailService } from '@api/domain/services/EmailService'
@@ -462,7 +463,8 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
     private readonly authSessionRepository: IAuthSessionRepository,
     private readonly passwordHashService: PasswordHashService,
     private readonly emailService: IEmailService,
-    private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
+    private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository,
+    private readonly postRepository?: IPostRepository
   ) {}
 
   async deleteAccount(input: DeleteAccountInputPort): Promise<DeleteAccountOutputPort> {
@@ -498,6 +500,11 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
         // アンケート保存に失敗してもアカウント削除は続行
         console.error('Failed to save withdrawal survey:', error)
       }
+    }
+
+    // Delete all user's posts first
+    if (this.postRepository) {
+      await this.postRepository.deleteByUserId(input.userId)
     }
 
     // Soft delete the user

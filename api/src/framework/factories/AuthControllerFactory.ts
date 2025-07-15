@@ -7,6 +7,7 @@ import {
 } from '@api/usecases/auth/interactor'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
+import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import { EmailService } from '@api/interface-adapters/services/EmailService'
@@ -27,6 +28,7 @@ export class AuthControllerFactory {
     const prismaClient = prisma || new PrismaClient()
     const userRepository = new UserRepository()
     const authSessionRepository = new AuthSessionRepository()
+    const postRepository = new PostRepository()
     const passwordHashService = new PasswordHashServiceImpl()
     const tokenService = new TokenServiceImpl()
     const emailService = new EmailService()
@@ -58,7 +60,8 @@ export class AuthControllerFactory {
       authSessionRepository,
       passwordHashService,
       emailService,
-      withdrawalSurveyRepository
+      withdrawalSurveyRepository,
+      postRepository
     )
 
     // コントローラーの生成

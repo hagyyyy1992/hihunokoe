@@ -78,4 +78,7 @@ export interface IPostRepository {
   countPublishedPosts(): Promise<number>
   getTotalViews(): Promise<number>
   updatePublishStatus(id: string, isPublished: boolean): Promise<void>
+
+  // User deletion related
+  deleteByUserId(userId: string): Promise<void>
 }
