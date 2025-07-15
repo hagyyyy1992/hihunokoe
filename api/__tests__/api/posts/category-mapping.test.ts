@@ -11,7 +11,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     post: {
       create: jest.fn(),
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       count: jest.fn(),
     },
@@ -32,6 +32,15 @@ jest.mock('@api/interface-adapters/services/TokenServiceImpl', () => ({
   TokenServiceImpl: jest.fn().mockImplementation(() => ({
     verifyToken: jest.fn().mockResolvedValue({ userId: 'test-user-id' }),
   })),
+}))
+
+jest.mock('@/lib/cache/memory-cache', () => ({
+  memoryCache: {
+    get: jest.fn(() => null),
+    set: jest.fn(),
+    delete: jest.fn(),
+    deletePattern: jest.fn(),
+  },
 }))
 
 describe('投稿カテゴリマッピングのテスト', () => {
@@ -73,6 +82,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           publishedAt: new Date(),
+          deletedAt: null,
           usageSituation: null,
           experienceDetails: null,
           user: mockUser,
@@ -120,6 +130,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         publishedAt: new Date(),
+        deletedAt: null,
         usageSituation: null,
         experienceDetails: null,
         user: mockUser,
@@ -168,6 +179,7 @@ describe('投稿カテゴリマッピングのテスト', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         publishedAt: new Date(),
+        deletedAt: null,
         usageSituation: null,
         experienceDetails: null,
         user: mockUser,
@@ -210,13 +222,14 @@ describe('投稿カテゴリマッピングのテスト', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         publishedAt: new Date(),
+        deletedAt: null,
         usageSituation: null,
         experienceDetails: null,
         user: mockUser,
         _count: { empathies: 0, comments: 0 },
       }
 
-      ;(prisma!.post.findUnique as jest.Mock).mockResolvedValue(mockPost)
+      ;(prisma!.post.findFirst as jest.Mock).mockResolvedValue(mockPost)
 
       const request = new NextRequest('http://localhost:3000/api/posts/test-post-id')
       const response = await postController.getPost(request, { params: { id: 'test-post-id' } })
