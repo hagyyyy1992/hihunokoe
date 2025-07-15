@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
+import { createMockAuthController } from '../../helpers/auth-test-helper'
 import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
@@ -37,7 +38,7 @@ describe('AuthController - login', () => {
       () => mockAuthenticationUseCase
     )
 
-    authController = new AuthController()
+    authController = createMockAuthController(mockAuthenticationUseCase, {}, {}, {}, {})
   })
 
   const createRequest = (body: any) => {

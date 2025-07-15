@@ -1,10 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  AuthenticationUseCase,
-  PasswordManagementUseCase,
-  EmailVerificationUseCase,
-  AccountManagementUseCase,
-} from '@api/usecases/auth/interactor'
 import { getEmailBaseUrl } from '@/lib/email/utils'
 import type {
   LoginInputPort,
@@ -18,13 +12,12 @@ import type {
   ResendVerificationEmailInputPort,
   VerifyPasswordResetTokenInputPort,
 } from '@api/usecases/auth/input-port'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
-import { EmailService } from '@api/interface-adapters/services/EmailService'
-import { WithdrawalSurveyRepository } from '@api/interface-adapters/repositories/WithdrawalSurvey.repository'
-import { PrismaClient } from '@prisma/client'
+import type {
+  IAuthenticationUseCase,
+  IPasswordManagementUseCase,
+  IEmailVerificationUseCase,
+  IAccountManagementUseCase,
+} from '@api/usecases/auth/input-port'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -37,47 +30,13 @@ import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 import { IEmailService } from '@api/domain/services/EmailService'
 
 export class AuthController {
-  private authenticationUseCase: AuthenticationUseCase
-  private passwordManagementUseCase: PasswordManagementUseCase
-  private emailVerificationUseCase: EmailVerificationUseCase
-  private accountManagementUseCase: AccountManagementUseCase
-  private emailService: IEmailService
-
-  constructor() {
-    const prisma = new PrismaClient()
-    const userRepository = new UserRepository()
-    const authSessionRepository = new AuthSessionRepository()
-    const passwordHashService = new PasswordHashServiceImpl()
-    const tokenService = new TokenServiceImpl()
-    const emailService = new EmailService()
-    const withdrawalSurveyRepository = new WithdrawalSurveyRepository(prisma)
-
-    this.authenticationUseCase = new AuthenticationUseCase(
-      userRepository,
-      authSessionRepository,
-      passwordHashService,
-      tokenService
-    )
-    this.passwordManagementUseCase = new PasswordManagementUseCase(
-      userRepository,
-      passwordHashService,
-      tokenService,
-      emailService
-    )
-    this.emailVerificationUseCase = new EmailVerificationUseCase(
-      userRepository,
-      tokenService,
-      emailService
-    )
-    this.accountManagementUseCase = new AccountManagementUseCase(
-      userRepository,
-      authSessionRepository,
-      passwordHashService,
-      emailService,
-      withdrawalSurveyRepository
-    )
-    this.emailService = emailService
-  }
+  constructor(
+    private readonly authenticationUseCase: IAuthenticationUseCase,
+    private readonly passwordManagementUseCase: IPasswordManagementUseCase,
+    private readonly emailVerificationUseCase: IEmailVerificationUseCase,
+    private readonly accountManagementUseCase: IAccountManagementUseCase,
+    private readonly emailService: IEmailService
+  ) {}
 
   async login(request: NextRequest): Promise<NextResponse> {
     try {
