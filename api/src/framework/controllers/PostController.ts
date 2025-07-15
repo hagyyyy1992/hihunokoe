@@ -207,21 +207,23 @@ export class PostController {
 
       const result = await this.postRetrievalUseCase.getPosts(input)
 
-      // 各投稿のレスポンスを作成
-      const postsResponse = await Promise.all(
-        result.posts.map(async post => {
-          const user = await this.userRepository.findById(post.userId)
-          if (!user) throw ApplicationError.notFound('ユーザー')
-
-          const empathyCount = await this.empathyRepository.countByPost(post.id)
-          const commentCount = await this.commentRepository.countByPostId(post.id)
-          const userHasEmpathy = userId
-            ? (await this.empathyRepository.findByUserAndPost(userId, post.id)) !== null
-            : false
-
-          return PostPresenter.toResponse(post, user, empathyCount, commentCount, userHasEmpathy)
+      // ユーザーエンパシー情報を一括取得（N+1問題を解決）
+      const userEmpathiesMap = new Map<string, boolean>()
+      if (userId) {
+        const userEmpathies = await this.empathyRepository.findByUserAndPosts(
+          userId,
+          result.posts.map(p => p.id)
+        )
+        userEmpathies.forEach(empathy => {
+          userEmpathiesMap.set(empathy.postId, true)
         })
-      )
+      }
+
+      // 各投稿のレスポンスを作成（効率化済み）
+      const postsResponse = result.posts.map(post => {
+        const userHasEmpathy = userEmpathiesMap.get(post.id) || false
+        return PostPresenter.toResponseWithPostData(post, userHasEmpathy)
+      })
 
       const pagination = {
         page: result.page,
