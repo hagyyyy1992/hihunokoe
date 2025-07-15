@@ -5,8 +5,8 @@ import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { IAdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
 import { AdminUserRepository } from '@api/domain/repositories/AdminUserRepository'
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
+import { ITokenService } from '@api/domain/services/TokenService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import {
   InvalidCredentialsError,
@@ -49,8 +49,8 @@ export class AdminAuthenticationUseCase implements IAdminAuthenticationInputPort
   constructor(
     private userRepository: IUserRepository,
     private authSessionRepository: IAuthSessionRepository,
-    private passwordHashService: PasswordHashService,
-    private tokenService: TokenService,
+    private passwordHashService: IPasswordHashService,
+    private tokenService: ITokenService,
     private adminLogRepository: IAdminLogRepository
   ) {}
 

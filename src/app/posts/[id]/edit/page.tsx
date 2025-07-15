@@ -6,13 +6,16 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/PostForm'
 import DraggableGuidelineModal from '@/components/ui/DraggableGuidelineModal'
 import { CosmeticCategory, SkinType, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
+import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface Post {
   id: string
   title: string
   content: string
-  cosmeticName: string
+  cosmeticName?: string
+  productName?: string
   cosmeticCategory?: string
+  category?: string
   skinType?: string
   usageSituation?: {
     season?: string
@@ -42,7 +45,13 @@ interface Post {
     }
   }
   moodTag?: string
-  userId: string
+  userId?: string
+  user?: {
+    id: string
+    userName: string
+    skinType?: string
+    profileImageUrl?: string
+  }
 }
 
 export default function EditPostPage() {
@@ -64,7 +73,14 @@ export default function EditPostPage() {
         throw new Error(data.error || '投稿の取得に失敗しました')
       }
 
-      setPost(data.post)
+      const post = data.success && data.data ? data.data.post : data.post
+
+      // PostPresenterから返されるデータ構造に対応
+      if (post && post.user?.id && !post.userId) {
+        post.userId = post.user.id
+      }
+
+      setPost(post)
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
       setError(errorMessage)
@@ -98,7 +114,9 @@ export default function EditPostPage() {
 
   // 権限チェック
   useEffect(() => {
-    if (!loading && post && user && post.userId !== user.id) {
+    const postUserId = post?.userId || post?.user?.id
+
+    if (!loading && post && user && postUserId !== user.id) {
       router.push(`/posts/${id}`)
     }
   }, [post, user, loading, id, router])
@@ -291,8 +309,8 @@ export default function EditPostPage() {
   const formData = {
     title: post.title,
     content: post.content,
-    cosmeticName: post.cosmeticName,
-    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory),
+    cosmeticName: post.cosmeticName || post.productName || '',
+    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory || post.category),
     skinType: validateSkinType(post.skinType),
     usageSituation: validateUsageSituation(post.usageSituation),
     experienceDetails: validateExperienceDetails(post.experienceDetails),
@@ -340,71 +358,13 @@ export default function EditPostPage() {
         </div>
 
         {/* 削除確認ダイアログ */}
-        {showDeleteConfirm && (
-          <>
-            {/* 背景オーバーレイ */}
-            <div
-              className="fixed inset-0 z-40"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-              onClick={() => setShowDeleteConfirm(false)}
-            />
-            {/* モーダル本体 */}
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 pointer-events-auto">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                  投稿を削除しますか？
-                </h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                  この操作は取り消せません。本当に削除しますか？
-                </p>
-                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1 cursor-pointer disabled:cursor-not-allowed"
-                    onClick={() => setShowDeleteConfirm(false)}
-                    disabled={deleteLoading}
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors order-1 sm:order-2 cursor-pointer disabled:cursor-not-allowed"
-                    onClick={handleDelete}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <span className="flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        削除中...
-                      </span>
-                    ) : (
-                      '削除する'
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+        <DeleteConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirm={handleDelete}
+          itemName="投稿"
+          loading={deleteLoading}
+        />
       </div>
     </div>
   )

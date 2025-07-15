@@ -20,6 +20,7 @@ export class Post {
     public readonly commentCount: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+    public readonly deletedAt?: Date | null,
     public readonly usageSituation?: any | null,
     public readonly experienceDetails?: any | null,
     public readonly user?: {

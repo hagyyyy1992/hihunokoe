@@ -1,11 +1,11 @@
-import { TokenService } from '@api/domain/services/TokenService'
+import { ITokenService } from '@api/domain/services/TokenService'
 import { AuthTokenPayload } from '@api/domain/entities/AuthSession'
 
 describe('TokenService Interface Specification', () => {
   describe('Interface Contract', () => {
     it('TokenServiceインターフェースが正しく定義されている', () => {
       // インターフェースの型定義をテスト
-      const mockService: TokenService = {
+      const mockService: ITokenService = {
         generateToken: jest.fn(),
         verifyToken: jest.fn(),
         generateRandomToken: jest.fn(),
@@ -86,7 +86,7 @@ describe('TokenService Interface Specification', () => {
   })
 
   describe('Mock Implementation Testing', () => {
-    let mockTokenService: TokenService
+    let mockTokenService: ITokenService
 
     beforeEach(() => {
       mockTokenService = {
@@ -175,7 +175,7 @@ describe('TokenService Interface Specification', () => {
 
   describe('Error Handling Pattern', () => {
     it('エラーハンドリングのパターンをテストできる', async () => {
-      const errorTokenService: TokenService = {
+      const errorTokenService: ITokenService = {
         generateToken: jest.fn().mockRejectedValue(new Error('Generation failed')),
         verifyToken: jest.fn().mockRejectedValue(new Error('Invalid token')),
         generateRandomToken: jest.fn().mockImplementation(() => {

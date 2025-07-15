@@ -112,6 +112,7 @@ export const MOCK_POSTS = [
     publishedAt: new Date('2024-01-15'),
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-15'),
+    deletedAt: null,
     user: MOCK_USERS[0],
     empathies: [],
     comments: [
@@ -175,6 +176,7 @@ export const MOCK_POSTS = [
     publishedAt: new Date('2024-01-12'),
     createdAt: new Date('2024-01-12'),
     updatedAt: new Date('2024-01-12'),
+    deletedAt: null,
     user: MOCK_USERS[1],
     empathies: [],
     comments: [],

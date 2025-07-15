@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AdminAuthenticationInteractor } from '@api/use-cases/admin-authentication/interactor'
 import { AdminAuthenticationOutputPort } from '@api/use-cases/admin-authentication/output-port'
 import { AdminUserRepositoryImpl } from '@api/framework/repositories/AdminUserRepositoryImpl'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import { prisma } from '@/lib/prisma'
 
 class AdminAuthPresenter implements AdminAuthenticationOutputPort {

@@ -1,10 +1,7 @@
 import { NextRequest } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
+import { createMockAuthController } from '../../helpers/auth-test-helper'
 import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import {
   InvalidCredentialsError,
   EmailNotVerifiedError,
@@ -14,8 +11,8 @@ import {
 jest.mock('@api/usecases/auth/interactor')
 jest.mock('@api/interface-adapters/repositories/User.repository')
 jest.mock('@api/interface-adapters/repositories/AuthSession.repository')
-jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl')
-jest.mock('@api/interface-adapters/services/TokenServiceImpl')
+jest.mock('@api/interface-adapters/services/PasswordHashService')
+jest.mock('@api/interface-adapters/services/TokenService')
 jest.mock('@api/interface-adapters/services/EmailService')
 
 describe('AuthController - login', () => {
@@ -37,7 +34,7 @@ describe('AuthController - login', () => {
       () => mockAuthenticationUseCase
     )
 
-    authController = new AuthController()
+    authController = createMockAuthController(mockAuthenticationUseCase, {}, {}, {}, {})
   })
 
   const createRequest = (body: any) => {

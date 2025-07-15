@@ -98,7 +98,7 @@ function RegistrationCompleteContent() {
             <button
               onClick={handleResendEmail}
               disabled={isResending || !email}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-apple-600 hover:bg-apple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-apple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-apple-600 hover:bg-apple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-apple-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isResending ? '送信中...' : '確認メールを再送信'}
             </button>

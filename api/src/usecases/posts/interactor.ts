@@ -1,10 +1,8 @@
-import { Post } from '@api/domain/entities/Post'
-import { Empathy } from '@api/domain/entities/Empathy'
 import { IPostRepository } from '@api/domain/repositories/PostRepository'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
-import { RateLimitService } from '@api/domain/services/RateLimitService'
+import { IRateLimitService } from '@api/domain/services/RateLimitService'
 import {
   IPostManagementUseCase,
   IPostRetrievalUseCase,
@@ -27,13 +25,16 @@ import {
   AddEmpathyOutputPort,
   RemoveEmpathyOutputPort,
   GetEmpathyStatusOutputPort,
+  PostWithMetadata,
 } from './output-port'
 
 export class PostManagementUseCase implements IPostManagementUseCase {
   constructor(
     private postRepository: IPostRepository,
     private userRepository: IUserRepository,
-    private rateLimitService?: RateLimitService
+    private empathyRepository: IEmpathyRepository,
+    private commentRepository: ICommentRepository,
+    private rateLimitService?: IRateLimitService
   ) {}
 
   async createPost(input: CreatePostInputPort): Promise<CreatePostOutputPort> {
@@ -93,8 +94,15 @@ export class PostManagementUseCase implements IPostManagementUseCase {
       isPublished: true, // Published immediately in current implementation
     })
 
+    // エンパシー数とコメント数を取得（新規投稿なので0）
+    const empathyCount = 0
+    const commentCount = 0
+
     return {
       post,
+      user,
+      empathyCount,
+      commentCount,
       message: '投稿を作成しました',
     }
   }
@@ -147,8 +155,24 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     // 投稿更新
     const updatedPost = await this.postRepository.update(input.postId, updateData)
 
+    // ユーザー情報を取得
+    const user = await this.userRepository.findById(updatedPost.userId)
+    if (!user) {
+      throw new Error('ユーザーが見つかりませんでした')
+    }
+
+    // エンパシー数とコメント数を取得
+    const empathyCount = await this.empathyRepository.countByPost(updatedPost.id)
+    const commentCount = await this.commentRepository.countByPostId(updatedPost.id)
+    const userHasEmpathy =
+      (await this.empathyRepository.findByUserAndPost(input.userId, updatedPost.id)) !== null
+
     return {
       post: updatedPost,
+      user,
+      empathyCount,
+      commentCount,
+      userHasEmpathy,
       message: '投稿を更新しました',
     }
   }
@@ -178,6 +202,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
 export class PostRetrievalUseCase implements IPostRetrievalUseCase {
   constructor(
     private postRepository: IPostRepository,
+    private userRepository: IUserRepository,
     private empathyRepository: IEmpathyRepository,
     private commentRepository: ICommentRepository
   ) {}
@@ -191,6 +216,12 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
     // 非公開投稿の場合、作成者以外はアクセス不可
     if (!post.isPublished && post.userId !== input.userId) {
       throw new Error('この投稿は非公開です')
+    }
+
+    // ユーザー情報を取得
+    const user = await this.userRepository.findById(post.userId)
+    if (!user) {
+      throw new Error('ユーザーが見つかりませんでした')
     }
 
     // エンパシー数を取得
@@ -208,6 +239,7 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
 
     return {
       post,
+      user,
       empathyCount,
       commentCount,
       userHasEmpathy,
@@ -233,8 +265,14 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       skinType: input.skinType,
       moodTag: input.moodTag,
       publishedOnly: isPublished,
+      sortBy: sortBy as any,
       // userIdは削除 - 全ユーザーの投稿を取得する
     })
+
+    // ユーザー情報を一括取得
+    const userIds = [...new Set(posts.map(p => p.userId))]
+    const users = await Promise.all(userIds.map(id => this.userRepository.findById(id)))
+    const userMap = new Map(users.filter(u => u !== null).map(u => [u!.id, u!]))
 
     // ユーザーの共感状態のみを一括取得（カウントはPostRepositoryで取得済み）
     let userEmpathies: Map<string, boolean> = new Map()
@@ -248,10 +286,17 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       })
     }
 
-    // 各投稿にユーザーの共感状態を追加（カウントは既にPostエンティティに含まれている）
-    const postsWithCounts = posts.map(post => {
+    // 各投稿にユーザー情報と共感状態を追加
+    const postsWithMetadata: PostWithMetadata[] = posts.map(post => {
+      const user = userMap.get(post.userId)
+      if (!user) {
+        throw new Error(`ユーザーが見つかりませんでした: ${post.userId}`)
+      }
       const userHasEmpathy = userEmpathies.get(post.id) || false
+
+      // Postエンティティを拡張してメタデータを追加
       return Object.assign(post, {
+        user,
         userHasEmpathy,
       })
     })
@@ -259,7 +304,7 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
     const hasNext = offset + posts.length < totalCount
 
     return {
-      posts: postsWithCounts,
+      posts: postsWithMetadata,
       total: totalCount,
       page,
       limit,
@@ -273,7 +318,7 @@ export class EmpathyManagementUseCase implements IEmpathyManagementUseCase {
     private postRepository: IPostRepository,
     private userRepository: IUserRepository,
     private empathyRepository: IEmpathyRepository,
-    private rateLimitService?: RateLimitService
+    private rateLimitService?: IRateLimitService
   ) {}
 
   async addEmpathy(input: AddEmpathyInputPort): Promise<AddEmpathyOutputPort> {
@@ -331,8 +376,12 @@ export class EmpathyManagementUseCase implements IEmpathyManagementUseCase {
       empathyType: 'helpful' as const,
     })
 
+    // 更新後の総数を取得
+    const totalCount = await this.empathyRepository.countByPost(input.postId)
+
     return {
       empathy,
+      totalCount,
       message: 'エンパシーを追加しました',
     }
   }
@@ -360,7 +409,11 @@ export class EmpathyManagementUseCase implements IEmpathyManagementUseCase {
     // エンパシーを削除
     await this.empathyRepository.delete(empathy.id)
 
+    // 更新後の総数を取得
+    const totalCount = await this.empathyRepository.countByPost(input.postId)
+
     return {
+      totalCount,
       message: 'エンパシーを削除しました',
     }
   }

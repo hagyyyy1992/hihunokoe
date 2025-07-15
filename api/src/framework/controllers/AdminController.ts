@@ -29,8 +29,8 @@ import { PostRepository } from '@api/interface-adapters/repositories/Post.reposi
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
 import { AdminLogRepository } from '@api/interface-adapters/repositories/AdminLog.repository'
 import { AdminUserRepositoryImpl } from '@api/framework/repositories/AdminUserRepositoryImpl'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import { UserRole } from '@api/domain/entities/User'
 import {
   InvalidCredentialsError,

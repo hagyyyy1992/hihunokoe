@@ -36,6 +36,7 @@ interface Post {
   viewCount: number
   createdAt: string
   cosmeticName: string
+  deletedAt?: string | null
 }
 
 export default function PostModeration() {
@@ -76,7 +77,7 @@ export default function PostModeration() {
 
       if (response.ok) {
         const data = await response.json()
-        setPosts(data.posts || data)
+        setPosts(data.success && data.data ? data.data.posts || [] : data.posts || data)
       }
     } catch (error) {
       console.error('投稿一覧の取得に失敗しました:', error)
@@ -121,7 +122,10 @@ export default function PostModeration() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, deletedAt?: string | null) => {
+    if (deletedAt) {
+      return <Badge variant="destructive">削除済み</Badge>
+    }
     switch (status) {
       case 'published':
         return <Badge variant="default">公開</Badge>
@@ -205,7 +209,9 @@ export default function PostModeration() {
                         </h3>
                         <p className="text-xs text-gray-600 truncate">{post.userName}</p>
                       </div>
-                      <div className="flex-shrink-0">{getStatusBadge(post.status)}</div>
+                      <div className="flex-shrink-0">
+                        {getStatusBadge(post.status, post.deletedAt)}
+                      </div>
                     </div>
 
                     <div className="space-y-1 mb-3 text-xs">
@@ -229,44 +235,53 @@ export default function PostModeration() {
                       <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
                         <Eye className="h-3 w-3" />
                       </Button>
-                      {post.status === 'published' ? (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="h-7 px-2 flex-1 text-xs"
-                          onClick={() => {
-                            setSelectedPost(post)
-                            setActionType('unpublish')
-                          }}
-                        >
-                          <EyeOff className="h-3 w-3 mr-1" />
-                          非公開
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          className="h-7 px-2 flex-1 text-xs"
-                          onClick={() => {
-                            setSelectedPost(post)
-                            setActionType('publish')
-                          }}
-                        >
-                          <Check className="h-3 w-3 mr-1" />
-                          公開
-                        </Button>
+                      {!post.deletedAt && (
+                        <>
+                          {post.status === 'published' ? (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-7 px-2 flex-1 text-xs"
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setActionType('unpublish')
+                              }}
+                            >
+                              <EyeOff className="h-3 w-3 mr-1" />
+                              非公開
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-7 px-2 flex-1 text-xs"
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setActionType('publish')
+                              }}
+                            >
+                              <Check className="h-3 w-3 mr-1" />
+                              公開
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => {
+                              setSelectedPost(post)
+                              setActionType('delete')
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </>
                       )}
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="h-7 px-2 text-xs"
-                        onClick={() => {
-                          setSelectedPost(post)
-                          setActionType('delete')
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      {post.deletedAt && (
+                        <div className="flex-1 text-xs text-gray-500 text-center">
+                          ユーザーが削除済み
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -299,7 +314,7 @@ export default function PostModeration() {
                       </TableCell>
                       <TableCell>{post.userName}</TableCell>
                       <TableCell>{post.cosmeticName}</TableCell>
-                      <TableCell>{getStatusBadge(post.status)}</TableCell>
+                      <TableCell>{getStatusBadge(post.status, post.deletedAt)}</TableCell>
                       <TableCell>{post.empathyCount}</TableCell>
                       <TableCell>{post.viewCount}</TableCell>
                       <TableCell>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</TableCell>
@@ -308,39 +323,45 @@ export default function PostModeration() {
                           <Button size="sm" variant="outline">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {post.status === 'published' ? (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setActionType('unpublish')
-                              }}
-                            >
-                              <EyeOff className="h-4 w-4" />
-                            </Button>
+                          {!post.deletedAt ? (
+                            <>
+                              {post.status === 'published' ? (
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setActionType('unpublish')
+                                  }}
+                                >
+                                  <EyeOff className="h-4 w-4" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setActionType('publish')
+                                  }}
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  setSelectedPost(post)
+                                  setActionType('delete')
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
                           ) : (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setActionType('publish')
-                              }}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
+                            <span className="text-sm text-gray-500">ユーザー削除済み</span>
                           )}
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              setSelectedPost(post)
-                              setActionType('delete')
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

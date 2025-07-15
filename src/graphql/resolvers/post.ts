@@ -1,13 +1,11 @@
 import { GraphQLContext } from '@/graphql/context'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 
 let postController: GraphQLPostController | null = null
-let userRepository: UserRepository | null = null
 
 try {
-  postController = new GraphQLPostController()
-  userRepository = new UserRepository()
+  postController = ControllerFactory.createGraphQLPostController()
 } catch (error) {
   console.error('Failed to initialize GraphQL post resolvers:', error)
 }
@@ -195,12 +193,9 @@ export const postResolvers = {
 
   Post: {
     // Field resolvers for Post type
-    user: async (parent: { userId: string }) => {
+    user: async (parent: { userId: string }, _: unknown, context: GraphQLContext) => {
       try {
-        if (!userRepository) {
-          return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
-        }
-        const user = await userRepository.findById(parent.userId)
+        const user = await context.userLoader.load(parent.userId)
         if (!user) {
           return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
         }
@@ -217,16 +212,24 @@ export const postResolvers = {
       }
     },
 
-    empathies: async (parent: { id: string }) => {
-      // TODO: Implement empathy loading for posts
-      void parent
-      return []
+    empathies: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
+      try {
+        const empathies = await context.empathyLoader.load(parent.id)
+        return empathies
+      } catch (error) {
+        console.error('Error loading empathies for post:', error)
+        return []
+      }
     },
 
-    comments: async (parent: { id: string }) => {
-      // TODO: Implement comment loading for posts
-      void parent
-      return []
+    comments: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
+      try {
+        const comments = await context.commentLoader.load(parent.id)
+        return comments
+      } catch (error) {
+        console.error('Error loading comments for post:', error)
+        return []
+      }
     },
   },
 }

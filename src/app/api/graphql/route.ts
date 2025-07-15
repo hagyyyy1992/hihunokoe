@@ -7,9 +7,18 @@ import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
 import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import type { GraphQLContext } from '@/graphql/context'
+import { createUserLoader } from '@/graphql/dataloaders/userDataLoader'
+import {
+  createCommentDataLoader,
+  createCommentByIdDataLoader,
+} from '@/graphql/dataloaders/commentDataLoader'
+import {
+  createEmpathyDataLoader,
+  createUserEmpathyDataLoader,
+} from '@/graphql/dataloaders/empathyDataLoader'
 
 const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -42,12 +51,26 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       }
     }
 
+    const userRepository = new UserRepository()
+    const userLoader = createUserLoader(userRepository)
+    const commentLoader = createCommentDataLoader()
+    const commentByIdLoader = createCommentByIdDataLoader()
+    const empathyLoader = createEmpathyDataLoader()
+    let userId: string | null = null
+
     if (!token) {
-      return { userId: null }
+      const userEmpathyLoader = createUserEmpathyDataLoader(null)
+      return {
+        userId: null,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     }
 
     try {
-      const userRepository = new UserRepository()
       const authSessionRepository = new AuthSessionRepository()
       const passwordHashService = new PasswordHashServiceImpl()
       const tokenService = new TokenServiceImpl()
@@ -61,10 +84,28 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
-      return { userId: user?.id || null }
+      userId = user?.id || null
+      const userEmpathyLoader = createUserEmpathyDataLoader(userId)
+
+      return {
+        userId,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     } catch (error) {
       console.error('GraphQL authentication error:', error)
-      return { userId: null }
+      const userEmpathyLoader = createUserEmpathyDataLoader(null)
+      return {
+        userId: null,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     }
   },
 })

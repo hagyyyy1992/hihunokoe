@@ -9,6 +9,7 @@ import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 import { categoryLabels } from '@/lib/constants/categories'
+import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface PostFormData {
   title: string
@@ -39,15 +40,20 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const [updatePost] = useMutation(UPDATE_POST)
   const [deletePost] = useMutation(DELETE_POST)
 
-  const [formData, setFormData] = useState<PostFormData>({
-    title: '',
-    content: '',
-    cosmeticName: '',
-    cosmeticCategory: '',
-    skinType: '',
-    usageSituation: {},
-    experienceDetails: {},
-    moodTag: '',
+  const [formData, setFormData] = useState<PostFormData>(() => {
+    // 初期データがある場合はそれを使用、ない場合はデフォルト値
+    return (
+      initialData || {
+        title: '',
+        content: '',
+        cosmeticName: '',
+        cosmeticCategory: '',
+        skinType: '',
+        usageSituation: {},
+        experienceDetails: {},
+        moodTag: '',
+      }
+    )
   })
 
   // 編集モードの場合、初期データをセット
@@ -228,10 +234,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        const titleValid = formData.title.trim() && formData.title.trim().length <= 100
+        const titleValid = formData.title?.trim() && formData.title.trim().length <= 100
         const cosmeticNameValid =
-          formData.cosmeticName.trim() && formData.cosmeticName.trim().length <= 100
-        const contentValid = formData.content.trim() && formData.content.trim().length <= 2000
+          formData.cosmeticName?.trim() && formData.cosmeticName.trim().length <= 100
+        const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
         const categoryValid = !!formData.cosmeticCategory
         const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
         return isValid
@@ -313,7 +319,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               id="title"
               name="title"
               required
-              value={formData.title}
+              value={formData.title || ''}
               onChange={handleInputChange}
               placeholder="例: ○○クリームを敏感肌で試してみました"
               showPlaceholderHint
@@ -331,7 +337,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               id="cosmeticName"
               name="cosmeticName"
               required
-              value={formData.cosmeticName}
+              value={formData.cosmeticName || ''}
               onChange={handleInputChange}
               placeholder="例: ○○ブランド モイスチャークリーム"
               showPlaceholderHint
@@ -346,7 +352,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               <select
                 id="cosmeticCategory"
                 name="cosmeticCategory"
-                value={formData.cosmeticCategory}
+                value={formData.cosmeticCategory || ''}
                 onChange={handleInputChange}
                 className="select"
                 data-testid="category-select"
@@ -370,7 +376,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 name="content"
                 required
                 rows={8}
-                value={formData.content}
+                value={formData.content || ''}
                 onChange={handleInputChange}
                 className="textarea"
                 placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
@@ -401,7 +407,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               <select
                 id="skinType"
                 name="skinType"
-                value={formData.skinType}
+                value={formData.skinType || ''}
                 onChange={handleInputChange}
                 className="select"
                 data-testid="skin-type-select"
@@ -737,7 +743,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 id="content"
                 name="content"
                 required
-                value={formData.content}
+                value={formData.content || ''}
                 onChange={handleInputChange}
                 rows={5}
                 className="textarea"
@@ -754,7 +760,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               <select
                 id="moodTag"
                 name="moodTag"
-                value={formData.moodTag}
+                value={formData.moodTag || ''}
                 onChange={e => {
                   handleInputChange(e)
                 }}
@@ -785,31 +791,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         )}
 
         {/* 削除確認ダイアログ */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                投稿を削除しますか？
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                この操作は取り消せません。本当に削除しますか？
-              </p>
-              <div className="flex justify-end space-x-2 sm:space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={loading}
-                >
-                  キャンセル
-                </Button>
-                <Button type="button" variant="danger" onClick={handleDelete} loading={loading}>
-                  削除する
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirm={handleDelete}
+          itemName="投稿"
+          loading={loading}
+        />
 
         {/* ナビゲーションボタン */}
         <div className="flex justify-between pt-4 sm:pt-6">

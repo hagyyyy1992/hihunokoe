@@ -101,6 +101,9 @@ export default function PrivacyPolicyPage() {
         <p className="mb-4">
           ユーザーは、自己に関する個人情報の開示・訂正・削除・利用停止等を希望する場合、サービス内のお問い合わせフォームよりご連絡ください。合理的な範囲で速やかに対応いたします。
         </p>
+        <p className="mb-4">
+          なお、アカウント削除を行った場合、当該ユーザーに関するすべての個人情報は削除され、投稿データは他のユーザーから閲覧できなくなります。削除後のデータは復元することができません。
+        </p>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">10. 未成年の利用について</h2>
         <p className="mb-4">
@@ -120,7 +123,7 @@ export default function PrivacyPolicyPage() {
         <p className="mt-8 text-sm text-gray-600">
           制定日：2025年07月13日
           <br />
-          最終更新日：2025年07月13日
+          最終更新日：2025年07月15日
         </p>
       </div>
     </div>

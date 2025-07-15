@@ -9,7 +9,7 @@ import type {
 import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
 import { PostRepository } from '@api/interface-adapters/repositories/Post.repository'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
+import { RateLimitService } from '@api/interface-adapters/services/RateLimitService'
 import { GraphQLContext } from '@/graphql/context'
 
 export class GraphQLCommentController {
@@ -20,7 +20,7 @@ export class GraphQLCommentController {
     const commentRepository = new CommentRepository()
     const postRepository = new PostRepository()
     const userRepository = new UserRepository()
-    const rateLimitService = new RateLimitServiceImpl()
+    const rateLimitService = new RateLimitService()
 
     this.commentManagementUseCase = new CommentManagementUseCase(
       commentRepository,

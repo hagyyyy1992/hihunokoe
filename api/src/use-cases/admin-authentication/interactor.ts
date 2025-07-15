@@ -1,14 +1,14 @@
 import { AdminAuthenticationInputPort } from './input-port'
 import { AdminAuthenticationOutputPort } from './output-port'
 import { AdminUserRepository } from '@api/domain/repositories/AdminUserRepository'
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
+import { ITokenService } from '@api/domain/services/TokenService'
 
 export class AdminAuthenticationInteractor implements AdminAuthenticationInputPort {
   constructor(
     private adminUserRepository: AdminUserRepository,
-    private passwordHashService: PasswordHashService,
-    private tokenService: TokenService,
+    private passwordHashService: IPasswordHashService,
+    private tokenService: ITokenService,
     private outputPort: AdminAuthenticationOutputPort
   ) {}
 

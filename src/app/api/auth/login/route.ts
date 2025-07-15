@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AuthController } from '@api/framework/controllers/AuthController'
+import { AuthControllerFactory } from '@api/framework/factories/AuthControllerFactory'
 import { cookies } from 'next/headers'
 import { getClientIpAddress } from '@/lib/utils/get-ip-address'
 
-const authController = new AuthController()
-
 export async function POST(request: NextRequest) {
+  const authController = AuthControllerFactory.create()
+
   // IPアドレスを取得
   const ipAddress = await getClientIpAddress()
 

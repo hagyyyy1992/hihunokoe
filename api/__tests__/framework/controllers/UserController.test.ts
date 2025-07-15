@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { UserController } from '@api/framework/controllers/UserController'
 import { IGetUserInputPort } from '@api/usecases/user/input-port'
 import { User } from '@api/domain/entities/User'
-import { TokenService } from '@api/domain/services/TokenService'
+import { ITokenService } from '@api/domain/services/TokenService'
 
 class MockGetUserInputPort implements IGetUserInputPort {
   private mockExecute = jest.fn()
@@ -16,7 +16,7 @@ class MockGetUserInputPort implements IGetUserInputPort {
   }
 }
 
-class MockTokenService implements TokenService {
+class MockTokenService implements ITokenService {
   private mockGenerateToken = jest.fn()
   private mockVerifyToken = jest.fn()
   private mockGenerateRandomToken = jest.fn()
