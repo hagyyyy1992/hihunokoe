@@ -727,14 +727,14 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                   <button
                     onClick={() => setShowDeleteModal(false)}
                     disabled={isDeleting}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 order-2 sm:order-1 cursor-pointer"
                   >
                     キャンセル
                   </button>
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer"
                     data-testid="confirm-delete-button"
                   >
                     {isDeleting ? '削除中...' : '削除する'}
