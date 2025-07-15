@@ -212,16 +212,24 @@ export const postResolvers = {
       }
     },
 
-    empathies: async (parent: { id: string }) => {
-      // TODO: Implement empathy loading for posts
-      void parent
-      return []
+    empathies: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
+      try {
+        const empathies = await context.empathyLoader.load(parent.id)
+        return empathies
+      } catch (error) {
+        console.error('Error loading empathies for post:', error)
+        return []
+      }
     },
 
-    comments: async (parent: { id: string }) => {
-      // TODO: Implement comment loading for posts
-      void parent
-      return []
+    comments: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
+      try {
+        const comments = await context.commentLoader.load(parent.id)
+        return comments
+      } catch (error) {
+        console.error('Error loading comments for post:', error)
+        return []
+      }
     },
   },
 }

@@ -11,6 +11,14 @@ import { PasswordHashServiceImpl } from '@api/interface-adapters/services/Passwo
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
 import { createUserLoader } from '@/graphql/dataloaders/userDataLoader'
+import {
+  createCommentDataLoader,
+  createCommentByIdDataLoader,
+} from '@/graphql/dataloaders/commentDataLoader'
+import {
+  createEmpathyDataLoader,
+  createUserEmpathyDataLoader,
+} from '@/graphql/dataloaders/empathyDataLoader'
 
 const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -45,9 +53,21 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
     const userRepository = new UserRepository()
     const userLoader = createUserLoader(userRepository)
+    const commentLoader = createCommentDataLoader()
+    const commentByIdLoader = createCommentByIdDataLoader()
+    const empathyLoader = createEmpathyDataLoader()
+    let userId: string | null = null
 
     if (!token) {
-      return { userId: null, userLoader }
+      const userEmpathyLoader = createUserEmpathyDataLoader(null)
+      return {
+        userId: null,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     }
 
     try {
@@ -64,10 +84,28 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
-      return { userId: user?.id || null, userLoader }
+      userId = user?.id || null
+      const userEmpathyLoader = createUserEmpathyDataLoader(userId)
+
+      return {
+        userId,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     } catch (error) {
       console.error('GraphQL authentication error:', error)
-      return { userId: null, userLoader }
+      const userEmpathyLoader = createUserEmpathyDataLoader(null)
+      return {
+        userId: null,
+        userLoader,
+        commentLoader,
+        commentByIdLoader,
+        empathyLoader,
+        userEmpathyLoader,
+      }
     }
   },
 })
