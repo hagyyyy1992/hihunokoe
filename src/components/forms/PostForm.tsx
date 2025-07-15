@@ -786,7 +786,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
         {/* 削除確認ダイアログ */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+            onClick={() => setShowDeleteConfirm(false)}
+          >
             <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4">
               <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                 投稿を削除しますか？

@@ -263,7 +263,8 @@ export default function CommentItem({
         <>
           {/* 背景オーバーレイ */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 z-40"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
             onClick={() => setShowDeleteConfirm(false)}
           />
           {/* モーダル本体 */}

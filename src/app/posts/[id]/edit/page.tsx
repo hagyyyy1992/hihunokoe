@@ -342,13 +342,11 @@ export default function EditPostPage() {
         {/* 削除確認ダイアログ */}
         {showDeleteConfirm && (
           <>
-            {/* 背景オーバーレイ */}
             <div
               className="fixed inset-0 z-40"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
               onClick={() => setShowDeleteConfirm(false)}
             />
-            {/* モーダル本体 */}
             <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
               <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 pointer-events-auto">
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
