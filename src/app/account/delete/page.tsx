@@ -113,7 +113,9 @@ export default function DeleteAccountPage() {
             <Trash2 className="h-5 w-5" />
             アカウント削除
           </CardTitle>
-          <CardDescription>一定期間経過後にアカウントは完全に削除されます。</CardDescription>
+          <CardDescription>
+            この操作は取り消すことができません。アカウントを削除すると、すべての投稿が永久に削除されます。
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {!showSurvey && !showConfirmation ? (
@@ -121,8 +123,7 @@ export default function DeleteAccountPage() {
               <Alert className="border-amber-200 bg-amber-50">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
                 <AlertDescription className="text-amber-800">
-                  <strong>警告:</strong>{' '}
-                  アカウント削除後、一定期間を経て以下のデータが完全に削除されます:
+                  <strong>警告:</strong> アカウントを削除すると以下のデータが永久に削除されます:
                   <ul className="mt-2 ml-4 list-disc space-y-1">
                     <li>プロフィール情報</li>
                     <li>投稿した体験談</li>
@@ -152,7 +153,7 @@ export default function DeleteAccountPage() {
               <Alert className="border-red-200 bg-red-50">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-red-800">
-                  <strong>最終確認:</strong> アカウント削除を行いますか？
+                  <strong>最終確認:</strong> 本当にアカウントを削除してもよろしいですか？
                 </AlertDescription>
               </Alert>
 

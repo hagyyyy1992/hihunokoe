@@ -46,7 +46,7 @@ export class EmailService implements IEmailService {
   async sendAccountDeletionEmail(email: string, userName: string): Promise<void> {
     await sendEmail({
       to: email,
-      subject: '【化粧品体験共有サービス】アカウント削除のお知らせ',
+      subject: '【化粧品体験共有サービス】アカウント削除完了のお知らせ',
       html: generateAccountDeletionEmailHtml(userName),
       text: generateAccountDeletionEmailText(userName),
     })

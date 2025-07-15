@@ -2,10 +2,6 @@ import { NextRequest } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
 import { createMockAuthController } from '../../helpers/auth-test-helper'
 import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import {
   InvalidCredentialsError,
   EmailNotVerifiedError,
