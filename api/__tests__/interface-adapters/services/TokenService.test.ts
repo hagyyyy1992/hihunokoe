@@ -1,4 +1,4 @@
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import { AuthTokenPayload } from '@api/domain/entities/AuthSession'

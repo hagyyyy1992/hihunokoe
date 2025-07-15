@@ -4,8 +4,8 @@ import { PostRepository } from '@api/interface-adapters/repositories/Post.reposi
 import { CommentRepository } from '@api/interface-adapters/repositories/Comment.repository'
 import { AdminLogRepository } from '@api/interface-adapters/repositories/AdminLog.repository'
 import { EmpathyRepository } from '@api/interface-adapters/repositories/Empathy.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import {
   CommentManagementUseCase,
   CommentRetrievalUseCase,
@@ -20,10 +20,16 @@ import { IPostRepository } from '@api/domain/repositories/PostRepository'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IAdminLogRepository } from '@api/domain/repositories/AdminLogRepository'
 import { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
-import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
-import { RateLimitService } from '@api/domain/services/RateLimitService'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
+import { ITokenService } from '@api/domain/services/TokenService'
+import { RateLimitService } from '@api/interface-adapters/services/RateLimitService'
+import { IRateLimitService } from '@api/domain/services/RateLimitService'
+import { IAuthService } from '@api/domain/services/AuthService'
+import { AuthServiceImpl } from '@api/interface-adapters/services/AuthService'
+import { ICacheService } from '@api/domain/services/CacheService'
+import { CacheServiceImpl } from '@api/interface-adapters/services/CacheService'
+import { IFieldMappingService } from '@api/domain/services/FieldMappingService'
+import { FieldMappingServiceImpl } from '@api/interface-adapters/services/FieldMappingService'
 
 // Singleton instances
 const prismaClient = new PrismaClient()
@@ -36,9 +42,12 @@ const adminLogRepository: IAdminLogRepository = new AdminLogRepository(prismaCli
 const empathyRepository: IEmpathyRepository = new EmpathyRepository()
 
 // Services
-const passwordHashService: PasswordHashService = new PasswordHashServiceImpl()
-const tokenService: TokenService = new TokenServiceImpl()
-const rateLimitService: RateLimitService = new RateLimitServiceImpl()
+const passwordHashService: IPasswordHashService = new PasswordHashServiceImpl()
+const tokenService: ITokenService = new TokenServiceImpl()
+const rateLimitService: IRateLimitService = new RateLimitService()
+const authService: IAuthService = new AuthServiceImpl(tokenService)
+const cacheService: ICacheService = new CacheServiceImpl()
+const fieldMappingService: IFieldMappingService = new FieldMappingServiceImpl()
 
 // Use Cases
 const commentManagementUseCase = new CommentManagementUseCase(
@@ -50,10 +59,17 @@ const commentManagementUseCase = new CommentManagementUseCase(
 
 const commentRetrievalUseCase = new CommentRetrievalUseCase(commentRepository)
 
-const postManagementUseCase = new PostManagementUseCase(postRepository, userRepository)
+const postManagementUseCase = new PostManagementUseCase(
+  postRepository,
+  userRepository,
+  empathyRepository,
+  commentRepository,
+  rateLimitService
+)
 
 const postRetrievalUseCase = new PostRetrievalUseCase(
   postRepository,
+  userRepository,
   empathyRepository,
   commentRepository
 )
@@ -61,7 +77,8 @@ const postRetrievalUseCase = new PostRetrievalUseCase(
 const empathyManagementUseCase = new EmpathyManagementUseCase(
   postRepository,
   userRepository,
-  empathyRepository
+  empathyRepository,
+  rateLimitService
 )
 
 // Export for manual dependency injection
@@ -77,6 +94,9 @@ export const dependencies = {
     passwordHashService,
     tokenService,
     rateLimitService,
+    authService,
+    cacheService,
+    fieldMappingService,
   },
   useCases: {
     commentManagementUseCase,

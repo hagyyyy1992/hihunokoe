@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import { IProfileUseCase } from '@api/usecases/profile/input-port'
 
 export class ProfileController {

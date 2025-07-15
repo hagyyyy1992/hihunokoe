@@ -2,8 +2,8 @@ import { User, UserRole } from '@api/domain/entities/User'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
 import { IPostRepository } from '@api/domain/repositories/PostRepository'
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
+import { ITokenService } from '@api/domain/services/TokenService'
 import { IEmailService } from '@api/domain/services/EmailService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { Email } from '@api/domain/value-objects/Email'
@@ -57,8 +57,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
-    private readonly passwordHashService: PasswordHashService,
-    private readonly tokenService: TokenService
+    private readonly passwordHashService: IPasswordHashService,
+    private readonly tokenService: ITokenService
   ) {}
 
   async login(input: LoginInputPort): Promise<LoginOutputPort> {
@@ -301,8 +301,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 export class PasswordManagementUseCase implements IPasswordManagementUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly passwordHashService: PasswordHashService,
-    private readonly tokenService: TokenService,
+    private readonly passwordHashService: IPasswordHashService,
+    private readonly tokenService: ITokenService,
     private readonly emailService?: IEmailService
   ) {}
 
@@ -391,7 +391,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 export class EmailVerificationUseCase implements IEmailVerificationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly tokenService: TokenService,
+    private readonly tokenService: ITokenService,
     private readonly emailService?: IEmailService
   ) {}
 
@@ -461,7 +461,7 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
-    private readonly passwordHashService: PasswordHashService,
+    private readonly passwordHashService: IPasswordHashService,
     private readonly emailService: IEmailService,
     private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository,
     private readonly postRepository?: IPostRepository

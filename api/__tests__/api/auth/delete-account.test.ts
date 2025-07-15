@@ -26,7 +26,7 @@ jest.mock('@/lib/prisma', () => ({
   },
 }))
 
-jest.mock('@api/interface-adapters/services/TokenServiceImpl', () => ({
+jest.mock('@api/interface-adapters/services/TokenService', () => ({
   TokenServiceImpl: jest.fn().mockImplementation(() => ({
     verifyToken: jest.fn().mockResolvedValue({ userId: 'test-user-id' }),
     generateRandomToken: jest.fn().mockReturnValue('random-token'),
@@ -72,7 +72,7 @@ jest.mock('@api/interface-adapters/repositories/User.repository', () => ({
   })),
 }))
 
-jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl', () => ({
+jest.mock('@api/interface-adapters/services/PasswordHashService', () => ({
   PasswordHashServiceImpl: jest.fn().mockImplementation(() => ({
     verify: jest.fn(),
   })),
@@ -159,10 +159,10 @@ describe('DELETE /api/auth/delete-account', () => {
       update: jest.fn().mockResolvedValue({ ...mockUser, deletedAt: new Date() }),
     }))
 
-    // Setup mocks for PasswordHashServiceImpl
+    // Setup mocks for PasswordHashService
     const {
       PasswordHashServiceImpl,
-    } = require('@api/interface-adapters/services/PasswordHashServiceImpl')
+    } = require('@api/interface-adapters/services/PasswordHashService')
     PasswordHashServiceImpl.mockImplementation(() => ({
       verify: jest.fn().mockResolvedValue(true),
       compare: jest.fn().mockResolvedValue(true),

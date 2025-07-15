@@ -122,6 +122,35 @@ export class PostPresenter {
     }
   }
 
+  static toResponseWithMetadata(
+    post: Post & { user: User; userHasEmpathy?: boolean }
+  ): PostResponse {
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      productName: post.productName || post.cosmeticName || '',
+      brandName: post.brandName || undefined,
+      imageUrl: post.imageUrl || undefined,
+      category: post.category || post.cosmeticCategory || '',
+      skinType: post.skinType || undefined,
+      moodTag: post.moodTag || undefined,
+      usageSituation: post.usageSituation || undefined,
+      experienceDetails: post.experienceDetails || undefined,
+      empathyCount: post.empathyCount,
+      commentCount: post.commentCount,
+      userHasEmpathy: post.userHasEmpathy,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      user: {
+        id: post.user.id,
+        userName: post.user.userName,
+        skinType: post.user.skinType || undefined,
+        profileImageUrl: post.user.profileImageUrl || undefined,
+      },
+    }
+  }
+
   static toEmpathyResponse(empathy: Empathy): EmpathyResponse {
     return {
       id: empathy.id,

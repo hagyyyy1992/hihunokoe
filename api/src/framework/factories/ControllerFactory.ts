@@ -19,10 +19,9 @@ export class ControllerFactory {
       dependencies.useCases.postManagementUseCase,
       dependencies.useCases.postRetrievalUseCase,
       dependencies.useCases.empathyManagementUseCase,
-      dependencies.services.tokenService,
-      dependencies.repositories.userRepository,
-      dependencies.repositories.empathyRepository,
-      dependencies.repositories.commentRepository
+      dependencies.services.authService,
+      dependencies.services.cacheService,
+      dependencies.services.fieldMappingService
     )
   }
 

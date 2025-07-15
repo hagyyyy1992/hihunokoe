@@ -11,8 +11,8 @@ import {
 jest.mock('@api/usecases/auth/interactor')
 jest.mock('@api/interface-adapters/repositories/User.repository')
 jest.mock('@api/interface-adapters/repositories/AuthSession.repository')
-jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl')
-jest.mock('@api/interface-adapters/services/TokenServiceImpl')
+jest.mock('@api/interface-adapters/services/PasswordHashService')
+jest.mock('@api/interface-adapters/services/TokenService')
 jest.mock('@api/interface-adapters/services/EmailService')
 
 describe('AuthController - login', () => {

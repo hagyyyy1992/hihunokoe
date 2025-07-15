@@ -3,8 +3,8 @@ import { AuthenticationUseCase } from '@api/usecases/auth/interactor'
 import type { VerifyTokenInputPort } from '@api/usecases/auth/input-port'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
 import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
+import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'
 import { User } from '@api/domain/entities/User'
 
 export interface AuthenticatedRequest extends NextRequest {

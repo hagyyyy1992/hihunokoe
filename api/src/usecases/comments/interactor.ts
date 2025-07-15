@@ -2,7 +2,7 @@ import { Comment } from '@api/domain/entities/Comment'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IPostRepository } from '@api/domain/repositories/PostRepository'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
-import { RateLimitService } from '@api/domain/services/RateLimitService'
+import { IRateLimitService } from '@api/domain/services/RateLimitService'
 import {
   ICommentManagementUseCase,
   ICommentRetrievalUseCase,
@@ -29,7 +29,7 @@ export class CommentManagementUseCase implements ICommentManagementUseCase {
     private commentRepository: ICommentRepository,
     private postRepository: IPostRepository,
     private userRepository: IUserRepository,
-    private rateLimitService?: RateLimitService
+    private rateLimitService?: IRateLimitService
   ) {}
 
   async createComment(input: CreateCommentInputPort): Promise<CreateCommentOutputPort> {

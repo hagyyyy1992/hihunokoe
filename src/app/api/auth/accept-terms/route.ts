@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     })
 
     // 新しいトークンを生成（同意日時を含む）
-    const { TokenServiceImpl } = await import('@api/interface-adapters/services/TokenServiceImpl')
+    const { TokenServiceImpl } = await import('@api/interface-adapters/services/TokenService')
     const tokenService = new TokenServiceImpl()
 
     const newToken = await tokenService.generateToken({

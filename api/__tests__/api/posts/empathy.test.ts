@@ -35,7 +35,7 @@ import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from '@/app/api/posts/empathy/route'
 import * as prismaModule from '@/lib/prisma'
 import { MOCK_POSTS, MOCK_EMPATHIES } from '@/lib/mock-data'
-import * as tokenServiceModule from '@api/interface-adapters/services/TokenServiceImpl'
+import * as tokenServiceModule from '@api/interface-adapters/services/TokenService'
 
 // Get the mocked functions
 const mockVerifyToken = (tokenServiceModule as any).__mockVerifyToken
@@ -45,8 +45,8 @@ const mockIsDatabaseAvailable = prismaModule.isDatabaseAvailable as jest.MockedF
 >
 const mockPrisma = prismaModule.prisma as any
 
-// Auth mocking - mock TokenServiceImpl
-jest.mock('@api/interface-adapters/services/TokenServiceImpl', () => {
+// Auth mocking - mock TokenService
+jest.mock('@api/interface-adapters/services/TokenService', () => {
   const mockVerifyAuthToken = jest.fn()
   const mockGenerateToken = jest.fn()
   const mockVerifyToken = jest.fn()

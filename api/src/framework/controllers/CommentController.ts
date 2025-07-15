@@ -12,7 +12,7 @@ import type {
   GetCommentsInputPort,
   GetCommentsWithPaginationInputPort,
 } from '@api/usecases/comments/input-port'
-import type { TokenService } from '@api/domain/services/TokenService'
+import type { ITokenService } from '@api/domain/services/TokenService'
 import type { IUserRepository } from '@api/domain/repositories/UserRepository'
 import type { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { CommentPresenter } from '@api/framework/presenters/CommentPresenter'
@@ -26,7 +26,7 @@ export class CommentController {
   constructor(
     private commentManagementUseCase: CommentManagementUseCase,
     private commentRetrievalUseCase: CommentRetrievalUseCase,
-    private tokenService: TokenService,
+    private tokenService: ITokenService,
     private userRepository: IUserRepository,
     private commentRepository: ICommentRepository
   ) {}

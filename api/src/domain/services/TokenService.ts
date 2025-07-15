@@ -1,6 +1,6 @@
 import { AuthTokenPayload } from '@api/domain/entities/AuthSession'
 
-export interface TokenService {
+export interface ITokenService {
   generateToken(payload: AuthTokenPayload): Promise<string>
   verifyToken(token: string): Promise<AuthTokenPayload>
   generateRandomToken(): string
