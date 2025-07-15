@@ -5,6 +5,7 @@ import { User, UserRole } from '@api/domain/entities/User'
 // Create a mock repository that implements all required methods
 class MockUserRepository implements IUserRepository {
   findById = jest.fn()
+  findByIds = jest.fn()
   findByEmail = jest.fn()
   findByUsername = jest.fn()
   findByEmailIncludingDeleted = jest.fn()

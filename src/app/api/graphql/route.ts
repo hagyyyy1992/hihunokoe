@@ -10,6 +10,7 @@ import { AuthSessionRepository } from '@api/interface-adapters/repositories/Auth
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
 import type { GraphQLContext } from '@/graphql/context'
+import { createUserLoader } from '@/graphql/dataloaders/userDataLoader'
 
 const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -42,12 +43,14 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       }
     }
 
+    const userRepository = new UserRepository()
+    const userLoader = createUserLoader(userRepository)
+
     if (!token) {
-      return { userId: null }
+      return { userId: null, userLoader }
     }
 
     try {
-      const userRepository = new UserRepository()
       const authSessionRepository = new AuthSessionRepository()
       const passwordHashService = new PasswordHashServiceImpl()
       const tokenService = new TokenServiceImpl()
@@ -61,10 +64,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
-      return { userId: user?.id || null }
+      return { userId: user?.id || null, userLoader }
     } catch (error) {
       console.error('GraphQL authentication error:', error)
-      return { userId: null }
+      return { userId: null, userLoader }
     }
   },
 })

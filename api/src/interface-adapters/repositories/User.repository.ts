@@ -24,6 +24,22 @@ export class UserRepository implements IUserRepository {
     return this.toDomainUser(prismaUser)
   }
 
+  async findByIds(ids: string[]): Promise<User[]> {
+    if (!prisma) {
+      console.warn('Database connection not available, falling back to mock mode')
+      return []
+    }
+
+    const prismaUsers = await prisma.user.findMany({
+      where: {
+        id: { in: ids },
+        deletedAt: null, // 退会済みユーザーを除外
+      },
+    })
+
+    return prismaUsers.map(user => this.toDomainUser(user))
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     if (!prisma) {
       console.warn('Database connection not available, falling back to mock mode')
