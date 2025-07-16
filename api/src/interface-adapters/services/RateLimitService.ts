@@ -1,11 +1,11 @@
-import { RateLimitService } from '@api/domain/services/RateLimitService'
+import { IRateLimitService } from '@api/domain/services/RateLimitService'
 
 interface RateLimitRecord {
   count: number
   lastReset: number
 }
 
-export class RateLimitServiceImpl implements RateLimitService {
+export class RateLimitService implements IRateLimitService {
   private rateLimits = new Map<string, RateLimitRecord>()
 
   checkRateLimit(userId: string, action: string, windowMs: number, maxRequests: number): boolean {

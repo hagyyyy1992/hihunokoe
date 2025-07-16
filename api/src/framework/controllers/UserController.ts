@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { IGetUserInputPort } from '@api/usecases/user/input-port'
 import { User } from '@api/domain/entities/User'
-import { TokenService } from '@api/domain/services/TokenService'
+import { ITokenService } from '@api/domain/services/TokenService'
 
 type AuthUser = {
   id: string
@@ -13,9 +13,9 @@ type AuthUser = {
 
 export class UserController {
   private getUserInputPort: IGetUserInputPort
-  private tokenService: TokenService
+  private tokenService: ITokenService
 
-  constructor(getUserInputPort: IGetUserInputPort, tokenService: TokenService) {
+  constructor(getUserInputPort: IGetUserInputPort, tokenService: ITokenService) {
     this.getUserInputPort = getUserInputPort
     this.tokenService = tokenService
   }

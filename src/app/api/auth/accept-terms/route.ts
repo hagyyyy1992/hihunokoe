@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AuthController } from '@api/framework/controllers/AuthController'
+import { AuthControllerFactory } from '@api/framework/factories/AuthControllerFactory'
 import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
-  const controller = new AuthController()
+  const controller = AuthControllerFactory.create()
 
   try {
     // 認証トークンを取得
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     })
 
     // 新しいトークンを生成（同意日時を含む）
-    const { TokenServiceImpl } = await import('@api/interface-adapters/services/TokenServiceImpl')
+    const { TokenServiceImpl } = await import('@api/interface-adapters/services/TokenService')
     const tokenService = new TokenServiceImpl()
 
     const newToken = await tokenService.generateToken({

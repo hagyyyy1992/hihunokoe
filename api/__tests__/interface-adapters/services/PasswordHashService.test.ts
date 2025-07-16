@@ -1,4 +1,4 @@
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
+import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
 
 // bcryptjsモジュール全体をモック
 jest.mock('bcryptjs', () => ({

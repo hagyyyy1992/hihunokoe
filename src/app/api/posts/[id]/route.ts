@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PostController } from '@api/framework/controllers/PostController'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 
-const postController = new PostController()
+const postController = ControllerFactory.createPostController()
 
 // UUIDバリデーション関数
 function isValidUUID(uuid: string): boolean {

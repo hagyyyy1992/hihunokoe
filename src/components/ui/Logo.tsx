@@ -1,5 +1,8 @@
+'use client'
+
 import { SERVICE_NAME } from '@/lib/constants'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -7,6 +10,20 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'md', showText = true }: LogoProps) {
+  const [logoSrc, setLogoSrc] = useState('/logo-image.png')
+  const [logoAlt, setLogoAlt] = useState('ひふのこえロゴ')
+
+  // 環境に応じてロゴをカスタマイズ
+  const deployEnv = process.env.NEXT_PUBLIC_DEPLOY_ENV || 'production'
+  const isStaging = deployEnv === 'staging'
+
+  useEffect(() => {
+    if (isStaging) {
+      setLogoSrc('/logo-image-staging.png')
+      setLogoAlt('ひふのこえロゴ（ステージング環境）')
+    }
+  }, [])
+
   const sizeClasses = {
     sm: {
       container: 'w-8 h-8',
@@ -28,38 +45,22 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
     },
   }
 
-  const { container, brandText, badge } = sizeClasses[size]
-
-  // 環境に応じてロゴをカスタマイズ
-  const deployEnv = process.env.NEXT_PUBLIC_DEPLOY_ENV || 'production'
-  const isLocal = deployEnv === 'local'
-  const isStaging = deployEnv === 'staging'
+  const { container, brandText } = sizeClasses[size]
 
   return (
     <div className="flex items-center space-x-2">
       <div className={`${container} relative`}>
-        <Image
-          src="/logo-image.png"
-          alt="ひふのこえロゴ"
-          fill
-          className={`object-contain ${isLocal ? 'brightness-110 hue-rotate-180 saturate-[0.3] contrast-125' : ''}`}
-          priority
-        />
-        {/* ローカル環境用の青いオーバーレイ */}
-        {isLocal && (
-          <div className="absolute inset-0 bg-blue-500 opacity-20 rounded-full mix-blend-multiply" />
-        )}
-        {/* 環境バッジ */}
-        {(isLocal || isStaging) && (
-          <div
-            className={`absolute -top-1 -right-1 ${isLocal ? 'bg-blue-600' : 'bg-orange-600'} text-white ${badge} rounded-full font-bold`}
-          >
-            {isLocal ? 'LOCAL' : 'STAGING'}
-          </div>
-        )}
+        <Image src={logoSrc} alt={logoAlt} fill className="object-contain" priority />
       </div>
       {showText && (
-        <span className={`${brandText} font-semibold text-gray-900`}>{SERVICE_NAME}</span>
+        <span className={`${brandText} font-semibold text-gray-900`}>
+          {SERVICE_NAME}
+          {isStaging && (
+            <span className="text-base ml-2 font-bold text-red-600 bg-red-100 px-2 py-1 rounded">
+              STG
+            </span>
+          )}
+        </span>
       )}
     </div>
   )

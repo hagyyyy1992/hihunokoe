@@ -22,6 +22,7 @@ describe('Post Entity', () => {
     3,
     new Date('2023-01-01'),
     new Date('2023-01-02'),
+    null, // deletedAt
     { morning: true, evening: false },
     { satisfaction: 4, wouldRecommend: true },
     { id: 'user-123', userName: 'testuser' }
@@ -79,7 +80,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(invalidPost.isValid).toBe(false)
     })
@@ -105,7 +107,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(invalidPost.isValid).toBe(false)
     })
@@ -131,7 +134,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(invalidPost.isValid).toBe(false)
     })
@@ -157,7 +161,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(invalidPost.isValid).toBe(false)
     })
@@ -185,7 +190,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(shortPost.excerpt).toBe('Short content')
     })
@@ -212,7 +218,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(longPost.excerpt).toBe('a'.repeat(100) + '...')
       expect(longPost.excerpt.length).toBe(103) // 100 + "..." = 103
@@ -240,7 +247,8 @@ describe('Post Entity', () => {
         0,
         0,
         new Date(),
-        new Date()
+        new Date(),
+        null // deletedAt
       )
       expect(exactPost.excerpt).toBe(exactContent)
       expect(exactPost.excerpt.length).toBe(100)
@@ -270,6 +278,7 @@ describe('Post Entity', () => {
         0, // commentCount
         new Date(),
         new Date(),
+        null, // deletedAt
         null, // usageSituation
         null, // experienceDetails
         null // user

@@ -1,7 +1,7 @@
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
 import bcrypt from 'bcryptjs'
 
-export class PasswordHashServiceImpl implements PasswordHashService {
+export class PasswordHashServiceImpl implements IPasswordHashService {
   private readonly saltRounds = 10
 
   async hash(password: string): Promise<string> {

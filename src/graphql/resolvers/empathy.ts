@@ -30,9 +30,24 @@ export const empathyResolvers = {
       void parent
       return null
     },
-    user: async (parent: { userId: string }) => {
-      void parent
-      return null
+    user: async (parent: { userId: string }, _: unknown, context: GraphQLContext) => {
+      try {
+        const user = await context.userLoader.load(parent.userId)
+        if (!user) {
+          return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
+        }
+        return {
+          id: user.id,
+          displayName: user.userName,
+          userName: user.userName,
+          email: user.email,
+          profileImageUrl: null,
+          bio: null,
+        }
+      } catch (error) {
+        console.error('Error loading user for empathy:', error)
+        return { id: parent.userId, displayName: 'Unknown User', userName: 'Unknown User' }
+      }
     },
   },
 }

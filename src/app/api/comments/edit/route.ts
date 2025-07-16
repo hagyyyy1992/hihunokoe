@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { CommentController } from '@api/framework/controllers/CommentController'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 
-const commentController = new CommentController()
+const commentController = ControllerFactory.createCommentController()
 
 // PUT /api/comments/edit - コメント編集 (query parameter使用)
 export async function PUT(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'コメントIDが指定されていません' }, { status: 400 })
   }
 
-  return commentController.updateComment(request, { params: { id: commentId } })
+  return commentController.updateComment(request)
 }
 
 // DELETE /api/comments/edit - コメント削除（論理削除） (query parameter使用)
@@ -24,5 +24,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'コメントIDが指定されていません' }, { status: 400 })
   }
 
-  return commentController.deleteComment(request, { params: { id: commentId } })
+  return commentController.deleteComment(request)
 }

@@ -1,4 +1,4 @@
-export interface EmailService {
+export interface IEmailService {
   sendPasswordResetEmail(
     email: string,
     userName: string,
@@ -11,6 +11,5 @@ export interface EmailService {
     verificationToken: string,
     baseUrl?: string
   ): Promise<void>
-  sendWelcomeEmail(email: string, userName: string): Promise<void>
   sendAccountDeletionEmail(email: string, userName: string): Promise<void>
 }

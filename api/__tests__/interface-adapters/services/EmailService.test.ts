@@ -1,26 +1,28 @@
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
+import { EmailService } from '@api/interface-adapters/services/EmailService'
 
-// メールライブラリのモック
-const mockSendEmail = jest.fn()
-const mockGeneratePasswordResetEmailHtml = jest.fn()
-const mockGeneratePasswordResetEmailText = jest.fn()
-const mockGenerateVerificationEmailHtml = jest.fn()
-const mockGenerateVerificationEmailText = jest.fn()
-
+// jest.mock()は最初に呼び出す必要がある
 jest.mock('@/lib/email/email', () => ({
-  sendEmail: mockSendEmail,
-  generatePasswordResetEmailHtml: mockGeneratePasswordResetEmailHtml,
-  generatePasswordResetEmailText: mockGeneratePasswordResetEmailText,
-  generateVerificationEmailHtml: mockGenerateVerificationEmailHtml,
-  generateVerificationEmailText: mockGenerateVerificationEmailText,
+  sendEmail: jest.fn(),
+  generatePasswordResetEmailHtml: jest.fn(),
+  generatePasswordResetEmailText: jest.fn(),
+  generateVerificationEmailHtml: jest.fn(),
+  generateVerificationEmailText: jest.fn(),
 }))
 
-describe('EmailServiceImpl', () => {
-  let emailService: EmailServiceImpl
+// モック関数を取得
+const emailMock = require('@/lib/email/email')
+const mockSendEmail = emailMock.sendEmail as jest.Mock
+const mockGeneratePasswordResetEmailHtml = emailMock.generatePasswordResetEmailHtml as jest.Mock
+const mockGeneratePasswordResetEmailText = emailMock.generatePasswordResetEmailText as jest.Mock
+const mockGenerateVerificationEmailHtml = emailMock.generateVerificationEmailHtml as jest.Mock
+const mockGenerateVerificationEmailText = emailMock.generateVerificationEmailText as jest.Mock
+
+describe('EmailService', () => {
+  let emailService: EmailService
 
   beforeEach(() => {
     jest.clearAllMocks()
-    emailService = new EmailServiceImpl()
+    emailService = new EmailService()
   })
 
   describe('sendPasswordResetEmail', () => {
@@ -202,20 +204,6 @@ describe('EmailServiceImpl', () => {
       if (originalApiUrl !== undefined) process.env.API_URL = originalApiUrl
       if (originalNextPublicApiUrl !== undefined)
         process.env.NEXT_PUBLIC_API_URL = originalNextPublicApiUrl
-    })
-  })
-
-  describe('sendWelcomeEmail', () => {
-    it('ウェルカムメールの送信はまだ実装されていない', async () => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
-
-      await emailService.sendWelcomeEmail('user@example.com', 'テストユーザー')
-
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Welcome email would be sent to user@example.com for user テストユーザー'
-      )
-
-      consoleLogSpy.mockRestore()
     })
   })
 

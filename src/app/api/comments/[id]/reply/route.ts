@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import { CommentController } from '@api/framework/controllers/CommentController'
+import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 
-const commentController = new CommentController()
+const commentController = ControllerFactory.createCommentController()
 
 // POST /api/comments/[id]/reply - 返信投稿
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

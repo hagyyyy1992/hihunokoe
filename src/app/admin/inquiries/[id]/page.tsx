@@ -98,11 +98,8 @@ export default function AdminInquiryDetailPage() {
     setIsLoading(true)
     setError('')
 
-    console.log('Fetching inquiry with ID:', id)
-
     try {
       const response = await fetch(`/api/admin/inquiries/${id}`)
-      console.log('Response status:', response.status)
 
       if (!response.ok) {
         let errorMessage = 'お問い合わせの取得に失敗しました'
@@ -128,7 +125,6 @@ export default function AdminInquiryDetailPage() {
       }
 
       const data = await response.json()
-      console.log('Received data:', data)
 
       setInquiry(data.inquiry)
       setFormData({

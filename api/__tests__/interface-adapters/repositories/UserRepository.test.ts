@@ -68,7 +68,7 @@ describe('User.repository', () => {
     passwordResetToken: null,
     passwordResetExpires: null,
     active: true,
-    role: 'USER' as UserRole,
+    role: UserRole.USER,
     deletedAt: null,
     failedLoginAttempts: 0,
     lockedUntil: null,

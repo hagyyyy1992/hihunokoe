@@ -150,8 +150,9 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('他人の投稿の編集・削除権限チェック', async ({ page, browserName }) => {
-    // 最初のユーザーで投稿を作成
+    // 最初のユーザーとしてモックユーザーを使用（安定性向上のため）
     await authHelper.registerAndLogin()
+
     const timestamp = Date.now()
     const postData = {
       title: `権限テスト用投稿-${timestamp}`,
@@ -162,17 +163,22 @@ test.describe('投稿編集・削除機能', () => {
       moodTag: 'disappointed',
     }
 
+    console.log('Starting post creation...')
     const postId = await postHelper.createPost(postData)
+    console.log('Post created with ID:', postId)
 
     // 投稿作成後、投稿詳細ページにいることを確認
     await expect(page).toHaveURL(new RegExp(`/posts/${postId}`))
 
-    // 別のユーザーでログイン
+    // ログアウト
     await authHelper.logout()
-    await authHelper.registerAndLogin()
+
+    // 2番目のモックユーザーでログイン（他人として）
+    await authHelper.login('beauty@example.com', 'demo1234')
 
     // 他人の投稿詳細ページに直接移動
     await page.goto(`/posts/${postId}`)
+    await page.waitForLoadState('networkidle')
 
     // 編集・削除ボタンが表示されないことを確認
     await expect(page.getByTestId('edit-post-button')).not.toBeVisible()
@@ -324,8 +330,8 @@ test.describe('投稿編集・削除機能', () => {
   })
 
   test('投稿削除後の関連データの処理', async ({ page, browserName }) => {
-    // ログインして投稿を作成
-    await authHelper.registerAndLogin()
+    // 特定のユーザーでログインして投稿を作成
+    await authHelper.login('demo@example.com', 'demo1234')
     const timestamp = Date.now()
     const postData = {
       title: `関連データテスト用投稿-${timestamp}`,
@@ -336,11 +342,11 @@ test.describe('投稿編集・削除機能', () => {
       moodTag: 'good',
     }
 
-    await postHelper.createPost(postData)
+    const postId = await postHelper.createPost(postData)
 
     // 投稿詳細ページに移動
-    await page.goto('/posts')
-    await page.getByRole('link', { name: postData.title }).click()
+    await page.goto(`/posts/${postId}`)
+    await page.waitForLoadState('networkidle')
 
     // 投稿を削除
     await page.getByTestId('post-menu-button').click()
@@ -353,8 +359,9 @@ test.describe('投稿編集・削除機能', () => {
     await expect(page.getByText(postData.title)).not.toBeVisible()
 
     // 削除された投稿のURLに直接アクセスした場合
-    const deletedPostUrl = `/posts/${postData.title}`
-    await page.goto(deletedPostUrl)
+    await page.goto(`/posts/${postId}`)
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(2000) // GraphQLクエリが完了するまで待機
 
     // 404エラーページまたは「投稿が見つかりません」メッセージが表示されることを確認
     await expect(page.getByText('投稿が見つかりません').or(page.getByText('404'))).toBeVisible()

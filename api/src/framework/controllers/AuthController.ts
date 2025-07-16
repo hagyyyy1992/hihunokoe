@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  AuthenticationUseCase,
-  PasswordManagementUseCase,
-  EmailVerificationUseCase,
-  AccountManagementUseCase,
-} from '@api/usecases/auth/interactor'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 import type {
   LoginInputPort,
   RegisterInputPort,
@@ -16,15 +11,13 @@ import type {
   DeleteAccountInputPort,
   ResendVerificationEmailInputPort,
   VerifyPasswordResetTokenInputPort,
-  VerifyTokenInputPort,
 } from '@api/usecases/auth/input-port'
-import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { AuthSessionRepository } from '@api/interface-adapters/repositories/AuthSession.repository'
-import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashServiceImpl'
-import { TokenServiceImpl } from '@api/interface-adapters/services/TokenServiceImpl'
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
-import { WithdrawalSurveyRepository } from '@api/interface-adapters/repositories/WithdrawalSurvey.repository'
-import { PrismaClient } from '@prisma/client'
+import type {
+  IAuthenticationUseCase,
+  IPasswordManagementUseCase,
+  IEmailVerificationUseCase,
+  IAccountManagementUseCase,
+} from '@api/usecases/auth/input-port'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -34,49 +27,16 @@ import {
   TokenExpiredError,
 } from '@api/domain/exceptions/AuthenticationError'
 import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
+import { IEmailService } from '@api/domain/services/EmailService'
 
 export class AuthController {
-  private authenticationUseCase: AuthenticationUseCase
-  private passwordManagementUseCase: PasswordManagementUseCase
-  private emailVerificationUseCase: EmailVerificationUseCase
-  private accountManagementUseCase: AccountManagementUseCase
-  private emailService: EmailServiceImpl
-
-  constructor() {
-    const prisma = new PrismaClient()
-    const userRepository = new UserRepository()
-    const authSessionRepository = new AuthSessionRepository()
-    const passwordHashService = new PasswordHashServiceImpl()
-    const tokenService = new TokenServiceImpl()
-    const emailService = new EmailServiceImpl()
-    const withdrawalSurveyRepository = new WithdrawalSurveyRepository(prisma)
-
-    this.authenticationUseCase = new AuthenticationUseCase(
-      userRepository,
-      authSessionRepository,
-      passwordHashService,
-      tokenService
-    )
-    this.passwordManagementUseCase = new PasswordManagementUseCase(
-      userRepository,
-      passwordHashService,
-      tokenService,
-      emailService
-    )
-    this.emailVerificationUseCase = new EmailVerificationUseCase(
-      userRepository,
-      tokenService,
-      emailService
-    )
-    this.accountManagementUseCase = new AccountManagementUseCase(
-      userRepository,
-      authSessionRepository,
-      passwordHashService,
-      emailService,
-      withdrawalSurveyRepository
-    )
-    this.emailService = emailService
-  }
+  constructor(
+    private readonly authenticationUseCase: IAuthenticationUseCase,
+    private readonly passwordManagementUseCase: IPasswordManagementUseCase,
+    private readonly emailVerificationUseCase: IEmailVerificationUseCase,
+    private readonly accountManagementUseCase: IAccountManagementUseCase,
+    private readonly emailService: IEmailService
+  ) {}
 
   async login(request: NextRequest): Promise<NextResponse> {
     try {
@@ -156,8 +116,7 @@ export class AuthController {
 
       // Send verification email after successful registration
       if (this.emailService && result.user.emailVerificationToken) {
-        const baseUrl =
-          process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+        const baseUrl = getEmailBaseUrl()
         await this.emailService.sendVerificationEmail(
           result.user.email,
           result.user.username,
@@ -337,16 +296,6 @@ export class AuthController {
     try {
       const authHeader = request.headers.get('Authorization')
       const token = authHeader?.replace('Bearer ', '')
-
-      // デバッグログ
-      console.log(
-        '[AuthController.getCurrentUser] Authorization header:',
-        authHeader ? authHeader.substring(0, 30) + '...' : 'null'
-      )
-      console.log(
-        '[AuthController.getCurrentUser] Token extracted:',
-        token ? token.substring(0, 20) + '...' : 'null'
-      )
 
       if (!token) {
         return NextResponse.json({ error: 'No authentication token provided' }, { status: 401 })

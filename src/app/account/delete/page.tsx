@@ -114,7 +114,7 @@ export default function DeleteAccountPage() {
             アカウント削除
           </CardTitle>
           <CardDescription>
-            この操作は取り消すことができません。アカウントを削除すると、すべての投稿が永久に削除されます。
+            この操作は取り消すことができません。アカウントを削除すると、すべての個人情報が削除され、投稿は他のユーザーから閲覧できなくなります。
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -123,11 +123,11 @@ export default function DeleteAccountPage() {
               <Alert className="border-amber-200 bg-amber-50">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
                 <AlertDescription className="text-amber-800">
-                  <strong>警告:</strong> アカウントを削除すると以下のデータが永久に削除されます:
+                  <strong>警告:</strong> アカウントを削除すると以下の影響があります:
                   <ul className="mt-2 ml-4 list-disc space-y-1">
-                    <li>プロフィール情報</li>
-                    <li>投稿した体験談</li>
-                    <li>その他すべてのアカウント関連データ</li>
+                    <li>プロフィール情報が削除されます</li>
+                    <li>投稿した体験談は他のユーザーから閲覧できなくなります</li>
+                    <li>同じメールアドレスで再登録は可能ですが、過去のデータは復元できません</li>
                   </ul>
                 </AlertDescription>
               </Alert>

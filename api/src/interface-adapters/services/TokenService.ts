@@ -1,9 +1,9 @@
-import { TokenService } from '@api/domain/services/TokenService'
+import { ITokenService } from '@api/domain/services/TokenService'
 import { AuthTokenPayload } from '@api/domain/entities/AuthSession'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 
-export class TokenServiceImpl implements TokenService {
+export class TokenServiceImpl implements ITokenService {
   private readonly jwtSecret: string
 
   constructor() {

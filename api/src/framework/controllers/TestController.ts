@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { UserRepository } from '@api/interface-adapters/repositories/User.repository'
-import { EmailServiceImpl } from '@api/interface-adapters/services/EmailServiceImpl'
-import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
+import { EmailService } from '@api/interface-adapters/services/EmailService'
+import { RateLimitService } from '@api/interface-adapters/services/RateLimitService'
 
 export class TestController {
   private userRepository: UserRepository
-  private emailService: EmailServiceImpl
-  private rateLimitService: RateLimitServiceImpl
+  private emailService: EmailService
+  private rateLimitService: RateLimitService
 
   constructor() {
     this.userRepository = new UserRepository()
-    this.emailService = new EmailServiceImpl()
-    this.rateLimitService = new RateLimitServiceImpl()
+    this.emailService = new EmailService()
+    this.rateLimitService = new RateLimitService()
   }
 
   private checkTestEnvironment(): NextResponse | null {
@@ -85,7 +85,8 @@ export class TestController {
         return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
       }
 
-      await this.emailService.sendWelcomeEmail(to, 'Test User')
+      // テスト用に検証メールを送信
+      await this.emailService.sendVerificationEmail(to, 'Test User', 'test-token-123')
 
       return NextResponse.json({
         success: true,
@@ -141,34 +142,14 @@ export class TestController {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 })
       }
 
-      console.log(`[TEST] Looking for user with email: ${email}`)
       const user = await this.userRepository.findByEmail(email)
       if (!user) {
-        console.log(`[TEST] User not found for email: ${email}`)
-
-        // 全てのユーザーを確認してデバッグ
-        const allUsers = await this.userRepository.findAll()
-        console.log(`[TEST] All users in database: ${allUsers.length}`)
-        allUsers.forEach(u => {
-          console.log(
-            `[TEST] User: ${u.id}, email: ${u.email}, hasToken: ${!!u.emailVerificationToken}`
-          )
-        })
-
         return NextResponse.json({ error: 'User not found' }, { status: 404 })
       }
 
-      console.log(
-        `[TEST] User found: ${user.id}, emailVerified: ${user.emailVerified}, hasToken: ${!!user.emailVerificationToken}`
-      )
-      console.log(`[TEST] Token value: ${user.emailVerificationToken?.substring(0, 10)}...`)
-
       if (!user.emailVerificationToken) {
-        console.log(`[TEST] No verification token found for user: ${user.id}`)
         return NextResponse.json({ error: 'No verification token found' }, { status: 404 })
       }
-
-      console.log(`[TEST] Returning token for user: ${user.id}`)
       return NextResponse.json({
         success: true,
         token: user.emailVerificationToken,

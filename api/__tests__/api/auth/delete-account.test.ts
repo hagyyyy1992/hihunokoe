@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { AuthController } from '@api/framework/controllers/AuthController'
+import { createMockAuthController } from '../../helpers/auth-test-helper'
 import { prisma } from '@/lib/prisma'
 import { verifyPassword, hashPassword, generateToken } from '@/lib/auth/auth'
 
@@ -25,7 +26,7 @@ jest.mock('@/lib/prisma', () => ({
   },
 }))
 
-jest.mock('@api/interface-adapters/services/TokenServiceImpl', () => ({
+jest.mock('@api/interface-adapters/services/TokenService', () => ({
   TokenServiceImpl: jest.fn().mockImplementation(() => ({
     verifyToken: jest.fn().mockResolvedValue({ userId: 'test-user-id' }),
     generateRandomToken: jest.fn().mockReturnValue('random-token'),
@@ -71,14 +72,14 @@ jest.mock('@api/interface-adapters/repositories/User.repository', () => ({
   })),
 }))
 
-jest.mock('@api/interface-adapters/services/PasswordHashServiceImpl', () => ({
+jest.mock('@api/interface-adapters/services/PasswordHashService', () => ({
   PasswordHashServiceImpl: jest.fn().mockImplementation(() => ({
     verify: jest.fn(),
   })),
 }))
 
-jest.mock('@api/interface-adapters/services/EmailServiceImpl', () => ({
-  EmailServiceImpl: jest.fn().mockImplementation(() => ({})),
+jest.mock('@api/interface-adapters/services/EmailService', () => ({
+  EmailService: jest.fn().mockImplementation(() => ({})),
 }))
 
 jest.mock('@api/interface-adapters/repositories/WithdrawalSurvey.repository', () => ({
@@ -117,10 +118,6 @@ jest.mock('@api/domain/exceptions/AuthenticationError', () => ({
 
 describe('DELETE /api/auth/delete-account', () => {
   let authController: AuthController
-
-  beforeEach(() => {
-    authController = new AuthController()
-  })
   const mockUser = {
     id: 'test-user-id',
     email: 'test@example.com',
@@ -162,14 +159,18 @@ describe('DELETE /api/auth/delete-account', () => {
       update: jest.fn().mockResolvedValue({ ...mockUser, deletedAt: new Date() }),
     }))
 
-    // Setup mocks for PasswordHashServiceImpl
+    // Setup mocks for PasswordHashService
     const {
       PasswordHashServiceImpl,
-    } = require('@api/interface-adapters/services/PasswordHashServiceImpl')
+    } = require('@api/interface-adapters/services/PasswordHashService')
     PasswordHashServiceImpl.mockImplementation(() => ({
       verify: jest.fn().mockResolvedValue(true),
       compare: jest.fn().mockResolvedValue(true),
     }))
+
+    // Setup mocks for EmailService
+    const { EmailService } = require('@api/interface-adapters/services/EmailService')
+    EmailService.mockImplementation(() => ({}))
 
     // Setup mocks for WithdrawalSurveyRepository
     const {
@@ -234,7 +235,7 @@ describe('DELETE /api/auth/delete-account', () => {
       AuthenticationUseCase.mockReturnValue(mockAuthUseCase)
       AccountManagementUseCase.mockReturnValue(mockAccountUseCase)
 
-      authController = new AuthController()
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
       const request = createRequest(
         { password: 'correct-password' },
         { Authorization: 'Bearer valid-token' }
@@ -251,6 +252,27 @@ describe('DELETE /api/auth/delete-account', () => {
     })
 
     it('退会アンケートありでアカウントが削除される', async () => {
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
+
       const surveyData = {
         reasons: ['not_useful', 'privacy_concerns'],
         reasonOther: '個人的な理由',
@@ -274,6 +296,27 @@ describe('DELETE /api/auth/delete-account', () => {
     })
 
     it('複数の退会理由が正しく保存される', async () => {
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
+
       const surveyData = {
         reasons: ['privacy_concerns', 'too_many_emails', 'technical_issues'],
         reasonOther: '技術的な問題が多すぎる',
@@ -294,6 +337,27 @@ describe('DELETE /api/auth/delete-account', () => {
     })
 
     it('推薦意向が正しく保存される', async () => {
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
+
       const surveyData = {
         reasons: ['temporary_break'],
         feedback: '一時的に離れます',
@@ -344,8 +408,25 @@ describe('DELETE /api/auth/delete-account', () => {
         deleteAccount: jest.fn().mockRejectedValue(new Error('Invalid password')),
       }))
 
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockRejectedValue(new Error('Invalid password')),
+      }
+
       // 新しいAuthControllerインスタンスを作成
-      authController = new AuthController()
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'wrong-password' },
@@ -367,7 +448,24 @@ describe('DELETE /api/auth/delete-account', () => {
         deleteAccount: jest.fn().mockRejectedValue(new Error('User not found')),
       }))
 
-      authController = new AuthController()
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockRejectedValue(new Error('User not found')),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'password' },
@@ -389,7 +487,24 @@ describe('DELETE /api/auth/delete-account', () => {
         deleteAccount: jest.fn().mockRejectedValue(new Error('User is already deleted')),
       }))
 
-      authController = new AuthController()
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockRejectedValue(new Error('User is already deleted')),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'password' },
@@ -414,7 +529,14 @@ describe('DELETE /api/auth/delete-account', () => {
         }),
       }))
 
-      authController = new AuthController()
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: false,
+          user: null,
+        }),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, {}, {})
 
       const request = createRequest(
         { password: 'password' },
@@ -436,7 +558,11 @@ describe('DELETE /api/auth/delete-account', () => {
         verifyToken: jest.fn().mockRejectedValue(new Error('Invalid or expired token')),
       }))
 
-      authController = new AuthController()
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockRejectedValue(new Error('Invalid or expired token')),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, {}, {})
 
       const request = createRequest(
         { password: 'password' },
@@ -458,7 +584,24 @@ describe('DELETE /api/auth/delete-account', () => {
         deleteAccount: jest.fn().mockRejectedValue(new Error('Database error')),
       }))
 
-      authController = new AuthController()
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockRejectedValue(new Error('Database error')),
+      }
+
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'correct-password' },
@@ -483,6 +626,25 @@ describe('DELETE /api/auth/delete-account', () => {
         AccountManagementUseCase,
       } = require('@api/usecases/auth/interactor')
 
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
       AuthenticationUseCase.mockImplementation(() => ({
         verifyToken: jest.fn().mockResolvedValue({
           isValid: true,
@@ -502,7 +664,7 @@ describe('DELETE /api/auth/delete-account', () => {
         }),
       }))
 
-      authController = new AuthController()
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const surveyData = {
         reasons: ['other'],
@@ -530,6 +692,25 @@ describe('DELETE /api/auth/delete-account', () => {
         AccountManagementUseCase,
       } = require('@api/usecases/auth/interactor')
 
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
       AuthenticationUseCase.mockImplementation(() => ({
         verifyToken: jest.fn().mockResolvedValue({
           isValid: true,
@@ -549,7 +730,7 @@ describe('DELETE /api/auth/delete-account', () => {
         }),
       }))
 
-      authController = new AuthController()
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'correct-password', survey: {} },
@@ -570,6 +751,25 @@ describe('DELETE /api/auth/delete-account', () => {
         AccountManagementUseCase,
       } = require('@api/usecases/auth/interactor')
 
+      const mockAuthUseCase = {
+        verifyToken: jest.fn().mockResolvedValue({
+          isValid: true,
+          user: {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            userName: 'testuser',
+            role: 'USER',
+            emailVerified: true,
+          },
+        }),
+      }
+
+      const mockAccountUseCase = {
+        deleteAccount: jest.fn().mockResolvedValue({
+          message: 'アカウントが削除されました。',
+        }),
+      }
+
       AuthenticationUseCase.mockImplementation(() => ({
         verifyToken: jest.fn().mockResolvedValue({
           isValid: true,
@@ -589,7 +789,7 @@ describe('DELETE /api/auth/delete-account', () => {
         }),
       }))
 
-      authController = new AuthController()
+      authController = createMockAuthController(mockAuthUseCase, {}, {}, mockAccountUseCase, {})
 
       const request = createRequest(
         { password: 'correct-password', survey: null },

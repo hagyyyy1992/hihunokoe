@@ -18,12 +18,17 @@ let adminAuthController: AdminAuthController | null = null
 try {
   adminAuthController = new AdminAuthController()
 } catch (error) {
-  console.error('Failed to initialize AdminAuthController for middleware:', error)
+  // テスト環境では初期化エラーを無視
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('Failed to initialize AdminAuthController for middleware:', error)
+  }
 }
 
 export async function verifyAdminToken(token: string): Promise<AdminUser | null> {
   if (!adminAuthController) {
-    console.error('AdminAuthController not available')
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('AdminAuthController not available')
+    }
     return null
   }
 
@@ -43,7 +48,9 @@ export async function verifyAdminToken(token: string): Promise<AdminUser | null>
 
     return null
   } catch (error) {
-    console.error('Admin token verification error:', error)
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Admin token verification error:', error)
+    }
     return null
   }
 }
@@ -135,7 +142,9 @@ export async function checkAdminAuth(request: NextRequest): Promise<{
 
     return { isAuthenticated: true, admin }
   } catch (error) {
-    console.error('checkAdminAuth: error verifying token:', error)
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('checkAdminAuth: error verifying token:', error)
+    }
     return { isAuthenticated: false, admin: null }
   }
 }

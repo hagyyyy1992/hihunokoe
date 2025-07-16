@@ -190,11 +190,11 @@ test.describe('アカウント削除機能', () => {
     await page.getByRole('button', { name: 'ログイン' }).click()
 
     // エラーメッセージが表示されることを確認
-    await expect(
-      page.getByText(
-        /メールアドレスまたはパスワードが正しくありません|アカウントが見つかりません|アカウントが無効です/
-      )
-    ).toBeVisible()
+    await expect(page.getByTestId('error-message')).toBeVisible()
+
+    // 削除されたアカウントでは「メールアドレスまたはパスワードが間違っています」が表示される
+    const errorMessage = await page.getByTestId('error-message').textContent()
+    expect(errorMessage).toBe('メールアドレスまたはパスワードが間違っています')
   })
 
   test('アンケートフォームが正しく動作する', async ({ page }) => {

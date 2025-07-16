@@ -66,7 +66,7 @@ export default function HomePage() {
         }
 
         const data = await response.json()
-        const allPosts = data.posts || []
+        const allPosts = data.success && data.data ? data.data.posts || [] : []
 
         // 自分の投稿と他ユーザーの投稿を分ける
         const myPosts = user ? allPosts.filter((post: Post) => post.user?.id === user.id) : []

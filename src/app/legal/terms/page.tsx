@@ -56,6 +56,9 @@ export default function TermsOfServicePage() {
               <li>他者の著作権・肖像権を侵害するもの</li>
             </ul>
           </li>
+          <li>
+            アカウント削除時の投稿の取り扱い：ユーザーがアカウントを削除した場合、当該ユーザーが投稿したすべてのコンテンツは他のユーザーから閲覧できなくなります。削除後のコンテンツは復元できません。
+          </li>
         </ol>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">第6条（医療に関する免責事項）</h2>
@@ -133,7 +136,7 @@ export default function TermsOfServicePage() {
         <p className="mt-4 text-sm text-gray-600">
           制定日：2025年07月13日
           <br />
-          最終更新日：2025年07月13日
+          最終更新日：2025年07月15日
         </p>
       </div>
     </div>

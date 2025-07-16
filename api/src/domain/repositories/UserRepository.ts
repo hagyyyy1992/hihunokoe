@@ -57,8 +57,11 @@ export interface FindUsersResult {
 
 export interface IUserRepository {
   findById(id: string): Promise<User | null>
+  findByIds(ids: string[]): Promise<User[]>
   findByEmail(email: string): Promise<User | null>
   findByUsername(username: string): Promise<User | null>
+  findByEmailIncludingDeleted(email: string): Promise<User | null>
+  findByUsernameIncludingDeleted(username: string): Promise<User | null>
   findByEmailVerificationToken(token: string): Promise<User | null>
   findByPasswordResetToken(token: string): Promise<User | null>
   findMany(filter: FindUsersFilter): Promise<FindUsersResult>

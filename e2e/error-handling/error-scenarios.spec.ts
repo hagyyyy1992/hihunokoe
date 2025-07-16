@@ -372,10 +372,37 @@ test.describe('エラーハンドリング', () => {
     })
 
     test('存在しない投稿詳細ページへのアクセス', async ({ page }) => {
-      await page.goto('/posts/non-existent-post-id')
+      // 存在しないが有効なUUID形式のIDでアクセス
+      await page.goto('/posts/ffffffff-ffff-ffff-ffff-ffffffffffff')
+
+      // ページが完全に読み込まれるまで待機
+      await page.waitForLoadState('networkidle')
+
+      // GraphQLクエリの完了とエラー表示を待機
+      await page.waitForTimeout(3000)
+
+      // 404エラーメッセージまたはローディングが終了することを確認
+      const notFoundMessage = page.getByText('投稿が見つかりません')
+      const errorMessage = page.getByText('404')
+      const stillLoading = page.getByText('読み込み中...')
+
+      // ローディングが終了するまで最大10秒待機
+      await page
+        .waitForFunction(
+          () => {
+            const loading = document.querySelector('text=読み込み中...')
+            const notFound = document.querySelector('text=投稿が見つかりません')
+            const error404 = document.querySelector('text=404')
+            return !loading || notFound || error404
+          },
+          { timeout: 10000 }
+        )
+        .catch(() => {
+          // タイムアウトしても続行
+        })
 
       // 404エラーページまたはエラーメッセージが表示されることを確認
-      await expect(page.getByText('投稿が見つかりません').or(page.getByText('404'))).toBeVisible()
+      await expect(notFoundMessage.or(errorMessage)).toBeVisible()
     })
   })
 

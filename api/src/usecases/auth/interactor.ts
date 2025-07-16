@@ -1,14 +1,16 @@
 import { User, UserRole } from '@api/domain/entities/User'
 import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IAuthSessionRepository } from '@api/domain/repositories/AuthSessionRepository'
-import { PasswordHashService } from '@api/domain/services/PasswordHashService'
-import { TokenService } from '@api/domain/services/TokenService'
-import { EmailService } from '@api/domain/services/EmailService'
+import { IPostRepository } from '@api/domain/repositories/PostRepository'
+import { IPasswordHashService } from '@api/domain/services/PasswordHashService'
+import { ITokenService } from '@api/domain/services/TokenService'
+import { IEmailService } from '@api/domain/services/EmailService'
 import { AuthSession } from '@api/domain/entities/AuthSession'
 import { Email } from '@api/domain/value-objects/Email'
 import { Password } from '@api/domain/value-objects/Password'
 import { WithdrawalSurveyRepository } from '@api/domain/repositories/WithdrawalSurveyRepository'
 import { WithdrawalReason } from '@api/domain/entities/WithdrawalSurvey'
+import { getEmailBaseUrl } from '@/lib/email/utils'
 import {
   InvalidCredentialsError,
   AccountLockedError,
@@ -17,7 +19,6 @@ import {
   TokenExpiredError,
   InvalidTokenError,
 } from '@api/domain/exceptions/AuthenticationError'
-import { TermsNotAcceptedError } from '@api/domain/exceptions/ConsentError'
 import {
   IAuthenticationUseCase,
   IPasswordManagementUseCase,
@@ -56,8 +57,8 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
-    private readonly passwordHashService: PasswordHashService,
-    private readonly tokenService: TokenService
+    private readonly passwordHashService: IPasswordHashService,
+    private readonly tokenService: ITokenService
   ) {}
 
   async login(input: LoginInputPort): Promise<LoginOutputPort> {
@@ -80,7 +81,7 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
     }
 
     // Check if account is active
-    if (!user.isActive || user.deletedAt) {
+    if (!user.isActive) {
       throw new AccountInactiveError()
     }
 
@@ -230,13 +231,35 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
   }
 
   private async validateUniqueConstraints(email: string, userName: string): Promise<void> {
+    // 削除済みユーザーも含めて検索
+    const existingUserByEmailIncludingDeleted =
+      await this.userRepository.findByEmailIncludingDeleted(email)
+    const existingUserByUserNameIncludingDeleted =
+      await this.userRepository.findByUsernameIncludingDeleted(userName)
+
+    // 削除済みユーザーがいる場合、ユニーク制約を回避するためデータを変更
+    if (existingUserByEmailIncludingDeleted && existingUserByEmailIncludingDeleted.deletedAt) {
+      const timestamp = Date.now()
+      await this.userRepository.update(existingUserByEmailIncludingDeleted.id, {
+        email: `deleted_${timestamp}_${existingUserByEmailIncludingDeleted.email}`,
+        userName: `deleted_${timestamp}_${existingUserByEmailIncludingDeleted.userName}`,
+      })
+    }
+
+    if (
+      existingUserByUserNameIncludingDeleted &&
+      existingUserByUserNameIncludingDeleted.deletedAt &&
+      existingUserByUserNameIncludingDeleted.id !== existingUserByEmailIncludingDeleted?.id
+    ) {
+      const timestamp = Date.now()
+      await this.userRepository.update(existingUserByUserNameIncludingDeleted.id, {
+        userName: `deleted_${timestamp}_${existingUserByUserNameIncludingDeleted.userName}`,
+      })
+    }
+
+    // アクティブなユーザーのチェック
     const existingUserByEmail = await this.userRepository.findByEmail(email)
     if (existingUserByEmail) {
-      // 退会済みユーザーの場合は再登録を許可
-      if (existingUserByEmail.deletedAt) {
-        return
-      }
-
       // メール未認証かつ作成から24時間以上経過している場合は再登録を許可
       if (!existingUserByEmail.emailVerified) {
         const createdAt = new Date(existingUserByEmail.createdAt)
@@ -257,11 +280,6 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 
     const existingUserByUserName = await this.userRepository.findByUsername(userName)
     if (existingUserByUserName) {
-      // 退会済みユーザーの場合は再登録を許可
-      if (existingUserByUserName.deletedAt) {
-        return
-      }
-
       // ユーザー名も同様にチェック
       if (!existingUserByUserName.emailVerified) {
         const createdAt = new Date(existingUserByUserName.createdAt)
@@ -283,9 +301,9 @@ export class AuthenticationUseCase implements IAuthenticationUseCase {
 export class PasswordManagementUseCase implements IPasswordManagementUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly passwordHashService: PasswordHashService,
-    private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly passwordHashService: IPasswordHashService,
+    private readonly tokenService: ITokenService,
+    private readonly emailService?: IEmailService
   ) {}
 
   async forgotPassword(input: ForgotPasswordInputPort): Promise<ForgotPasswordOutputPort> {
@@ -314,8 +332,7 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 
     // Send password reset email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendPasswordResetEmail(user.email, user.userName, resetToken, baseUrl)
     }
 
@@ -374,8 +391,8 @@ export class PasswordManagementUseCase implements IPasswordManagementUseCase {
 export class EmailVerificationUseCase implements IEmailVerificationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly tokenService: TokenService,
-    private readonly emailService?: EmailService
+    private readonly tokenService: ITokenService,
+    private readonly emailService?: IEmailService
   ) {}
 
   async verifyEmail(input: VerifyEmailInputPort): Promise<VerifyEmailOutputPort> {
@@ -425,8 +442,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 
     // Send verification email
     if (this.emailService) {
-      const baseUrl =
-        process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const baseUrl = getEmailBaseUrl()
       await this.emailService.sendVerificationEmail(
         user.email,
         user.userName,
@@ -445,9 +461,10 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly authSessionRepository: IAuthSessionRepository,
-    private readonly passwordHashService: PasswordHashService,
-    private readonly emailService: EmailService,
-    private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository
+    private readonly passwordHashService: IPasswordHashService,
+    private readonly emailService: IEmailService,
+    private readonly withdrawalSurveyRepository?: WithdrawalSurveyRepository,
+    private readonly postRepository?: IPostRepository
   ) {}
 
   async deleteAccount(input: DeleteAccountInputPort): Promise<DeleteAccountOutputPort> {
@@ -485,10 +502,14 @@ export class AccountManagementUseCase implements IAccountManagementUseCase {
       }
     }
 
+    // Delete all user's posts first
+    if (this.postRepository) {
+      await this.postRepository.deleteByUserId(input.userId)
+    }
+
     // Soft delete the user
     await this.userRepository.update(input.userId, {
       deletedAt: new Date(),
-      active: false,
     })
 
     // Delete all sessions

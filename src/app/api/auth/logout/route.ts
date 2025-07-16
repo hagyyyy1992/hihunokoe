@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AuthController } from '@api/framework/controllers/AuthController'
+import { AuthControllerFactory } from '@api/framework/factories/AuthControllerFactory'
 import { adaptCookieToBearer } from '@/lib/auth/cookie-auth-adapter'
 
-const authController = new AuthController()
-
 export async function POST(request: Request) {
+  const authController = AuthControllerFactory.create()
   const adaptedRequest = adaptCookieToBearer(request)
   const response = await authController.logout(adaptedRequest as NextRequest)
 

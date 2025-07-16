@@ -1,10 +1,10 @@
-import { RateLimitServiceImpl } from '@api/interface-adapters/services/RateLimitServiceImpl'
+import { RateLimitService } from '@api/interface-adapters/services/RateLimitService'
 
 describe('RateLimitServiceImpl', () => {
-  let rateLimitService: RateLimitServiceImpl
+  let rateLimitService: RateLimitService
 
   beforeEach(() => {
-    rateLimitService = new RateLimitServiceImpl()
+    rateLimitService = new RateLimitService()
     jest.clearAllMocks()
   })
 
