@@ -22,7 +22,7 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
       setLogoSrc('/logo-image-staging.png')
       setLogoAlt('ひふのこえロゴ（ステージング環境）')
     }
-  }, [])
+  }, [isStaging])
 
   const sizeClasses = {
     sm: {
