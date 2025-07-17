@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AdminAuthenticationInteractor } from '@api/use-cases/admin-authentication/interactor'
-import { AdminAuthenticationOutputPort } from '@api/use-cases/admin-authentication/output-port'
+import { AdminAuthenticationInteractor } from '@api/usecases/admin-authentication/interactor'
+import { AdminAuthenticationOutputPort } from '@api/usecases/admin-authentication/output-port'
 import { AdminUserRepositoryImpl } from '@api/framework/repositories/AdminUserRepositoryImpl'
 import { PasswordHashServiceImpl } from '@api/interface-adapters/services/PasswordHashService'
 import { TokenServiceImpl } from '@api/interface-adapters/services/TokenService'

@@ -16,8 +16,8 @@ import {
   ClipboardList,
   MessageSquare,
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Avatar } from '@/components/ui/Avatar'
+import { Button } from '@/components/ui/button'
+import { Avatar } from '@/components/ui/avatar'
 import { AdminAuthProvider, useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
 

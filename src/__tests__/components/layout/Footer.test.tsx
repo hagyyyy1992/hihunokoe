@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { render, screen } from '@testing-library/react'
-import Footer from '@/components/layout/Footer'
+import Footer from '@/components/layout/footer'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
 

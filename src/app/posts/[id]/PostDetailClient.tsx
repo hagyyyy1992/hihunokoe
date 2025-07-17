@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useQuery } from '@apollo/client'
+import { getSkinConditionLabel } from '@/lib/constants/profile'
 import { GET_POST } from '@/graphql/queries/post'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 import {
@@ -19,7 +20,7 @@ import {
   textureAfterUseLabels,
   comfortLabels,
 } from '@/lib/constants'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface PostData {
   post: {
@@ -167,10 +168,16 @@ const menstrualCycleLabels: Record<string, string> = {
   none: '関係なし',
 }
 
-const skinConditionLabels: Record<string, string> = {
-  good: '調子が良い',
-  unstable: '不安定',
-  problematic: 'トラブル中',
+// Map old values to new values for backward compatibility
+const mapSkinCondition = (condition?: string): string => {
+  switch (condition) {
+    case 'good':
+      return 'stable'
+    case 'problematic':
+      return 'trouble'
+    default:
+      return condition || ''
+  }
 }
 
 const durationLabels: Record<string, string> = {
@@ -629,8 +636,9 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                               <div>
                                 <span className="text-gray-500">肌状態:</span>
                                 <span className="ml-2 text-gray-900">
-                                  {skinConditionLabels[currentPost.usageSituation.skinCondition] ||
-                                    currentPost.usageSituation.skinCondition}
+                                  {getSkinConditionLabel(
+                                    mapSkinCondition(currentPost.usageSituation.skinCondition)
+                                  )}
                                 </span>
                               </div>
                             )}

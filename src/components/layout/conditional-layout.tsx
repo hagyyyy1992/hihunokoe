@@ -1,9 +1,9 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import ScrollToTop from '@/components/layout/ScrollToTop'
+import Header from '@/components/layout/header'
+import Footer from '@/components/layout/footer'
+import ScrollToTop from '@/components/layout/scroll-to-top'
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

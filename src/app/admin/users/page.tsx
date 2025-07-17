@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
@@ -23,8 +23,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/AlertDialog'
+} from '@/components/ui/alert-dialog'
 import { Search, Download, UserCheck, UserX, Eye } from 'lucide-react'
+import { UserPreviewModal } from '@/components/admin/user-preview-modal'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {
   id: string
@@ -47,6 +49,8 @@ export default function UserManagement() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [actionType, setActionType] = useState<'activate' | 'suspend' | null>(null)
+  const [previewUser, setPreviewUser] = useState<User | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const filterUsers = useCallback(() => {
     let filtered = Array.isArray(users) ? users : []
@@ -268,37 +272,63 @@ export default function UserManagement() {
                     </div>
 
                     <div className="flex gap-1.5">
-                      <Button size="sm" variant="outline" className="h-8 px-2 flex-1 text-xs">
-                        <Eye className="h-3 w-3 mr-0.5" />
-                        詳細
-                      </Button>
-                      {user.isActive ? (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="h-8 px-2 flex-1 text-xs"
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setActionType('suspend')
-                          }}
-                        >
-                          <UserX className="h-3 w-3 mr-0.5" />
-                          停止
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          className="h-8 px-2 flex-1 text-xs"
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setActionType('activate')
-                          }}
-                        >
-                          <UserCheck className="h-3 w-3 mr-0.5" />
-                          復活
-                        </Button>
-                      )}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-2 flex-1 text-xs"
+                              onClick={() => {
+                                setPreviewUser(user)
+                                setIsPreviewOpen(true)
+                              }}
+                            >
+                              <Eye className="h-3 w-3 mr-0.5" />
+                              詳細
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>ユーザープロフィールを表示</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {user.isActive ? (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="h-8 px-2 flex-1 text-xs"
+                                onClick={() => {
+                                  setSelectedUser(user)
+                                  setActionType('suspend')
+                                }}
+                              >
+                                <UserX className="h-3 w-3 mr-0.5" />
+                                停止
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-8 px-2 flex-1 text-xs"
+                                onClick={() => {
+                                  setSelectedUser(user)
+                                  setActionType('activate')
+                                }}
+                              >
+                                <UserCheck className="h-3 w-3 mr-0.5" />
+                                復活
+                              </Button>
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.isActive ? 'アカウントを一時停止' : 'アカウントを復活'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </CardContent>
                 </Card>
@@ -353,32 +383,57 @@ export default function UserManagement() {
                       <TableCell>{new Date(user.createdAt).toLocaleDateString('ja-JP')}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {user.isActive ? (
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => {
-                                setSelectedUser(user)
-                                setActionType('suspend')
-                              }}
-                            >
-                              <UserX className="h-4 w-4" />
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => {
-                                setSelectedUser(user)
-                                setActionType('activate')
-                              }}
-                            >
-                              <UserCheck className="h-4 w-4" />
-                            </Button>
-                          )}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setPreviewUser(user)
+                                    setIsPreviewOpen(true)
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>プロフィールを表示</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                {user.isActive ? (
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => {
+                                      setSelectedUser(user)
+                                      setActionType('suspend')
+                                    }}
+                                  >
+                                    <UserX className="h-4 w-4" />
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => {
+                                      setSelectedUser(user)
+                                      setActionType('activate')
+                                    }}
+                                  >
+                                    <UserCheck className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{user.isActive ? 'アカウントを停止' : 'アカウントを復活'}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -443,6 +498,16 @@ export default function UserManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ユーザープレビューモーダル */}
+      <UserPreviewModal
+        user={previewUser}
+        isOpen={isPreviewOpen}
+        onClose={() => {
+          setIsPreviewOpen(false)
+          setPreviewUser(null)
+        }}
+      />
     </div>
   )
 }

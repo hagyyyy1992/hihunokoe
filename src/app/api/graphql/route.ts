@@ -19,6 +19,8 @@ import {
   createEmpathyDataLoader,
   createUserEmpathyDataLoader,
 } from '@/graphql/dataloaders/empathyDataLoader'
+import { PerformanceLogger } from '@api/lib/performance-logger'
+import { tokenCacheService } from '@/lib/token-cache'
 
 const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -27,13 +29,36 @@ const server = new ApolloServer<GraphQLContext>({
   plugins: [
     {
       async serverWillStart() {},
+      async requestDidStart() {
+        const requestLogger = new PerformanceLogger('GraphQL-Request')
+        return {
+          async willSendResponse(requestContext) {
+            const { request, response } = requestContext
+            if (request.query && !request.query.includes('IntrospectionQuery')) {
+              let hasErrors = false
+              if (response.body && 'singleResult' in response.body) {
+                const singleResult = response.body.singleResult as { errors?: unknown[] }
+                hasErrors = !!(singleResult.errors && singleResult.errors.length > 0)
+              }
+              requestLogger.finish({
+                operationName: request.operationName,
+                variables: request.variables,
+                hasErrors,
+              })
+            }
+          },
+        }
+      },
     },
   ],
 })
 
 const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(server, {
   context: async (req): Promise<GraphQLContext> => {
+    const contextLogger = new PerformanceLogger('GraphQL-Context-Creation')
+
     // Authorizationヘッダーから取得を試みる
+    contextLogger.start('auth-header-check')
     const authHeader = req.headers.get('authorization')
     let token: string | null = null
 
@@ -50,16 +75,20 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
         }
       }
     }
+    contextLogger.end('auth-header-check', { hasToken: !!token })
 
+    contextLogger.start('create-dataloaders')
     const userRepository = new UserRepository()
     const userLoader = createUserLoader(userRepository)
     const commentLoader = createCommentDataLoader()
     const commentByIdLoader = createCommentByIdDataLoader()
     const empathyLoader = createEmpathyDataLoader()
     let userId: string | null = null
+    contextLogger.end('create-dataloaders')
 
     if (!token) {
       const userEmpathyLoader = createUserEmpathyDataLoader(null)
+      contextLogger.finish({ authenticated: false })
       return {
         userId: null,
         userLoader,
@@ -71,6 +100,28 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
     }
 
     try {
+      contextLogger.start('verify-token')
+
+      // キャッシュからトークンを確認
+      const cachedUserId = tokenCacheService.get(token)
+      if (cachedUserId) {
+        userId = cachedUserId
+        contextLogger.end('verify-token', { authenticated: true, cached: true })
+
+        const userEmpathyLoader = createUserEmpathyDataLoader(userId)
+        contextLogger.finish({ authenticated: true, userId, cached: true })
+
+        return {
+          userId,
+          userLoader,
+          commentLoader,
+          commentByIdLoader,
+          empathyLoader,
+          userEmpathyLoader,
+        }
+      }
+
+      // キャッシュにない場合は検証を実行
       const authSessionRepository = new AuthSessionRepository()
       const passwordHashService = new PasswordHashServiceImpl()
       const tokenService = new TokenServiceImpl()
@@ -85,7 +136,17 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
       userId = user?.id || null
+
+      // 検証成功時はキャッシュに保存（有効期限は5分後）
+      if (userId) {
+        tokenCacheService.set(token, userId, Date.now() + 5 * 60 * 1000)
+      }
+
+      contextLogger.end('verify-token', { authenticated: !!userId, cached: false })
+
       const userEmpathyLoader = createUserEmpathyDataLoader(userId)
+
+      contextLogger.finish({ authenticated: true, userId, cached: false })
 
       return {
         userId,
@@ -96,6 +157,8 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
         userEmpathyLoader,
       }
     } catch (error) {
+      contextLogger.end('verify-token', { authenticated: false, error: (error as Error).message })
+      contextLogger.finish({ authenticated: false, error: (error as Error).message })
       console.error('GraphQL authentication error:', error)
       const userEmpathyLoader = createUserEmpathyDataLoader(null)
       return {

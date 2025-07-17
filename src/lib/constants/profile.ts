@@ -27,6 +27,25 @@ export const ALLERGY_OPTIONS = {
   other: 'その他',
 } as const
 
+export const SKIN_CONDITION_OPTIONS = [
+  { value: '', label: '選択してください' },
+  { value: 'stable', label: '安定' },
+  { value: 'unstable', label: '不安定' },
+  { value: 'trouble', label: 'トラブルあり' },
+] as const
+
+// Helper functions to get labels
+export const getSkinTypeLabel = (skinType?: string): string => {
+  const option = SKIN_TYPE_OPTIONS.find(opt => opt.value === skinType)
+  return option ? option.label : '-'
+}
+
+export const getSkinConditionLabel = (condition?: string): string => {
+  const option = SKIN_CONDITION_OPTIONS.find(opt => opt.value === condition)
+  return option ? option.label : '-'
+}
+
 export type SkinType = Exclude<(typeof SKIN_TYPE_OPTIONS)[number]['value'], ''>
+export type SkinCondition = Exclude<(typeof SKIN_CONDITION_OPTIONS)[number]['value'], ''>
 export type Gender = keyof typeof GENDER_OPTIONS
 export type AllergyType = keyof typeof ALLERGY_OPTIONS

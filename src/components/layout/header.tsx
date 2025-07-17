@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
-import Logo from '@/components/ui/Logo'
+import Logo from '@/components/ui/logo'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

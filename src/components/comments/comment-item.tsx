@@ -5,8 +5,8 @@ import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { Comment } from '@/types'
 import { useAuth } from '@/lib/auth/AuthContext'
-import CommentForm from './CommentForm'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import CommentForm from './comment-form'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface CommentItemProps {
   comment: Comment

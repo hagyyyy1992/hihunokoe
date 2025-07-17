@@ -3,6 +3,7 @@ import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IRateLimitService } from '@api/domain/services/RateLimitService'
+import { PerformanceLogger } from '@api/lib/performance-logger'
 import {
   IPostManagementUseCase,
   IPostRetrievalUseCase,
@@ -155,24 +156,20 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     // 投稿更新
     const updatedPost = await this.postRepository.update(input.postId, updateData)
 
-    // ユーザー情報を取得
-    const user = await this.userRepository.findById(updatedPost.userId)
-    if (!user) {
-      throw new Error('ユーザーが見つかりませんでした')
-    }
-
-    // エンパシー数とコメント数を取得
-    const empathyCount = await this.empathyRepository.countByPost(updatedPost.id)
-    const commentCount = await this.commentRepository.countByPostId(updatedPost.id)
-    const userHasEmpathy =
-      (await this.empathyRepository.findByUserAndPost(input.userId, updatedPost.id)) !== null
-
+    // ユーザー情報、エンパシー数、コメント数、ユーザーのエンパシー状態を並列で取得
+    const [user, empathyCount, commentCount, userEmpathy] = await Promise.all([
+      this.userRepository.findById(updatedPost.userId),
+      this.empathyRepository.countByPost(updatedPost.id),
+      this.commentRepository.countByPostId(updatedPost.id),
+      this.empathyRepository.findByUserAndPost(input.userId, updatedPost.id),
+    ])
+    if (!user) throw new Error('ユーザーが見つかりませんでした')
     return {
       post: updatedPost,
       user,
       empathyCount,
       commentCount,
-      userHasEmpathy,
+      userHasEmpathy: userEmpathy !== null,
       message: '投稿を更新しました',
     }
   }
@@ -218,23 +215,18 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       throw new Error('この投稿は非公開です')
     }
 
-    // ユーザー情報を取得
-    const user = await this.userRepository.findById(post.userId)
+    // ユーザー情報、エンパシー数、コメント数、ユーザーのエンパシー状態を並列で取得
+    const [user, empathyCount, commentCount, userEmpathy] = await Promise.all([
+      this.userRepository.findById(post.userId),
+      this.empathyRepository.countByPost(input.postId),
+      this.commentRepository.countByPostId(input.postId),
+      input.userId
+        ? this.empathyRepository.findByUserAndPost(input.userId, input.postId)
+        : Promise.resolve(null),
+    ])
+
     if (!user) {
       throw new Error('ユーザーが見つかりませんでした')
-    }
-
-    // エンパシー数を取得
-    const empathyCount = await this.empathyRepository.countByPost(input.postId)
-
-    // コメント数を取得
-    const commentCount = await this.commentRepository.countByPostId(input.postId)
-
-    // ユーザーがエンパシーしているかチェック
-    let userHasEmpathy = false
-    if (input.userId) {
-      const empathy = await this.empathyRepository.findByUserAndPost(input.userId, input.postId)
-      userHasEmpathy = !!empathy
     }
 
     return {
@@ -242,11 +234,14 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       user,
       empathyCount,
       commentCount,
-      userHasEmpathy,
+      userHasEmpathy: !!userEmpathy,
     }
   }
 
   async getPosts(input: GetPostsInputPort): Promise<GetPostsOutputPort> {
+    const perfLogger = new PerformanceLogger('PostRetrievalUseCase.getPosts', { input })
+
+    perfLogger.start('prepare-params')
     const page = input.page || 1
     const limit = input.limit || 20
     const offset = (page - 1) * limit
@@ -256,7 +251,9 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
 
     const sortBy = input.sortBy || 'createdAt'
     const sortOrder = input.sortOrder || 'desc'
+    perfLogger.end('prepare-params')
 
+    perfLogger.start('repository-findMany')
     const { posts, totalCount } = await this.postRepository.findMany({
       offset,
       limit,
@@ -268,25 +265,41 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       sortBy: sortBy as any,
       // userIdは削除 - 全ユーザーの投稿を取得する
     })
+    perfLogger.end('repository-findMany', { postCount: posts.length, totalCount })
 
-    // ユーザー情報を一括取得
+    // ユーザー情報と共感状態を並列で取得
+    perfLogger.start('fetch-related-data')
     const userIds = [...new Set(posts.map(p => p.userId))]
-    const users = await Promise.all(userIds.map(id => this.userRepository.findById(id)))
+
+    const [users, userEmpathiesData] = await Promise.all([
+      // ユーザー情報を一括取得
+      Promise.all(userIds.map(id => this.userRepository.findById(id))),
+      // ユーザーの共感状態を取得
+      input.userId
+        ? this.empathyRepository.findByUserAndPosts(
+            input.userId,
+            posts.map(p => p.id)
+          )
+        : Promise.resolve([]),
+    ])
+
+    // ユーザーマップを作成
     const userMap = new Map(users.filter(u => u !== null).map(u => [u!.id, u!]))
 
-    // ユーザーの共感状態のみを一括取得（カウントはPostRepositoryで取得済み）
-    let userEmpathies: Map<string, boolean> = new Map()
-    if (input.userId) {
-      const empathies = await this.empathyRepository.findByUserAndPosts(
-        input.userId,
-        posts.map(p => p.id)
-      )
-      empathies.forEach(empathy => {
-        userEmpathies.set(empathy.postId, true)
-      })
-    }
+    // 共感状態マップを作成
+    const userEmpathies: Map<string, boolean> = new Map()
+    userEmpathiesData.forEach(empathy => {
+      userEmpathies.set(empathy.postId, true)
+    })
+
+    perfLogger.end('fetch-related-data', {
+      userCount: userIds.length,
+      hasUser: !!input.userId,
+      empathyCount: userEmpathiesData.length,
+    })
 
     // 各投稿にユーザー情報と共感状態を追加
+    perfLogger.start('build-metadata')
     const postsWithMetadata: PostWithMetadata[] = posts.map(post => {
       const user = userMap.get(post.userId)
       if (!user) {
@@ -300,16 +313,20 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
         userHasEmpathy,
       })
     })
+    perfLogger.end('build-metadata')
 
     const hasNext = offset + posts.length < totalCount
 
-    return {
+    const result = {
       posts: postsWithMetadata,
       total: totalCount,
       page,
       limit,
       hasNext,
     }
+
+    perfLogger.finish({ success: true, resultCount: postsWithMetadata.length })
+    return result
   }
 }
 

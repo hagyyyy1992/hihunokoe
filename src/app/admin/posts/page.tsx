@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
@@ -23,8 +23,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/AlertDialog'
+} from '@/components/ui/alert-dialog'
 import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react'
+import { PostPreviewModal } from '@/components/admin/post-preview-modal'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Post {
   id: string
@@ -48,6 +50,8 @@ export default function PostModeration() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [actionType, setActionType] = useState<'publish' | 'unpublish' | 'delete' | null>(null)
+  const [previewPost, setPreviewPost] = useState<Post | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const filterPosts = useCallback(() => {
     let filtered = Array.isArray(posts) ? posts : []
@@ -232,49 +236,88 @@ export default function PostModeration() {
                     </div>
 
                     <div className="flex gap-1.5">
-                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                        <Eye className="h-3 w-3" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => {
+                                setPreviewPost(post)
+                                setIsPreviewOpen(true)
+                              }}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>投稿をプレビュー</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {!post.deletedAt && (
                         <>
-                          {post.status === 'published' ? (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="h-7 px-2 flex-1 text-xs"
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setActionType('unpublish')
-                              }}
-                            >
-                              <EyeOff className="h-3 w-3 mr-1" />
-                              非公開
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-7 px-2 flex-1 text-xs"
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setActionType('publish')
-                              }}
-                            >
-                              <Check className="h-3 w-3 mr-1" />
-                              公開
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => {
-                              setSelectedPost(post)
-                              setActionType('delete')
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                {post.status === 'published' ? (
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-7 px-2 flex-1 text-xs"
+                                    onClick={() => {
+                                      setSelectedPost(post)
+                                      setActionType('unpublish')
+                                    }}
+                                  >
+                                    <EyeOff className="h-3 w-3 mr-1" />
+                                    非公開
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    className="h-7 px-2 flex-1 text-xs"
+                                    onClick={() => {
+                                      setSelectedPost(post)
+                                      setActionType('publish')
+                                    }}
+                                  >
+                                    <Check className="h-3 w-3 mr-1" />
+                                    公開
+                                  </Button>
+                                )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  {post.status === 'published'
+                                    ? '投稿を非公開にする'
+                                    : '投稿を公開する'}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setActionType('delete')
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>投稿を削除</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </>
                       )}
                       {post.deletedAt && (
@@ -320,44 +363,80 @@ export default function PostModeration() {
                       <TableCell>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setPreviewPost(post)
+                                    setIsPreviewOpen(true)
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>投稿をプレビュー</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           {!post.deletedAt ? (
                             <>
-                              {post.status === 'published' ? (
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => {
-                                    setSelectedPost(post)
-                                    setActionType('unpublish')
-                                  }}
-                                >
-                                  <EyeOff className="h-4 w-4" />
-                                </Button>
-                              ) : (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => {
-                                    setSelectedPost(post)
-                                    setActionType('publish')
-                                  }}
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setActionType('delete')
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    {post.status === 'published' ? (
+                                      <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() => {
+                                          setSelectedPost(post)
+                                          setActionType('unpublish')
+                                        }}
+                                      >
+                                        <EyeOff className="h-4 w-4" />
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="default"
+                                        onClick={() => {
+                                          setSelectedPost(post)
+                                          setActionType('publish')
+                                        }}
+                                      >
+                                        <Check className="h-4 w-4" />
+                                      </Button>
+                                    )}
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      {post.status === 'published' ? '非公開にする' : '公開する'}
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => {
+                                        setSelectedPost(post)
+                                        setActionType('delete')
+                                      }}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>投稿を削除</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </>
                           ) : (
                             <span className="text-sm text-gray-500">ユーザー削除済み</span>
@@ -419,6 +498,16 @@ export default function PostModeration() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* 投稿プレビューモーダル */}
+      <PostPreviewModal
+        post={previewPost}
+        isOpen={isPreviewOpen}
+        onClose={() => {
+          setIsPreviewOpen(false)
+          setPreviewPost(null)
+        }}
+      />
     </div>
   )
 }

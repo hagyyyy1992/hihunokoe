@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import ConditionalLayout from '@/components/layout/ConditionalLayout'
+import ConditionalLayout from '@/components/layout/conditional-layout'
 import { AuthProvider } from '@/lib/auth/AuthContext'
-import { ApolloProvider } from '@/components/providers/ApolloProvider'
-import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
+import { ApolloProvider } from '@/components/providers/apollo-provider'
+import { GoogleAnalytics } from '@/components/analytics/google-analytics'
 import { generateMetadata } from './metadata'
 
 const geistSans = Geist({

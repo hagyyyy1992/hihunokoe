@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Calendar as CalendarIcon, X } from 'lucide-react'
 import { format } from 'date-fns'
-import { Calendar } from './Calendar'
+import { Calendar } from './calendar'
 import { cn } from '@/lib/utils'
 
 interface DatePickerProps {

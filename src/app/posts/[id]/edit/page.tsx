@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
-import PostForm from '@/components/forms/PostForm'
-import DraggableGuidelineModal from '@/components/ui/DraggableGuidelineModal'
+import PostForm from '@/components/forms/post-form'
+import DraggableGuidelineModal from '@/components/ui/draggable-guideline-modal'
 import { CosmeticCategory, SkinType, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Post {
   id: string

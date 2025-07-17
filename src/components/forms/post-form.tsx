@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { MoodTag as MoodTagComponent } from '@/components/ui/MoodTag'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { MoodTag as MoodTagComponent } from '@/components/ui/mood-tag'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 import { categoryLabels } from '@/lib/constants/categories'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface PostFormData {
   title: string

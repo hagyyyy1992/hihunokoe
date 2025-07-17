@@ -6,7 +6,7 @@ import RootLayout, { metadata } from '@/app/layout'
 import { SERVICE_FULL_TITLE } from '@/lib/constants'
 
 // Mock the components and fonts
-jest.mock('@/components/layout/ConditionalLayout', () => {
+jest.mock('@/components/layout/conditional-layout', () => {
   return function MockConditionalLayout({ children }: { children: React.ReactNode }) {
     return (
       <>

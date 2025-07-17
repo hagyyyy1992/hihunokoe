@@ -1,6 +1,7 @@
 import { GraphQLContext } from '@/graphql/context'
 import { ControllerFactory } from '@api/framework/factories/ControllerFactory'
 import { GraphQLPostController } from '@api/framework/graphql/GraphQLPostController'
+import { createGraphQLPerfLogger } from '@api/lib/performance-logger'
 
 let postController: GraphQLPostController | null = null
 
@@ -41,12 +42,25 @@ export const postResolvers = {
       },
       context: GraphQLContext
     ) {
-      if (!postController) {
-        throw new Error(
-          'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+      const perfLogger = createGraphQLPerfLogger('GetPosts', { first, after, filter, orderBy })
+
+      try {
+        if (!postController) {
+          throw new Error(
+            'データベース接続エラーが発生しました。しばらく時間を置いてから再度お試しください。'
+          )
+        }
+
+        const result = await perfLogger.measure('GraphQLPostController.getPosts', () =>
+          postController.getPosts({ first, after, filter, orderBy }, context)
         )
+
+        perfLogger.finish({ resultCount: result.edges.length })
+        return result
+      } catch (error) {
+        perfLogger.finish({ error: (error as Error).message })
+        throw error
       }
-      return postController.getPosts({ first, after, filter, orderBy }, context)
     },
 
     async postComments(

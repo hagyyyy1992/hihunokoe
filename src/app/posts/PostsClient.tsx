@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import Link from 'next/link'
-import PostCard from '@/components/ui/PostCard'
+import PostCard from '@/components/ui/post-card'
 import { useQuery, useApolloClient } from '@apollo/client'
 import { GET_POSTS } from '@/graphql/queries/post'
 import { categoryLabels, skinTypeLabels, moodTagLabels } from '@/lib/constants/categories'

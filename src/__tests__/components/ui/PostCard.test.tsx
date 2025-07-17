@@ -4,7 +4,7 @@ import {
   expectElementToBeVisible,
   expectElementToHaveText,
 } from '../../helpers/rtl-utils'
-import PostCard from '@/components/ui/PostCard'
+import PostCard from '@/components/ui/post-card'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 
