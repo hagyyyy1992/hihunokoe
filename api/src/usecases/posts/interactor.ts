@@ -3,6 +3,7 @@ import { IUserRepository } from '@api/domain/repositories/UserRepository'
 import { IEmpathyRepository } from '@api/domain/repositories/EmpathyRepository'
 import { ICommentRepository } from '@api/domain/repositories/CommentRepository'
 import { IRateLimitService } from '@api/domain/services/RateLimitService'
+import { PerformanceLogger } from '@api/lib/performance-logger'
 import {
   IPostManagementUseCase,
   IPostRetrievalUseCase,
@@ -247,6 +248,9 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
   }
 
   async getPosts(input: GetPostsInputPort): Promise<GetPostsOutputPort> {
+    const perfLogger = new PerformanceLogger('PostRetrievalUseCase.getPosts', { input })
+
+    perfLogger.start('prepare-params')
     const page = input.page || 1
     const limit = input.limit || 20
     const offset = (page - 1) * limit
@@ -256,7 +260,9 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
 
     const sortBy = input.sortBy || 'createdAt'
     const sortOrder = input.sortOrder || 'desc'
+    perfLogger.end('prepare-params')
 
+    perfLogger.start('repository-findMany')
     const { posts, totalCount } = await this.postRepository.findMany({
       offset,
       limit,
@@ -268,13 +274,17 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       sortBy: sortBy as any,
       // userIdは削除 - 全ユーザーの投稿を取得する
     })
+    perfLogger.end('repository-findMany', { postCount: posts.length, totalCount })
 
     // ユーザー情報を一括取得
+    perfLogger.start('fetch-users')
     const userIds = [...new Set(posts.map(p => p.userId))]
     const users = await Promise.all(userIds.map(id => this.userRepository.findById(id)))
     const userMap = new Map(users.filter(u => u !== null).map(u => [u!.id, u!]))
+    perfLogger.end('fetch-users', { userCount: userIds.length })
 
     // ユーザーの共感状態のみを一括取得（カウントはPostRepositoryで取得済み）
+    perfLogger.start('fetch-user-empathies')
     let userEmpathies: Map<string, boolean> = new Map()
     if (input.userId) {
       const empathies = await this.empathyRepository.findByUserAndPosts(
@@ -285,8 +295,10 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
         userEmpathies.set(empathy.postId, true)
       })
     }
+    perfLogger.end('fetch-user-empathies', { hasUser: !!input.userId })
 
     // 各投稿にユーザー情報と共感状態を追加
+    perfLogger.start('build-metadata')
     const postsWithMetadata: PostWithMetadata[] = posts.map(post => {
       const user = userMap.get(post.userId)
       if (!user) {
@@ -300,16 +312,20 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
         userHasEmpathy,
       })
     })
+    perfLogger.end('build-metadata')
 
     const hasNext = offset + posts.length < totalCount
 
-    return {
+    const result = {
       posts: postsWithMetadata,
       total: totalCount,
       page,
       limit,
       hasNext,
     }
+
+    perfLogger.finish({ success: true, resultCount: postsWithMetadata.length })
+    return result
   }
 }
 

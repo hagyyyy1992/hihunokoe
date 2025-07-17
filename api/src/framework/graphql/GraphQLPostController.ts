@@ -17,6 +17,7 @@ import type { ICommentRepository } from '@api/domain/repositories/CommentReposit
 import { PostValidator } from '@api/framework/validators/PostValidator'
 import { ApplicationError } from '@api/framework/errors/ApplicationError'
 import { GraphQLContext } from '@/graphql/context'
+import { PerformanceLogger } from '@api/lib/performance-logger'
 
 export class GraphQLPostController {
   constructor(
@@ -32,12 +33,10 @@ export class GraphQLPostController {
   async getPost(args: { id: string }, context: GraphQLContext) {
     try {
       const postId = PostValidator.validatePostId(args.id)
-
       const input: GetPostInputPort = {
         postId,
         userId: context.userId || undefined,
       }
-
       const { post } = await this.postRetrievalUseCase.getPost(input)
       return post
     } catch (error) {
@@ -63,11 +62,12 @@ export class GraphQLPostController {
     },
     context: GraphQLContext
   ) {
+    const perfLogger = new PerformanceLogger('GraphQLPostController.getPosts', { args })
     try {
       // Convert GraphQL args to use case input
+      perfLogger.start('args-conversion')
       const limit = args.first || 10
       const skip = args.after ? parseInt(args.after) : 0
-
       // GraphQL orderBy to internal format conversion
       let internalOrderBy: string | null = null
       if (args.orderBy === 'CREATED_AT_DESC') {
@@ -75,15 +75,16 @@ export class GraphQLPostController {
       } else if (args.orderBy === 'EMPATHY_COUNT_DESC') {
         internalOrderBy = 'popular'
       }
-
+      perfLogger.end('args-conversion')
       // バリデーション
+      perfLogger.start('validation')
       const { page } = PostValidator.validatePagination(Math.floor(skip / limit) + 1, limit)
       const category = PostValidator.validateCategory(args.filter?.cosmeticCategory || null)
       const skinType = PostValidator.validateSkinType(args.filter?.skinType || null)
       const moodTag = PostValidator.validateMoodTag(args.filter?.moodTag || null)
       const search = PostValidator.validateSearch(args.filter?.search || null)
       const sortBy = PostValidator.validateSortBy(internalOrderBy)
-
+      perfLogger.end('validation')
       const input: GetPostsInputPort = {
         page,
         limit,
@@ -94,19 +95,18 @@ export class GraphQLPostController {
         sortBy,
         userId: context.userId || undefined,
       }
-
+      perfLogger.start('usecase-getPosts')
       const { posts, total } = await this.postRetrievalUseCase.getPosts(input)
-
+      perfLogger.end('usecase-getPosts', { postCount: posts.length, total })
       // Convert to GraphQL Connection format
+      perfLogger.start('graphql-conversion')
       const edges = posts.map((post, index) => ({
         cursor: (skip + index + 1).toString(),
         node: post,
       }))
-
       const hasNextPage = posts.length === limit
       const hasPreviousPage = skip > 0
-
-      return {
+      const result = {
         edges,
         pageInfo: {
           hasNextPage,
@@ -116,17 +116,19 @@ export class GraphQLPostController {
         },
         totalCount: total,
       }
+      perfLogger.end('graphql-conversion')
+      perfLogger.finish({ success: true, resultCount: edges.length })
+      return result
     } catch (error) {
+      perfLogger.finish({ success: false, error: (error as Error).message })
       if (error instanceof ApplicationError) {
         throw new Error(error.message)
       }
       console.error('Error in GraphQLPostController.getPosts:', error)
-
       // 検索エラーの場合は特別なメッセージ
       if (args.filter?.search && (error as Error).name === 'PostSearchError') {
         throw new Error('検索中にエラーが発生しました。検索条件を変更してお試しください。')
       }
-
       // その他のエラーはユーザーフレンドリーなメッセージ
       throw new Error('投稿の取得中にエラーが発生しました。しばらく待ってから再度お試しください。')
     }
@@ -148,10 +150,7 @@ export class GraphQLPostController {
     context: GraphQLContext
   ) {
     try {
-      if (!context.userId) {
-        throw ApplicationError.unauthorized()
-      }
-
+      if (!context.userId) throw ApplicationError.unauthorized()
       const validatedData = PostValidator.validateCreatePost({
         userId: context.userId,
         title: args.input.title,
@@ -165,9 +164,7 @@ export class GraphQLPostController {
         usageSituation: args.input.usageSituation,
         experienceDetails: args.input.experienceDetails,
       })
-
       const input: CreatePostInputPort = validatedData
-
       const { post } = await this.postManagementUseCase.createPost(input)
       return post
     } catch (error) {
@@ -195,14 +192,9 @@ export class GraphQLPostController {
     context: GraphQLContext
   ) {
     try {
-      if (!context.userId) {
-        throw ApplicationError.unauthorized()
-      }
-
+      if (!context.userId) throw ApplicationError.unauthorized()
       const postId = PostValidator.validatePostId(args.id)
-
       console.log('GraphQL updatePost input data:', JSON.stringify(args.input, null, 2))
-
       const validatedData = PostValidator.validateUpdatePost({
         postId,
         userId: context.userId,
@@ -215,9 +207,7 @@ export class GraphQLPostController {
         usageSituation: args.input.usageSituation,
         experienceDetails: args.input.experienceDetails,
       })
-
       const input: UpdatePostInputPort = validatedData
-
       const { post } = await this.postManagementUseCase.updatePost(input)
       return post
     } catch (error) {
@@ -233,17 +223,12 @@ export class GraphQLPostController {
 
   async deletePost(args: { id: string }, context: GraphQLContext) {
     try {
-      if (!context.userId) {
-        throw ApplicationError.unauthorized()
-      }
-
+      if (!context.userId) throw ApplicationError.unauthorized()
       const postId = PostValidator.validatePostId(args.id)
-
       const input: DeletePostInputPort = {
         postId,
         userId: context.userId,
       }
-
       await this.postManagementUseCase.deletePost(input)
       return { success: true }
     } catch (error) {
@@ -261,14 +246,11 @@ export class GraphQLPostController {
     try {
       const limit = args.first || 10
       const offset = args.after ? parseInt(args.after) : 0
-
       const comments = await this.commentRepository.findByPostId(args.postId)
-
       const edges = comments.map((comment, index) => ({
         cursor: (offset + index + 1).toString(),
         node: comment,
       }))
-
       return {
         edges,
         pageInfo: {

@@ -10,6 +10,7 @@ import { prisma, isDatabaseAvailable } from '@/lib/prisma'
 import { Post as PrismaPost } from '@prisma/client'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import { memoryCache } from '@/lib/cache/memory-cache'
+import { createDBPerfLogger } from '@api/lib/performance-logger'
 
 export class PostRepository implements IPostRepository {
   async findById(id: string): Promise<Post | null> {
@@ -96,7 +97,11 @@ export class PostRepository implements IPostRepository {
   }
 
   async findMany(filter: FindPostsFilter): Promise<FindPostsResult> {
+    const perfLogger = createDBPerfLogger('findMany', 'Post')
+    perfLogger.start('total', { filter })
+
     // キャッシュキーの生成
+    perfLogger.start('cache-key-generation')
     const cacheKey = `posts:${JSON.stringify({
       offset: filter.offset,
       limit: filter.limit,
@@ -107,17 +112,24 @@ export class PostRepository implements IPostRepository {
       sortBy: filter.sortBy,
       publishedOnly: filter.publishedOnly,
     })}`
+    perfLogger.end('cache-key-generation')
 
     // キャッシュから取得を試行（フィルターなしまたは軽いフィルターのみ）
+    perfLogger.start('cache-check')
     const isLightFilter = !filter.search && (!filter.userId || filter.publishedOnly)
     if (isLightFilter && isDatabaseAvailable()) {
       const cached = memoryCache.get(cacheKey)
       if (cached) {
+        perfLogger.end('cache-check', { hit: true })
+        perfLogger.end('total', { source: 'cache' })
+        perfLogger.finish({ cacheHit: true })
         return cached as FindPostsResult
       }
     }
+    perfLogger.end('cache-check', { hit: false })
 
     if (!isDatabaseAvailable()) {
+      perfLogger.start('mock-mode')
       // Mock mode
       let filteredPosts = [...MOCK_POSTS]
 
@@ -198,6 +210,10 @@ export class PostRepository implements IPostRepository {
           )
       )
 
+      perfLogger.end('mock-mode')
+      perfLogger.end('total', { source: 'mock', postCount: posts.length })
+      perfLogger.finish({ source: 'mock' })
+
       return {
         posts,
         totalCount,
@@ -256,47 +272,60 @@ export class PostRepository implements IPostRepository {
     }
 
     try {
+      perfLogger.start('prisma-queries')
       // 並列実行でパフォーマンス向上
       const [posts, totalCount] = await Promise.all([
-        prisma.post.findMany({
-          where,
-          orderBy,
-          skip: filter.offset,
-          take: filter.limit,
-          include: {
-            user: {
-              select: {
-                id: true,
-                userName: true,
+        perfLogger.measure('prisma-findMany', () =>
+          prisma!.post.findMany({
+            where,
+            orderBy,
+            skip: filter.offset,
+            take: filter.limit,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  userName: true,
+                },
+              },
+              _count: {
+                select: {
+                  empathies: true,
+                  comments: true,
+                },
               },
             },
-            _count: {
-              select: {
-                empathies: true,
-                comments: true,
-              },
-            },
-          },
-        }),
+          })
+        ),
         // totalCountは常に正確な値を返す
-        prisma.post.count({ where }).catch(error => {
-          console.error('Error counting posts:', error)
-          return 0
-        }),
+        perfLogger.measure('prisma-count', () =>
+          prisma!.post.count({ where }).catch(error => {
+            console.error('Error counting posts:', error)
+            return 0
+          })
+        ),
       ])
+      perfLogger.end('prisma-queries', { postCount: posts.length, totalCount })
 
+      perfLogger.start('domain-conversion')
       const result = {
         posts: posts.map(post => this.toDomainPost(post)),
         totalCount,
       }
+      perfLogger.end('domain-conversion')
 
       // 結果をキャッシュに保存（軽いフィルターのみ、条件により異なるTTL）
+      perfLogger.start('cache-save')
       if (isLightFilter && isDatabaseAvailable()) {
         // フィルターなしは長時間キャッシュ、軽いフィルターは短時間キャッシュ
         const hasAnyFilter = filter.category || filter.skinType || filter.moodTag
         const ttl = hasAnyFilter ? 180000 : 300000 // 3分または5分
         memoryCache.set(cacheKey, result, ttl)
       }
+      perfLogger.end('cache-save')
+
+      perfLogger.end('total', { source: 'database', postCount: result.posts.length })
+      perfLogger.finish({ source: 'database', cacheHit: false })
 
       return result
     } catch (error) {
