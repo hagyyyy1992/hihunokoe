@@ -4,12 +4,12 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SkinType, Gender, AllergyType } from '@prisma/client'
-import { Input } from '@/components/ui/Input'
-import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
-import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
-import { DatePicker } from '@/components/ui/DatePicker'
+import { Input } from '@/components/ui/input'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
+import { PasswordRequirements } from '@/components/ui/password-requirements'
+import { DatePicker } from '@/components/ui/date-picker'
 import { SKIN_TYPE_OPTIONS, GENDER_OPTIONS, ALLERGY_OPTIONS } from '@/lib/constants/profile'
-import Logo from '@/components/ui/Logo'
+import Logo from '@/components/ui/logo'
 
 // 定数は@/lib/constants/profileからインポート
 

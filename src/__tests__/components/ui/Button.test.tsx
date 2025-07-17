@@ -1,5 +1,5 @@
 import { render, screen, createUser, expectElementToBeVisible } from '../../helpers/rtl-utils'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 
 // Mock cn utility

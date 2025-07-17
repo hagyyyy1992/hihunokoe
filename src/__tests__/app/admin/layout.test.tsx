@@ -11,7 +11,7 @@ jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
 }))
 
-jest.mock('@/components/ui/Button', () => ({
+jest.mock('@/components/ui/button', () => ({
   Button: ({
     children,
     onClick,
@@ -29,7 +29,7 @@ jest.mock('@/components/ui/Button', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/Avatar', () => ({
+jest.mock('@/components/ui/avatar', () => ({
   Avatar: ({
     children,
     className,

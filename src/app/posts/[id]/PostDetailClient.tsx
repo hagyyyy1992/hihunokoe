@@ -20,7 +20,7 @@ import {
   textureAfterUseLabels,
   comfortLabels,
 } from '@/lib/constants'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface PostData {
   post: {

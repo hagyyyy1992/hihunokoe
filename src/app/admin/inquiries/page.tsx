@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -12,10 +12,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/Table'
-import { Alert, AlertDescription } from '@/components/ui/Alert'
-import { Input } from '@/components/ui/Input'
-import { SimpleSelect } from '@/components/ui/Select'
+} from '@/components/ui/table'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { SimpleSelect } from '@/components/ui/select'
 import { ContactCategory, ContactStatus } from '@prisma/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'

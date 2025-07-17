@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
-import { PasswordRequirements } from '@/components/ui/PasswordRequirements'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
+import { PasswordRequirements } from '@/components/ui/password-requirements'
 import Link from 'next/link'
 
 function ResetPasswordForm() {

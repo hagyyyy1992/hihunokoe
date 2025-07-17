@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
-import Logo from '@/components/ui/Logo'
+import Logo from '@/components/ui/logo'
 
 export default function Footer() {
   const { user } = useAuth()

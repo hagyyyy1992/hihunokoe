@@ -5,7 +5,7 @@ import { ja } from 'date-fns/locale'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 // import { useCallback } from 'react'
 // import { useAuth } from '@/lib/auth/AuthContext'
-// import EmpathyButton from '@/components/ui/EmpathyButton'
+// import EmpathyButton from '@/components/ui/empathy-button'
 // import { EmpathyType } from '@/types'
 
 interface Post {

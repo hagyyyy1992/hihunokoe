@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react'
 import ReportsManagement from '@/app/admin/reports/page'
 
 // Mock UI components
-jest.mock('@/components/ui/Card', () => ({
+jest.mock('@/components/ui/card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardContent: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card-content">{children}</div>

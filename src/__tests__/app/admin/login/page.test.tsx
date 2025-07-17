@@ -11,7 +11,7 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }))
 
-jest.mock('@/components/ui/Button', () => ({
+jest.mock('@/components/ui/button', () => ({
   Button: ({
     children,
     onClick,
@@ -33,7 +33,7 @@ jest.mock('@/components/ui/Button', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/Card', () => ({
+jest.mock('@/components/ui/card', () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div className={className}>{children}</div>
   ),
@@ -47,7 +47,7 @@ jest.mock('@/components/ui/Card', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/Input', () => ({
+jest.mock('@/components/ui/input', () => ({
   Input: ({
     id,
     type,
@@ -93,7 +93,7 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/Alert', () => ({
+jest.mock('@/components/ui/alert', () => ({
   Alert: ({ children, variant }: { children: React.ReactNode; variant?: string }) => (
     <div data-variant={variant}>{children}</div>
   ),

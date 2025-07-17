@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/PostForm'
-import DraggableGuidelineModal from '@/components/ui/DraggableGuidelineModal'
+import DraggableGuidelineModal from '@/components/ui/draggable-guideline-modal'
 
 export default function NewPostPage() {
   const { user, loading } = useAuth()

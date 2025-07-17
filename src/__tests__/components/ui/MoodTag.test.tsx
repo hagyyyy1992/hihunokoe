@@ -4,7 +4,7 @@ import {
   expectElementToBeVisible,
   expectElementToHaveText,
 } from '../../helpers/rtl-utils'
-import { MoodTag } from '@/components/ui/MoodTag'
+import { MoodTag } from '@/components/ui/mood-tag'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 
 // Mock cn utility

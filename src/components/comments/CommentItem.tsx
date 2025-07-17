@@ -6,7 +6,7 @@ import { ja } from 'date-fns/locale'
 import { Comment } from '@/types'
 import { useAuth } from '@/lib/auth/AuthContext'
 import CommentForm from './CommentForm'
-import { DeleteConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface CommentItemProps {
   comment: Comment

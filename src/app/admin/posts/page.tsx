@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
-import { SimpleSelect } from '@/components/ui/Select'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { SimpleSelect } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/Table'
+} from '@/components/ui/table'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,10 +23,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/AlertDialog'
+} from '@/components/ui/alert-dialog'
 import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react'
 import { PostPreviewModal } from '@/components/admin/PostPreviewModal'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Post {
   id: string

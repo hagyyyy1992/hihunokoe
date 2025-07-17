@@ -1,5 +1,5 @@
 import { render, screen, expectElementToBeVisible, waitFor } from '../../helpers/rtl-utils'
-import EmpathyButton from '@/components/ui/EmpathyButton'
+import EmpathyButton from '@/components/ui/empathy-button'
 import { setupComponentTest, cleanupComponentTest } from '../../helpers/component-test-setup'
 import userEvent from '@testing-library/user-event'
 

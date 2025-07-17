@@ -1,9 +1,9 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
-import { Badge } from '@/components/ui/Badge'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Avatar } from '@/components/ui/Avatar'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar } from '@/components/ui/avatar'
 import { Mail, Calendar, Package, Heart, MessageSquare, MapPin } from 'lucide-react'
 import { getSkinTypeLabel, getSkinConditionLabel } from '@/lib/constants/profile'
 
