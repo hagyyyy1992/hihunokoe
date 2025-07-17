@@ -12,10 +12,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/Table'
 import { Alert, AlertDescription } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
-import { SimpleSelect } from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/Select'
 import { ContactCategory, ContactStatus } from '@prisma/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'

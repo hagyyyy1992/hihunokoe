@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Label } from '@/components/ui/label'
+import { Label } from '@/components/ui/Label'
 import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { Alert, AlertDescription } from '@/components/ui/Alert'
-import { SimpleSelect } from '@/components/ui/select'
+import { SimpleSelect } from '@/components/ui/Select'
 
 // アカウント関連のカテゴリーのみ
 const anonymousCategories = {
