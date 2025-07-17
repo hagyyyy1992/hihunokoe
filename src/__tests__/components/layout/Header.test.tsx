@@ -3,7 +3,7 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react'
 import { usePathname } from 'next/navigation'
-import Header from '@/components/layout/Header'
+import Header from '@/components/layout/header'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { SERVICE_NAME } from '@/lib/constants'
 

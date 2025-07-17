@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Search, Download, UserCheck, UserX, Eye } from 'lucide-react'
-import { UserPreviewModal } from '@/components/admin/UserPreviewModal'
+import { UserPreviewModal } from '@/components/admin/user-preview-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {

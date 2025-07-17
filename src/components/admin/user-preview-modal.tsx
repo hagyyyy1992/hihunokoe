@@ -4,8 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
-import { Mail, Calendar, Package, Heart, MessageSquare, MapPin } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Mail, Calendar, Package, Heart, MessageSquare, MapPin, ExternalLink } from 'lucide-react'
 import { getSkinTypeLabel, getSkinConditionLabel } from '@/lib/constants/profile'
+import Link from 'next/link'
 
 interface UserPreviewModalProps {
   user: {
@@ -38,7 +40,15 @@ export function UserPreviewModal({ user, isOpen, onClose }: UserPreviewModalProp
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>ユーザープロフィール</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>ユーザープロフィール</DialogTitle>
+            <Link href={`/profile?userId=${user.id}`} target="_blank">
+              <Button variant="outline" size="sm">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                プロフィールを表示
+              </Button>
+            </Link>
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">

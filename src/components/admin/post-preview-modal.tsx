@@ -4,7 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
-import { Heart, Eye, MessageSquare, Calendar, Tag, Star } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Heart, Eye, MessageSquare, Calendar, Tag, Star, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 
 interface PostPreviewModalProps {
   post: {
@@ -52,7 +54,17 @@ export function PostPreviewModal({ post, isOpen, onClose }: PostPreviewModalProp
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>投稿プレビュー</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>投稿プレビュー</DialogTitle>
+            {!post.deletedAt && (
+              <Link href={`/posts/${post.id}`} target="_blank">
+                <Button variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  投稿を表示
+                </Button>
+              </Link>
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">

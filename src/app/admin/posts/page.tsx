@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react'
-import { PostPreviewModal } from '@/components/admin/PostPreviewModal'
+import { PostPreviewModal } from '@/components/admin/post-preview-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Post {

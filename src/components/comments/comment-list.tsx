@@ -3,9 +3,9 @@
 import { Comment } from '@/types'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useComments } from '@/hooks/useComments'
-import CommentForm from './CommentForm'
-import CommentItem from './CommentItem'
-import { AuthGuard, LoginPrompt } from '@/components/auth/AuthGuard'
+import CommentForm from './comment-form'
+import CommentItem from './comment-item'
+import { AuthGuard, LoginPrompt } from '@/components/auth/auth-guard'
 
 interface CommentListProps {
   postId: string

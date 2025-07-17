@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import PostForm from '@/components/forms/PostForm'
+import PostForm from '@/components/forms/post-form'
 import { categoryLabels } from '@/lib/constants/categories'
 import { useRouter } from 'next/navigation'
 import { MockedProvider } from '@apollo/client/testing'
