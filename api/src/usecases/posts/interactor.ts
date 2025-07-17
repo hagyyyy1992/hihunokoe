@@ -156,24 +156,20 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     // 投稿更新
     const updatedPost = await this.postRepository.update(input.postId, updateData)
 
-    // ユーザー情報を取得
-    const user = await this.userRepository.findById(updatedPost.userId)
-    if (!user) {
-      throw new Error('ユーザーが見つかりませんでした')
-    }
-
-    // エンパシー数とコメント数を取得
-    const empathyCount = await this.empathyRepository.countByPost(updatedPost.id)
-    const commentCount = await this.commentRepository.countByPostId(updatedPost.id)
-    const userHasEmpathy =
-      (await this.empathyRepository.findByUserAndPost(input.userId, updatedPost.id)) !== null
-
+    // ユーザー情報、エンパシー数、コメント数、ユーザーのエンパシー状態を並列で取得
+    const [user, empathyCount, commentCount, userEmpathy] = await Promise.all([
+      this.userRepository.findById(updatedPost.userId),
+      this.empathyRepository.countByPost(updatedPost.id),
+      this.commentRepository.countByPostId(updatedPost.id),
+      this.empathyRepository.findByUserAndPost(input.userId, updatedPost.id),
+    ])
+    if (!user) throw new Error('ユーザーが見つかりませんでした')
     return {
       post: updatedPost,
       user,
       empathyCount,
       commentCount,
-      userHasEmpathy,
+      userHasEmpathy: userEmpathy !== null,
       message: '投稿を更新しました',
     }
   }
@@ -219,23 +215,18 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       throw new Error('この投稿は非公開です')
     }
 
-    // ユーザー情報を取得
-    const user = await this.userRepository.findById(post.userId)
+    // ユーザー情報、エンパシー数、コメント数、ユーザーのエンパシー状態を並列で取得
+    const [user, empathyCount, commentCount, userEmpathy] = await Promise.all([
+      this.userRepository.findById(post.userId),
+      this.empathyRepository.countByPost(input.postId),
+      this.commentRepository.countByPostId(input.postId),
+      input.userId
+        ? this.empathyRepository.findByUserAndPost(input.userId, input.postId)
+        : Promise.resolve(null),
+    ])
+
     if (!user) {
       throw new Error('ユーザーが見つかりませんでした')
-    }
-
-    // エンパシー数を取得
-    const empathyCount = await this.empathyRepository.countByPost(input.postId)
-
-    // コメント数を取得
-    const commentCount = await this.commentRepository.countByPostId(input.postId)
-
-    // ユーザーがエンパシーしているかチェック
-    let userHasEmpathy = false
-    if (input.userId) {
-      const empathy = await this.empathyRepository.findByUserAndPost(input.userId, input.postId)
-      userHasEmpathy = !!empathy
     }
 
     return {
@@ -243,7 +234,7 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
       user,
       empathyCount,
       commentCount,
-      userHasEmpathy,
+      userHasEmpathy: !!userEmpathy,
     }
   }
 
@@ -276,26 +267,36 @@ export class PostRetrievalUseCase implements IPostRetrievalUseCase {
     })
     perfLogger.end('repository-findMany', { postCount: posts.length, totalCount })
 
-    // ユーザー情報を一括取得
-    perfLogger.start('fetch-users')
+    // ユーザー情報と共感状態を並列で取得
+    perfLogger.start('fetch-related-data')
     const userIds = [...new Set(posts.map(p => p.userId))]
-    const users = await Promise.all(userIds.map(id => this.userRepository.findById(id)))
-    const userMap = new Map(users.filter(u => u !== null).map(u => [u!.id, u!]))
-    perfLogger.end('fetch-users', { userCount: userIds.length })
 
-    // ユーザーの共感状態のみを一括取得（カウントはPostRepositoryで取得済み）
-    perfLogger.start('fetch-user-empathies')
-    let userEmpathies: Map<string, boolean> = new Map()
-    if (input.userId) {
-      const empathies = await this.empathyRepository.findByUserAndPosts(
-        input.userId,
-        posts.map(p => p.id)
-      )
-      empathies.forEach(empathy => {
-        userEmpathies.set(empathy.postId, true)
-      })
-    }
-    perfLogger.end('fetch-user-empathies', { hasUser: !!input.userId })
+    const [users, userEmpathiesData] = await Promise.all([
+      // ユーザー情報を一括取得
+      Promise.all(userIds.map(id => this.userRepository.findById(id))),
+      // ユーザーの共感状態を取得
+      input.userId
+        ? this.empathyRepository.findByUserAndPosts(
+            input.userId,
+            posts.map(p => p.id)
+          )
+        : Promise.resolve([]),
+    ])
+
+    // ユーザーマップを作成
+    const userMap = new Map(users.filter(u => u !== null).map(u => [u!.id, u!]))
+
+    // 共感状態マップを作成
+    const userEmpathies: Map<string, boolean> = new Map()
+    userEmpathiesData.forEach(empathy => {
+      userEmpathies.set(empathy.postId, true)
+    })
+
+    perfLogger.end('fetch-related-data', {
+      userCount: userIds.length,
+      hasUser: !!input.userId,
+      empathyCount: userEmpathiesData.length,
+    })
 
     // 各投稿にユーザー情報と共感状態を追加
     perfLogger.start('build-metadata')

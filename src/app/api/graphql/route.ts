@@ -20,6 +20,7 @@ import {
   createUserEmpathyDataLoader,
 } from '@/graphql/dataloaders/empathyDataLoader'
 import { PerformanceLogger } from '@api/lib/performance-logger'
+import { tokenCacheService } from '@/lib/token-cache'
 
 const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -100,6 +101,27 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
 
     try {
       contextLogger.start('verify-token')
+
+      // キャッシュからトークンを確認
+      const cachedUserId = tokenCacheService.get(token)
+      if (cachedUserId) {
+        userId = cachedUserId
+        contextLogger.end('verify-token', { authenticated: true, cached: true })
+
+        const userEmpathyLoader = createUserEmpathyDataLoader(userId)
+        contextLogger.finish({ authenticated: true, userId, cached: true })
+
+        return {
+          userId,
+          userLoader,
+          commentLoader,
+          commentByIdLoader,
+          empathyLoader,
+          userEmpathyLoader,
+        }
+      }
+
+      // キャッシュにない場合は検証を実行
       const authSessionRepository = new AuthSessionRepository()
       const passwordHashService = new PasswordHashServiceImpl()
       const tokenService = new TokenServiceImpl()
@@ -114,11 +136,17 @@ const handler = startServerAndCreateNextHandler<NextRequest, GraphQLContext>(ser
       const input: VerifyTokenInputPort = { token }
       const { user } = await authenticationUseCase.verifyToken(input)
       userId = user?.id || null
-      contextLogger.end('verify-token', { authenticated: !!userId })
+
+      // 検証成功時はキャッシュに保存（有効期限は5分後）
+      if (userId) {
+        tokenCacheService.set(token, userId, Date.now() + 5 * 60 * 1000)
+      }
+
+      contextLogger.end('verify-token', { authenticated: !!userId, cached: false })
 
       const userEmpathyLoader = createUserEmpathyDataLoader(userId)
 
-      contextLogger.finish({ authenticated: true, userId })
+      contextLogger.finish({ authenticated: true, userId, cached: false })
 
       return {
         userId,

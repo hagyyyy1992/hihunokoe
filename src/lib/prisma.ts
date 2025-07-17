@@ -35,10 +35,13 @@ if (databaseType !== 'mock') {
                   // URLが既にパラメータを含んでいるかチェック
                   if (url.includes('?')) {
                     // 既存のパラメータに追加
-                    return url + '&connection_limit=1&statement_cache_size=0'
+                    return url + '&pool_timeout=10&connection_limit=5&statement_cache_size=50'
                   } else {
                     // 新規にパラメータを追加
-                    return url + '?pgbouncer=true&connection_limit=1&statement_cache_size=0'
+                    return (
+                      url +
+                      '?pgbouncer=true&pool_timeout=10&connection_limit=5&statement_cache_size=50'
+                    )
                   }
                 })(),
               },

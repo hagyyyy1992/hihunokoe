@@ -6,6 +6,12 @@
       "preview": false
     }
   },
+  "crons": [
+    {
+      "path": "/api/warmup",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -33,6 +39,12 @@
       "maxDuration": 30
     },
     "src/app/api/admin/inquiries/[id]/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/graphql/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/posts/route.ts": {
       "maxDuration": 30
     }
   },
