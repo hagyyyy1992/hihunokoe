@@ -16,7 +16,8 @@ interface Post {
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
-  publishedAt: string
+  createdAt: string
+  publishedAt?: string // 後方互換性のため残す
   empathyCount: number
   viewCount: number
   user: {
@@ -109,14 +110,16 @@ function PostCard({ post }: PostCardProps) {
 
   useEffect(() => {
     if (isClient) {
+      // publishedAt が利用可能な場合はそれを使用、そうでなければ createdAt を使用
+      const dateToUse = post.publishedAt || post.createdAt
       setFormattedDate(
-        formatDistanceToNow(new Date(post.publishedAt), {
+        formatDistanceToNow(new Date(dateToUse), {
           addSuffix: true,
           locale: ja,
         })
       )
     }
-  }, [post.publishedAt, isClient])
+  }, [post.createdAt, post.publishedAt, isClient])
 
   return (
     <div

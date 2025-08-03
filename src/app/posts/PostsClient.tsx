@@ -407,6 +407,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                         moodTag: post.moodTag || undefined,
                         viewCount: post.viewCount,
                         empathyCount: post.empathyCount,
+                        createdAt: new Date(post.createdAt).toISOString(),
                         publishedAt: new Date(post.createdAt).toISOString(),
                         user: {
                           ...post.user,

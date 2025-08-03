@@ -12,7 +12,8 @@ interface Post {
   title: string
   content: string
   cosmeticName: string
-  publishedAt: string
+  createdAt: string
+  publishedAt?: string // 後方互換性のため追加
   user: {
     id: string
     userName: string
@@ -174,7 +175,7 @@ export default function HomePage() {
                         コスメ: {post.cosmeticName}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
+                        {new Date(post.publishedAt || post.createdAt).toLocaleDateString('ja-JP')}
                       </div>
                     </Link>
                   ))}
@@ -226,7 +227,7 @@ export default function HomePage() {
                         コスメ: {post.cosmeticName}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
+                        {new Date(post.publishedAt || post.createdAt).toLocaleDateString('ja-JP')}
                       </div>
                     </Link>
                   ))}
