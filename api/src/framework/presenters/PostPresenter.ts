@@ -8,9 +8,11 @@ export interface PostResponse {
   title: string
   content: string
   productName: string
+  cosmeticName?: string // 下位互換性のため追加
   brandName?: string
   imageUrl?: string
   category: string
+  cosmeticCategory?: string // 下位互換性のため追加
   skinType?: string
   moodTag?: string
   usageSituation?: string
@@ -19,6 +21,7 @@ export interface PostResponse {
   commentCount: number
   userHasEmpathy?: boolean
   createdAt: string
+  publishedAt: string // 下位互換性のため追加
   updatedAt: string
   user: {
     id: string
@@ -74,9 +77,11 @@ export class PostPresenter {
       title: post.title,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
+      cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
+      cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性
       skinType: post.skinType || undefined,
       moodTag: post.moodTag || undefined,
       usageSituation: post.usageSituation || undefined,
@@ -85,6 +90,7 @@ export class PostPresenter {
       commentCount,
       userHasEmpathy,
       createdAt: post.createdAt.toISOString(),
+      publishedAt: post.createdAt.toISOString(), // 下位互換性のため createdAt と同じ値
       updatedAt: post.updatedAt.toISOString(),
       user: {
         id: user.id,
@@ -101,9 +107,11 @@ export class PostPresenter {
       title: post.title,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
+      cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
+      cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性
       skinType: post.skinType || undefined,
       moodTag: post.moodTag || undefined,
       usageSituation: post.usageSituation || undefined,
@@ -112,6 +120,7 @@ export class PostPresenter {
       commentCount: post.commentCount,
       userHasEmpathy,
       createdAt: post.createdAt.toISOString(),
+      publishedAt: post.createdAt.toISOString(), // 下位互換性のため createdAt と同じ値
       updatedAt: post.updatedAt.toISOString(),
       user: {
         id: post.userId,
@@ -130,9 +139,11 @@ export class PostPresenter {
       title: post.title,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
+      cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
+      cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性
       skinType: post.skinType || undefined,
       moodTag: post.moodTag || undefined,
       usageSituation: post.usageSituation || undefined,
@@ -141,6 +152,7 @@ export class PostPresenter {
       commentCount: post.commentCount,
       userHasEmpathy: post.userHasEmpathy,
       createdAt: post.createdAt.toISOString(),
+      publishedAt: post.createdAt.toISOString(), // 下位互換性のため createdAt と同じ値
       updatedAt: post.updatedAt.toISOString(),
       user: {
         id: post.user.id,

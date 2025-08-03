@@ -48,6 +48,7 @@ describe('PostCard Component', () => {
     cosmeticCategory: 'toner',
     skinType: 'normal',
     moodTag: 'good',
+    createdAt: '2024-01-01T00:00:00Z',
     publishedAt: '2024-01-01T00:00:00Z',
     empathyCount: 5,
     viewCount: 42,

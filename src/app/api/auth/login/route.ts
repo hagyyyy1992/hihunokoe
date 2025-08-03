@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthControllerFactory } from '@api/framework/factories/AuthControllerFactory'
-import { cookies } from 'next/headers'
 import { getClientIpAddress } from '@/lib/utils/get-ip-address'
 
 export async function POST(request: NextRequest) {
@@ -29,11 +28,11 @@ export async function POST(request: NextRequest) {
     const responseData = await clonedResponse.json()
 
     if (responseData.token) {
-      // クッキーストアを取得（Next.js 15では非同期）
-      const cookieStore = await cookies()
+      // NextResponseを作成してクッキーを設定
+      const nextResponse = NextResponse.json(responseData)
 
-      // クッキーを設定
-      cookieStore.set('auth-token', responseData.token, {
+      // クッキーを設定（NextResponseのcookiesメソッドを使用）
+      nextResponse.cookies.set('auth-token', responseData.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -46,16 +45,26 @@ export async function POST(request: NextRequest) {
         responseData.user &&
         (!responseData.user.termsAcceptedAt || !responseData.user.privacyAcceptedAt)
       ) {
-        return NextResponse.json({
+        const termsResponse = NextResponse.json({
           ...responseData,
           requiresTermsAgreement: true,
           redirectTo: '/auth/terms-agreement',
         })
+
+        // 利用規約同意が必要な場合でもクッキーは設定
+        termsResponse.cookies.set('auth-token', responseData.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60, // 7 days
+          path: '/',
+        })
+
+        return termsResponse
       }
 
-      // レスポンスデータを返す
-      return NextResponse.json(responseData)
-    } else {
+      // クッキー付きレスポンスデータを返す
+      return nextResponse
     }
   }
 
