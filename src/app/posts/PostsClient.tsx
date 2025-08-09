@@ -55,6 +55,7 @@ interface PostNode {
   content: string
   cosmeticName: string
   brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
@@ -405,6 +406,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                         content: post.content,
                         cosmeticName: post.cosmeticName,
                         brandName: post.brandName,
+                        color: post.color,
                         cosmeticCategory: post.cosmeticCategory || undefined,
                         skinType: post.skinType || undefined,
                         moodTag: post.moodTag || undefined,

@@ -14,6 +14,7 @@ interface Post {
   content: string
   cosmeticName: string
   brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
@@ -165,6 +166,7 @@ function PostCard({ post }: PostCardProps) {
           <div className="mt-0.5">
             {post.brandName && <span className="text-gray-600 text-xs">{post.brandName} </span>}
             <span className="text-gray-900">{post.cosmeticName}</span>
+            {post.color && <span className="text-gray-500 text-xs ml-2">({post.color})</span>}
           </div>
         </div>
         <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-3">

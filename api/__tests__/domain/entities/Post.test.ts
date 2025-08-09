@@ -8,6 +8,7 @@ describe('Post Entity', () => {
     'This is a test post content that is long enough to be valid.',
     'Foundation X',
     'Brand Y',
+    'Natural Beige', // color parameter
     'https://example.com/image.jpg',
     'makeup',
     true,
@@ -67,6 +68,7 @@ describe('Post Entity', () => {
         '', // empty content
         null,
         null,
+        null, // color
         null,
         null,
         true,
@@ -94,6 +96,7 @@ describe('Post Entity', () => {
         '   ', // whitespace only content
         null,
         null,
+        null, // color
         null,
         null,
         true,
@@ -123,6 +126,7 @@ describe('Post Entity', () => {
         'Short content',
         null,
         null,
+        null, // color
         null,
         null,
         true,
@@ -151,6 +155,7 @@ describe('Post Entity', () => {
         longContent,
         null,
         null,
+        null, // color
         null,
         null,
         true,
@@ -180,6 +185,7 @@ describe('Post Entity', () => {
         exactContent,
         null,
         null,
+        null, // color
         null,
         null,
         true,
@@ -210,6 +216,7 @@ describe('Post Entity', () => {
         'Content',
         null, // productName
         null, // brandName
+        null, // color
         null, // imageUrl
         null, // category
         false, // isPublished

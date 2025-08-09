@@ -11,6 +11,7 @@ export const GET_POSTS = gql`
           content
           cosmeticName
           brandName
+          color
           cosmeticCategory
           skinType
           moodTag
@@ -42,6 +43,7 @@ export const GET_POST = gql`
       content
       cosmeticName
       brandName
+      color
       cosmeticCategory
       skinType
       usageSituation
@@ -69,6 +71,7 @@ export const CREATE_POST = gql`
       content
       cosmeticName
       brandName
+      color
       cosmeticCategory
       skinType
       usageSituation
@@ -93,6 +96,7 @@ export const UPDATE_POST = gql`
       content
       cosmeticName
       brandName
+      color
       cosmeticCategory
       skinType
       usageSituation

@@ -5,8 +5,9 @@ export interface CreatePostRequest {
   userId: string
   title?: string
   content: string
-  productName: string
+  productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category: string
   skinType?: string
@@ -22,6 +23,7 @@ export interface UpdatePostRequest {
   content?: string
   productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category?: string
   skinType?: string
@@ -80,10 +82,9 @@ export class PostValidator {
       errors.push('本文は1文字以上5000文字以内で入力してください')
     }
 
-    if (!data.productName || typeof data.productName !== 'string') {
-      errors.push('商品名は必須です')
-    } else if (data.productName.length < 1 || data.productName.length > 100) {
-      errors.push('商品名は1文字以上100文字以内で入力してください')
+    // 商品名は任意項目に変更
+    if (data.productName && typeof data.productName === 'string' && data.productName.length > 100) {
+      errors.push('商品名は100文字以内で入力してください')
     }
 
     if (!data.category || !this.VALID_CATEGORIES.includes(data.category)) {
@@ -93,6 +94,10 @@ export class PostValidator {
     // オプションフィールドの検証
     if (data.brandName && typeof data.brandName === 'string' && data.brandName.length > 100) {
       errors.push('ブランド名は100文字以内で入力してください')
+    }
+
+    if (data.color && typeof data.color === 'string' && data.color.length > 50) {
+      errors.push('色は50文字以内で入力してください')
     }
 
     if (data.imageUrl && typeof data.imageUrl === 'string' && data.imageUrl.length > 500) {
@@ -135,8 +140,9 @@ export class PostValidator {
       userId: data.userId,
       title: data.title?.trim(),
       content: data.content.trim(),
-      productName: data.productName.trim(),
+      productName: data.productName?.trim(),
       brandName: data.brandName?.trim(),
+      color: data.color?.trim(),
       imageUrl: data.imageUrl?.trim(),
       category: data.category,
       skinType: data.skinType,
@@ -161,6 +167,7 @@ export class PostValidator {
       'content',
       'productName',
       'brandName',
+      'color',
       'imageUrl',
       'category',
       'skinType',
@@ -173,14 +180,14 @@ export class PostValidator {
       errors.push('更新するフィールドを指定してください')
     }
 
-    // 各フィールドの検証
+    // 各フィールドの検証（nullを許可して空更新を可能にする）
     if ('title' in data && data.title !== null && data.title !== undefined) {
       if (typeof data.title !== 'string' || data.title.length > 100) {
         errors.push('タイトルは100文字以内で入力してください')
       }
     }
 
-    if ('content' in data) {
+    if ('content' in data && data.content !== null && data.content !== undefined) {
       if (
         typeof data.content !== 'string' ||
         data.content.length < 1 ||
@@ -190,13 +197,9 @@ export class PostValidator {
       }
     }
 
-    if ('productName' in data) {
-      if (
-        typeof data.productName !== 'string' ||
-        data.productName.length < 1 ||
-        data.productName.length > 100
-      ) {
-        errors.push('商品名は1文字以上100文字以内で入力してください')
+    if ('productName' in data && data.productName !== null && data.productName !== undefined) {
+      if (typeof data.productName !== 'string' || data.productName.length > 100) {
+        errors.push('商品名は100文字以内で入力してください')
       }
     }
 
@@ -206,13 +209,19 @@ export class PostValidator {
       }
     }
 
+    if ('color' in data && data.color !== null && data.color !== undefined) {
+      if (typeof data.color !== 'string' || data.color.length > 50) {
+        errors.push('色は50文字以内で入力してください')
+      }
+    }
+
     if ('imageUrl' in data && data.imageUrl !== null && data.imageUrl !== undefined) {
       if (typeof data.imageUrl !== 'string' || data.imageUrl.length > 500) {
         errors.push('画像URLは500文字以内で入力してください')
       }
     }
 
-    if ('category' in data) {
+    if ('category' in data && data.category !== null && data.category !== undefined) {
       if (!this.VALID_CATEGORIES.includes(data.category)) {
         errors.push('有効なカテゴリーを選択してください')
       }
@@ -266,25 +275,37 @@ export class PostValidator {
       throw ApplicationError.validationError(errors)
     }
 
+    // 空文字列をnullに変換する関数
+    const convertEmptyToNull = (value: any) => {
+      if (value === null || value === undefined) return null
+      if (typeof value === 'string' && value.trim() === '') return null
+      return typeof value === 'string' ? value.trim() : value
+    }
+
     return {
       postId: data.postId,
       userId: data.userId,
-      title: data.title?.trim(),
-      content: data.content?.trim(),
-      productName: data.productName?.trim(),
-      brandName: data.brandName?.trim(),
-      imageUrl: data.imageUrl?.trim(),
-      category: data.category,
-      skinType: data.skinType === '' ? undefined : data.skinType,
-      moodTag: data.moodTag === '' ? undefined : data.moodTag,
+      title: 'title' in data ? convertEmptyToNull(data.title) : undefined,
+      content: 'content' in data ? convertEmptyToNull(data.content) : undefined,
+      productName: 'productName' in data ? convertEmptyToNull(data.productName) : undefined,
+      brandName: 'brandName' in data ? convertEmptyToNull(data.brandName) : undefined,
+      color: 'color' in data ? convertEmptyToNull(data.color) : undefined,
+      imageUrl: 'imageUrl' in data ? convertEmptyToNull(data.imageUrl) : undefined,
+      category: 'category' in data ? data.category : undefined,
+      skinType: data.skinType === '' ? null : data.skinType,
+      moodTag: data.moodTag === '' ? null : data.moodTag,
       usageSituation:
-        data.usageSituation && typeof data.usageSituation === 'object'
-          ? JSON.stringify(data.usageSituation)
-          : data.usageSituation?.trim?.(),
+        'usageSituation' in data
+          ? data.usageSituation && typeof data.usageSituation === 'object'
+            ? JSON.stringify(data.usageSituation)
+            : convertEmptyToNull(data.usageSituation)
+          : undefined,
       experienceDetails:
-        data.experienceDetails && typeof data.experienceDetails === 'object'
-          ? JSON.stringify(data.experienceDetails)
-          : data.experienceDetails?.trim?.(),
+        'experienceDetails' in data
+          ? data.experienceDetails && typeof data.experienceDetails === 'object'
+            ? JSON.stringify(data.experienceDetails)
+            : convertEmptyToNull(data.experienceDetails)
+          : undefined,
     }
   }
 

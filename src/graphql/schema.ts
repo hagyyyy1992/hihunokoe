@@ -25,8 +25,9 @@ export const typeDefs = gql`
     userId: String!
     title: String
     content: String!
-    cosmeticName: String!
+    cosmeticName: String
     brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -108,8 +109,9 @@ export const typeDefs = gql`
   input CreatePostInput {
     title: String
     content: String!
-    cosmeticName: String!
+    cosmeticName: String
     brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -122,6 +124,7 @@ export const typeDefs = gql`
     content: String
     cosmeticName: String
     brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON

@@ -83,6 +83,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
       content: input.content.trim(),
       productName: input.productName?.trim() || null,
       brandName: input.brandName?.trim() || null,
+      color: input.color?.trim() || null,
       imageUrl: input.imageUrl?.trim() || null,
       category: input.category?.trim() || null,
       skinType: input.skinType?.trim() || null,
@@ -139,6 +140,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     if (input.content !== undefined) updateData.content = input.content.trim()
     if (input.productName !== undefined) updateData.productName = input.productName?.trim() || null
     if (input.brandName !== undefined) updateData.brandName = input.brandName?.trim() || null
+    if (input.color !== undefined) updateData.color = input.color?.trim() || null
     if (input.imageUrl !== undefined) updateData.imageUrl = input.imageUrl?.trim() || null
     if (input.category !== undefined) updateData.category = input.category?.trim() || null
     if (input.skinType !== undefined) updateData.skinType = input.skinType?.trim() || null

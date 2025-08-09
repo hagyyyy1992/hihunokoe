@@ -58,9 +58,10 @@ export type CommentEdge = {
 
 export type CreatePostInput = {
   brandName?: InputMaybe<Scalars['String']['input']>
+  color?: InputMaybe<Scalars['String']['input']>
   content: Scalars['String']['input']
   cosmeticCategory?: InputMaybe<Scalars['String']['input']>
-  cosmeticName: Scalars['String']['input']
+  cosmeticName?: InputMaybe<Scalars['String']['input']>
   experienceDetails?: InputMaybe<Scalars['JSON']['input']>
   moodTag?: InputMaybe<Scalars['String']['input']>
   skinType?: InputMaybe<Scalars['String']['input']>
@@ -142,32 +143,33 @@ export type MutationUpdatePostArgs = {
 
 export type PageInfo = {
   __typename?: 'PageInfo'
-  endCursor: Maybe<Scalars['String']['output']>
+  endCursor?: Maybe<Scalars['String']['output']>
   hasNextPage: Scalars['Boolean']['output']
   hasPreviousPage: Scalars['Boolean']['output']
-  startCursor: Maybe<Scalars['String']['output']>
+  startCursor?: Maybe<Scalars['String']['output']>
 }
 
 export type Post = {
   __typename?: 'Post'
-  brandName: Maybe<Scalars['String']['output']>
+  brandName?: Maybe<Scalars['String']['output']>
+  color?: Maybe<Scalars['String']['output']>
   commentCount: Scalars['Int']['output']
   comments: Array<Comment>
   content: Scalars['String']['output']
-  cosmeticCategory: Maybe<Scalars['String']['output']>
-  cosmeticName: Scalars['String']['output']
+  cosmeticCategory?: Maybe<Scalars['String']['output']>
+  cosmeticName?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   empathies: Array<Empathy>
   empathyCount: Scalars['Int']['output']
-  experienceDetails: Maybe<Scalars['JSON']['output']>
+  experienceDetails?: Maybe<Scalars['JSON']['output']>
   id: Scalars['ID']['output']
-  moodTag: Maybe<Scalars['String']['output']>
-  publishedAt: Maybe<Scalars['DateTime']['output']>
-  skinType: Maybe<Scalars['String']['output']>
+  moodTag?: Maybe<Scalars['String']['output']>
+  publishedAt?: Maybe<Scalars['DateTime']['output']>
+  skinType?: Maybe<Scalars['String']['output']>
   status: Scalars['String']['output']
-  title: Maybe<Scalars['String']['output']>
+  title?: Maybe<Scalars['String']['output']>
   updatedAt: Scalars['DateTime']['output']
-  usageSituation: Maybe<Scalars['JSON']['output']>
+  usageSituation?: Maybe<Scalars['JSON']['output']>
   user: User
   userId: Scalars['String']['output']
   viewCount: Scalars['Int']['output']
@@ -201,12 +203,12 @@ export type PostOrderBy =
 
 export type Query = {
   __typename?: 'Query'
-  currentUser: Maybe<User>
-  post: Maybe<Post>
+  currentUser?: Maybe<User>
+  post?: Maybe<Post>
   postComments: CommentConnection
   postEmpathies: EmpathyConnection
   posts: PostConnection
-  user: Maybe<User>
+  user?: Maybe<User>
 }
 
 export type QueryPostArgs = {
@@ -240,6 +242,7 @@ export type QueryUserArgs = {
 
 export type UpdatePostInput = {
   brandName?: InputMaybe<Scalars['String']['input']>
+  color?: InputMaybe<Scalars['String']['input']>
   content?: InputMaybe<Scalars['String']['input']>
   cosmeticCategory?: InputMaybe<Scalars['String']['input']>
   cosmeticName?: InputMaybe<Scalars['String']['input']>
@@ -253,8 +256,8 @@ export type UpdatePostInput = {
 
 export type User = {
   __typename?: 'User'
-  allergyInfo: Maybe<Scalars['String']['output']>
-  bio: Maybe<Scalars['String']['output']>
+  allergyInfo?: Maybe<Scalars['String']['output']>
+  bio?: Maybe<Scalars['String']['output']>
   comments: Array<Comment>
   createdAt: Scalars['DateTime']['output']
   displayName: Scalars['String']['output']
@@ -262,8 +265,8 @@ export type User = {
   empathies: Array<Empathy>
   id: Scalars['ID']['output']
   posts: Array<Post>
-  profileImageUrl: Maybe<Scalars['String']['output']>
-  skinType: Maybe<Scalars['String']['output']>
+  profileImageUrl?: Maybe<Scalars['String']['output']>
+  skinType?: Maybe<Scalars['String']['output']>
   updatedAt: Scalars['DateTime']['output']
 }
 
@@ -563,11 +566,12 @@ export type PostResolvers<
   ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post'],
 > = ResolversObject<{
   brandName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
+  color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
   commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
   comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   cosmeticCategory?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
-  cosmeticName?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  cosmeticName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>
   empathies?: Resolver<Array<ResolversTypes['Empathy']>, ParentType, ContextType>
   empathyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>

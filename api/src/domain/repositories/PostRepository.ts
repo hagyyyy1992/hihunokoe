@@ -6,6 +6,7 @@ export interface CreatePostData {
   content: string
   productName?: string | null
   brandName?: string | null
+  color?: string | null
   imageUrl?: string | null
   category?: string | null
   skinType?: string | null
@@ -20,6 +21,7 @@ export interface UpdatePostData {
   content?: string
   productName?: string | null
   brandName?: string | null
+  color?: string | null
   imageUrl?: string | null
   category?: string | null
   skinType?: string | null

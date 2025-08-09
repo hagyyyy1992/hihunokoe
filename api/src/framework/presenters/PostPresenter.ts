@@ -10,6 +10,7 @@ export interface PostResponse {
   productName: string
   cosmeticName?: string // 下位互換性のため追加
   brandName?: string
+  color?: string
   imageUrl?: string
   category: string
   cosmeticCategory?: string // 下位互換性のため追加
@@ -79,6 +80,7 @@ export class PostPresenter {
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
+      color: post.color || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
       cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性
@@ -109,6 +111,7 @@ export class PostPresenter {
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
+      color: post.color || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
       cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性
@@ -141,6 +144,7 @@ export class PostPresenter {
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
       brandName: post.brandName || undefined,
+      color: post.color || undefined,
       imageUrl: post.imageUrl || undefined,
       category: post.category || post.cosmeticCategory || '',
       cosmeticCategory: post.cosmeticCategory || post.category || '', // 下位互換性

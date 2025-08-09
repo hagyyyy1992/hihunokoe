@@ -6,6 +6,7 @@ export class Post {
     public readonly content: string,
     public readonly productName: string | null,
     public readonly brandName: string | null,
+    public readonly color: string | null,
     public readonly imageUrl: string | null,
     public readonly category: string | null,
     public readonly isPublished: boolean,

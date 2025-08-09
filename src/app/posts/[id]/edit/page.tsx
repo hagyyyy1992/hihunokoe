@@ -15,6 +15,7 @@ interface Post {
   cosmeticName?: string
   productName?: string
   brandName?: string
+  color?: string
   cosmeticCategory?: string
   category?: string
   skinType?: string
@@ -312,6 +313,7 @@ export default function EditPostPage() {
     content: post.content,
     cosmeticName: post.cosmeticName || post.productName || '',
     brandName: post.brandName,
+    color: post.color,
     cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory || post.category),
     skinType: validateSkinType(post.skinType),
     usageSituation: validateUsageSituation(post.usageSituation),

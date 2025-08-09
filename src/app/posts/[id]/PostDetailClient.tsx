@@ -29,6 +29,7 @@ interface PostData {
     content: string
     cosmeticName: string
     brandName?: string
+    color?: string
     cosmeticCategory?: string
     skinType?: string
     usageSituation?: {
@@ -78,6 +79,7 @@ interface Post {
   content: string
   cosmeticName: string
   brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   usageSituation?: {
@@ -443,6 +445,9 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                 <p className="text-gray-700 text-sm sm:text-base break-words">
                   商品名: {currentPost.cosmeticName}
                 </p>
+                {currentPost.color && (
+                  <p className="text-gray-600 text-xs sm:text-sm">色: {currentPost.color}</p>
+                )}
               </div>
             </div>
           </header>

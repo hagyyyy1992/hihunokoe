@@ -22,6 +22,7 @@ export type CreatePostInputPort = {
   content: string
   productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category?: string
   skinType?: string
@@ -39,6 +40,7 @@ export type UpdatePostInputPort = {
   content?: string
   productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category?: string
   skinType?: string

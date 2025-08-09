@@ -73,8 +73,9 @@ model Post {
   userId            String           @map("user_id") @db.Uuid
   title             String?          @db.VarChar(200)
   content           String
-  cosmeticName      String           @map("cosmetic_name") @db.VarChar(200)
+  cosmeticName      String?          @map("cosmetic_name") @db.VarChar(200)
   brandName         String?          @map("brand_name") @db.VarChar(100)
+  color             String?          @db.VarChar(100)
   cosmeticCategory  String?          @map("cosmetic_category") @db.VarChar(100)
   skinType          String?          @map("skin_type") @db.VarChar(50)
   usageSituation    Json?            @map("usage_situation")
