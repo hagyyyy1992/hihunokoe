@@ -8,6 +8,7 @@ interface PostNode {
   title: string
   content: string
   cosmeticName: string
+  brandName?: string
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string

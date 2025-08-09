@@ -350,6 +350,7 @@ export class PostRepository implements IPostRepository {
         title: data.title,
         content: data.content,
         cosmeticName: data.productName || '',
+        brandName: data.brandName || null,
         cosmeticCategory: data.category || null,
         skinType: data.skinType || null,
         moodTag: data.moodTag || null,
@@ -387,6 +388,7 @@ export class PostRepository implements IPostRepository {
     if (data.title !== undefined) updateData.title = data.title
     if (data.content !== undefined) updateData.content = data.content
     if (data.productName !== undefined) updateData.cosmeticName = data.productName
+    if (data.brandName !== undefined) updateData.brandName = data.brandName
     if (data.category !== undefined) updateData.cosmeticCategory = data.category
     if (data.skinType !== undefined) updateData.skinType = data.skinType
     if (data.moodTag !== undefined) updateData.moodTag = data.moodTag
@@ -705,7 +707,7 @@ export class PostRepository implements IPostRepository {
       prismaPost.title || null,
       prismaPost.content,
       prismaPost.cosmeticName || null, // productName
-      null, // brandName (not in current schema)
+      prismaPost.brandName || null, // brandName
       null, // imageUrl (not in current schema)
       prismaPost.cosmeticCategory || null, // category
       prismaPost.status === 'published', // isPublished

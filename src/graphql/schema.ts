@@ -26,6 +26,7 @@ export const typeDefs = gql`
     title: String
     content: String!
     cosmeticName: String!
+    brandName: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -108,6 +109,7 @@ export const typeDefs = gql`
     title: String
     content: String!
     cosmeticName: String!
+    brandName: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -119,6 +121,7 @@ export const typeDefs = gql`
     title: String
     content: String
     cosmeticName: String
+    brandName: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON

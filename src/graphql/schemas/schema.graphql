@@ -22,6 +22,7 @@ type Post {
   title: String
   content: String!
   cosmeticName: String!
+  brandName: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON
@@ -81,6 +82,7 @@ input CreatePostInput {
   title: String
   content: String!
   cosmeticName: String!
+  brandName: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON
@@ -92,6 +94,7 @@ input UpdatePostInput {
   title: String
   content: String
   cosmeticName: String
+  brandName: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON

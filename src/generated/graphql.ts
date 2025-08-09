@@ -57,6 +57,7 @@ export type CommentEdge = {
 }
 
 export type CreatePostInput = {
+  brandName?: InputMaybe<Scalars['String']['input']>
   content: Scalars['String']['input']
   cosmeticCategory?: InputMaybe<Scalars['String']['input']>
   cosmeticName: Scalars['String']['input']
@@ -149,6 +150,7 @@ export type PageInfo = {
 
 export type Post = {
   __typename?: 'Post'
+  brandName: Maybe<Scalars['String']['output']>
   commentCount: Scalars['Int']['output']
   comments: Array<Comment>
   content: Scalars['String']['output']
@@ -237,6 +239,7 @@ export type QueryUserArgs = {
 }
 
 export type UpdatePostInput = {
+  brandName?: InputMaybe<Scalars['String']['input']>
   content?: InputMaybe<Scalars['String']['input']>
   cosmeticCategory?: InputMaybe<Scalars['String']['input']>
   cosmeticName?: InputMaybe<Scalars['String']['input']>
@@ -559,6 +562,7 @@ export type PostResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post'],
 > = ResolversObject<{
+  brandName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
   commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
   comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>

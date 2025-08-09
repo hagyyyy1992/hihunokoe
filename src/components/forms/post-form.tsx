@@ -15,6 +15,7 @@ interface PostFormData {
   title?: string
   content: string
   cosmeticName: string
+  brandName?: string
   cosmeticCategory: CosmeticCategory | ''
   skinType: SkinType | ''
   usageSituation: Partial<UsageSituation>
@@ -47,6 +48,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         title: '',
         content: '',
         cosmeticName: '',
+        brandName: '',
         cosmeticCategory: '',
         skinType: '',
         usageSituation: {},
@@ -155,6 +157,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
       title: formData.title?.trim() || undefined,
       content: formData.content,
       cosmeticName: formData.cosmeticName,
+      brandName: formData.brandName?.trim() || undefined,
       cosmeticCategory: formData.cosmeticCategory || undefined,
       skinType: formData.skinType || undefined,
       moodTag: formData.moodTag || undefined,
@@ -237,9 +240,12 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         const titleValid = !formData.title?.trim() || formData.title.trim().length <= 100
         const cosmeticNameValid =
           formData.cosmeticName?.trim() && formData.cosmeticName.trim().length <= 100
+        const brandNameValid =
+          !formData.brandName?.trim() || formData.brandName.trim().length <= 100
         const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
         const categoryValid = !!formData.cosmeticCategory
-        const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
+        const isValid =
+          titleValid && cosmeticNameValid && brandNameValid && contentValid && categoryValid
         return isValid
       case 2:
         return true // オプショナル
@@ -328,13 +334,25 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             />
 
             <Input
+              label="ブランド名（任意）"
+              id="brandName"
+              name="brandName"
+              value={formData.brandName || ''}
+              onChange={handleInputChange}
+              placeholder="例: KANEBO"
+              showPlaceholderHint
+              aria-label="ブランド名（任意）"
+              maxLength={100}
+            />
+
+            <Input
               label="使用したコスメ名"
               id="cosmeticName"
               name="cosmeticName"
               required
               value={formData.cosmeticName || ''}
               onChange={handleInputChange}
-              placeholder="例: ○○ブランド モイスチャークリーム"
+              placeholder="例: モイスチャーパウダー"
               showPlaceholderHint
               aria-label="使用したコスメ名"
               maxLength={100}

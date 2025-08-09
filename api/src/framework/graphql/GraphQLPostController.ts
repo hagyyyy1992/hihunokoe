@@ -140,6 +140,7 @@ export class GraphQLPostController {
         title?: string
         content: string
         cosmeticName: string
+        brandName?: string
         cosmeticCategory?: string
         skinType?: string
         usageSituation?: any
@@ -156,7 +157,7 @@ export class GraphQLPostController {
         title: args.input.title,
         content: args.input.content,
         productName: args.input.cosmeticName,
-        brandName: undefined,
+        brandName: args.input.brandName,
         imageUrl: undefined,
         category: args.input.cosmeticCategory,
         skinType: args.input.skinType,
@@ -182,6 +183,7 @@ export class GraphQLPostController {
         title?: string
         content?: string
         cosmeticName?: string
+        brandName?: string
         cosmeticCategory?: string
         skinType?: string
         usageSituation?: any
@@ -201,6 +203,7 @@ export class GraphQLPostController {
         title: args.input.title,
         content: args.input.content,
         productName: args.input.cosmeticName,
+        brandName: args.input.brandName,
         category: args.input.cosmeticCategory,
         skinType: args.input.skinType,
         moodTag: args.input.moodTag,

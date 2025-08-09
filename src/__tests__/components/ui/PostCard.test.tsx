@@ -78,8 +78,11 @@ describe('PostCard Component', () => {
     const title = screen.getByText('テスト投稿のタイトル')
     expectElementToBeVisible(title)
 
-    // コスメ名
-    const cosmeticName = screen.getByText('使用コスメ: テスト化粧品')
+    // コスメ名 - ブランド名機能実装により表示形式が変更されたため、部分一致で確認
+    const cosmeticLabel = screen.getByText('使用コスメ:')
+    expectElementToBeVisible(cosmeticLabel)
+
+    const cosmeticName = screen.getByText('テスト化粧品')
     expectElementToBeVisible(cosmeticName)
 
     // コンテンツ

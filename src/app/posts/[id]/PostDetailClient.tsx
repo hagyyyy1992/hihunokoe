@@ -28,6 +28,7 @@ interface PostData {
     title: string
     content: string
     cosmeticName: string
+    brandName?: string
     cosmeticCategory?: string
     skinType?: string
     usageSituation?: {
@@ -76,6 +77,7 @@ interface Post {
   title: string
   content: string
   cosmeticName: string
+  brandName?: string
   cosmeticCategory?: string
   skinType?: string
   usageSituation?: {
@@ -432,9 +434,16 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
               <h3 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">
                 使用したコスメ
               </h3>
-              <p className="text-gray-700 text-sm sm:text-base break-words">
-                {currentPost.cosmeticName}
-              </p>
+              <div className="space-y-1">
+                {currentPost.brandName && (
+                  <p className="text-gray-600 text-xs sm:text-sm font-medium">
+                    ブランド: {currentPost.brandName}
+                  </p>
+                )}
+                <p className="text-gray-700 text-sm sm:text-base break-words">
+                  商品名: {currentPost.cosmeticName}
+                </p>
+              </div>
             </div>
           </header>
 
