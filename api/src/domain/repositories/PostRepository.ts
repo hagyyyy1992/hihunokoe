@@ -2,7 +2,7 @@ import { Post } from '@api/domain/entities/Post'
 
 export interface CreatePostData {
   userId: string
-  title: string
+  title: string | null
   content: string
   productName?: string | null
   brandName?: string | null
@@ -16,7 +16,7 @@ export interface CreatePostData {
 }
 
 export interface UpdatePostData {
-  title?: string
+  title?: string | null
   content?: string
   productName?: string | null
   brandName?: string | null

@@ -12,7 +12,7 @@ import { categoryLabels } from '@/lib/constants/categories'
 import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface PostFormData {
-  title: string
+  title?: string
   content: string
   cosmeticName: string
   cosmeticCategory: CosmeticCategory | ''
@@ -152,7 +152,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     setLoading(true)
 
     const input = {
-      title: formData.title,
+      title: formData.title?.trim() || undefined,
       content: formData.content,
       cosmeticName: formData.cosmeticName,
       cosmeticCategory: formData.cosmeticCategory || undefined,
@@ -234,7 +234,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        const titleValid = formData.title?.trim() && formData.title.trim().length <= 100
+        const titleValid = !formData.title?.trim() || formData.title.trim().length <= 100
         const cosmeticNameValid =
           formData.cosmeticName?.trim() && formData.cosmeticName.trim().length <= 100
         const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
@@ -315,21 +315,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             <h3 className="text-base sm:text-lg font-medium text-gray-900">基本情報</h3>
 
             <Input
-              label="タイトル"
+              label="タイトル（任意）"
               id="title"
               name="title"
-              required
               value={formData.title || ''}
               onChange={handleInputChange}
               placeholder="例: ○○クリームを敏感肌で試してみました"
               showPlaceholderHint
               data-testid="post-title-input"
-              aria-label="タイトル"
+              aria-label="タイトル（任意）"
               maxLength={100}
-              onInvalid={e => {
-                const element = e.target as HTMLInputElement
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              }}
             />
 
             <Input

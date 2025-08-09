@@ -23,7 +23,7 @@ export const typeDefs = gql`
   type Post {
     id: ID!
     userId: String!
-    title: String!
+    title: String
     content: String!
     cosmeticName: String!
     cosmeticCategory: String
@@ -105,7 +105,7 @@ export const typeDefs = gql`
   }
 
   input CreatePostInput {
-    title: String!
+    title: String
     content: String!
     cosmeticName: String!
     cosmeticCategory: String

@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 
 export interface PostResponse {
   id: string
-  title: string
+  title?: string
   content: string
   productName: string
   cosmeticName?: string // 下位互換性のため追加
@@ -74,7 +74,7 @@ export class PostPresenter {
   ): PostResponse {
     return {
       id: post.id,
-      title: post.title,
+      title: post.title || undefined,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
@@ -104,7 +104,7 @@ export class PostPresenter {
   static toResponseWithPostData(post: Post, userHasEmpathy?: boolean): PostResponse {
     return {
       id: post.id,
-      title: post.title,
+      title: post.title || undefined,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性
@@ -136,7 +136,7 @@ export class PostPresenter {
   ): PostResponse {
     return {
       id: post.id,
-      title: post.title,
+      title: post.title || undefined,
       content: post.content,
       productName: post.productName || post.cosmeticName || '',
       cosmeticName: post.cosmeticName || post.productName || '', // 下位互換性

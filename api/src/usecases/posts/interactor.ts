@@ -63,15 +63,12 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     }
 
     // Validate required fields
-    if (!input.title?.trim()) {
-      throw new Error('タイトルは必須です')
-    }
 
     if (!input.content?.trim()) {
       throw new Error('内容は必須です')
     }
 
-    if (input.title.trim().length > 100) {
+    if (input.title && input.title.trim().length > 100) {
       throw new Error('タイトルは100文字以内で入力してください')
     }
 
@@ -82,7 +79,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
     // Create post
     const post = await this.postRepository.create({
       userId: input.userId,
-      title: input.title.trim(),
+      title: input.title?.trim() || null,
       content: input.content.trim(),
       productName: input.productName?.trim() || null,
       brandName: input.brandName?.trim() || null,
@@ -122,10 +119,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
 
     // バリデーション
     if (input.title !== undefined) {
-      if (!input.title?.trim()) {
-        throw new Error('タイトルは必須です')
-      }
-      if (input.title.trim().length > 100) {
+      if (input.title?.trim() && input.title.trim().length > 100) {
         throw new Error('タイトルは100文字以内で入力してください')
       }
     }
@@ -141,7 +135,7 @@ export class PostManagementUseCase implements IPostManagementUseCase {
 
     // 更新データを構築
     const updateData: any = {}
-    if (input.title !== undefined) updateData.title = input.title.trim()
+    if (input.title !== undefined) updateData.title = input.title?.trim() || null
     if (input.content !== undefined) updateData.content = input.content.trim()
     if (input.productName !== undefined) updateData.productName = input.productName?.trim() || null
     if (input.brandName !== undefined) updateData.brandName = input.brandName?.trim() || null

@@ -702,7 +702,7 @@ export class PostRepository implements IPostRepository {
     return new Post(
       prismaPost.id,
       prismaPost.userId,
-      prismaPost.title,
+      prismaPost.title || null,
       prismaPost.content,
       prismaPost.cosmeticName || null, // productName
       null, // brandName (not in current schema)

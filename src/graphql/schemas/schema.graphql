@@ -19,7 +19,7 @@ type User {
 type Post {
   id: ID!
   userId: String!
-  title: String!
+  title: String
   content: String!
   cosmeticName: String!
   cosmeticCategory: String
@@ -78,7 +78,7 @@ type PageInfo {
 }
 
 input CreatePostInput {
-  title: String!
+  title: String
   content: String!
   cosmeticName: String!
   cosmeticCategory: String

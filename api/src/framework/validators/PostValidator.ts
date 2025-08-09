@@ -3,7 +3,7 @@ import { categoryLabels, skinTypeLabels, moodTagLabels } from '@/lib/constants/c
 
 export interface CreatePostRequest {
   userId: string
-  title: string
+  title?: string
   content: string
   productName: string
   brandName?: string
@@ -67,11 +67,11 @@ export class PostValidator {
   static validateCreatePost(data: any): CreatePostRequest {
     const errors: string[] = []
 
-    // 必須フィールドの検証
-    if (!data.title || typeof data.title !== 'string') {
-      errors.push('タイトルは必須です')
-    } else if (data.title.length < 1 || data.title.length > 100) {
-      errors.push('タイトルは1文字以上100文字以内で入力してください')
+    // タイトルの検証（任意項目）
+    if (data.title && typeof data.title === 'string') {
+      if (data.title.length > 100) {
+        errors.push('タイトルは100文字以内で入力してください')
+      }
     }
 
     if (!data.content || typeof data.content !== 'string') {
@@ -133,7 +133,7 @@ export class PostValidator {
 
     return {
       userId: data.userId,
-      title: data.title.trim(),
+      title: data.title?.trim(),
       content: data.content.trim(),
       productName: data.productName.trim(),
       brandName: data.brandName?.trim(),
@@ -174,9 +174,9 @@ export class PostValidator {
     }
 
     // 各フィールドの検証
-    if ('title' in data) {
-      if (typeof data.title !== 'string' || data.title.length < 1 || data.title.length > 100) {
-        errors.push('タイトルは1文字以上100文字以内で入力してください')
+    if ('title' in data && data.title !== null && data.title !== undefined) {
+      if (typeof data.title !== 'string' || data.title.length > 100) {
+        errors.push('タイトルは100文字以内で入力してください')
       }
     }
 

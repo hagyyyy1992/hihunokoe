@@ -137,7 +137,7 @@ export class GraphQLPostController {
   async createPost(
     args: {
       input: {
-        title: string
+        title?: string
         content: string
         cosmeticName: string
         cosmeticCategory?: string
