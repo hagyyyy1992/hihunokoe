@@ -68,7 +68,9 @@ export default function EditPostPage() {
 
   const fetchPost = useCallback(async () => {
     try {
-      const response = await fetch(`/api/posts/get?id=${id}`, {
+      // タイムスタンプを追加してキャッシュを完全に回避
+      const timestamp = Date.now()
+      const response = await fetch(`/api/posts/get?id=${id}&_t=${timestamp}`, {
         // キャッシュを無効化して最新データを取得
         cache: 'no-cache',
         headers: {

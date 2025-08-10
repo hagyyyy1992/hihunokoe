@@ -749,7 +749,7 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
             {user && currentPost.user && user.id === currentPost.user.id && (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
-                  href={`/posts/${currentPost.id}/edit`}
+                  href={`/posts/${currentPost.id}/edit?t=${Date.now()}`}
                   className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors flex-1 sm:flex-initial"
                   data-testid="edit-post-button"
                 >
