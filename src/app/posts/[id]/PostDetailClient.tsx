@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { useQuery } from '@apollo/client'
+import { useQuery, useApolloClient } from '@apollo/client'
 import { getSkinConditionLabel } from '@/lib/constants/profile'
 import { GET_POST } from '@/graphql/queries/post'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
@@ -192,6 +192,8 @@ const durationLabels: Record<string, string> = {
 
 export default function PostDetailClient({ initialData, postId }: PostDetailClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const apolloClient = useApolloClient()
   const { user } = useAuth()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -236,6 +238,26 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
       fetchPost()
     }
   }, [error, graphqlPost, post, fetchPost])
+
+  // 編集後の更新パラメータを監視してキャッシュを無効化
+  useEffect(() => {
+    const updatedParam = searchParams.get('updated')
+    if (updatedParam) {
+      // GraphQLキャッシュからこの投稿のデータを無効化
+      apolloClient.cache.evict({
+        id: apolloClient.cache.identify({ __typename: 'Post', id: postId }),
+      })
+      apolloClient.cache.gc() // ガベージコレクション実行
+
+      // REST APIでも最新データを取得
+      fetchPost()
+
+      // パラメータを削除してURLをクリーンにする
+      const url = new URL(window.location.href)
+      url.searchParams.delete('updated')
+      router.replace(url.pathname + url.search, { scroll: false })
+    }
+  }, [searchParams, apolloClient, postId, fetchPost, router])
 
   useEffect(() => {
     // クライアントサイドでのレンダリング準備完了フラグ

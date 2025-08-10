@@ -175,7 +175,8 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         await updatePost({
           variables: { id: postId, input },
         })
-        router.push(`/posts/${postId}`)
+        // 編集保存後は最新データを表示するためタイムスタンプパラメータを追加
+        router.push(`/posts/${postId}?updated=${Date.now()}`)
       } else {
         const result = await createPost({
           variables: { input },
