@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/post-form'
 import DraggableGuidelineModal from '@/components/ui/draggable-guideline-modal'
@@ -59,6 +59,7 @@ interface Post {
 export default function EditPostPage() {
   const { id } = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, loading: authLoading } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
@@ -105,7 +106,7 @@ export default function EditPostPage() {
     if (id) {
       fetchPost()
     }
-  }, [id, fetchPost])
+  }, [id, fetchPost, searchParams]) // searchParamsの変更も監視
 
   // URLのハッシュフラグメントをチェックして削除ダイアログを表示
   useEffect(() => {
