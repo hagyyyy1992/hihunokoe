@@ -6,6 +6,7 @@ import { SkinType, CosmeticCategory, MoodTag, UsageSituation, ExperienceDetails 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MoodTag as MoodTagComponent } from '@/components/ui/mood-tag'
+import { Accordion } from '@/components/ui/accordion'
 import { useMutation } from '@apollo/client'
 import { CREATE_POST, UPDATE_POST, DELETE_POST } from '@/graphql/queries/post'
 import { categoryLabels } from '@/lib/constants/categories'
@@ -34,16 +35,13 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [currentStep, setCurrentStep] = useState(1)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [canSubmit, setCanSubmit] = useState(false)
 
   const [createPost] = useMutation(CREATE_POST)
   const [updatePost] = useMutation(UPDATE_POST)
   const [deletePost] = useMutation(DELETE_POST)
 
   const [formData, setFormData] = useState<PostFormData>(() => {
-    // 初期データがある場合はそれを使用、ない場合はデフォルト値
     return (
       initialData || {
         title: '',
@@ -67,36 +65,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
   }, [initialData])
 
-  // ステップ変更を監視
-  useEffect(() => {
-    if (currentStep === 4) {
-      // ステップ4に到達時、全てのアクティブな要素をログ
-      setTimeout(() => {
-        // ステップ4に到達してから一定時間後にのみ送信を許可
-        setTimeout(() => {
-          setCanSubmit(true)
-        }, 500)
-      }, 100)
-    } else {
-      setCanSubmit(false)
-    }
-  }, [currentStep])
-
-  // エンターキーでステップ移動を処理
+  // エンターキーでフォーム送信を処理
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       const target = e.target as HTMLElement
       const isTextarea = target.tagName === 'TEXTAREA'
       const isSubmitButton = target.getAttribute('data-testid') === 'publish-button'
 
-      // テキストエリアと投稿ボタン以外でEnterキーが押された場合
+      // テキストエリア以外でEnterキーが押された場合はフォーム送信を防ぐ
       if (!isTextarea && !isSubmitButton) {
         e.preventDefault()
-
-        // 現在のステップが4未満で、バリデーションが通る場合は次のステップへ
-        if (currentStep < 4 && isStepValid(currentStep)) {
-          nextStep()
-        }
       }
     }
   }
@@ -133,22 +111,10 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // ステップ4以外では投稿を許可しない
-    if (currentStep !== 4) {
-      console.warn('Submit attempted on step', currentStep, '- blocking')
-      return
-    }
 
-    // 送信が許可されていない場合はブロック
-    if (!canSubmit) {
-      console.warn('Submit attempted before canSubmit is true - blocking')
-      return
-    }
-
-    // 明示的な投稿ボタンクリック以外は許可しない
-    const submitter = (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement
-    if (!submitter || submitter.getAttribute('data-testid') !== 'publish-button') {
-      console.warn('Submit attempted without publish button - blocking')
+    // バリデーションチェック
+    if (!isFormValid()) {
+      setError('必須項目を入力してください')
       return
     }
 
@@ -193,74 +159,15 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     }
   }
 
-  const nextStep = () => {
-    // 現在のステップのバリデーションをチェック
-    if (!isStepValid(currentStep)) {
-      // バリデーションエラーを表示
-      setError('入力内容に問題があります。文字数制限を確認してください。')
-      return
-    }
+  const isFormValid = () => {
+    const titleValid = !formData.title?.trim() || formData.title.trim().length <= 100
+    const cosmeticNameValid =
+      !formData.cosmeticName?.trim() || formData.cosmeticName.trim().length <= 100
+    const brandNameValid = !formData.brandName?.trim() || formData.brandName.trim().length <= 100
+    const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
+    const categoryValid = formData.cosmeticCategory !== ''
 
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1)
-      // ステップ変更後、ページトップにスクロール
-      window.scrollTo(0, 0)
-      // ステップ変更後、フォーカスをリセットして意図しないサブミットを防ぐ
-      setTimeout(() => {
-        // 投稿ボタンへのフォーカスを防ぐ
-        const publishButton = document.querySelector(
-          '[data-testid="publish-button"]'
-        ) as HTMLElement
-        if (publishButton && document.activeElement === publishButton) {
-          publishButton.blur()
-        }
-
-        // ステップ4の場合は、最初のselect要素にフォーカスを移動
-        if (currentStep + 1 === 4) {
-          const firstSelect = document.querySelector('#moodTag') as HTMLSelectElement
-          if (firstSelect) {
-            // フォーカスを移動するが、selectしない
-            firstSelect.focus({ preventScroll: true })
-          }
-        }
-      }, 100)
-    }
-  }
-
-  const prevStep = () => {
-    if (currentStep === 1 && isEditMode && postId) {
-      // ステップ1で編集モードの場合は詳細ページに戻る
-      router.push(`/posts/${postId}`)
-    } else if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-      // ステップ変更後、ページトップにスクロール
-      window.scrollTo(0, 0)
-    }
-  }
-
-  const isStepValid = (step: number) => {
-    switch (step) {
-      case 1:
-        const titleValid = !formData.title?.trim() || formData.title.trim().length <= 100
-        const cosmeticNameValid =
-          !formData.cosmeticName?.trim() || formData.cosmeticName.trim().length <= 100
-        const brandNameValid =
-          !formData.brandName?.trim() || formData.brandName.trim().length <= 100
-        const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
-        const categoryValid = formData.cosmeticCategory !== ''
-        // コンテンツとカテゴリが必須、その他は任意
-        const isValid =
-          cosmeticNameValid && contentValid && titleValid && brandNameValid && categoryValid
-        return isValid
-      case 2:
-        return true // オプショナル
-      case 3:
-        return true // オプショナル
-      case 4:
-        return true // オプショナル
-      default:
-        return false
-    }
+    return cosmeticNameValid && contentValid && titleValid && brandNameValid && categoryValid
   }
 
   const handleDelete = async () => {
@@ -283,148 +190,106 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* ステップインジケーター */}
-      <div className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-center space-x-2 sm:space-x-4">
-          {[1, 2, 3, 4].map((step, index) => (
-            <React.Fragment key={step}>
-              <div
-                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
-                  step <= currentStep ? 'bg-apple-600 text-white' : 'bg-gray-200 text-gray-500'
-                }`}
-              >
-                {step}
-              </div>
-              {index < 3 && (
-                <div
-                  className={`w-8 sm:w-16 h-1 ${step < currentStep ? 'bg-apple-600' : 'bg-gray-200'}`}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-        <div className="mt-2 text-xs sm:text-sm text-gray-600 text-center">
-          {currentStep === 1 && '基本情報'}
-          {currentStep === 2 && '使用状況'}
-          {currentStep === 3 && '体験の詳細'}
-          {currentStep === 4 && '感想とまとめ'}
-        </div>
-      </div>
-
-      <form
-        onSubmit={e => {
-          handleSubmit(e)
-        }}
-        onKeyDown={handleKeyDown}
-        className="space-y-4 sm:space-y-6"
-      >
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
         {error && <div className="alert alert-error">{error}</div>}
 
-        {/* ステップ1: 基本情報 */}
-        {currentStep === 1 && (
-          <div className="space-y-4 sm:space-y-6">
-            <h3 className="text-base sm:text-lg font-medium text-gray-900">基本情報</h3>
+        {/* 基本情報 */}
+        <div className="space-y-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900">基本情報</h3>
 
-            <Input
-              label="タイトル（任意）"
-              id="title"
-              name="title"
-              value={formData.title || ''}
+          <Input
+            label="タイトル（任意）"
+            id="title"
+            name="title"
+            value={formData.title || ''}
+            onChange={handleInputChange}
+            placeholder="例: ○○クリームを敏感肌で試してみました"
+            showPlaceholderHint
+            data-testid="post-title-input"
+            aria-label="タイトル（任意）"
+            maxLength={100}
+          />
+
+          <Input
+            label="ブランド名（任意）"
+            id="brandName"
+            name="brandName"
+            value={formData.brandName || ''}
+            onChange={handleInputChange}
+            placeholder="例: KANEBO"
+            showPlaceholderHint
+            aria-label="ブランド名（任意）"
+            maxLength={100}
+          />
+
+          <Input
+            label="使用したコスメ名（任意）"
+            id="cosmeticName"
+            name="cosmeticName"
+            value={formData.cosmeticName || ''}
+            onChange={handleInputChange}
+            placeholder="例: モイスチャーパウダー"
+            showPlaceholderHint
+            aria-label="使用したコスメ名（任意）"
+            maxLength={100}
+          />
+
+          <Input
+            label="色（任意）"
+            id="color"
+            name="color"
+            value={formData.color || ''}
+            onChange={handleInputChange}
+            placeholder="例: ナチュラルベージュ、ピンクベージュ"
+            showPlaceholderHint
+            aria-label="色（任意）"
+            maxLength={50}
+          />
+
+          <div className="form-group">
+            <label htmlFor="cosmeticCategory" className="form-label">
+              コスメカテゴリ <span className="text-red-500 ml-1">*</span>
+            </label>
+            <select
+              id="cosmeticCategory"
+              name="cosmeticCategory"
+              value={formData.cosmeticCategory || ''}
               onChange={handleInputChange}
-              placeholder="例: ○○クリームを敏感肌で試してみました"
-              showPlaceholderHint
-              data-testid="post-title-input"
-              aria-label="タイトル（任意）"
-              maxLength={100}
-            />
-
-            <Input
-              label="ブランド名（任意）"
-              id="brandName"
-              name="brandName"
-              value={formData.brandName || ''}
-              onChange={handleInputChange}
-              placeholder="例: KANEBO"
-              showPlaceholderHint
-              aria-label="ブランド名（任意）"
-              maxLength={100}
-            />
-
-            <Input
-              label="使用したコスメ名（任意）"
-              id="cosmeticName"
-              name="cosmeticName"
-              value={formData.cosmeticName || ''}
-              onChange={handleInputChange}
-              placeholder="例: モイスチャーパウダー"
-              showPlaceholderHint
-              aria-label="使用したコスメ名（任意）"
-              maxLength={100}
-            />
-
-            <Input
-              label="色（任意）"
-              id="color"
-              name="color"
-              value={formData.color || ''}
-              onChange={handleInputChange}
-              placeholder="例: ナチュラルベージュ、ピンクベージュ"
-              showPlaceholderHint
-              aria-label="色（任意）"
-              maxLength={50}
-            />
-
-            <div className="form-group">
-              <label htmlFor="cosmeticCategory" className="form-label">
-                コスメカテゴリ <span className="text-red-500 ml-1">*</span>
-              </label>
-              <select
-                id="cosmeticCategory"
-                name="cosmeticCategory"
-                value={formData.cosmeticCategory || ''}
-                onChange={handleInputChange}
-                className="select"
-                data-testid="category-select"
-                required
-              >
-                <option value="">選択してください</option>
-                {Object.entries(categoryLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="content" className="form-label">
-                体験談 <span className="text-red-500 ml-1">*</span>
-              </label>
-              <textarea
-                id="content"
-                name="content"
-                required
-                rows={8}
-                value={formData.content || ''}
-                onChange={handleInputChange}
-                className="textarea"
-                placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
-                data-testid="post-content-textarea"
-                maxLength={2000}
-                onInvalid={e => {
-                  // バリデーションエラー時に要素を表示領域にスクロール
-                  const element = e.target as HTMLTextAreaElement
-                  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                }}
-              />
-            </div>
+              className="select"
+              data-testid="category-select"
+              required
+            >
+              <option value="">選択してください</option>
+              {Object.entries(categoryLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
 
-        {/* ステップ2: 使用状況 */}
-        {currentStep === 2 && (
-          <div className="space-y-4 sm:space-y-6">
-            <h3 className="text-base sm:text-lg font-medium text-gray-900">使用状況（任意）</h3>
+          <div className="form-group">
+            <label htmlFor="content" className="form-label">
+              体験談 <span className="text-red-500 ml-1">*</span>
+            </label>
+            <textarea
+              id="content"
+              name="content"
+              required
+              rows={8}
+              value={formData.content || ''}
+              onChange={handleInputChange}
+              className="textarea"
+              placeholder="使用した感想を自由に書いてください。肌の変化、使い心地、気づいたことなど..."
+              data-testid="post-content-textarea"
+              maxLength={2000}
+            />
+          </div>
+        </div>
+
+        {/* 使用状況（アコーディオン） */}
+        <Accordion title="使用状況（任意）" className="mt-6">
+          <div className="space-y-4">
             <p className="text-xs sm:text-sm text-gray-600">
               より具体的な体験を共有するために、使用時の状況を教えてください。
             </p>
@@ -520,22 +385,19 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </select>
             </div>
           </div>
-        )}
+        </Accordion>
 
-        {/* ステップ3: 体験の詳細 */}
-        {currentStep === 3 && (
-          <div className="space-y-4 sm:space-y-6">
-            <h3 className="text-base sm:text-lg font-medium text-gray-900">体験の詳細（任意）</h3>
+        {/* 体験の詳細（アコーディオン） */}
+        <Accordion title="体験の詳細（任意）">
+          <div className="space-y-4">
             <p className="text-xs sm:text-sm text-gray-600">
               香りやテクスチャについて、より詳しく教えてください。
             </p>
 
             {/* 香り */}
-            <div className="border rounded-lg p-3 sm:p-4">
-              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
-                香りについて
-              </h4>
-              <div className="space-y-2 sm:space-y-3">
+            <div className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-3">香りについて</h4>
+              <div className="space-y-3">
                 <div className="form-group">
                   <label className="form-label">香りの有無</label>
                   <div className="flex gap-4">
@@ -647,11 +509,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             </div>
 
             {/* テクスチャ */}
-            <div className="border rounded-lg p-3 sm:p-4">
-              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
+            <div className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-3">
                 テクスチャについて
               </h4>
-              <div className="space-y-2 sm:space-y-3">
+              <div className="space-y-3">
                 <div className="form-group">
                   <label className="form-label">テクスチャのタイプ</label>
                   <select
@@ -720,22 +582,21 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </div>
             </div>
           </div>
-        )}
+        </Accordion>
 
-        {/* ステップ4: 感想とまとめ */}
-        {currentStep === 4 && (
-          <div className="space-y-4 sm:space-y-6">
-            <h3 className="text-base sm:text-lg font-medium text-gray-900">感想とまとめ（任意）</h3>
+        {/* 感想とまとめ（アコーディオン） */}
+        <Accordion title="感想とまとめ（任意）">
+          <div className="space-y-4">
             <p className="text-xs sm:text-sm text-gray-600">
               使用後の肌状態や総合的な感想を教えてください。
             </p>
 
             {/* 使用後の肌状態 */}
-            <div className="border rounded-lg p-3 sm:p-4">
-              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 sm:mb-3">
+            <div className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-3">
                 使用後の肌状態
               </h4>
-              <div className="space-y-2 sm:space-y-3">
+              <div className="space-y-3">
                 <div className="form-group">
                   <label className="form-label">うるおい感</label>
                   <select
@@ -826,24 +687,6 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </div>
             </div>
 
-            {/* 内容 */}
-            <div className="form-group">
-              <label htmlFor="content" className="form-label">
-                内容
-              </label>
-              <textarea
-                id="content"
-                name="content"
-                required
-                value={formData.content || ''}
-                onChange={handleInputChange}
-                rows={5}
-                className="textarea"
-                placeholder="使用感や効果について詳しく教えてください"
-                aria-label="内容"
-              />
-            </div>
-
             {/* 総合的な感想 */}
             <div className="form-group">
               <label htmlFor="moodTag" className="form-label">
@@ -853,10 +696,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
                 id="moodTag"
                 name="moodTag"
                 value={formData.moodTag || ''}
-                onChange={e => {
-                  handleInputChange(e)
-                }}
-                onFocus={() => {}}
+                onChange={handleInputChange}
                 className="select"
                 data-testid="mood-tag-select"
               >
@@ -880,7 +720,7 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </div>
             )}
           </div>
-        )}
+        </Accordion>
 
         {/* 削除確認ダイアログ */}
         <DeleteConfirmDialog
@@ -891,48 +731,36 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
           loading={loading}
         />
 
-        {/* ナビゲーションボタン */}
+        {/* アクションボタン */}
         <div className="flex justify-between pt-4 sm:pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1 && !isEditMode}
-          >
-            前へ
-          </Button>
-
-          {isEditMode && (
-            <Button
-              type="button"
-              variant="danger"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={loading}
-            >
-              削除
+          {isEditMode && postId && (
+            <Button type="button" variant="outline" onClick={() => router.push(`/posts/${postId}`)}>
+              キャンセル
             </Button>
           )}
 
-          {currentStep < 4 ? (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={nextStep}
-              disabled={!isStepValid(currentStep)}
-            >
-              次へ
-            </Button>
-          ) : (
+          <div className="flex gap-3 ml-auto">
+            {isEditMode && (
+              <Button
+                type="button"
+                variant="danger"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={loading}
+              >
+                削除
+              </Button>
+            )}
+
             <Button
               type="submit"
               variant="primary"
-              disabled={loading || !isStepValid(1) || !canSubmit}
+              disabled={loading || !isFormValid()}
               loading={loading}
               data-testid="publish-button"
             >
               {isEditMode ? '更新する' : '投稿する'}
             </Button>
-          )}
+          </div>
         </div>
       </form>
     </div>

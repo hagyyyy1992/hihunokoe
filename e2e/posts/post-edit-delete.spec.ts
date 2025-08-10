@@ -50,32 +50,26 @@ test.describe('投稿編集・削除機能', () => {
       moodTag: 'love',
     }
 
-    // ステップ1: 基本情報を編集
+    // 基本情報を編集
     await page.locator('input[name="title"]').fill(editedPost.title)
     await page.locator('textarea[name="content"]').fill(editedPost.content)
     await page.locator('input[name="cosmeticName"]').fill(editedPost.cosmeticName)
     await page.locator('select[name="cosmeticCategory"]').selectOption(editedPost.cosmeticCategory)
 
-    // 次へボタンをクリック（ステップ2へ）
-    await page.getByRole('button', { name: '次へ' }).click()
-    await page.waitForTimeout(500)
-
-    // ステップ2: 使用状況
+    // 肌タイプを設定（使用状況アコーディオン内）
+    const usageAccordion = page.getByRole('button', { name: '使用状況（任意）' })
+    await usageAccordion.click()
+    await page.waitForTimeout(300)
     await page.locator('select[name="skinType"]').selectOption(editedPost.skinType)
 
-    // 次へボタンをクリック（ステップ3へ）
-    await page.getByRole('button', { name: '次へ' }).click()
-    await page.waitForTimeout(500)
-
-    // ステップ3: 体験の詳細（スキップ可能）
-    await page.getByRole('button', { name: '次へ' }).click()
-    await page.waitForTimeout(500)
-
-    // ステップ4: 感想とまとめ
+    // ムードタグを設定（感想とまとめアコーディオン内）
+    const feelingsAccordion = page.getByRole('button', { name: '感想とまとめ（任意）' })
+    await feelingsAccordion.click()
+    await page.waitForTimeout(300)
     await page.locator('select[name="moodTag"]').selectOption(editedPost.moodTag)
 
     // 更新ボタンをクリック
-    await page.getByRole('button', { name: '更新' }).click()
+    await page.getByRole('button', { name: '更新する' }).click()
 
     // 更新完了後、投稿詳細ページにリダイレクトされることを確認
     await page.waitForURL('**/posts/**', { timeout: 10000 })
@@ -223,16 +217,11 @@ test.describe('投稿編集・削除機能', () => {
     await page.locator('input[name="cosmeticName"]').waitFor({ state: 'visible' })
     await page.locator('input[name="cosmeticName"]').fill('')
 
-    // 次へボタンまたは更新ボタンの状態を確認
-    const nextButton = page.getByRole('button', { name: '次へ' })
-    const updateButton = page.getByRole('button', { name: '更新' })
+    // 更新ボタンの状態を確認（新しいシングルページフォーム）
+    const updateButton = page.getByRole('button', { name: '更新する' })
 
     // 必須項目が空の場合、ボタンが無効状態になることを確認
-    if (await nextButton.isVisible().catch(() => false)) {
-      const isDisabled = await nextButton.isDisabled()
-      expect(isDisabled).toBe(true)
-      console.log('[TEST] Next button is disabled due to empty required fields')
-    } else if (await updateButton.isVisible().catch(() => false)) {
+    if (await updateButton.isVisible().catch(() => false)) {
       const isDisabled = await updateButton.isDisabled()
       expect(isDisabled).toBe(true)
       console.log('[TEST] Update button is disabled due to empty required fields')
