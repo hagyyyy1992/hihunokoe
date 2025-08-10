@@ -237,7 +237,7 @@ export class GraphQLPostController {
         userId: context.userId,
       }
       await this.postManagementUseCase.deletePost(input)
-      return { success: true }
+      return true
     } catch (error) {
       if (error instanceof ApplicationError) {
         throw new Error(error.message)

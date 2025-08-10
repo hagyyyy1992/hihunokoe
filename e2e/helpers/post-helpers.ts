@@ -37,7 +37,7 @@ export class PostHelper {
       throw error
     }
 
-    // ステップ1: 基本情報
+    // 基本情報の入力
     await this.page.locator('input[name="title"]').fill(postData.title)
     await this.page.locator('textarea[name="content"]').fill(postData.content)
 
@@ -51,24 +51,23 @@ export class PostHelper {
         .selectOption(postData.cosmeticCategory)
     }
 
-    // 次のステップに進む
-    await this.page.getByRole('button', { name: '次へ' }).click()
-    await this.page.waitForTimeout(500)
-
-    // ステップ2: 肌タイプを設定
+    // 肌タイプを設定（使用状況アコーディオン内）
     if (postData.skinType) {
+      // 使用状況アコーディオンを開く
+      const usageAccordion = this.page.getByRole('button', { name: '使用状況（任意）' })
+      await usageAccordion.click()
+      await this.page.waitForTimeout(300)
+
       await this.page.selectOption('[name="skinType"]', postData.skinType)
     }
 
-    // 残りのステップを進む
-    for (let i = 0; i < 2; i++) {
-      const nextButton = this.page.getByRole('button', { name: '次へ' })
-      await nextButton.click()
-      await this.page.waitForTimeout(500)
-    }
-
-    // ステップ4でムードタグを設定
+    // ムードタグを設定（感想とまとめアコーディオン内）
     if (postData.moodTag) {
+      // 感想とまとめアコーディオンを開く
+      const feelingsAccordion = this.page.getByRole('button', { name: '感想とまとめ（任意）' })
+      await feelingsAccordion.click()
+      await this.page.waitForTimeout(300)
+
       await this.page.selectOption('[name="moodTag"]', postData.moodTag)
     }
 
@@ -217,7 +216,7 @@ export class PostHelper {
       await this.page.locator('select[name="cosmeticCategory"]').selectOption(newData.category)
     }
 
-    await this.page.getByRole('button', { name: '更新' }).click()
+    await this.page.getByRole('button', { name: '更新する' }).click()
   }
 
   async deletePost(postId: string) {

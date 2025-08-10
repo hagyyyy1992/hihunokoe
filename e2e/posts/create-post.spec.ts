@@ -54,30 +54,30 @@ test.describe('投稿作成', () => {
     // フォームが表示されるまで待機
     await page.waitForSelector('input[name="title"]', { state: 'visible' })
 
-    // 空のフォームで次へボタンをクリックしてバリデーションを確認
-    const nextButton = page.getByRole('button', { name: '次へ' })
+    // 投稿ボタンを確認（新しいシングルページフォーム）
+    const publishButton = page.getByRole('button', { name: '投稿する' })
 
-    // 必須フィールドが空の場合、次へボタンが無効化されていることを確認
-    await expect(nextButton).toBeDisabled()
+    // 必須フィールドが空の場合、投稿ボタンが無効化されていることを確認
+    await expect(publishButton).toBeDisabled()
 
     // タイトルだけ入力した場合
     await page.locator('input[name="title"]').fill('テストタイトル')
-    await expect(nextButton).toBeDisabled()
+    await expect(publishButton).toBeDisabled()
 
     // コスメ名も入力した場合
     await page.locator('input[name="cosmeticName"]').fill('テストコスメ')
-    await expect(nextButton).toBeDisabled()
+    await expect(publishButton).toBeDisabled()
 
     // 内容も入力した場合、まだ無効
     await page.locator('textarea[name="content"]').fill('テスト内容')
-    await expect(nextButton).toBeDisabled()
+    await expect(publishButton).toBeDisabled()
 
     // カテゴリを選択して全ての必須項目を入力
     await page.locator('select[name="cosmeticCategory"]').selectOption('toner')
 
     // 少し待機してからボタンの状態を確認
     await page.waitForTimeout(1000)
-    await expect(nextButton).toBeEnabled()
+    await expect(publishButton).toBeEnabled()
   })
 
   test('カテゴリ選択が正常に動作する', async ({ page }) => {
@@ -136,26 +136,13 @@ test.describe('投稿作成', () => {
     await page.locator('textarea[name="content"]').fill('テスト内容')
     await page.locator('select[name="cosmeticCategory"]').selectOption('toner')
 
-    // ステップ1のバリデーションが通るまで待機
-    const nextButton = page.getByRole('button', { name: '次へ' })
-    await nextButton.waitFor({ state: 'visible' })
+    // 基本情報入力後、感想とまとめアコーディオンを開く
+    await page.waitForTimeout(1000)
 
-    // バリデーションが通るまで待機（文字数制限チェックがある）
-    await expect(nextButton).toBeEnabled({ timeout: 5000 })
-
-    // ステップ4まで進む
-    for (let i = 1; i < 4; i++) {
-      await nextButton.click()
-      await page.waitForTimeout(1000)
-
-      // 次のステップの「次へ」ボタンを取得（ステップ2、3、4で変わる可能性がある）
-      const currentStepButton = page.getByRole('button', { name: '次へ' })
-      if (i < 3) {
-        // ステップ4では「次へ」ボタンはない
-        await currentStepButton.waitFor({ state: 'visible' })
-        await expect(currentStepButton).toBeEnabled({ timeout: 5000 })
-      }
-    }
+    // 感想とまとめアコーディオンを開く
+    const feelingsAccordion = page.getByRole('button', { name: '感想とまとめ（任意）' })
+    await feelingsAccordion.click()
+    await page.waitForTimeout(500)
 
     const moodSelect = page.locator('[name="moodTag"]')
 

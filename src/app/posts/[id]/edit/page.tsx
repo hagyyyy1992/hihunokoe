@@ -1,58 +1,74 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { useQuery, useApolloClient } from '@apollo/client'
+import { GET_POST } from '@/graphql/queries/post'
 import PostForm from '@/components/forms/post-form'
 import DraggableGuidelineModal from '@/components/ui/draggable-guideline-modal'
 import { CosmeticCategory, SkinType, MoodTag, UsageSituation, ExperienceDetails } from '@/types'
-import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
-interface Post {
-  id: string
-  title: string
-  content: string
-  cosmeticName?: string
-  productName?: string
-  brandName?: string
-  color?: string
-  cosmeticCategory?: string
-  category?: string
-  skinType?: string
-  usageSituation?: {
-    season?: string
-    timeOfDay?: string
-    menstrualCycle?: string
-    skinCondition?: string
-    weatherCondition?: string
-  }
-  experienceDetails?: {
-    fragrance?: {
-      type?: string
-      intensity?: string
-      description?: string
-    }
-    texture?: {
-      type?: string
-      spreadability?: string
-      absorption?: string
-      description?: string
-    }
-    afterUse?: {
-      moisture?: string
-      texture?: string
-      comfort?: string
-      duration?: string
-      description?: string
-    }
-  }
-  moodTag?: string
-  userId?: string
-  user?: {
+interface UsageSituationData {
+  season?: string
+  timeOfDay?: string
+  menstrualCycle?: string
+  skinCondition?: string
+  weatherCondition?: string
+}
+
+interface FragranceData {
+  hasFragrance?: boolean
+  type?: string
+  otherType?: string
+  description?: string
+}
+
+interface TextureData {
+  type?: string
+  spreadability?: string
+  absorption?: string
+  description?: string
+}
+
+interface AfterUseData {
+  moisture?: string
+  texture?: string
+  comfort?: string
+  duration?: string
+  description?: string
+}
+
+interface ExperienceDetailsData {
+  fragrance?: FragranceData
+  texture?: TextureData
+  afterUse?: AfterUseData
+}
+
+interface PostData {
+  post: {
     id: string
-    userName: string
+    title: string
+    content: string
+    cosmeticName: string
+    productName?: string
+    brandName?: string
+    color?: string
+    cosmeticCategory?: string
+    category?: string
     skinType?: string
-    profileImageUrl?: string
+    usageSituation?: UsageSituationData
+    experienceDetails?: ExperienceDetailsData
+    moodTag?: string
+    createdAt: string
+    viewCount: number
+    empathyCount: number
+    user: {
+      id: string
+      displayName: string
+      profileImageUrl?: string
+      bio?: string
+    }
   }
 }
 
@@ -60,72 +76,40 @@ export default function EditPostPage() {
   const { id } = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const apolloClient = useApolloClient()
   const { user, loading: authLoading } = useAuth()
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const fetchPost = useCallback(async () => {
-    try {
-      // タイムスタンプを追加してキャッシュを完全に回避
-      const timestamp = Date.now()
-      const response = await fetch(`/api/posts/get?id=${id}&_t=${timestamp}`, {
-        // キャッシュを無効化して最新データを取得
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0',
-        },
-      })
-      const data = await response.json()
+  // GraphQL query for post data
+  const {
+    data,
+    loading,
+    error: gqlError,
+    refetch,
+  } = useQuery<PostData>(GET_POST, {
+    variables: { id },
+    fetchPolicy: 'cache-and-network',
+    errorPolicy: 'all',
+  })
 
-      if (!response.ok) {
-        throw new Error(data.error || '投稿の取得に失敗しました')
-      }
+  const post = data?.post
 
-      const post = data.success && data.data ? data.data.post : data.post
-
-      // PostPresenterから返されるデータ構造に対応
-      if (post && post.user?.id && !post.userId) {
-        post.userId = post.user.id
-      }
-
-      setPost(post)
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : '投稿の取得に失敗しました'
-      setError(errorMessage)
-    } finally {
-      setLoading(false)
-    }
-  }, [id])
-
-  useEffect(() => {
-    if (id) {
-      fetchPost()
-    }
-  }, [id, fetchPost, searchParams]) // searchParamsの変更も監視
-
-  // タイムスタンプパラメータの変更を監視して強制的にデータ再取得
+  // URLパラメータの変更を監視してデータ再取得
   useEffect(() => {
     const t = searchParams.get('t')
     if (t && id) {
-      // タイムスタンプが変更された場合は即座にデータを再取得
-      fetchPost()
+      // タイムスタンプが変更された場合はキャッシュを無効化して再取得
+      apolloClient.cache.evict({ id: apolloClient.cache.identify({ __typename: 'Post', id }) })
+      refetch()
     }
-  }, [searchParams, id, fetchPost])
+  }, [searchParams, id, apolloClient, refetch])
 
-  // URLのハッシュフラグメントをチェックして削除ダイアログを表示
+  // GraphQLエラーの処理
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#delete') {
-      // 投稿データが読み込まれた後に削除ダイアログを表示
-      if (!loading && post) {
-        setShowDeleteConfirm(true)
-      }
+    if (gqlError) {
+      setError(gqlError.message || '投稿の取得に失敗しました')
     }
-  }, [loading, post])
+  }, [gqlError])
 
   // 認証チェック
   useEffect(() => {
@@ -136,9 +120,7 @@ export default function EditPostPage() {
 
   // 権限チェック
   useEffect(() => {
-    const postUserId = post?.userId || post?.user?.id
-
-    if (!loading && post && user && postUserId !== user.id) {
+    if (!loading && post && user && post.user.id !== user.id) {
       router.push(`/posts/${id}`)
     }
   }, [post, user, loading, id, router])
@@ -201,7 +183,7 @@ export default function EditPostPage() {
   }
 
   // 使用状況のバリデーション
-  const validateUsageSituation = (situation?: Post['usageSituation']): Partial<UsageSituation> => {
+  const validateUsageSituation = (situation?: UsageSituationData): Partial<UsageSituation> => {
     if (!situation) return {}
 
     const validSeasons = ['spring', 'summer', 'autumn', 'winter']
@@ -237,7 +219,7 @@ export default function EditPostPage() {
 
   // 体験詳細のバリデーション - シンプル化したバージョン
   const validateExperienceDetails = (
-    details?: Post['experienceDetails']
+    details?: ExperienceDetailsData
   ): Partial<ExperienceDetails> => {
     // 詳細がない場合は空オブジェクトを返す
     if (!details) return {}
@@ -258,16 +240,18 @@ export default function EditPostPage() {
 
     // 香りの処理
     if (details.fragrance) {
-      const fragranceTypes = ['none', 'floral', 'citrus', 'herbal', 'chemical', 'other'] as const
-      const intensityTypes = ['weak', 'moderate', 'strong'] as const
+      const fragranceTypes = ['none', 'floral', 'citrus', 'herbal', 'other'] as const
 
       const type = safeConvert(details.fragrance.type, fragranceTypes)
-      const intensity = safeConvert(details.fragrance.intensity, intensityTypes)
 
-      if (type || intensity || details.fragrance.description) {
+      if (type || details.fragrance.description || details.fragrance.hasFragrance !== undefined) {
         result.fragrance = {
-          type: type || 'other',
-          intensity: intensity || 'moderate',
+          hasFragrance: details.fragrance.hasFragrance,
+          type: type,
+        }
+
+        if (details.fragrance.otherType) {
+          result.fragrance.otherType = details.fragrance.otherType
         }
 
         if (details.fragrance.description) {
@@ -341,32 +325,6 @@ export default function EditPostPage() {
     moodTag: validateMoodTag(post.moodTag),
   }
 
-  // 投稿削除処理
-  const handleDelete = async () => {
-    if (!post || !user) return
-
-    setDeleteLoading(true)
-
-    try {
-      const response = await fetch(`/api/posts/delete?id=${post.id}`, {
-        method: 'DELETE',
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || '投稿の削除に失敗しました')
-      }
-
-      router.push('/posts')
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : '投稿の削除に失敗しました'
-      setError(errorMessage)
-      setDeleteLoading(false)
-      setShowDeleteConfirm(false)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
@@ -384,15 +342,6 @@ export default function EditPostPage() {
 
           <DraggableGuidelineModal />
         </div>
-
-        {/* 削除確認ダイアログ */}
-        <DeleteConfirmDialog
-          open={showDeleteConfirm}
-          onOpenChange={setShowDeleteConfirm}
-          onConfirm={handleDelete}
-          itemName="投稿"
-          loading={deleteLoading}
-        />
       </div>
     </div>
   )
