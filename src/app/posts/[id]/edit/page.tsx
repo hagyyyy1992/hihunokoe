@@ -108,6 +108,15 @@ export default function EditPostPage() {
     }
   }, [id, fetchPost, searchParams]) // searchParamsの変更も監視
 
+  // タイムスタンプパラメータの変更を監視して強制的にデータ再取得
+  useEffect(() => {
+    const t = searchParams.get('t')
+    if (t && id) {
+      // タイムスタンプが変更された場合は即座にデータを再取得
+      fetchPost()
+    }
+  }, [searchParams, id, fetchPost])
+
   // URLのハッシュフラグメントをチェックして削除ダイアログを表示
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#delete') {

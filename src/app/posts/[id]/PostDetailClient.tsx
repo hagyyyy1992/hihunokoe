@@ -215,7 +215,17 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
     if (!postId) return
 
     try {
-      const response = await fetch(`/api/posts/${postId}`)
+      // タイムスタンプを追加してキャッシュを完全に回避
+      const timestamp = Date.now()
+      const response = await fetch(`/api/posts/get?id=${postId}&_t=${timestamp}`, {
+        // キャッシュを無効化して最新データを取得
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      })
       if (!response.ok) {
         throw new Error('投稿の取得に失敗しました')
       }
@@ -774,6 +784,12 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                   href={`/posts/${currentPost.id}/edit?t=${Date.now()}`}
                   className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors flex-1 sm:flex-initial"
                   data-testid="edit-post-button"
+                  onClick={e => {
+                    // クリック時に新しいタイムスタンプを生成してキャッシュを強制回避
+                    e.preventDefault()
+                    const newTimestamp = Date.now()
+                    window.location.href = `/posts/${currentPost.id}/edit?t=${newTimestamp}`
+                  }}
                 >
                   <svg
                     className="w-3 h-3 sm:w-4 sm:h-4"
