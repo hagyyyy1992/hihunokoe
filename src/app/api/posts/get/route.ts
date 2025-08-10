@@ -11,9 +11,26 @@ export async function GET(request: NextRequest) {
   if (!id) {
     return new Response(JSON.stringify({ error: 'IDが指定されていません' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
     })
   }
 
-  return postController.getPost(request, { params: { id } })
+  const response = await postController.getPost(request, { params: { id } })
+
+  // レスポンスヘッダーにキャッシュ無効化を追加
+  const headers = new Headers(response.headers)
+  headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+  headers.set('Pragma', 'no-cache')
+  headers.set('Expires', '0')
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  })
 }

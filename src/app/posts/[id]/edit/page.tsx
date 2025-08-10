@@ -68,7 +68,15 @@ export default function EditPostPage() {
 
   const fetchPost = useCallback(async () => {
     try {
-      const response = await fetch(`/api/posts/get?id=${id}`)
+      const response = await fetch(`/api/posts/get?id=${id}`, {
+        // キャッシュを無効化して最新データを取得
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      })
       const data = await response.json()
 
       if (!response.ok) {
@@ -351,8 +359,12 @@ export default function EditPostPage() {
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
-          <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
+              <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
+            </div>
+          </div>
         </div>
 
         <div className="relative">
