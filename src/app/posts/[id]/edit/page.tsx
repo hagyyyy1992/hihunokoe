@@ -51,9 +51,11 @@ interface PostData {
     title: string
     content: string
     cosmeticName: string
+    productName?: string
     brandName?: string
     color?: string
     cosmeticCategory?: string
+    category?: string
     skinType?: string
     usageSituation?: UsageSituationData
     experienceDetails?: ExperienceDetailsData
@@ -313,10 +315,10 @@ export default function EditPostPage() {
   const formData = {
     title: post.title,
     content: post.content,
-    cosmeticName: post.cosmeticName || '',
+    cosmeticName: post.cosmeticName || post.productName || '',
     brandName: post.brandName,
     color: post.color,
-    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory),
+    cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory || post.category),
     skinType: validateSkinType(post.skinType),
     usageSituation: validateUsageSituation(post.usageSituation),
     experienceDetails: validateExperienceDetails(post.experienceDetails),
