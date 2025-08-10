@@ -35,6 +35,7 @@ export class PostRepository implements IPostRepository {
         mockPost.content,
         mockPost.cosmeticName,
         null, // brandName
+        null, // color
         null, // imageUrl
         mockPost.cosmeticCategory,
         mockPost.status === 'published',
@@ -184,6 +185,7 @@ export class PostRepository implements IPostRepository {
             mockPost.content,
             mockPost.cosmeticName,
             null, // brandName
+            null, // color
             null, // imageUrl
             mockPost.cosmeticCategory,
             mockPost.status === 'published',
@@ -349,7 +351,9 @@ export class PostRepository implements IPostRepository {
         userId: data.userId,
         title: data.title,
         content: data.content,
-        cosmeticName: data.productName || '',
+        cosmeticName: data.productName || null,
+        brandName: data.brandName || null,
+        color: data.color || null,
         cosmeticCategory: data.category || null,
         skinType: data.skinType || null,
         moodTag: data.moodTag || null,
@@ -386,7 +390,9 @@ export class PostRepository implements IPostRepository {
     const updateData: any = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.content !== undefined) updateData.content = data.content
-    if (data.productName !== undefined) updateData.cosmeticName = data.productName
+    if (data.productName !== undefined) updateData.cosmeticName = data.productName || null
+    if (data.brandName !== undefined) updateData.brandName = data.brandName
+    if (data.color !== undefined) updateData.color = data.color
     if (data.category !== undefined) updateData.cosmeticCategory = data.category
     if (data.skinType !== undefined) updateData.skinType = data.skinType
     if (data.moodTag !== undefined) updateData.moodTag = data.moodTag
@@ -702,16 +708,17 @@ export class PostRepository implements IPostRepository {
     return new Post(
       prismaPost.id,
       prismaPost.userId,
-      prismaPost.title,
+      prismaPost.title || null,
       prismaPost.content,
       prismaPost.cosmeticName || null, // productName
-      null, // brandName (not in current schema)
+      prismaPost.brandName || null, // brandName
+      prismaPost.color || null, // color
       null, // imageUrl (not in current schema)
       prismaPost.cosmeticCategory || null, // category
       prismaPost.status === 'published', // isPublished
       prismaPost.publishedAt,
       prismaPost.status,
-      prismaPost.cosmeticName,
+      prismaPost.cosmeticName || '', // fallback for compatibility
       prismaPost.cosmeticCategory,
       prismaPost.skinType,
       prismaPost.moodTag,

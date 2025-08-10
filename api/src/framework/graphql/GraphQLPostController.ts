@@ -137,9 +137,11 @@ export class GraphQLPostController {
   async createPost(
     args: {
       input: {
-        title: string
+        title?: string
         content: string
-        cosmeticName: string
+        cosmeticName?: string
+        brandName?: string
+        color?: string
         cosmeticCategory?: string
         skinType?: string
         usageSituation?: any
@@ -156,7 +158,8 @@ export class GraphQLPostController {
         title: args.input.title,
         content: args.input.content,
         productName: args.input.cosmeticName,
-        brandName: undefined,
+        brandName: args.input.brandName,
+        color: args.input.color,
         imageUrl: undefined,
         category: args.input.cosmeticCategory,
         skinType: args.input.skinType,
@@ -182,6 +185,8 @@ export class GraphQLPostController {
         title?: string
         content?: string
         cosmeticName?: string
+        brandName?: string
+        color?: string
         cosmeticCategory?: string
         skinType?: string
         usageSituation?: any
@@ -201,6 +206,8 @@ export class GraphQLPostController {
         title: args.input.title,
         content: args.input.content,
         productName: args.input.cosmeticName,
+        brandName: args.input.brandName,
+        color: args.input.color,
         category: args.input.cosmeticCategory,
         skinType: args.input.skinType,
         moodTag: args.input.moodTag,

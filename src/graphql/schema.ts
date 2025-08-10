@@ -23,9 +23,11 @@ export const typeDefs = gql`
   type Post {
     id: ID!
     userId: String!
-    title: String!
+    title: String
     content: String!
-    cosmeticName: String!
+    cosmeticName: String
+    brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -105,9 +107,11 @@ export const typeDefs = gql`
   }
 
   input CreatePostInput {
-    title: String!
+    title: String
     content: String!
-    cosmeticName: String!
+    cosmeticName: String
+    brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON
@@ -119,6 +123,8 @@ export const typeDefs = gql`
     title: String
     content: String
     cosmeticName: String
+    brandName: String
+    color: String
     cosmeticCategory: String
     skinType: String
     usageSituation: JSON

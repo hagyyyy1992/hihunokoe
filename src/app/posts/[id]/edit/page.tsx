@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import PostForm from '@/components/forms/post-form'
 import DraggableGuidelineModal from '@/components/ui/draggable-guideline-modal'
@@ -14,6 +14,8 @@ interface Post {
   content: string
   cosmeticName?: string
   productName?: string
+  brandName?: string
+  color?: string
   cosmeticCategory?: string
   category?: string
   skinType?: string
@@ -57,6 +59,7 @@ interface Post {
 export default function EditPostPage() {
   const { id } = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, loading: authLoading } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
@@ -66,7 +69,17 @@ export default function EditPostPage() {
 
   const fetchPost = useCallback(async () => {
     try {
-      const response = await fetch(`/api/posts/get?id=${id}`)
+      // タイムスタンプを追加してキャッシュを完全に回避
+      const timestamp = Date.now()
+      const response = await fetch(`/api/posts/get?id=${id}&_t=${timestamp}`, {
+        // キャッシュを無効化して最新データを取得
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      })
       const data = await response.json()
 
       if (!response.ok) {
@@ -93,7 +106,16 @@ export default function EditPostPage() {
     if (id) {
       fetchPost()
     }
-  }, [id, fetchPost])
+  }, [id, fetchPost, searchParams]) // searchParamsの変更も監視
+
+  // タイムスタンプパラメータの変更を監視して強制的にデータ再取得
+  useEffect(() => {
+    const t = searchParams.get('t')
+    if (t && id) {
+      // タイムスタンプが変更された場合は即座にデータを再取得
+      fetchPost()
+    }
+  }, [searchParams, id, fetchPost])
 
   // URLのハッシュフラグメントをチェックして削除ダイアログを表示
   useEffect(() => {
@@ -310,6 +332,8 @@ export default function EditPostPage() {
     title: post.title,
     content: post.content,
     cosmeticName: post.cosmeticName || post.productName || '',
+    brandName: post.brandName,
+    color: post.color,
     cosmeticCategory: validateCosmeticCategory(post.cosmeticCategory || post.category),
     skinType: validateSkinType(post.skinType),
     usageSituation: validateUsageSituation(post.usageSituation),
@@ -347,8 +371,12 @@ export default function EditPostPage() {
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
-          <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">投稿を編集</h1>
+              <p className="text-sm sm:text-base text-gray-600">投稿内容を編集できます。</p>
+            </div>
+          </div>
         </div>
 
         <div className="relative">

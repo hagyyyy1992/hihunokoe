@@ -2,10 +2,11 @@ export class Post {
   constructor(
     public readonly id: string,
     public readonly userId: string,
-    public readonly title: string,
+    public readonly title: string | null,
     public readonly content: string,
     public readonly productName: string | null,
     public readonly brandName: string | null,
+    public readonly color: string | null,
     public readonly imageUrl: string | null,
     public readonly category: string | null,
     public readonly isPublished: boolean,
@@ -40,7 +41,7 @@ export class Post {
   ) {}
 
   get isValid(): boolean {
-    return this.title.trim().length > 0 && this.content.trim().length > 0
+    return this.content.trim().length > 0
   }
 
   get excerpt(): string {

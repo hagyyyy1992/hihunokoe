@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { useQuery } from '@apollo/client'
+import { useQuery, useApolloClient } from '@apollo/client'
 import { getSkinConditionLabel } from '@/lib/constants/profile'
 import { GET_POST } from '@/graphql/queries/post'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
@@ -28,6 +28,8 @@ interface PostData {
     title: string
     content: string
     cosmeticName: string
+    brandName?: string
+    color?: string
     cosmeticCategory?: string
     skinType?: string
     usageSituation?: {
@@ -76,6 +78,8 @@ interface Post {
   title: string
   content: string
   cosmeticName: string
+  brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   usageSituation?: {
@@ -188,6 +192,8 @@ const durationLabels: Record<string, string> = {
 
 export default function PostDetailClient({ initialData, postId }: PostDetailClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const apolloClient = useApolloClient()
   const { user } = useAuth()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -209,7 +215,17 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
     if (!postId) return
 
     try {
-      const response = await fetch(`/api/posts/${postId}`)
+      // タイムスタンプを追加してキャッシュを完全に回避
+      const timestamp = Date.now()
+      const response = await fetch(`/api/posts/get?id=${postId}&_t=${timestamp}`, {
+        // キャッシュを無効化して最新データを取得
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      })
       if (!response.ok) {
         throw new Error('投稿の取得に失敗しました')
       }
@@ -232,6 +248,26 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
       fetchPost()
     }
   }, [error, graphqlPost, post, fetchPost])
+
+  // 編集後の更新パラメータを監視してキャッシュを無効化
+  useEffect(() => {
+    const updatedParam = searchParams.get('updated')
+    if (updatedParam) {
+      // GraphQLキャッシュからこの投稿のデータを無効化
+      apolloClient.cache.evict({
+        id: apolloClient.cache.identify({ __typename: 'Post', id: postId }),
+      })
+      apolloClient.cache.gc() // ガベージコレクション実行
+
+      // REST APIでも最新データを取得
+      fetchPost()
+
+      // パラメータを削除してURLをクリーンにする
+      const url = new URL(window.location.href)
+      url.searchParams.delete('updated')
+      router.replace(url.pathname + url.search, { scroll: false })
+    }
+  }, [searchParams, apolloClient, postId, fetchPost, router])
 
   useEffect(() => {
     // クライアントサイドでのレンダリング準備完了フラグ
@@ -432,9 +468,19 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
               <h3 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">
                 使用したコスメ
               </h3>
-              <p className="text-gray-700 text-sm sm:text-base break-words">
-                {currentPost.cosmeticName}
-              </p>
+              <div className="space-y-1">
+                {currentPost.brandName && (
+                  <p className="text-gray-600 text-xs sm:text-sm font-medium">
+                    ブランド: {currentPost.brandName}
+                  </p>
+                )}
+                <p className="text-gray-700 text-sm sm:text-base break-words">
+                  商品名: {currentPost.cosmeticName}
+                </p>
+                {currentPost.color && (
+                  <p className="text-gray-600 text-xs sm:text-sm">色: {currentPost.color}</p>
+                )}
+              </div>
             </div>
           </header>
 
@@ -735,9 +781,15 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
             {user && currentPost.user && user.id === currentPost.user.id && (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
-                  href={`/posts/${currentPost.id}/edit`}
+                  href={`/posts/${currentPost.id}/edit?t=${Date.now()}`}
                   className="flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors flex-1 sm:flex-initial"
                   data-testid="edit-post-button"
+                  onClick={e => {
+                    // クリック時に新しいタイムスタンプを生成してキャッシュを強制回避
+                    e.preventDefault()
+                    const newTimestamp = Date.now()
+                    window.location.href = `/posts/${currentPost.id}/edit?t=${newTimestamp}`
+                  }}
                 >
                   <svg
                     className="w-3 h-3 sm:w-4 sm:h-4"

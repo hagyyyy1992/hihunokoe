@@ -19,9 +19,11 @@ type User {
 type Post {
   id: ID!
   userId: String!
-  title: String!
+  title: String
   content: String!
-  cosmeticName: String!
+  cosmeticName: String
+  brandName: String
+  color: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON
@@ -36,6 +38,7 @@ type Post {
   user: User!
   comments: [Comment!]!
   empathies: [Empathy!]!
+  commentCount: Int!
 }
 
 type Empathy {
@@ -78,9 +81,11 @@ type PageInfo {
 }
 
 input CreatePostInput {
-  title: String!
+  title: String
   content: String!
-  cosmeticName: String!
+  cosmeticName: String
+  brandName: String
+  color: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON
@@ -92,6 +97,8 @@ input UpdatePostInput {
   title: String
   content: String
   cosmeticName: String
+  brandName: String
+  color: String
   cosmeticCategory: String
   skinType: String
   usageSituation: JSON

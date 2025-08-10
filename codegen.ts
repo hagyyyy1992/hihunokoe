@@ -30,7 +30,7 @@ const config: CodegenConfig = {
         enumsAsTypes: true,
         useIndexSignature: true,
         avoidOptionals: {
-          field: true,
+          field: false,
           inputValue: false,
           object: false,
           defaultValue: false,

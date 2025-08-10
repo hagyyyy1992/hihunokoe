@@ -106,14 +106,16 @@ describe('Post.repository', () => {
           userId: createData.userId,
           title: createData.title,
           content: createData.content,
-          cosmeticName: createData.productName || '',
+          cosmeticName: createData.productName || null,
+          brandName: null,
+          color: null,
           cosmeticCategory: createData.category || null,
           skinType: createData.skinType || null,
           moodTag: createData.moodTag || null,
           usageSituation: createData.usageSituation || null,
           experienceDetails: createData.experienceDetails || null,
           status: createData.isPublished ? 'published' : 'draft',
-          publishedAt: createData.isPublished ? expect.any(Date) : null,
+          publishedAt: expect.any(Date),
         },
         include: {
           user: {

@@ -13,6 +13,8 @@ interface Post {
   title: string
   content: string
   cosmeticName: string
+  brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
@@ -159,9 +161,14 @@ function PostCard({ post }: PostCardProps) {
       </div>
 
       <div className="mb-3 sm:mb-4">
-        <p className="text-xs sm:text-sm font-medium text-gray-900 mb-1 truncate">
-          使用コスメ: {post.cosmeticName}
-        </p>
+        <div className="text-xs sm:text-sm font-medium text-gray-900 mb-1">
+          <span className="text-gray-700">使用コスメ:</span>
+          <div className="mt-0.5">
+            {post.brandName && <span className="text-gray-600 text-xs">{post.brandName} </span>}
+            <span className="text-gray-900">{post.cosmeticName}</span>
+            {post.color && <span className="text-gray-500 text-xs ml-2">({post.color})</span>}
+          </div>
+        </div>
         <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-3">
           {truncatedContent}
         </p>

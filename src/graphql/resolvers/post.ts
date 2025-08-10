@@ -97,9 +97,11 @@ export const postResolvers = {
         input,
       }: {
         input: {
-          title: string
+          title?: string
           content: string
-          cosmeticName: string
+          cosmeticName?: string
+          brandName?: string
+          color?: string
           cosmeticCategory?: string
           skinType?: string
           usageSituation?: {
@@ -153,6 +155,8 @@ export const postResolvers = {
           title?: string
           content?: string
           cosmeticName?: string
+          brandName?: string
+          color?: string
           cosmeticCategory?: string
           skinType?: string
           usageSituation?: {

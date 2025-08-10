@@ -18,10 +18,11 @@ export abstract class IPostManagementUseCase {
 
 export type CreatePostInputPort = {
   userId: string
-  title: string
+  title?: string
   content: string
   productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category?: string
   skinType?: string
@@ -39,6 +40,7 @@ export type UpdatePostInputPort = {
   content?: string
   productName?: string
   brandName?: string
+  color?: string
   imageUrl?: string
   category?: string
   skinType?: string

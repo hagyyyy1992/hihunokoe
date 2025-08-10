@@ -38,8 +38,9 @@ const filterPosts = (posts: PostNode[], filters: FilterState) => {
       const titleMatch = post.title.toLowerCase().includes(searchLower)
       const contentMatch = post.content.toLowerCase().includes(searchLower)
       const cosmeticMatch = post.cosmeticName.toLowerCase().includes(searchLower)
+      const brandMatch = post.brandName?.toLowerCase().includes(searchLower) || false
 
-      if (!titleMatch && !contentMatch && !cosmeticMatch) {
+      if (!titleMatch && !contentMatch && !cosmeticMatch && !brandMatch) {
         return false
       }
     }
@@ -53,6 +54,8 @@ interface PostNode {
   title: string
   content: string
   cosmeticName: string
+  brandName?: string
+  color?: string
   cosmeticCategory?: string
   skinType?: string
   moodTag?: string
@@ -402,6 +405,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                         title: post.title,
                         content: post.content,
                         cosmeticName: post.cosmeticName,
+                        brandName: post.brandName,
+                        color: post.color,
                         cosmeticCategory: post.cosmeticCategory || undefined,
                         skinType: post.skinType || undefined,
                         moodTag: post.moodTag || undefined,

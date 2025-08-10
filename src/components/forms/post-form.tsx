@@ -12,9 +12,11 @@ import { categoryLabels } from '@/lib/constants/categories'
 import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface PostFormData {
-  title: string
+  title?: string
   content: string
-  cosmeticName: string
+  cosmeticName?: string
+  brandName?: string
+  color?: string
   cosmeticCategory: CosmeticCategory | ''
   skinType: SkinType | ''
   usageSituation: Partial<UsageSituation>
@@ -47,6 +49,8 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         title: '',
         content: '',
         cosmeticName: '',
+        brandName: '',
+        color: '',
         cosmeticCategory: '',
         skinType: '',
         usageSituation: {},
@@ -152,9 +156,11 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
     setLoading(true)
 
     const input = {
-      title: formData.title,
+      title: formData.title?.trim() || null,
       content: formData.content,
-      cosmeticName: formData.cosmeticName,
+      cosmeticName: formData.cosmeticName?.trim() || null,
+      brandName: formData.brandName?.trim() || null,
+      color: formData.color?.trim() || null,
       cosmeticCategory: formData.cosmeticCategory || undefined,
       skinType: formData.skinType || undefined,
       moodTag: formData.moodTag || undefined,
@@ -169,7 +175,8 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
         await updatePost({
           variables: { id: postId, input },
         })
-        router.push(`/posts/${postId}`)
+        // 編集保存後は最新データを表示するためタイムスタンプパラメータを追加
+        router.push(`/posts/${postId}?updated=${Date.now()}`)
       } else {
         const result = await createPost({
           variables: { input },
@@ -234,12 +241,16 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        const titleValid = formData.title?.trim() && formData.title.trim().length <= 100
+        const titleValid = !formData.title?.trim() || formData.title.trim().length <= 100
         const cosmeticNameValid =
-          formData.cosmeticName?.trim() && formData.cosmeticName.trim().length <= 100
+          !formData.cosmeticName?.trim() || formData.cosmeticName.trim().length <= 100
+        const brandNameValid =
+          !formData.brandName?.trim() || formData.brandName.trim().length <= 100
         const contentValid = formData.content?.trim() && formData.content.trim().length <= 2000
-        const categoryValid = !!formData.cosmeticCategory
-        const isValid = titleValid && cosmeticNameValid && contentValid && categoryValid
+        const categoryValid = formData.cosmeticCategory !== ''
+        // コンテンツとカテゴリが必須、その他は任意
+        const isValid =
+          cosmeticNameValid && contentValid && titleValid && brandNameValid && categoryValid
         return isValid
       case 2:
         return true // オプショナル
@@ -315,34 +326,52 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
             <h3 className="text-base sm:text-lg font-medium text-gray-900">基本情報</h3>
 
             <Input
-              label="タイトル"
+              label="タイトル（任意）"
               id="title"
               name="title"
-              required
               value={formData.title || ''}
               onChange={handleInputChange}
               placeholder="例: ○○クリームを敏感肌で試してみました"
               showPlaceholderHint
               data-testid="post-title-input"
-              aria-label="タイトル"
+              aria-label="タイトル（任意）"
               maxLength={100}
-              onInvalid={e => {
-                const element = e.target as HTMLInputElement
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              }}
             />
 
             <Input
-              label="使用したコスメ名"
+              label="ブランド名（任意）"
+              id="brandName"
+              name="brandName"
+              value={formData.brandName || ''}
+              onChange={handleInputChange}
+              placeholder="例: KANEBO"
+              showPlaceholderHint
+              aria-label="ブランド名（任意）"
+              maxLength={100}
+            />
+
+            <Input
+              label="使用したコスメ名（任意）"
               id="cosmeticName"
               name="cosmeticName"
-              required
               value={formData.cosmeticName || ''}
               onChange={handleInputChange}
-              placeholder="例: ○○ブランド モイスチャークリーム"
+              placeholder="例: モイスチャーパウダー"
               showPlaceholderHint
-              aria-label="使用したコスメ名"
+              aria-label="使用したコスメ名（任意）"
               maxLength={100}
+            />
+
+            <Input
+              label="色（任意）"
+              id="color"
+              name="color"
+              value={formData.color || ''}
+              onChange={handleInputChange}
+              placeholder="例: ナチュラルベージュ、ピンクベージュ"
+              showPlaceholderHint
+              aria-label="色（任意）"
+              maxLength={50}
             />
 
             <div className="form-group">
