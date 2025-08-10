@@ -537,49 +537,112 @@ export default function PostForm({ initialData, postId, isEditMode = false }: Po
               </h4>
               <div className="space-y-2 sm:space-y-3">
                 <div className="form-group">
-                  <label className="form-label">香りのタイプ</label>
-                  <select
-                    value={formData.experienceDetails.fragrance?.type || ''}
-                    onChange={e =>
-                      handleNestedChange(
-                        'experienceDetails',
-                        'fragrance',
-                        e.target.value || undefined,
-                        'type'
-                      )
-                    }
-                    className="select"
-                  >
-                    <option value="">選択してください</option>
-                    <option value="none">無香料</option>
-                    <option value="floral">フローラル系</option>
-                    <option value="citrus">シトラス系</option>
-                    <option value="herbal">ハーブ系</option>
-                    <option value="chemical">化学的な香り</option>
-                    <option value="other">その他</option>
-                  </select>
+                  <label className="form-label">香りの有無</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="hasFragrance"
+                        value="true"
+                        checked={formData.experienceDetails.fragrance?.hasFragrance === true}
+                        onChange={() =>
+                          handleNestedChange('experienceDetails', 'fragrance', true, 'hasFragrance')
+                        }
+                        className="mr-2"
+                      />
+                      あり
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="hasFragrance"
+                        value="false"
+                        checked={formData.experienceDetails.fragrance?.hasFragrance === false}
+                        onChange={() => {
+                          // 香りなしを選択した場合、関連フィールドをリセット
+                          setFormData(prev => ({
+                            ...prev,
+                            experienceDetails: {
+                              ...prev.experienceDetails,
+                              fragrance: {
+                                hasFragrance: false,
+                                type: 'none',
+                              },
+                            },
+                          }))
+                        }}
+                        className="mr-2"
+                      />
+                      なし（無香料）
+                    </label>
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">香りの強さ</label>
-                  <select
-                    value={formData.experienceDetails.fragrance?.intensity || ''}
-                    onChange={e =>
-                      handleNestedChange(
-                        'experienceDetails',
-                        'fragrance',
-                        e.target.value || undefined,
-                        'intensity'
-                      )
-                    }
-                    className="select"
-                  >
-                    <option value="">選択してください</option>
-                    <option value="weak">弱い</option>
-                    <option value="moderate">普通</option>
-                    <option value="strong">強い</option>
-                  </select>
-                </div>
+                {formData.experienceDetails.fragrance?.hasFragrance === true && (
+                  <>
+                    <div className="form-group">
+                      <label className="form-label">香りのタイプ</label>
+                      <select
+                        value={formData.experienceDetails.fragrance?.type || ''}
+                        onChange={e =>
+                          handleNestedChange(
+                            'experienceDetails',
+                            'fragrance',
+                            e.target.value || undefined,
+                            'type'
+                          )
+                        }
+                        className="select"
+                      >
+                        <option value="">選択してください</option>
+                        <option value="floral">フローラル系</option>
+                        <option value="citrus">シトラス系</option>
+                        <option value="herbal">ハーブ系</option>
+                        <option value="other">その他</option>
+                      </select>
+                    </div>
+
+                    {formData.experienceDetails.fragrance?.type === 'other' && (
+                      <div className="form-group">
+                        <label className="form-label">その他の香り（フリーテキスト）</label>
+                        <input
+                          type="text"
+                          value={formData.experienceDetails.fragrance?.otherType || ''}
+                          onChange={e =>
+                            handleNestedChange(
+                              'experienceDetails',
+                              'fragrance',
+                              e.target.value,
+                              'otherType'
+                            )
+                          }
+                          className="input"
+                          placeholder="例: ウッディ系、スパイシー系など"
+                          maxLength={50}
+                        />
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <label className="form-label">香りの説明（任意）</label>
+                      <textarea
+                        value={formData.experienceDetails.fragrance?.description || ''}
+                        onChange={e =>
+                          handleNestedChange(
+                            'experienceDetails',
+                            'fragrance',
+                            e.target.value,
+                            'description'
+                          )
+                        }
+                        className="textarea"
+                        placeholder="香りの印象や感想を自由に記入してください"
+                        rows={2}
+                        maxLength={200}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

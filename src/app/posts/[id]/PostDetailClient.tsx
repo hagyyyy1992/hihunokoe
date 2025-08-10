@@ -12,7 +12,6 @@ import { GET_POST } from '@/graphql/queries/post'
 import { categoryLabels, skincareCategories } from '@/lib/constants/categories'
 import {
   fragranceTypeLabels,
-  fragranceIntensityLabels,
   textureTypeLabels,
   spreadabilityLabels,
   absorptionLabels,
@@ -41,8 +40,9 @@ interface PostData {
     }
     experienceDetails?: {
       fragrance?: {
+        hasFragrance?: boolean
         type?: string
-        intensity?: string
+        otherType?: string
         description?: string
       }
       texture?: {
@@ -91,8 +91,9 @@ interface Post {
   }
   experienceDetails?: {
     fragrance?: {
+      hasFragrance?: boolean
       type?: string
-      intensity?: string
+      otherType?: string
       description?: string
     }
     texture?: {
@@ -719,17 +720,43 @@ export default function PostDetailClient({ initialData, postId }: PostDetailClie
                         </h4>
                         <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
                           {currentPost.experienceDetails.fragrance &&
-                            Object.values(currentPost.experienceDetails.fragrance).some(
-                              value => value && typeof value === 'string' && value.trim() !== ''
-                            ) && (
+                            (currentPost.experienceDetails.fragrance.hasFragrance !== undefined ||
+                              Object.values(currentPost.experienceDetails.fragrance).some(
+                                value => value && typeof value === 'string' && value.trim() !== ''
+                              )) && (
                               <div>
                                 <span className="text-gray-500">香り:</span>
                                 <span className="ml-2 text-gray-900">
-                                  {fragranceTypeLabels[
-                                    currentPost.experienceDetails.fragrance.type || ''
-                                  ] || currentPost.experienceDetails.fragrance.type}
-                                  {currentPost.experienceDetails.fragrance.intensity &&
-                                    ` (${fragranceIntensityLabels[currentPost.experienceDetails.fragrance.intensity] || currentPost.experienceDetails.fragrance.intensity})`}
+                                  {currentPost.experienceDetails.fragrance.hasFragrance === false
+                                    ? '無香料'
+                                    : currentPost.experienceDetails.fragrance.hasFragrance === true
+                                      ? (() => {
+                                          const fragrance = currentPost.experienceDetails.fragrance
+                                          let display = ''
+
+                                          // 香りのタイプ
+                                          if (fragrance.type === 'other' && fragrance.otherType) {
+                                            display = fragrance.otherType
+                                          } else if (fragrance.type) {
+                                            display =
+                                              fragranceTypeLabels[fragrance.type] || fragrance.type
+                                          }
+
+                                          // 説明があれば追加
+                                          if (fragrance.description) {
+                                            display += display
+                                              ? ` - ${fragrance.description}`
+                                              : fragrance.description
+                                          }
+
+                                          return display || 'あり'
+                                        })()
+                                      : // 旧形式との互換性
+                                        fragranceTypeLabels[
+                                          currentPost.experienceDetails.fragrance.type || ''
+                                        ] ||
+                                        currentPost.experienceDetails.fragrance.type ||
+                                        ''}
                                 </span>
                               </div>
                             )}

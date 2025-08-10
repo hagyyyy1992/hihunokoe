@@ -18,8 +18,9 @@ interface UsageSituationData {
 }
 
 interface FragranceData {
+  hasFragrance?: boolean
   type?: string
-  intensity?: string
+  otherType?: string
   description?: string
 }
 
@@ -237,16 +238,18 @@ export default function EditPostPage() {
 
     // 香りの処理
     if (details.fragrance) {
-      const fragranceTypes = ['none', 'floral', 'citrus', 'herbal', 'chemical', 'other'] as const
-      const intensityTypes = ['weak', 'moderate', 'strong'] as const
+      const fragranceTypes = ['none', 'floral', 'citrus', 'herbal', 'other'] as const
 
       const type = safeConvert(details.fragrance.type, fragranceTypes)
-      const intensity = safeConvert(details.fragrance.intensity, intensityTypes)
 
-      if (type || intensity || details.fragrance.description) {
+      if (type || details.fragrance.description || details.fragrance.hasFragrance !== undefined) {
         result.fragrance = {
-          type: type || 'other',
-          intensity: intensity || 'moderate',
+          hasFragrance: details.fragrance.hasFragrance,
+          type: type,
+        }
+
+        if (details.fragrance.otherType) {
+          result.fragrance.otherType = details.fragrance.otherType
         }
 
         if (details.fragrance.description) {

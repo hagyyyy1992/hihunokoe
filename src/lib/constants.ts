@@ -8,14 +8,7 @@ export const fragranceTypeLabels: Record<string, string> = {
   floral: 'フローラル系',
   citrus: 'シトラス系',
   herbal: 'ハーブ系',
-  chemical: '化学的な香り',
   other: 'その他',
-}
-
-export const fragranceIntensityLabels: Record<string, string> = {
-  weak: '弱い',
-  moderate: '普通',
-  strong: '強い',
 }
 
 export const textureTypeLabels: Record<string, string> = {

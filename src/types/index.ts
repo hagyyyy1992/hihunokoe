@@ -34,8 +34,9 @@ export interface UsageSituation {
 // 体験詳細の型定義
 export interface ExperienceDetails {
   fragrance?: {
-    type: 'none' | 'floral' | 'citrus' | 'herbal' | 'chemical' | 'other'
-    intensity: 'weak' | 'moderate' | 'strong'
+    hasFragrance?: boolean // 香りの有無
+    type?: 'none' | 'floral' | 'citrus' | 'herbal' | 'other'
+    otherType?: string // その他を選択した場合のフリーテキスト
     description?: string
   }
   texture?: {
